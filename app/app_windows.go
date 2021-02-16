@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	"github.com/gazercloud/gazernode/system/httpserver"
+	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gazercloud/gazernode/utilities/hostid"
 	"os"
 	"path/filepath"
@@ -12,25 +14,25 @@ func CurrentExePath() string {
 	return dir
 }
 
-//var httpServer *httpserver.HttpServer
-//var sys *system.System
+var httpServer *httpserver.HttpServer
+var sys *system.System
 
 func start() {
 	hostid.InitHostId()
 
-	/*sys = system.NewSystem()
+	sys = system.NewSystem()
 	httpServer = httpserver.NewHttpServer(sys)
 	sys.Start()
-	httpServer.Start()*/
+	httpServer.Start()
 }
 
 func stop() {
-	/*if sys != nil {
+	if sys != nil {
 		sys.Stop()
 	}
 	if httpServer != nil {
 		_ = httpServer.Stop()
-	}*/
+	}
 }
 
 func RunDesktop() {
