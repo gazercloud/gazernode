@@ -1,9 +1,9 @@
 package hostid
 
 import (
-	"allece.com/system/core/paths"
-	"allece.com/system/gazer/gazer_common/logger"
 	"encoding/json"
+	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/google/uuid"
 	"golang.org/x/sys/windows/registry"
 	"io/ioutil"

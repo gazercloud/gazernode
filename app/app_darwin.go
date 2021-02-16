@@ -1,23 +1,13 @@
 package app
 
 import (
-	"allece.com/system/core/grid/stats"
-	"allece.com/system/core/paths"
-	"allece.com/system/core/ui"
-	"allece.com/system/core/uiforms"
-	"allece.com/system/gazer/gazer/forms"
-	"allece.com/system/gazer/gazer/system/httpserver"
-	"allece.com/system/gazer/gazer/system/system"
-	"allece.com/system/gazer/gazer_common/hostid"
-	"allece.com/system/gazer/gazer_common/logger"
-	"flag"
+	"fmt"
+	"github.com/gazercloud/gazernode/system/httpserver"
+	"github.com/gazercloud/gazernode/system/system"
+	"github.com/gazercloud/gazernode/utilities/hostid"
 	"os"
 	"path/filepath"
-	"runtime"
-	"runtime/debug"
 )
-
-var runServerFlagPtr = flag.Bool("server", false, "Run server")
 
 func CurrentExePath() string {
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -41,49 +31,24 @@ func stop() {
 		sys.Stop()
 	}
 	if httpServer != nil {
-		httpServer.Stop()
+		_ = httpServer.Stop()
 	}
 }
 
 func RunDesktop() {
-	logger.Init(paths.ProgramDataFolder() + "/gazer/log_ui")
-	ui.InitUISystem()
-	if *runServerFlagPtr {
-		start()
-	}
-
-	{
-		var form forms.MainForm
-		uiforms.StartMainForm(&form)
-		form.Dispose()
-	}
-
-	runtime.GC()
-	runtime.GC()
-	debug.FreeOSMemory()
-
-	stats.Dump()
-
-	if *runServerFlagPtr {
-		stop()
-	}
+	start()
+	_, _ = fmt.Scanln()
+	stop()
 }
 
 func RunAsService() error {
-	logger.Init(paths.ProgramDataFolder() + "/gazer/log_service")
-	logger.Println("")
-	logger.Println("------------------------------")
-	logger.Println("Started as Service")
-	logger.Println("------------------------------")
+	//logger.Init(paths.ProgramDataFolder() + "/gazer/log_service")
+	//logger.Println("Started as Service")
 	start()
 	return nil
 }
 
 func StopService() {
-	logger.Println("")
-	logger.Println("------------------------------")
-	logger.Println("Service stopped")
-	logger.Println("------------------------------")
-	logger.Println("")
+	//logger.Println("Service stopped")
 	stop()
 }

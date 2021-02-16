@@ -1,8 +1,6 @@
 package hostid
 
 import (
-	"allece.com/system/core/paths"
-	"allece.com/system/gazer/gazer_common/logger"
 	"encoding/json"
 	"errors"
 	"github.com/google/uuid"

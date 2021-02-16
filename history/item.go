@@ -1,11 +1,11 @@
 package history
 
 import (
-	"allece.com/system/core/filedialogs"
 	"encoding/json"
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/utilities"
 	"github.com/gazercloud/gazernode/utilities/paths"
 	"os"
 	"sync"
@@ -173,14 +173,14 @@ func (c *Item) Flush() FlushResult {
 func (c *Item) CheckDepth() {
 	historyDir := paths.ProgramDataFolder() + "/gazer/history"
 
-	dirs, err := filedialogs.GetDir(historyDir)
+	dirs, err := utilities.GetDir(historyDir)
 	if err == nil {
 		for _, dir := range dirs {
 			if dir.Dir {
 				t, err := time.Parse("2006-01-02", dir.NameWithoutExt)
 				if err == nil {
 					if time.Now().UTC().Sub(t.UTC()) > time.Duration((c.historyDepthDays+1)*24)*time.Hour {
-						files, err := filedialogs.GetDir(dir.Path)
+						files, err := utilities.GetDir(dir.Path)
 						if err == nil {
 							for _, file := range files {
 								if !file.Dir {

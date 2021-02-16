@@ -1,8 +1,8 @@
 package main
 
 import (
-	"allece.com/system/gazer/gazer/product/productinfo"
 	"fmt"
+	"github.com/gazercloud/gazernode/product/productinfo"
 	"github.com/josephspurrier/goversioninfo"
 	"io/ioutil"
 	"os"

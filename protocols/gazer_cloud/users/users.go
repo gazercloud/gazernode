@@ -1,8 +1,8 @@
 package users
 
 import (
-	"allece.com/system/gazer/gazerweb/state"
 	"errors"
+	"github.com/gazercloud/gazernode/utilities/state"
 	"sort"
 	"sync"
 )

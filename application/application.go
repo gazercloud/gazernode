@@ -1,15 +1,12 @@
 package application
 
 import (
-	"allece.com/system/core/grid/stats"
 	"flag"
 	"fmt"
 	"github.com/kardianos/osext"
 	"github.com/kardianos/service"
-	"io/ioutil"
 	"log"
 	"os"
-	"sort"
 )
 
 var Name string
@@ -175,40 +172,4 @@ func (p *program) Start(s service.Service) error {
 func (p *program) Stop(s service.Service) error {
 	ServiceStopFunc()
 	return nil
-}
-
-func DumpMemoryMap() {
-	result := ""
-
-	result += "memory map dump\r\n"
-
-	types := stats.ObjectTypes()
-	sort.Strings(types)
-
-	for _, t := range types {
-		objects := stats.ObjectsOfTypes(t)
-		if len(objects) > 0 {
-			result += "Type \t" + t + "\t count " + fmt.Sprint(len(objects)) + " \t \r\n"
-		}
-	}
-
-	result += "\r\n"
-
-	found := false
-	for _, t := range types {
-		objects := stats.ObjectsOfTypes(t)
-		if len(objects) > 0 {
-			result += "Type " + t + " count " + fmt.Sprint(len(objects)) + "\r\n"
-			for _, o := range objects {
-				result += "\tId: " + o.ObjId() + " \t " + o.Statistics() + "\r\n"
-				found = true
-			}
-		}
-	}
-
-	if !found {
-		result += "\tNo objects\r\n"
-	}
-
-	_ = ioutil.WriteFile("d:\\memory_map.txt", []byte(result), os.ModePerm)
 }

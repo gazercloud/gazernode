@@ -1,9 +1,8 @@
 package productinfo
 
 import (
-	"allece.com/system/core/canvas"
-	"allece.com/system/gazer/gazer/resources"
 	"bytes"
+	"github.com/gazercloud/gazernode/resources"
 	"image"
 )
 
@@ -19,11 +18,11 @@ func BuildTime() string {
 	return BUILDTIME
 }
 
-func Icon() image.Image {
+/*func Icon() image.Image {
 	iconBin, _ := resources.Asset("files/favicon.ico")
 	img, _ := canvas.Decode(bytes.NewBuffer(iconBin))
 	return img
-}
+}*/
 
 func Icon64() image.Image {
 	iconBin, _ := resources.Asset("files/mainicon64.png")
