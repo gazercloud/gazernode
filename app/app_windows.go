@@ -1,10 +1,12 @@
 package app
 
 import (
-	"fmt"
+	"github.com/gazercloud/gazernode/forms"
 	"github.com/gazercloud/gazernode/system/httpserver"
 	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gazercloud/gazernode/utilities/hostid"
+	"github.com/gazercloud/gazerui/ui"
+	"github.com/gazercloud/gazerui/uiforms"
 	"os"
 	"path/filepath"
 )
@@ -37,7 +39,15 @@ func stop() {
 
 func RunDesktop() {
 	start()
-	_, _ = fmt.Scanln()
+
+	ui.InitUISystem()
+
+	{
+		var form forms.MainForm
+		uiforms.StartMainForm(&form)
+		form.Dispose()
+	}
+
 	stop()
 }
 
