@@ -32,17 +32,6 @@ func SetAppPath() {
 
 func init() {
 	SetAppPath()
-	InitLogs()
-}
-
-func InitLogs() {
-	/*logFilename := os.TempDir() + "/testlogfile"
-	f, err := os.OpenFile(logFilename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}*/
-	//mw := io.MultiWriter(os.Stdout, f)
-	//log.SetOutput(mw)
 }
 
 func TryService() bool {
@@ -99,7 +88,10 @@ func InstallService() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Install()
+	err = s.Install()
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println("Service installed")
 }
 
@@ -110,7 +102,10 @@ func UninstallService() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Uninstall()
+	err = s.Uninstall()
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println("Service uninstalled")
 }
 
@@ -157,7 +152,7 @@ func runService() {
 	}
 	err = s.Run()
 	if err != nil {
-		logger.Error(err)
+		_ = logger.Error(err)
 	}
 }
 
