@@ -8,15 +8,17 @@ import (
 )
 
 type History struct {
-	items    map[uint64]*Item
-	mtx      sync.Mutex
-	started  bool
-	stopping bool
+	items          map[uint64]*Item
+	mtx            sync.Mutex
+	flushPeriodSec int
+	started        bool
+	stopping       bool
 }
 
 func NewHistory() *History {
 	var c History
 	c.items = make(map[uint64]*Item)
+	c.flushPeriodSec = 10
 	return &c
 }
 
@@ -61,8 +63,10 @@ func (c *History) Stop() {
 func (c *History) thWorker() {
 	logger.Println("HISTORY worker begin")
 
+	lastFlushDT := time.Now()
+
 	for !c.stopping {
-		for i := 0; i < 100; i++ {
+		for time.Now().Sub(lastFlushDT) < time.Duration(c.flushPeriodSec)*time.Second {
 			time.Sleep(100 * time.Millisecond)
 			if c.stopping {
 				break
@@ -72,6 +76,8 @@ func (c *History) thWorker() {
 		if c.stopping {
 			break
 		}
+
+		lastFlushDT = time.Now()
 
 		c.mtx.Lock()
 		items := make([]*Item, 0)

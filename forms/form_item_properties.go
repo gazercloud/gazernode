@@ -80,7 +80,7 @@ func (c *FormItemProperties) loadProperties() {
 					c.lvProperties.AddItem2("Value", item.Value.Value)
 					c.lvProperties.AddItem2("UOM", item.Value.UOM)
 					c.lvProperties.AddItem2("Date/Time", time.Unix(0, item.Value.DT*1000).Format("2006-01-02 15-03-04.000"))
-					c.lvProperties.AddItem2("Flags", item.Value.Flags)
+					//c.lvProperties.AddItem2("Flags", item.Value.Flags)
 				} else {
 					c.lvProperties.SetItemValue(0, 1, item.Name)
 					c.lvProperties.SetItemValue(1, 1, fmt.Sprintf("%d", item.Id))
@@ -89,7 +89,7 @@ func (c *FormItemProperties) loadProperties() {
 					c.lvProperties.SetItemValue(4, 1, item.Value.Value)
 					c.lvProperties.SetItemValue(5, 1, item.Value.UOM)
 					c.lvProperties.SetItemValue(6, 1, time.Unix(0, item.Value.DT*1000).Format("2006-01-02 15-03-04.000"))
-					c.lvProperties.SetItemValue(7, 1, item.Value.Flags)
+					//c.lvProperties.SetItemValue(7, 1, item.Value.Flags)
 				}
 			}
 		}

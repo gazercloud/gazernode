@@ -138,7 +138,7 @@ func (c *System) GetUnitValues(unitName string) []common_interfaces.ItemGetUnitI
 			i.Value = item.Value
 			i.Value.DT = item.Value.DT
 			i.Value.UOM = item.Value.UOM
-			i.Value.Flags = item.Value.Flags
+			//i.Value.Flags = item.Value.Flags
 			i.CloudChannels = c.cloud.GetChannelsWithItem(item.Name)
 			i.CloudChannelsNames = c.cloud.GetChannelsNamesWithItem(item.Name)
 			items = append(items, i)
@@ -162,7 +162,7 @@ func (c *System) GetItemsValues(reqItems []string) []common_interfaces.ItemGetUn
 			i.Value = item.Value
 			i.Value.DT = item.Value.DT
 			i.Value.UOM = item.Value.UOM
-			i.Value.Flags = item.Value.Flags
+			//i.Value.Flags = item.Value.Flags
 			i.CloudChannels = c.cloud.GetChannelsWithItem(item.Name)
 			items = append(items, i)
 		}
@@ -185,7 +185,7 @@ func (c *System) GetAllItems() []common_interfaces.ItemGetUnitItems {
 		i.Value = item.Value
 		i.Value.DT = item.Value.DT
 		i.Value.UOM = item.Value.UOM
-		i.Value.Flags = item.Value.Flags
+		//i.Value.Flags = item.Value.Flags
 		i.CloudChannels = c.cloud.GetChannelsWithItem(item.Name)
 		items = append(items, i)
 	}

@@ -25,7 +25,7 @@ func (c *System) SetItem(name string, value string, UOM string, dt time.Time, fl
 	item.Value.Value = value
 	item.Value.DT = dt.UnixNano() / 1000
 	item.Value.UOM = UOM
-	item.Value.Flags = flags
+	//item.Value.Flags = flags
 	c.mtx.Unlock()
 	c.history.Write(item.Id, item.Value)
 	return nil

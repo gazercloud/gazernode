@@ -446,7 +446,7 @@ func (c *Channel) GetRemovedValues() ([]common_interfaces.Item, error) {
 	for _, itemName := range c.itemsToRemove {
 		val, err := c.iDataStorage.GetItem(itemName)
 		if err == nil {
-			val.Value.Flags = "d"
+			//val.Value.Flags = "d"
 			values = append(values, val)
 		} else {
 			val = common_interfaces.Item{}
@@ -455,7 +455,7 @@ func (c *Channel) GetRemovedValues() ([]common_interfaces.Item, error) {
 			val.Value.UOM = ""
 			val.Value.Value = ""
 			val.Value.DT = time.Now().UTC().UnixNano() / 1000
-			val.Value.Flags = "d"
+			//val.Value.Flags = "d"
 			values = append(values, val)
 		}
 	}

@@ -602,8 +602,8 @@ func (c *PanelUnits) timerUpdate() {
 					c.lvItems.Item(index).SetForeColorForCell(2, nil)
 				}
 
-				if needToSelectMainItem && di.Value.Flags == "m" {
-					c.lvItems.SelectItem(index)
+				if needToSelectMainItem {
+					c.lvItems.SelectItem(0)
 				}
 			}
 		})
