@@ -48,10 +48,10 @@ func NewFormAddUnit(parent uiinterfaces.Widget, client *client.Client) *FormAddU
 	c.txtStat = pStat.AddTextBlockOnGrid(0, 0, "---")
 	c.txtStat.TextHAlign = canvas.HAlignCenter
 
-	img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.ForeColor()))
+	/*img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.ForeColor()))
 	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
 	img.SetMinHeight(64)
-	img.SetMinWidth(64)
+	img.SetMinWidth(64)*/
 	c.pCategories = pLeft.AddPanelOnGrid(0, 1)
 	c.btnCategories = make([]*uicontrols.Button, 0)
 
@@ -174,7 +174,7 @@ func (c *FormAddUnit) updateCategoriesButtons() {
 				}
 
 				if cat.Image == nil {
-					btn.SetImage(uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", btn.ForeColor()))
+					//btn.SetImage(uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", btn.ForeColor()))
 				} else {
 					btn.SetImage(uiresources.ImageFromBinAdjusted(cat.Image, btn.ForeColor()))
 				}

@@ -80,9 +80,8 @@ func (c *WidgetDataItems) UpdateStyle() {
 	activeColor := c.AccentColor()
 	inactiveColor := c.InactiveColor()
 
-	c.btnRefresh.SetImage(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_refresh_black_48dp.png", activeColor))
-
-	c.btnRefresh.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_refresh_black_48dp.png", inactiveColor))
+	c.btnRefresh.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, activeColor))
+	c.btnRefresh.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, inactiveColor))
 }
 
 func (c *WidgetDataItems) addNode(parentNode *uicontrols.TreeNode, item *tree_items_parser.TreeItem, path string) *uicontrols.TreeNode {

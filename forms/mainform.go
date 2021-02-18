@@ -50,10 +50,10 @@ type MainForm struct {
 var MainFormInstance *MainForm
 
 func (c *MainForm) StylizeButton() {
-	c.btnPanelUnits.SetImage(uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.btnPanelUnits.AccentColor()))
-	c.btnPanelCloud.SetImage(uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_upload_black_48dp.png", c.btnPanelCloud.AccentColor()))
-	c.btnPanelCharts.SetImage(uiresources.ResImageAdjusted("icons/material/editor/drawable-hdpi/outline_stacked_line_chart_black_48dp.png", c.btnPanelCharts.AccentColor()))
-	c.btnPanelMaps.SetImage(uiresources.ResImageAdjusted("icons/material/maps/drawable-hdpi/ic_layers_black_48dp.png", c.btnPanelCharts.AccentColor()))
+	c.btnPanelUnits.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_image_blur_on_materialiconsoutlined_48dp_1x_outline_blur_on_black_48dp_png, c.btnPanelUnits.AccentColor()))
+	c.btnPanelCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelCloud.AccentColor()))
+	c.btnPanelCharts.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_editor_stacked_line_chart_materialiconsoutlined_48dp_1x_outline_stacked_line_chart_black_48dp_png, c.btnPanelCharts.AccentColor()))
+	c.btnPanelMaps.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.btnPanelCharts.AccentColor()))
 
 	for _, btn := range c.buttons {
 		btn.SetBorders(0, color.White)
@@ -194,33 +194,33 @@ func (c *MainForm) OnInit() {
 		menu.AddItem("Statistics", func(event *uievents.Event) {
 			formStatistics := NewFormStatistics(c.Panel(), c.client)
 			formStatistics.ShowDialog()
-		}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/baseline_wysiwyg_black_48dp.png", c.Panel().ForeColor()), "")
+		}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_wysiwyg_materialiconsoutlined_48dp_1x_outline_wysiwyg_black_48dp_png, c.Panel().ForeColor()), "")
 		menu.AddItem("Open gazer.cloud", func(event *uievents.Event) {
 			client.OpenBrowser("https://gazer.cloud/?ref=menu_settings")
-		}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_open_in_browser_black_48dp.png", c.Panel().ForeColor()), "")
+		}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialiconsoutlined_48dp_1x_outline_open_in_browser_black_48dp_png, c.Panel().ForeColor()), "")
 		menuItemTheme := menu.AddItem("Theme", func(event *uievents.Event) {
-		}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_invert_colors_black_48dp.png", c.Panel().ForeColor()), "")
+		}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_invert_colors_materialiconsoutlined_48dp_1x_outline_invert_colors_black_48dp_png, c.Panel().ForeColor()), "")
 		{
 			innerMenu := uicontrols.NewPopupMenu(c.Panel())
 			innerMenu.AddItem("Dark", func(event *uievents.Event) {
 				c.SetTheme(uistyles.StyleDarkBlue)
-			}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_invert_colors_black_48dp.png", c.Panel().ForeColor()), "")
+			}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_invert_colors_materialiconsoutlined_48dp_1x_outline_invert_colors_black_48dp_png, c.Panel().ForeColor()), "")
 			innerMenu.AddItem("Light", func(event *uievents.Event) {
 				c.SetTheme(uistyles.StyleLight)
-			}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_invert_colors_black_48dp.png", c.Panel().ForeColor()), "")
+			}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_invert_colors_materialiconsoutlined_48dp_1x_outline_invert_colors_black_48dp_png, c.Panel().ForeColor()), "")
 			menuItemTheme.SetInnerMenu(innerMenu)
 		}
 		menu.AddItem("About", func(event *uievents.Event) {
 			formAbout := NewFormAbout(c.Panel())
 			formAbout.ShowDialog()
-		}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_info_outline_black_48dp.png", c.Panel().ForeColor()), "")
+		}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.Panel().ForeColor()), "")
 		_, menuPosY := c.btnSettings.RectClientAreaOnWindow()
 		menu.ShowMenu(c.btnSettings.X(), menuPosY)
 		menuPosY -= menu.Height()
 		menu.SetX(c.btnSettings.Width())
 		menu.SetY(menuPosY)
 	})
-	c.btnSettings.SetImage(uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_settings_black_48dp.png", c.btnSettings.ForeColor()))
+	c.btnSettings.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_settings_applications_materialicons_48dp_1x_baseline_settings_applications_black_48dp_png, c.btnSettings.ForeColor()))
 	c.btnSettings.SetBorders(5, color.RGBA{0, 0, 0, 0})
 	c.btnSettings.SetShowText(false)
 

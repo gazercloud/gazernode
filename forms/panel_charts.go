@@ -318,19 +318,20 @@ func (c *PanelCharts) UpdateStyle() {
 	activeColor := c.AccentColor()
 	inactiveColor := c.InactiveColor()
 
-	c.btnAdd.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_add_black_48dp.png", activeColor))
-	c.btnRename.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", activeColor))
-	c.btnEdit.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", activeColor))
-	c.btnSave.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/outline_save_alt_black_48dp.png", activeColor))
-	c.btnReject.SetImage(uiresources.ResImageAdjusted("icons/material/communication/drawable-hdpi/outline_cancel_presentation_black_48dp.png", activeColor))
-	c.btnRemove.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", activeColor))
+	c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, activeColor))
+	c.btnRename.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, activeColor))
+	c.btnEdit.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, activeColor))
+	c.btnSave.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_save_alt_materialicons_48dp_1x_baseline_save_alt_black_48dp_png, activeColor))
+	c.btnReject.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_communication_cancel_presentation_materialicons_48dp_1x_baseline_cancel_presentation_black_48dp_png, activeColor))
+	c.btnRemove.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, activeColor))
 
-	c.btnAdd.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_add_black_48dp.png", inactiveColor))
-	c.btnRename.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", inactiveColor))
-	c.btnEdit.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", inactiveColor))
-	c.btnSave.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/outline_save_alt_black_48dp.png", inactiveColor))
-	c.btnReject.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/communication/drawable-hdpi/outline_cancel_presentation_black_48dp.png", inactiveColor))
-	c.btnRemove.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", inactiveColor))
+	c.btnAdd.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, inactiveColor))
+	c.btnRename.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, inactiveColor))
+	c.btnEdit.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, inactiveColor))
+	c.btnSave.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_save_alt_materialicons_48dp_1x_baseline_save_alt_black_48dp_png, inactiveColor))
+	c.btnReject.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_communication_cancel_presentation_materialicons_48dp_1x_baseline_cancel_presentation_black_48dp_png, inactiveColor))
+	c.btnRemove.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, inactiveColor))
+
 }
 
 func (c *PanelCharts) GetDataItemValue(path string, control simplemap.IMapControl) {

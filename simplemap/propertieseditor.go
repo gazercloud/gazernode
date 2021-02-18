@@ -12,7 +12,6 @@ import (
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiproperties"
-	"github.com/gazercloud/gazerui/uiresources"
 	"image/color"
 	"io/ioutil"
 	"reflect"
@@ -308,7 +307,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 				})
 				btnSetDefault.SetUserData("propName", property.Name)
 				btnSetDefault.SetUserData("propType", property.Type)
-				btnSetDefault.SetImage(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_close_black_48dp.png", c.InactiveColor()))
+				//btnSetDefault.SetImage(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_close_black_48dp.png", c.InactiveColor()))
 				btnSetDefault.SetImageSize(16, 16)
 				btnSetDefault.SetBorders(0, color.RGBA{})
 				btnSetDefault.SetMinWidth(24)

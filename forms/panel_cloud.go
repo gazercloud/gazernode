@@ -102,18 +102,18 @@ func (c *PanelCloud) OnInit() {
 	c.btnRemove.SetTooltip("Remove channel")
 
 	pButtons.AddHSpacerOnGrid(3, 0)
+	/*
+		c.btnStart = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
+			unitId := c.lvChannels.SelectedItem().TempData
+			c.client.StartUnit(unitId, nil)
+		})
+		c.btnStart.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialicons_48dp_1x_baseline_play_arrow_black_48dp_png, c.ForeColor()))
 
-	/*c.btnStart = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
-		unitId := c.lvChannels.SelectedItem().TempData
-		c.client.StartUnit(unitId, nil)
-	})
-	c.btnStart.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", c.ForeColor()))
-
-	c.btnStop = pButtons.AddButtonOnGrid(5, 0, "", func(event *uievents.Event) {
-		unitId := c.lvChannels.SelectedItem().TempData
-		c.client.StopUnit(unitId, nil)
-	})
-	c.btnStop.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", c.ForeColor()))
+		c.btnStop = pButtons.AddButtonOnGrid(5, 0, "", func(event *uievents.Event) {
+			unitId := c.lvChannels.SelectedItem().TempData
+			c.client.StopUnit(unitId, nil)
+		})
+		c.btnStop.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, c.ForeColor()))
 	*/
 	//pButtons.AddHSpacerOnGrid(5, 0)
 
@@ -136,12 +136,12 @@ func (c *PanelCloud) OnInit() {
 	menu.AddItem("Open in Browser ...", func(event *uievents.Event) {
 		channelId := c.lvChannels.SelectedItem().TempData
 		client.OpenBrowser(gazer_dictionary.ChannelUrl(channelId))
-	}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_open_in_browser_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, c.ForeColor()), "")
 	menu.AddItem("Copy link to clipboard", func(event *uievents.Event) {
 		channelId := c.lvChannels.SelectedItem().TempData
 		link := gazer_dictionary.ChannelUrl(channelId)
 		glfw.SetClipboardString(link)
-	}, uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/outline_content_copy_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_content_content_copy_materialicons_48dp_1x_baseline_content_copy_black_48dp_png, c.ForeColor()), "")
 	c.lvChannels.SetContextMenu(menu)
 
 	pItems := splitter.Panel2.AddPanelOnGrid(1, 0)
@@ -268,29 +268,29 @@ func (c *PanelCloud) UpdateStyle() {
 	activeColor := c.AccentColor()
 	inactiveColor := c.InactiveColor()
 
-	c.btnAdd.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_add_black_48dp.png", activeColor))
-	c.btnEdit.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", activeColor))
-	c.btnRemove.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", activeColor))
+	c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, activeColor))
+	c.btnEdit.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, activeColor))
+	c.btnRemove.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, activeColor))
 	//c.btnStart.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", c.ForeColor()))
 	//c.btnStop.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", c.ForeColor()))
 
-	c.btnOpenInBrowser.SetImage(uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_open_in_browser_black_48dp.png", activeColor))
-	c.btnCopyLink.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/outline_content_copy_black_48dp.png", activeColor))
+	c.btnOpenInBrowser.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, activeColor))
+	c.btnCopyLink.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_content_copy_materialicons_48dp_1x_baseline_content_copy_black_48dp_png, activeColor))
 
-	c.btnShowFullScreen.SetImage(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_fullscreen_black_48dp.png", activeColor))
-	c.btnRemoveFromCloud.SetImage(uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_off_black_48dp.png", activeColor))
+	c.btnShowFullScreen.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialicons_48dp_1x_baseline_fullscreen_black_48dp_png, activeColor))
+	c.btnRemoveFromCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialicons_48dp_1x_baseline_cloud_off_black_48dp_png, activeColor))
 
-	c.btnAdd.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_add_black_48dp.png", inactiveColor))
-	c.btnEdit.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", inactiveColor))
-	c.btnRemove.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", inactiveColor))
+	c.btnAdd.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, inactiveColor))
+	c.btnEdit.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, inactiveColor))
+	c.btnRemove.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, inactiveColor))
 	//c.btnStart.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", c.InactiveColor()))
 	//c.btnStop.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", c.InactiveColor()))
 
-	c.btnOpenInBrowser.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_open_in_browser_black_48dp.png", inactiveColor))
-	c.btnCopyLink.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/outline_content_copy_black_48dp.png", inactiveColor))
+	c.btnOpenInBrowser.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, inactiveColor))
+	c.btnCopyLink.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_content_copy_materialicons_48dp_1x_baseline_content_copy_black_48dp_png, inactiveColor))
 
-	c.btnShowFullScreen.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_fullscreen_black_48dp.png", inactiveColor))
-	c.btnRemoveFromCloud.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_off_black_48dp.png", inactiveColor))
+	c.btnShowFullScreen.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialicons_48dp_1x_baseline_fullscreen_black_48dp_png, inactiveColor))
+	c.btnRemoveFromCloud.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialicons_48dp_1x_baseline_cloud_off_black_48dp_png, inactiveColor))
 
 }
 

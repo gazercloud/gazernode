@@ -3,9 +3,7 @@ package forms
 import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazerui/uicontrols"
-	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
-	"github.com/gazercloud/gazerui/uiresources"
 )
 
 type PanelUsers struct {
@@ -28,7 +26,7 @@ func (c *PanelUsers) OnInit() {
 
 	pButtons := c.AddPanelOnGrid(0, 1)
 	pButtons.SetPanelPadding(0)
-	btnAdd := pButtons.AddButtonOnGrid(0, 0, "Add", func(event *uievents.Event) {
+	/*btnAdd := pButtons.AddButtonOnGrid(0, 0, "Add", func(event *uievents.Event) {
 	})
 	btnAdd.SetMinWidth(70)
 	btnAdd.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_add_black_48dp.png", c.ForeColor()))
@@ -40,7 +38,7 @@ func (c *PanelUsers) OnInit() {
 	})
 	btnRemove.SetMinWidth(70)
 	btnRemove.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", c.ForeColor()))
-
+	*/
 	pButtons.AddHSpacerOnGrid(3, 0)
 
 	c.lvUsers = c.AddListViewOnGrid(0, 2)

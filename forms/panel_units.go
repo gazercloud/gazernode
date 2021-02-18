@@ -121,22 +121,22 @@ func (c *PanelUnits) OnInit() {
 	c.menuUnits = uicontrols.NewPopupMenu(c.lvUnits)
 	c.menuUnits.AddItemWithUiResImage("Add unit ...", func(event *uievents.Event) {
 		c.addUnit()
-	}, "icons/material/content/drawable-hdpi/ic_add_black_48dp.png", "")
+	}, uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("Edit unit ...", func(event *uievents.Event) {
 		c.editUnit()
-	}, "icons/material/content/drawable-hdpi/ic_create_black_48dp.png", "")
+	}, uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("Remove unit", func(event *uievents.Event) {
 		c.removeUnit()
-	}, "icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", "")
+	}, uiresources.R_icons_material4_png_content_clear_materialiconsoutlined_48dp_1x_outline_clear_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("Start unit", func(event *uievents.Event) {
 		c.startUnit()
-	}, "icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", "")
+	}, uiresources.R_icons_material4_png_av_play_arrow_materialiconsoutlined_48dp_1x_outline_play_arrow_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("Stop unit", func(event *uievents.Event) {
 		c.stopUnit()
-	}, "icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", "")
+	}, uiresources.R_icons_material4_png_av_pause_circle_filled_materialiconsoutlined_48dp_1x_outline_pause_circle_filled_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("View Log", func(event *uievents.Event) {
 		c.viewLog()
-	}, "icons/material/action/drawable-hdpi/ic_view_headline_black_48dp.png", "")
+	}, uiresources.R_icons_material4_png_action_view_headline_materialiconsoutlined_48dp_1x_outline_view_headline_black_48dp_png, "")
 	c.lvUnits.SetContextMenu(c.menuUnits)
 
 	pItems := splitter.Panel2.AddPanelOnGrid(1, 0)
@@ -227,43 +227,43 @@ func (c *PanelUnits) OnInit() {
 	menuItems := uicontrols.NewPopupMenu(c.lvUnits)
 	menuItems.AddItem("Add to cloud ...", func(event *uievents.Event) {
 		c.addSelectedItemsToCloud()
-	}, uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_upload_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Remove from cloud ...", func(event *uievents.Event) {
 		c.removeSelectedItemsFromCloud()
-	}, uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_off_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Open in browser", func(event *uievents.Event) {
 		c.openSelectedItemInBrowser()
-	}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_open_in_browser_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialiconsoutlined_48dp_1x_outline_open_in_browser_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Big view ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) > 0 {
 			MainFormInstance.ShowFullScreenValue(true, items[0])
 		}
-	}, uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_fullscreen_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("History ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
 			NewFormItemHistory(c, c.client, items[0]).ShowDialog()
 		}
-	}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_view_headline_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_view_headline_materialiconsoutlined_48dp_1x_outline_view_headline_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Properties ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
 			NewFormItemProperties(c, c.client, items[0]).ShowDialog()
 		}
-	}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_info_outline_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Write ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
 			NewFormWriteValue(c, c.client, items[0]).ShowDialog()
 		}
-	}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_info_outline_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Copy full item name", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
 			glfw.SetClipboardString(items[0])
 		}
-	}, uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_info_outline_black_48dp.png", c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
 	c.lvItems.SetContextMenu(menuItems)
 	c.lvItems.OnSelectionChanged = func() {
 		c.wItemDetails.SetDataItems(c.SelectedItems())
@@ -381,27 +381,27 @@ func (c *PanelUnits) UpdateStyle() {
 	activeColor := c.AccentColor()
 	inactiveColor := c.InactiveColor()
 
-	c.btnAdd.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_add_black_48dp.png", activeColor))
-	c.btnEdit.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", activeColor))
-	c.btnRemove.SetImage(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", activeColor))
-	c.btnStart.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", activeColor))
-	c.btnStop.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", activeColor))
+	c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, activeColor))
+	c.btnEdit.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, activeColor))
+	c.btnRemove.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialiconsoutlined_48dp_1x_outline_clear_black_48dp_png, activeColor))
+	c.btnStart.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialiconsoutlined_48dp_1x_outline_play_arrow_black_48dp_png, activeColor))
+	c.btnStop.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, activeColor))
 
-	c.btnShowFullScreen.SetImage(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_fullscreen_black_48dp.png", activeColor))
-	c.btnAddToCloud.SetImage(uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_upload_black_48dp.png", activeColor))
-	c.btnRemoveFromCloud.SetImage(uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_off_black_48dp.png", activeColor))
-	c.btnOpenInBrowser.SetImage(uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_open_in_browser_black_48dp.png", activeColor))
+	c.btnShowFullScreen.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, activeColor))
+	c.btnAddToCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialicons_48dp_1x_baseline_cloud_upload_black_48dp_png, activeColor))
+	c.btnRemoveFromCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, activeColor))
+	c.btnOpenInBrowser.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, activeColor))
 
-	c.btnAdd.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_add_black_48dp.png", inactiveColor))
-	c.btnEdit.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_create_black_48dp.png", inactiveColor))
-	c.btnRemove.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/content/drawable-hdpi/ic_clear_black_48dp.png", inactiveColor))
-	c.btnStart.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", inactiveColor))
-	c.btnStop.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", inactiveColor))
+	c.btnAdd.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, inactiveColor))
+	c.btnEdit.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, inactiveColor))
+	c.btnRemove.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialiconsoutlined_48dp_1x_outline_clear_black_48dp_png, inactiveColor))
+	c.btnStart.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialiconsoutlined_48dp_1x_outline_play_arrow_black_48dp_png, inactiveColor))
+	c.btnStop.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, inactiveColor))
 
-	c.btnShowFullScreen.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_fullscreen_black_48dp.png", inactiveColor))
-	c.btnAddToCloud.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_upload_black_48dp.png", inactiveColor))
-	c.btnRemoveFromCloud.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/file/drawable-hdpi/outline_cloud_off_black_48dp.png", inactiveColor))
-	c.btnOpenInBrowser.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_open_in_browser_black_48dp.png", inactiveColor))
+	c.btnShowFullScreen.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, inactiveColor))
+	c.btnAddToCloud.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialicons_48dp_1x_baseline_cloud_upload_black_48dp_png, inactiveColor))
+	c.btnRemoveFromCloud.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, inactiveColor))
+	c.btnOpenInBrowser.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, inactiveColor))
 
 }
 

@@ -202,16 +202,16 @@ func (c *MapToolbox) updateButtonsState() {
 		}
 
 		if btn == c.btnNoItem {
-			c.btnNoItem.SetImage(uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/baseline_highlight_alt_black_48dp.png", btn.ForeColor()))
+			c.btnNoItem.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_highlight_alt_materialicons_48dp_1x_baseline_highlight_alt_black_48dp_png, btn.ForeColor()))
 		}
 		if btn == c.btnItem {
-			c.btnItem.SetImage(uiresources.ResImageAdjusted("icons/custom/rect_item.png", btn.ForeColor()))
+			c.btnItem.SetImage(uiresources.ResImgCol(uiresources.R_icons_custom_rect_item_png, btn.ForeColor()))
 		}
 		if btn == c.btnCircle {
-			c.btnCircle.SetImage(uiresources.ResImageAdjusted("icons/custom/circle_item.png", btn.ForeColor()))
+			c.btnCircle.SetImage(uiresources.ResImgCol(uiresources.R_icons_custom_circle_item_png, btn.ForeColor()))
 		}
 		if btn == c.btnLine {
-			c.btnLine.SetImage(uiresources.ResImageAdjusted("icons/custom/line.png", btn.ForeColor()))
+			c.btnLine.SetImage(uiresources.ResImgCol(uiresources.R_icons_custom_line_png, btn.ForeColor()))
 		}
 	}
 }
@@ -229,7 +229,7 @@ func (c *MapToolbox) UpdateStyle() {
 	c.Panel.UpdateStyle()
 	c.updateButtonsState()
 
-	c.btnSearch.SetImage(uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_youtube_searched_for_black_48dp.png", c.ForeColor()))
+	c.btnSearch.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_youtube_searched_for_materialicons_48dp_1x_baseline_youtube_searched_for_black_48dp_png, c.ForeColor()))
 }
 
 func (c *MapToolbox) SetItems(widgets common_interfaces.ResourcesInfo) {

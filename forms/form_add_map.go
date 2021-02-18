@@ -5,7 +5,6 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
-	"github.com/gazercloud/gazerui/uiresources"
 )
 
 type FormAddMap struct {
@@ -30,10 +29,10 @@ func NewFormAddMap(parent uiinterfaces.Widget, client *client.Client, tp string)
 	pRight := pContent.AddPanelOnGrid(1, 0)
 	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
 
-	img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/maps/drawable-hdpi/ic_layers_black_48dp.png", c.ForeColor()))
+	/*img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/maps/drawable-hdpi/ic_layers_black_48dp.png", c.ForeColor()))
 	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
 	img.SetMinHeight(64)
-	img.SetMinWidth(64)
+	img.SetMinWidth(64)*/
 	pLeft.AddVSpacerOnGrid(0, 1)
 
 	pRight.AddTextBlockOnGrid(0, 0, "Map name:")

@@ -9,8 +9,6 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
-	"github.com/gazercloud/gazerui/uiresources"
-	"golang.org/x/image/colornames"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"math"
@@ -40,14 +38,14 @@ func NewPanelFullScreenValue(parent uiinterfaces.Widget, client *client.Client, 
 }
 
 func (c *PanelFullScreenValue) OnInit() {
-	pClose := c.AddPanelOnGrid(0, 0)
+	/*pClose := c.AddPanelOnGrid(0, 0)
 	pClose.AddHSpacerOnGrid(0, 0)
 	c.btnClose = pClose.AddButtonOnGrid(1, 0, "Close (ESC)", func(event *uievents.Event) {
 		MainFormInstance.ShowFullScreenValue(false, "")
 	})
 	c.btnClose.SetMaxWidth(200)
 	c.btnClose.SetImage(uiresources.ResImageAdjusted("icons/material/navigation/drawable-hdpi/ic_fullscreen_exit_black_48dp.png", c.ForeColor()))
-	c.btnClose.SetBorders(0, colornames.Aqua)
+	c.btnClose.SetBorders(0, colornames.Aqua)*/
 
 	c.lblName = c.AddTextBlockOnGrid(0, 1, "---")
 	c.lblName.SetFontSize(36)
