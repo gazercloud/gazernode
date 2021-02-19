@@ -106,7 +106,7 @@ func (c *HttpServer) Stop() error {
 
 func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var responseText string
+	var responseText []byte
 	requestJson := r.FormValue("rj")
 	function := r.FormValue("func")
 
@@ -117,7 +117,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(function) > 0 {
-		responseText, err = c.requestJson(function, requestJson)
+		responseText, err = c.requestJson(function, []byte(requestJson))
 		//logger.Println("call ", function, "req:", requestJson)
 	}
 

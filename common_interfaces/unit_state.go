@@ -1,5 +1,6 @@
 package common_interfaces
 
+/*
 type UnitState struct {
 	UnitId   string
 	UnitName string
@@ -8,3 +9,4 @@ type UnitState struct {
 	Value    string
 	UOM      string
 }
+*/

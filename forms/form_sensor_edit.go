@@ -3,7 +3,7 @@ package forms
 import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazerui/coreforms"
 	"github.com/gazercloud/gazerui/ui"
@@ -117,7 +117,7 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 
 				makeHelpButton(c.panelName)
 
-				c.client.UnitTypes("", "", 0, 10000000, func(types common_interfaces.UnitTypes, err error) {
+				c.client.UnitTypes("", "", 0, 10000000, func(types nodeinterface.UnitTypeListResponse, err error) {
 					for _, ut := range types.Types {
 						if ut.Type == unitType {
 							c.help = ut.Help
@@ -148,7 +148,7 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 	c.OnShow = func() {
 	}
 
-	c.client.UnitTypes("", "", 0, 10000000, func(types common_interfaces.UnitTypes, err error) {
+	c.client.UnitTypes("", "", 0, 10000000, func(types nodeinterface.UnitTypeListResponse, err error) {
 		for _, ut := range types.Types {
 			if ut.Type == c.unitType {
 				c.help = ut.Help

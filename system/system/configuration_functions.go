@@ -21,7 +21,7 @@ func (c *System) SaveConfig() error {
 	defer c.mtx.Unlock()
 
 	var conf Config
-	conf.Units = c.unitsSystem.ListOfUnits()
+	conf.Units = c.unitsSystem.Units()
 	conf.Channels = c.cloud.ChannelsFullInfo()
 
 	conf.Items = make([]common_interfaces.ItemConfiguration, 0)

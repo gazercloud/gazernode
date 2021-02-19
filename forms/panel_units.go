@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/gazer_dictionary"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/widgets/widget_chart"
@@ -113,7 +114,7 @@ func (c *PanelUnits) OnInit() {
 		if selectedItem != nil {
 			unitId := selectedItem.UserData("id").(string)
 			unitName := selectedItem.UserData("name").(string)
-			unitState, ok := selectedItem.UserData("state").(common_interfaces.UnitState)
+			unitState, ok := selectedItem.UserData("state").(nodeinterface.UnitStateResponse)
 			if ok {
 				//if unitState != nil {
 				c.currentMainItem = unitState.MainItem
@@ -437,7 +438,7 @@ func (c *PanelUnits) AllItems() []string {
 }
 
 func (c *PanelUnits) loadUnits() {
-	c.client.ListOfUnits(func(infos []units_common.UnitInfo, err error) {
+	c.client.ListOfUnits(func(infos []nodeinterface.UnitListResponseItem, err error) {
 		c.lvUnits.RemoveItems()
 		for _, s := range infos {
 			sens := s
@@ -504,7 +505,7 @@ func (c *PanelUnits) timerUpdate() {
 
 	for i := 0; i < c.lvUnits.ItemsCount(); i++ {
 		unitId := c.lvUnits.Item(i).UserData("id").(string)
-		c.client.GetUnitState(unitId, func(state common_interfaces.UnitState, err error) {
+		c.client.GetUnitState(unitId, func(state nodeinterface.UnitStateResponse, err error) {
 			for i := 0; i < c.lvUnits.ItemsCount(); i++ {
 				sId := c.lvUnits.Item(i).UserData("id").(string)
 				if sId == state.UnitId {

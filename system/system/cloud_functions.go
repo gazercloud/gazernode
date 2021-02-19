@@ -55,15 +55,6 @@ func (c *System) CloudRemoveItems(channels []string, items []string) error {
 	return err
 }
 
-func (c *System) CloudRemoveAllItems(channelId string) error {
-	err := c.cloud.RemoveAllItems(channelId)
-	if err != nil {
-		return err
-	}
-	err = c.SaveConfig()
-	return err
-}
-
 func (c *System) GetCloudChannels() ([]cloud.ChannelInfo, error) {
 	return c.cloud.GetChannels()
 }

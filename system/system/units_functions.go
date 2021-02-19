@@ -3,7 +3,8 @@ package system
 import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/protocols/lookup"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
 	"go.bug.st/serial"
 	"strings"
@@ -16,12 +17,12 @@ func SplitWithoutEmpty(req string, sep rune) []string {
 	})
 }
 
-func (c *System) UnitTypes(category string, filter string, offset int, maxCount int) common_interfaces.UnitTypes {
+func (c *System) UnitTypes(category string, filter string, offset int, maxCount int) nodeinterface.UnitTypeListResponse {
 	unitTypes := c.unitsSystem.UnitTypes()
 
-	var result common_interfaces.UnitTypes
+	var result nodeinterface.UnitTypeListResponse
 	result.TotalCount = len(unitTypes)
-	result.Types = make([]common_interfaces.UnitTypeInfo, 0)
+	result.Types = make([]nodeinterface.UnitTypeListResponseItem, 0)
 	filterParts := SplitWithoutEmpty(strings.ToLower(filter), ' ')
 
 	for _, sType := range unitTypes {
@@ -44,7 +45,7 @@ func (c *System) UnitTypes(category string, filter string, offset int, maxCount 
 	return result
 }
 
-func (c *System) UnitCategories() []common_interfaces.UnitCategoryInfo {
+func (c *System) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
 	return c.unitsSystem.UnitCategories()
 }
 
@@ -61,10 +62,10 @@ func (c *System) AddUnit(unitName string, unitType string) (string, error) {
 	return unitId, err
 }
 
-func (c *System) GetUnitState(unitId string) (common_interfaces.UnitState, error) {
+func (c *System) GetUnitState(unitId string) (nodeinterface.UnitStateResponse, error) {
 	unitState, err := c.unitsSystem.GetUnitState(unitId)
 	if err != nil {
-		return common_interfaces.UnitState{UnitId: unitId, UOM: "error"}, err
+		return nodeinterface.UnitStateResponse{UnitId: unitId, UOM: "error"}, err
 	}
 	unitState.UnitId = unitId
 	c.mtx.Lock()
@@ -121,7 +122,7 @@ func (c *System) StopUnits(ids []string) error {
 	return err
 }
 
-func (c *System) ListOfUnits() []units_common.UnitInfo {
+func (c *System) ListOfUnits() nodeinterface.UnitListResponse {
 	return c.unitsSystem.ListOfUnits()
 }
 
@@ -194,8 +195,10 @@ func (c *System) GetAllItems() []common_interfaces.ItemGetUnitItems {
 	return items
 }
 
-func (c *System) Lookup(entity string) *units_common.LookupResult {
-	result := units_common.NewLookupResult()
+func (c *System) Lookup(entity string) (lookup.Result, error) {
+	var result lookup.Result
+	result.Columns = make([]lookup.ResultColumn, 0)
+	result.Rows = make([]lookup.ResultRow, 0)
 	result.Entity = entity
 	if entity == "serial-ports" {
 		result.KeyColumn = "port"
@@ -239,5 +242,5 @@ func (c *System) Lookup(entity string) *units_common.LookupResult {
 		result.AddRow1("1.5")
 		result.AddRow1("2")
 	}
-	return result
+	return result, nil
 }

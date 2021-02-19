@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/dialogs"
+	"github.com/gazercloud/gazernode/protocols/lookup"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
@@ -70,7 +71,7 @@ func NewPanelUnitConfigItem(parent uiinterfaces.Widget, item *units_common.UnitC
 							c.txtValue.SetText(key)
 						})
 					} else {
-						c.client.Lookup(item.Format, func(result *units_common.LookupResult, err error) {
+						c.client.Lookup(item.Format, func(result lookup.Result, err error) {
 							LookupDialog(&c, c.client, item.Format, func(key string) {
 								c.txtValue.SetText(key)
 							})

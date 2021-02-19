@@ -2,7 +2,7 @@ package forms
 
 import (
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/protocols/lookup"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"strings"
@@ -13,11 +13,11 @@ type FormLookup struct {
 	client       *client.Client
 	txtFilter    *uicontrols.TextBox
 	lvItems      *uicontrols.ListView
-	lookupResult *units_common.LookupResult
+	lookupResult lookup.Result
 	selectedKey  string
 }
 
-func NewFormLookup(parent uiinterfaces.Widget, lookupResult *units_common.LookupResult) *FormLookup {
+func NewFormLookup(parent uiinterfaces.Widget, lookupResult lookup.Result) *FormLookup {
 	var c FormLookup
 	c.lookupResult = lookupResult
 	c.InitControl(parent, &c)
@@ -65,10 +65,6 @@ func (c *FormLookup) updateItems() {
 	c.lvItems.RemoveColumns()
 	c.lvItems.RemoveItems()
 
-	if c.lookupResult == nil {
-		return
-	}
-
 	keyColumnPos := 0
 
 	colWidth := c.Width() - 50
@@ -109,7 +105,7 @@ func (c *FormLookup) updateItems() {
 }
 
 func LookupDialog(parent uiinterfaces.Widget, client *client.Client, entity string, selected func(key string)) {
-	client.Lookup(entity, func(result *units_common.LookupResult, err error) {
+	client.Lookup(entity, func(result lookup.Result, err error) {
 		dialog := NewFormLookup(parent, result)
 		dialog.ShowDialog()
 		dialog.OnAccept = func() {

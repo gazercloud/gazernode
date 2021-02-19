@@ -3,8 +3,8 @@ package forms
 import (
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -114,7 +114,7 @@ func (c *FormAddUnit) UpdateStyle() {
 	c.updateUnits()
 }
 
-func (c *FormAddUnit) addCategory(index int, cat common_interfaces.UnitCategoryInfo, code string) {
+func (c *FormAddUnit) addCategory(index int, cat nodeinterface.UnitTypeCategoriesResponseItem, code string) {
 	btn := c.pCategories.AddButtonOnGrid(0, index, " "+cat.Name+" ", func(event *uievents.Event) {
 		t, ok := event.Sender.(*uicontrols.Button).UserData("key").(string)
 		if ok {
@@ -137,17 +137,17 @@ func (c *FormAddUnit) updateCategories() {
 	c.btnCategories = make([]*uicontrols.Button, 0)
 	c.pCategories.AddTextBlockOnGrid(0, 0, "loading ...")
 	c.pCategories.AddVSpacerOnGrid(0, 1)
-	c.client.UnitCategories(func(infos []common_interfaces.UnitCategoryInfo, err error) {
+	c.client.UnitCategories(func(infos nodeinterface.UnitTypeCategoriesResponse, err error) {
 		c.pCategories.RemoveAllWidgets()
 		c.btnCategories = make([]*uicontrols.Button, 0)
 		if err != nil {
 			c.pCategories.AddTextBlockOnGrid(0, 0, err.Error())
 		} else {
 			maxI := 0
-			var allCat common_interfaces.UnitCategoryInfo
+			var allCat nodeinterface.UnitTypeCategoriesResponseItem
 			allCat.Name = "All"
 			c.addCategory(0, allCat, "")
-			for i, cat := range infos {
+			for i, cat := range infos.Items {
 				c.addCategory(i+1, cat, cat.Name)
 				maxI = i
 			}
@@ -160,7 +160,7 @@ func (c *FormAddUnit) updateCategories() {
 func (c *FormAddUnit) updateCategoriesButtons() {
 	for _, btn := range c.btnCategories {
 		btn.SetBackColor(colornames.Black)
-		cat, ok := btn.UserData("category").(common_interfaces.UnitCategoryInfo)
+		cat, ok := btn.UserData("category").(nodeinterface.UnitTypeCategoriesResponseItem)
 		if ok {
 			t, ok := btn.UserData("key").(string)
 			if ok {
@@ -184,7 +184,7 @@ func (c *FormAddUnit) updateCategoriesButtons() {
 }
 
 func (c *FormAddUnit) updateUnits() {
-	c.client.UnitTypes(c.currentCategory, c.txtUnitFilter.Text(), c.offset, 9, func(unitTypes common_interfaces.UnitTypes, err error) {
+	c.client.UnitTypes(c.currentCategory, c.txtUnitFilter.Text(), c.offset, 9, func(unitTypes nodeinterface.UnitTypeListResponse, err error) {
 		c.pUnits.RemoveAllWidgets()
 
 		c.txtStat.SetText(fmt.Sprintf("shown %d units out of %d", len(unitTypes.Types), unitTypes.InFilterCount))
@@ -196,7 +196,7 @@ func (c *FormAddUnit) updateUnits() {
 			for _, unitType := range unitTypes.Types {
 				c.countOfFound++
 				btn := c.pUnits.AddButtonOnGrid(x, y, " "+unitType.DisplayName, func(event *uievents.Event) {
-					obj, ok := event.Sender.(*uicontrols.Button).UserData("object").(common_interfaces.UnitTypeInfo)
+					obj, ok := event.Sender.(*uicontrols.Button).UserData("object").(nodeinterface.UnitTypeListResponseItem)
 					if ok {
 						f := NewFormUnitEdit(c, c.client, "", obj.Type)
 						f.ShowDialog()

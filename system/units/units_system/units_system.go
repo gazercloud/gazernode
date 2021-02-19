@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/files/unit_csv_export"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
@@ -87,10 +88,10 @@ func (c *UnitsSystem) RegisterUnit(typeName string, category string, displayName
 	return &sType
 }
 
-func (c *UnitsSystem) UnitTypes() []common_interfaces.UnitTypeInfo {
-	result := make([]common_interfaces.UnitTypeInfo, 0)
+func (c *UnitsSystem) UnitTypes() []nodeinterface.UnitTypeListResponseItem {
+	result := make([]nodeinterface.UnitTypeListResponseItem, 0)
 	for _, st := range c.unitTypes {
-		var unitTypeInfo common_interfaces.UnitTypeInfo
+		var unitTypeInfo nodeinterface.UnitTypeListResponseItem
 		unitTypeInfo.Type = st.TypeCode
 		unitTypeInfo.Category = st.Category
 		unitTypeInfo.DisplayName = st.DisplayName
@@ -102,15 +103,16 @@ func (c *UnitsSystem) UnitTypes() []common_interfaces.UnitTypeInfo {
 	return result
 }
 
-func (c *UnitsSystem) UnitCategories() []common_interfaces.UnitCategoryInfo {
-	result := make([]common_interfaces.UnitCategoryInfo, 0)
+func (c *UnitsSystem) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
+	var result nodeinterface.UnitTypeCategoriesResponse
+	result.Items = make([]nodeinterface.UnitTypeCategoriesResponseItem, 0)
 	addedCats := make(map[string]bool)
 	for _, st := range c.unitTypes {
 		if _, ok := addedCats[st.Category]; !ok {
-			var unitCategoryInfo common_interfaces.UnitCategoryInfo
+			var unitCategoryInfo nodeinterface.UnitTypeCategoriesResponseItem
 			unitCategoryInfo.Name = st.Category
 			unitCategoryInfo.Image = st.Picture
-			result = append(result, unitCategoryInfo)
+			result.Items = append(result.Items, unitCategoryInfo)
 			addedCats[st.Category] = true
 		}
 	}
@@ -202,7 +204,7 @@ func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, confi
 	return nil
 }
 
-func (c *UnitsSystem) GetUnitState(unitId string) (common_interfaces.UnitState, error) {
+func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface.UnitStateResponse, error) {
 	var unit common_interfaces.IUnit
 	c.mtx.Lock()
 	for _, s := range c.units {
@@ -213,7 +215,7 @@ func (c *UnitsSystem) GetUnitState(unitId string) (common_interfaces.UnitState, 
 	c.mtx.Unlock()
 
 	if unit != nil {
-		var unitState common_interfaces.UnitState
+		var unitState nodeinterface.UnitStateResponse
 		unitState.Status = ""
 		unitState.MainItem = unit.Name() + "/" + unit.MainItem()
 		if unit.IsStarted() {
@@ -223,11 +225,30 @@ func (c *UnitsSystem) GetUnitState(unitId string) (common_interfaces.UnitState, 
 		}
 		return unitState, nil
 	}
-	return common_interfaces.UnitState{}, errors.New("no unit found")
+	return nodeinterface.UnitStateResponse{}, errors.New("no unit found")
 }
 
-func (c *UnitsSystem) ListOfUnits() []units_common.UnitInfo {
-	result := make([]units_common.UnitInfo, 0)
+func (c *UnitsSystem) ListOfUnits() nodeinterface.UnitListResponse {
+	var result nodeinterface.UnitListResponse
+	result.Items = make([]nodeinterface.UnitListResponseItem, 0)
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+	for _, s := range c.units {
+		var sens nodeinterface.UnitListResponseItem
+		sens.Id = s.Id()
+		sens.Type = s.Type()
+		sens.Name = s.Name()
+		sens.Enable = s.IsStarted()
+		sens.TypeForDisplay = c.UnitTypeForDisplayByType(s.Type())
+		sens.Config = s.GetConfig()
+		result.Items = append(result.Items, sens)
+	}
+	return result
+}
+
+func (c *UnitsSystem) Units() []units_common.UnitInfo {
+	var result []units_common.UnitInfo
+	result = make([]units_common.UnitInfo, 0)
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 	for _, s := range c.units {
