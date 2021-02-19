@@ -41,6 +41,7 @@ type PanelUnits struct {
 
 	currentUnitId   string
 	currentUnitName string
+	currentMainItem string
 
 	lvItems      *uicontrols.ListView
 	timer        *uievents.FormTimer
@@ -112,9 +113,15 @@ func (c *PanelUnits) OnInit() {
 		if selectedItem != nil {
 			unitId := selectedItem.UserData("id").(string)
 			unitName := selectedItem.UserData("name").(string)
-			c.SetCurrentUnit(unitId, unitName)
+			unitState, ok := selectedItem.UserData("state").(common_interfaces.UnitState)
+			if ok {
+				//if unitState != nil {
+				c.currentMainItem = unitState.MainItem
+				//}
+			}
+			c.SetCurrentUnit(unitId, unitName, c.currentMainItem)
 		} else {
-			c.SetCurrentUnit("", "")
+			c.SetCurrentUnit("", "", "")
 		}
 	}
 
@@ -405,7 +412,7 @@ func (c *PanelUnits) UpdateStyle() {
 
 }
 
-func (c *PanelUnits) SetCurrentUnit(unitId string, unitName string) {
+func (c *PanelUnits) SetCurrentUnit(unitId string, unitName string, mainItem string) {
 	c.currentUnitId = unitId
 	c.currentUnitName = unitName
 	c.lvItems.RemoveItems()
@@ -510,6 +517,7 @@ func (c *PanelUnits) timerUpdate() {
 					}
 
 					c.lvUnits.Item(i).SetValue(2, value+" "+state.UOM)
+					c.lvUnits.Item(i).SetUserData("state", state)
 
 					if state.UOM == "error" {
 						c.lvUnits.Item(i).SetForeColorForCell(2, settings.BadColor)
@@ -602,8 +610,8 @@ func (c *PanelUnits) timerUpdate() {
 					c.lvItems.Item(index).SetForeColorForCell(2, nil)
 				}
 
-				if needToSelectMainItem {
-					c.lvItems.SelectItem(0)
+				if needToSelectMainItem && di.Name == c.currentMainItem {
+					c.lvItems.SelectItem(index)
 				}
 			}
 		})
