@@ -5,6 +5,7 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/gazercloud/gazerui/uiresources"
 	"github.com/gazercloud/gazerui/uistyles"
 	"strings"
 	"time"
@@ -149,13 +150,14 @@ func NewTimeFilterWidget(parent uiinterfaces.Widget) *TimeFilterWidget {
 }
 
 func (c *TimeFilterWidget) AddButton(pos int, text string, key string, tooltip string) {
-	b := c.pButtons.AddButtonOnGrid(pos, 0, text, func(event *uievents.Event) {
+	b := c.pButtons.AddButtonOnGrid(pos, 0, "", func(event *uievents.Event) {
 		k := event.Sender.(*uicontrols.Button).UserData("key").(string)
 		c.selectIntervalComboItem(k)
 	})
-	b.SetMinWidth(40)
+	//b.SetMinWidth(80)
 	b.SetUserData("key", key)
 	b.SetTooltip(tooltip)
+	//b.SetImageSize(32, 24)
 	b.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, b)
 }
@@ -184,6 +186,32 @@ func (c *TimeFilterWidget) UpdateStyle() {
 	c.updateButtonsColors()
 }
 
+func (c *TimeFilterWidget) imageByKey(key string) []byte {
+	switch key {
+	case "last1min":
+		return uiresources.R_icons_custom_time_filter_icon_1min_png
+	case "last5min":
+		return uiresources.R_icons_custom_time_filter_icon_5min_png
+	case "last10min":
+		return uiresources.R_icons_custom_time_filter_icon_10min_png
+	case "last30min":
+		return uiresources.R_icons_custom_time_filter_icon_30min_png
+	case "last60min":
+		return uiresources.R_icons_custom_time_filter_icon_60min_png
+	case "current_hour":
+		return uiresources.R_icons_custom_time_filter_icon_cH_png
+	case "current_day":
+		return uiresources.R_icons_custom_time_filter_icon_cD_png
+	case "previous_hour":
+		return uiresources.R_icons_custom_time_filter_icon_pH_png
+	case "previous_day":
+		return uiresources.R_icons_custom_time_filter_icon_pD_png
+	case "custom":
+		return uiresources.R_icons_custom_time_filter_icon_C_png
+	}
+	return nil
+}
+
 func (c *TimeFilterWidget) updateButtonsColors() {
 	key := c.cmbIntervals.Items[c.cmbIntervals.CurrentItemIndex].UserData("key").(string)
 	for _, b := range c.buttons {
@@ -194,6 +222,9 @@ func (c *TimeFilterWidget) updateButtonsColors() {
 			b.SetForeColor(nil)
 			b.SetBackColor(nil)
 		}
+
+		b.SetImageSize(32, 24)
+		b.SetImage(uiresources.ResImgCol(c.imageByKey(b.UserData("key").(string)), b.ForeColor()))
 	}
 }
 
