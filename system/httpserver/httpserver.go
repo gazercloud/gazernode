@@ -110,6 +110,13 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	requestJson := r.FormValue("rj")
 	function := r.FormValue("func")
 
+	authToken, err := r.Cookie("auth_token")
+	if err == nil {
+		logger.Println(authToken)
+	} else {
+		logger.Println(err)
+	}
+
 	if r.Method == "POST" {
 		//body, err := ioutil.ReadAll(r.Body)
 		//logger.Println("ParseMultipartForm: ", err, body)
@@ -118,7 +125,10 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 
 	if len(function) > 0 {
 		responseText, err = c.requestJson(function, []byte(requestJson))
-		//logger.Println("call ", function, "req:", requestJson)
+
+		expiration := time.Now().Add(365 * 24 * time.Hour)
+		cookie := http.Cookie{Name: "auth_token", Value: "TOKEN-TOKEN", Expires: expiration}
+		http.SetCookie(w, &cookie)
 	}
 
 	if err != nil {

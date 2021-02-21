@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/http/cookiejar"
 	"strings"
 	"sync"
 	"time"
@@ -39,7 +40,8 @@ func New(window uiinterfaces.Window) *Client {
 	pc := &c
 
 	tr := &http.Transport{}
-	c.client = &http.Client{Transport: tr}
+	jar, _ := cookiejar.New(nil)
+	c.client = &http.Client{Transport: tr, Jar: jar}
 	c.client.Timeout = 3 * time.Second
 
 	c.tm = window.NewTimer(100, pc.timer)
@@ -87,7 +89,7 @@ func (c *Client) thCall(call *Call) {
 	if false {
 		addr = "192.168.24.233"
 	}
-
+	//c.client.Jar.SetCookies("http://"+addr+":8084", )
 	response, err := c.client.Post("http://"+addr+":8084/api/request", writer.FormDataContentType(), &body)
 	if err != nil {
 		call.err = errors.New("no connection to local service")

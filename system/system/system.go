@@ -23,6 +23,9 @@ type System struct {
 	history   *history.History
 	resources *resources.Resources
 
+	users      []*User
+	userByName map[string]*User
+
 	mtx sync.Mutex
 }
 

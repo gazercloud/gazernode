@@ -373,12 +373,10 @@ func (c *PanelUnits) stopUnit() {
 
 func (c *PanelUnits) viewLog() {
 	for _, selectedItem := range c.lvUnits.SelectedItems() {
-		sens := selectedItem.UserData("info").(*units_common.UnitInfo)
-		if sens != nil {
-			f := NewFormItemHistory(c, c.client, sens.Name+"/.service/log")
-			f.SetWideValue(true)
-			f.ShowDialog()
-		}
+		sens := selectedItem.UserData("info").(*nodeinterface.UnitListResponseItem)
+		f := NewFormItemHistory(c, c.client, sens.Name+"/.service/log")
+		f.SetWideValue(true)
+		f.ShowDialog()
 		break
 	}
 }
