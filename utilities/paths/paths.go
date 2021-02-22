@@ -1,16 +1,22 @@
 package paths
 
 import (
+	"os"
 	"os/user"
 	"runtime"
 )
 
 func ProgramDataFolder() string {
-	return systemSettingFolders
-}
-
-func ProgramDataUserFolder() string {
-	return systemSettingFolders
+	if runtime.GOOS == "windows" {
+		return os.Getenv("PROGRAMDATA")
+	}
+	if runtime.GOOS == "linux" {
+		return "/var"
+	}
+	if runtime.GOOS == "darwin" {
+		return "/var"
+	}
+	return ""
 }
 
 func HomeFolder() string {
