@@ -2,7 +2,7 @@ package forms
 
 import (
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 )
@@ -13,10 +13,10 @@ type FormRemoveUnits struct {
 	txtUnitName *uicontrols.TextBox
 	txtError    *uicontrols.TextBlock
 	lvUnits     *uicontrols.ListView
-	units       []*units_common.UnitInfo
+	units       []*nodeinterface.UnitListResponseItem
 }
 
-func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units []*units_common.UnitInfo) *FormRemoveUnits {
+func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units []*nodeinterface.UnitListResponseItem) *FormRemoveUnits {
 	var c FormRemoveUnits
 	c.client = client
 	c.units = units

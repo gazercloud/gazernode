@@ -8,7 +8,6 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/settings"
-	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/widgets/widget_chart"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/go-gl/glfw/v3.3/glfw"
@@ -344,9 +343,9 @@ func (c *PanelUnits) editUnit() {
 }
 
 func (c *PanelUnits) removeUnit() {
-	units := make([]*units_common.UnitInfo, 0)
+	units := make([]*nodeinterface.UnitListResponseItem, 0)
 	for _, selectedItem := range c.lvUnits.SelectedItems() {
-		unitInfo := selectedItem.UserData("info").(*units_common.UnitInfo)
+		unitInfo := selectedItem.UserData("info").(*nodeinterface.UnitListResponseItem)
 		units = append(units, unitInfo)
 	}
 
