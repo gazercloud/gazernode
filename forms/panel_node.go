@@ -4,6 +4,7 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/local_user_storage"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazerui/go-gl/glfw/v3.3/glfw"
 	"github.com/gazercloud/gazerui/ui"
@@ -15,6 +16,7 @@ import (
 	"golang.org/x/image/colornames"
 	"image"
 	"image/color"
+	"time"
 )
 
 type PanelNode struct {
@@ -136,6 +138,8 @@ func (c *PanelNode) StylizeButton() {
 func (c *PanelNode) OnInit() {
 	c.SetPanelPadding(0)
 
+	t1 := time.Now()
+
 	c.imgConnectionOK = uiresources.ResImgCol(uiresources.R_icons_material4_png_action_verified_user_materialicons_48dp_1x_baseline_verified_user_black_48dp_png, settings.GoodColor)
 	c.imgConnectionOK = resize.Resize(24, 24, c.imgConnectionOK, resize.Bilinear)
 	c.imgConnectionError = uiresources.ResImgCol(uiresources.R_icons_material4_png_action_verified_user_materialicons_48dp_1x_baseline_verified_user_black_48dp_png, colornames.Red)
@@ -146,10 +150,14 @@ func (c *PanelNode) OnInit() {
 	c.panelFullScreenValue.SetVisible(false)
 
 	c.panelMain = c.AddPanelOnGrid(0, 0)
+	c.panelMain.SetPanelPadding(0)
 	panelLeftMenu := c.panelMain.AddPanelOnGrid(0, 0)
 	panelLeftMenu.SetPanelPadding(0)
+	panelLeftMenu.SetCellPadding(0)
 	panelLeftMenu.SetMinWidth(100)
 	panelLeftMenu.SetMaxWidth(100)
+
+	t2 := time.Now()
 
 	c.btnPanelUnits = panelLeftMenu.AddButtonOnGrid(0, 0, "Units", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(true)
@@ -200,6 +208,8 @@ func (c *PanelNode) OnInit() {
 
 	c.StylizeButton()
 
+	t3 := time.Now()
+
 	panelContent := c.panelMain.AddPanelOnGrid(1, 0)
 	panelContent.SetName("PanelContent")
 	panelContent.SetPanelPadding(0)
@@ -221,6 +231,8 @@ func (c *PanelNode) OnInit() {
 	c.panelCloud.SetPanelPadding(0)
 	c.panelCharts.SetPanelPadding(0)
 	c.panelMaps.SetPanelPadding(0)
+
+	t4 := time.Now()
 
 	// Bottom
 	c.panelBottom = c.AddPanelOnGrid(0, 1)
@@ -279,6 +291,8 @@ func (c *PanelNode) OnInit() {
 	c.lblStatistics.SetUnderline(true)
 	c.lblStatistics.SetMinHeight(24)
 
+	t5 := time.Now()
+
 	c.panelBottom.AddHSpacerOnGrid(5, 0)
 	c.lblAd = c.panelBottom.AddTextBlockOnGrid(6, 0, "This is a beta version of the software!")
 	c.lblAd.SetForeColor(colornames.Red)
@@ -306,9 +320,22 @@ func (c *PanelNode) OnInit() {
 	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
 
-	MainFormInstance.SetTheme(MainFormInstance.GetTheme())
+	t6 := time.Now()
+
+	t7 := time.Now()
 
 	c.btnPanelUnits.Press()
+
+	t8 := time.Now()
+
+	logger.Println("Times:")
+	logger.Println("1", t2.Sub(t1))
+	logger.Println("2", t3.Sub(t2))
+	logger.Println("3", t4.Sub(t3))
+	logger.Println("4", t5.Sub(t4))
+	logger.Println("5", t6.Sub(t5))
+	logger.Println("6", t7.Sub(t6))
+	logger.Println("7", t8.Sub(t7))
 }
 
 func (c *PanelNode) timerUpdate() {

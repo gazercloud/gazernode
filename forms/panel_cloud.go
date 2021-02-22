@@ -62,6 +62,7 @@ func (c *PanelCloud) OnInit() {
 	txtHeader.SetFontSize(24)
 
 	pContent := c.AddPanelOnGrid(0, 1)
+	pContent.SetPanelPadding(0)
 	splitter := pContent.AddSplitContainerOnGrid(0, 0)
 	splitter.SetPosition(360)
 	splitter.SetYExpandable(true)

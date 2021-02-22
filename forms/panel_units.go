@@ -137,10 +137,10 @@ func (c *PanelUnits) OnInit() {
 	}, uiresources.R_icons_material4_png_content_clear_materialiconsoutlined_48dp_1x_outline_clear_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("Start unit", func(event *uievents.Event) {
 		c.startUnit()
-	}, uiresources.R_icons_material4_png_av_play_arrow_materialiconsoutlined_48dp_1x_outline_play_arrow_black_48dp_png, "")
+	}, uiresources.R_icons_material4_png_av_play_arrow_materialicons_48dp_1x_baseline_play_arrow_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("Stop unit", func(event *uievents.Event) {
 		c.stopUnit()
-	}, uiresources.R_icons_material4_png_av_pause_circle_filled_materialiconsoutlined_48dp_1x_outline_pause_circle_filled_black_48dp_png, "")
+	}, uiresources.R_icons_material4_png_av_pause_materialicons_48dp_1x_baseline_pause_black_48dp_png, "")
 	c.menuUnits.AddItemWithUiResImage("View Log", func(event *uievents.Event) {
 		c.viewLog()
 	}, uiresources.R_icons_material4_png_action_view_headline_materialiconsoutlined_48dp_1x_outline_view_headline_black_48dp_png, "")
@@ -393,7 +393,7 @@ func (c *PanelUnits) UpdateStyle() {
 	c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, activeColor))
 	c.btnEdit.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, activeColor))
 	c.btnRemove.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialiconsoutlined_48dp_1x_outline_clear_black_48dp_png, activeColor))
-	c.btnStart.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialiconsoutlined_48dp_1x_outline_play_arrow_black_48dp_png, activeColor))
+	c.btnStart.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialicons_48dp_1x_baseline_play_arrow_black_48dp_png, activeColor))
 	c.btnStop.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, activeColor))
 
 	c.btnShowFullScreen.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, activeColor))
@@ -404,7 +404,7 @@ func (c *PanelUnits) UpdateStyle() {
 	c.btnAdd.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, inactiveColor))
 	c.btnEdit.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, inactiveColor))
 	c.btnRemove.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialiconsoutlined_48dp_1x_outline_clear_black_48dp_png, inactiveColor))
-	c.btnStart.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialiconsoutlined_48dp_1x_outline_play_arrow_black_48dp_png, inactiveColor))
+	c.btnStart.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialicons_48dp_1x_baseline_play_arrow_black_48dp_png, inactiveColor))
 	c.btnStop.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, inactiveColor))
 
 	c.btnShowFullScreen.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, inactiveColor))

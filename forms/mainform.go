@@ -63,6 +63,10 @@ func (c *MainForm) OnInit() {
 	c.loadNodes()
 
 	c.SetTheme(c.GetTheme())
+
+	c.tabNodes.SetCurrentPage(0)
+
+	//MainFormInstance.SetTheme(MainFormInstance.GetTheme())
 }
 
 func (c *MainForm) Dispose() {
