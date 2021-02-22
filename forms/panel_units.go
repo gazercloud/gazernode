@@ -314,6 +314,10 @@ func (c *PanelUnits) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *PanelUnits) FullRefresh() {
+	c.loadUnits()
+}
+
 func (c *PanelUnits) Activate() {
 	c.lvUnits.Focus()
 }

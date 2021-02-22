@@ -262,6 +262,10 @@ func (c *PanelCloud) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *PanelCloud) FullRefresh() {
+	c.loadChannels()
+}
+
 func (c *PanelCloud) UpdateStyle() {
 	c.Panel.UpdateStyle()
 

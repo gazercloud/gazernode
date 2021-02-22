@@ -336,6 +336,12 @@ func (c *PanelMaps) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *PanelMaps) FullRefresh() {
+	if !c.IsEditing() {
+		c.loadMaps()
+	}
+}
+
 func (c *PanelMaps) SaveMap() {
 	if c.currentResId != "" {
 		c.saving = true

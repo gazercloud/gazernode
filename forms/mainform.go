@@ -96,7 +96,7 @@ func (c *MainForm) RemoveNode(index int) {
 func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 	page := c.tabNodes.AddPage()
 	page.SetPanelPadding(0)
-	page.SetText(cl.Address())
+	page.SetText("  " + cl.Address() + "  ")
 	panelNode := NewPanelNode(page, cl, index)
 	page.AddWidgetOnGrid(panelNode, 0, 0)
 	c.nodeWidgets = append(c.nodeWidgets, panelNode)

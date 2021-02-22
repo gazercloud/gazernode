@@ -103,6 +103,10 @@ func (c *Client) UserName() string {
 	return c.userName
 }
 
+func (c *Client) Password() string {
+	return c.password
+}
+
 func (c *Client) SessionToken() string {
 	return c.sessionToken
 }
@@ -129,7 +133,7 @@ func (c *Client) thCall(call *Call) {
 
 	response, err := c.client.Post("http://"+c.address+"/api/request", writer.FormDataContentType(), &body)
 	if err != nil {
-		call.err = errors.New("no connection to local service")
+		call.err = errors.New("no connection to " + c.address)
 		logger.Println(err)
 	} else {
 		content, _ := ioutil.ReadAll(response.Body)

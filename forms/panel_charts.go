@@ -237,6 +237,12 @@ func (c *PanelCharts) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *PanelCharts) FullRefresh() {
+	if !c.IsEditing() {
+		c.loadChartGroups("")
+	}
+}
+
 func (c *PanelCharts) SetEdit(editing bool) {
 	c.isEditing_ = editing
 	c.timeChart.SetEdit(editing)
