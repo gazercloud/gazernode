@@ -36,6 +36,9 @@ func DocumentsFolder() string {
 		if runtime.GOOS == "darwin" {
 			return usr.HomeDir + "/Documents"
 		}
+		if runtime.GOOS == "linux" {
+			return usr.HomeDir + "/Documents"
+		}
 		return usr.HomeDir
 	}
 	return ProgramDataFolder()
@@ -48,6 +51,9 @@ func DownloadsFolder() string {
 			return usr.HomeDir + "/Downloads"
 		}
 		if runtime.GOOS == "darwin" {
+			return usr.HomeDir + "/Downloads"
+		}
+		if runtime.GOOS == "linux" {
 			return usr.HomeDir + "/Downloads"
 		}
 		return usr.HomeDir
@@ -64,6 +70,9 @@ func PicturesFolder() string {
 		if runtime.GOOS == "darwin" {
 			return usr.HomeDir + "/Pictures"
 		}
+		if runtime.GOOS == "linux" {
+			return usr.HomeDir + "/Pictures"
+		}
 		return usr.HomeDir
 	}
 	return ProgramDataFolder()
@@ -76,6 +85,9 @@ func DesktopFolder() string {
 			return usr.HomeDir + "/Desktop"
 		}
 		if runtime.GOOS == "darwin" {
+			return usr.HomeDir + "/Desktop"
+		}
+		if runtime.GOOS == "linux" {
 			return usr.HomeDir + "/Desktop"
 		}
 		return usr.HomeDir

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"flag"
 	"github.com/gazercloud/gazernode/forms"
 	"github.com/gazercloud/gazernode/system/httpserver"
 	"github.com/gazercloud/gazernode/system/system"
@@ -18,6 +19,7 @@ func CurrentExePath() string {
 
 var httpServer *httpserver.HttpServer
 var sys *system.System
+var runServerFlagPtr = flag.Bool("server", false, "Run server")
 
 func start() {
 	hostid.InitHostId()
@@ -38,7 +40,9 @@ func stop() {
 }
 
 func RunDesktop() {
-	start()
+	if *runServerFlagPtr {
+		start()
+	}
 
 	ui.InitUISystem()
 
@@ -48,7 +52,9 @@ func RunDesktop() {
 		form.Dispose()
 	}
 
-	stop()
+	if *runServerFlagPtr {
+		stop()
+	}
 }
 
 func RunAsService() error {
