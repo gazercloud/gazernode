@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazerui/uievents"
@@ -24,6 +25,13 @@ type Client struct {
 	tm       *uievents.FormTimer
 	client   *http.Client
 	watcher  *ItemsWatcher
+
+	address      string
+	userName     string
+	password     string
+	sessionToken string
+
+	OnSessionOpen func()
 }
 
 type Call struct {
@@ -35,21 +43,43 @@ type Call struct {
 	client     *Client
 }
 
-func New(window uiinterfaces.Window) *Client {
+func New(window uiinterfaces.Window, address string, userName string, password string) *Client {
 	var c Client
-	pc := &c
+	c.address = address
+	c.userName = userName
+	c.password = password
+	c.initClient(window)
+	return &c
+}
 
+func NewWithSessionToken(window uiinterfaces.Window, address string, userName string, sessionToken string) *Client {
+	var c Client
+	c.address = address
+	c.userName = userName
+	c.sessionToken = sessionToken
+	c.initClient(window)
+	uu := c.sessionTokenUrl()
+	fmt.Println(uu)
+	var cookie http.Cookie
+	cookie.Secure = false
+	cookie.Name = "session_token"
+	cookie.Domain = "localhost"
+	cookie.Path = "/api"
+	cookie.HttpOnly = true
+	cookie.Expires = time.Now().Add(24 * 365 * time.Hour)
+	cookie.Value = sessionToken
+	c.client.Jar.SetCookies(c.sessionTokenUrl(), []*http.Cookie{&cookie})
+	return &c
+}
+
+func (c *Client) initClient(window uiinterfaces.Window) {
 	tr := &http.Transport{}
 	jar, _ := cookiejar.New(nil)
 	c.client = &http.Client{Transport: tr, Jar: jar}
 	c.client.Timeout = 3 * time.Second
-
-	c.tm = window.NewTimer(100, pc.timer)
+	c.tm = window.NewTimer(100, c.timer)
 	c.tm.StartTimer()
-
-	c.watcher = NewItemsWatcher(&c)
-
-	return pc
+	c.watcher = NewItemsWatcher(c)
 }
 
 func (c *Client) timer() {
@@ -63,6 +93,18 @@ func (c *Client) timer() {
 
 func (c *Client) GetItemValue(name string) common_interfaces.ItemValue {
 	return c.watcher.Get(name)
+}
+
+func (c *Client) Address() string {
+	return c.address
+}
+
+func (c *Client) UserName() string {
+	return c.userName
+}
+
+func (c *Client) SessionToken() string {
+	return c.sessionToken
 }
 
 func (c *Client) thCall(call *Call) {
@@ -85,12 +127,7 @@ func (c *Client) thCall(call *Call) {
 
 	AddStatSent(body.Len())
 
-	addr := "127.0.0.1"
-	if false {
-		addr = "192.168.24.233"
-	}
-	//c.client.Jar.SetCookies("http://"+addr+":8084", )
-	response, err := c.client.Post("http://"+addr+":8084/api/request", writer.FormDataContentType(), &body)
+	response, err := c.client.Post("http://"+c.address+"/api/request", writer.FormDataContentType(), &body)
 	if err != nil {
 		call.err = errors.New("no connection to local service")
 		logger.Println(err)

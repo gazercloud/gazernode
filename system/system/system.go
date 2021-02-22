@@ -25,6 +25,7 @@ type System struct {
 
 	users      []*User
 	userByName map[string]*User
+	sessions   map[string]*UserSession
 
 	mtx sync.Mutex
 }
@@ -38,11 +39,23 @@ func NewSystem() *System {
 	c.unitsSystem = units_system.New(&c)
 	c.history = history.NewHistory()
 	c.resources = resources.NewResources()
+
+	c.users = make([]*User, 0)
+	c.userByName = make(map[string]*User)
+	c.sessions = make(map[string]*UserSession)
+
+	var u User
+	u.Name = "root"
+	u.PasswordHash = ""
+	c.users = append(c.users, &u)
+	c.userByName[u.Name] = &u
+
 	return &c
 }
 
 func (c *System) Start() {
 	c.LoadConfig()
+	c.loadSessions()
 	items := last_values.Read()
 	for _, item := range items {
 		if realItem, ok := c.itemsByName[item.Name]; ok {

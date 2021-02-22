@@ -36,11 +36,14 @@ const (
 	FuncServiceLookup     = "lookup"
 	FuncServiceStatistics = "statistics"
 
-	// *** Resources ***
+	// *** Resource ***
 	FuncResourceAdd    = "res_add"
 	FuncResourceSet    = "res_set"
 	FuncResourceGet    = "res_get"
 	FuncResourceRemove = "res_remove"
 	FuncResourceRename = "res_rename"
 	FuncResourceList   = "res_list"
+
+	// *** User ***
+	FuncSessionOpen = "session_open"
 )

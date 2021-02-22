@@ -5,6 +5,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/protocols/lookup"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"net/url"
 )
 
 func (c *Client) Lookup(entity string, f func(lookup.Result, error)) {
@@ -27,8 +28,17 @@ func (c *Client) Lookup(entity string, f func(lookup.Result, error)) {
 	go c.thCall(&call)
 }
 
+func (c *Client) sessionTokenUrl() *url.URL {
+	var uu url.URL
+	uu.Host = c.address
+	uu.Scheme = "http"
+	uu.Path = "/api"
+	return &uu
+}
+
 func (c *Client) GetStatistics(f func(common_interfaces.Statistics, error)) {
 	var call Call
+
 	var req nodeinterface.ServiceStatisticsRequest
 	call.function = nodeinterface.FuncServiceStatistics
 	call.request, _ = json.Marshal(req)

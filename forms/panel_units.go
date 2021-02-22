@@ -450,6 +450,10 @@ func (c *PanelUnits) loadUnits() {
 }
 
 func (c *PanelUnits) timerUpdate() {
+	if c.lvUnits == nil {
+		return
+	}
+
 	if len(c.lvUnits.SelectedItems()) > 0 {
 		if len(c.lvUnits.SelectedItems()) == 1 {
 			c.btnEdit.SetEnabled(true)
@@ -504,6 +508,9 @@ func (c *PanelUnits) timerUpdate() {
 	for i := 0; i < c.lvUnits.ItemsCount(); i++ {
 		unitId := c.lvUnits.Item(i).UserData("id").(string)
 		c.client.GetUnitState(unitId, func(state nodeinterface.UnitStateResponse, err error) {
+			if c.lvUnits == nil {
+				return
+			}
 			for i := 0; i < c.lvUnits.ItemsCount(); i++ {
 				sId := c.lvUnits.Item(i).UserData("id").(string)
 				if sId == state.UnitId {

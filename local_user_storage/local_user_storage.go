@@ -10,75 +10,136 @@ import (
 	"sync"
 )
 
-type Preferences struct {
-	Theme string `json:"theme"`
+type NodeConnection struct {
+	Address      string `json:"address"`
+	UserName     string `json:"user_name"`
+	SessionToken string `json:"password"`
 }
 
-var mtx sync.Mutex
+type PreferencesStruct struct {
+	Theme       string           `json:"theme"`
+	Connections []NodeConnection `json:"connections"`
+}
+
+type Preferences struct {
+	pref PreferencesStruct
+	mtx  sync.Mutex
+}
+
+var pref *Preferences
+
+func init() {
+	pref = NewPreferences()
+	pref.loadPreferences()
+}
+
+func Instance() *Preferences {
+	return pref
+}
 
 func NewPreferences() *Preferences {
 	var c Preferences
-	c.Theme = "dark_blue"
+	c.pref.Theme = "dark_blue"
 	return &c
 }
 
-func loadPreferences() *Preferences {
+func (c *Preferences) loadPreferences() {
 	usr, err := user.Current()
 	if err != nil {
-		return NewPreferences()
+		logger.Println(err)
+		return
 	}
 	dir := usr.HomeDir + "/Gazer"
 	err = os.MkdirAll(dir, 0600)
 	if err != nil {
-		return NewPreferences()
+		logger.Println(err)
+		return
 	}
 	fullPath := dir + "/preferences.json"
 	var bs []byte
 	bs, err = ioutil.ReadFile(fullPath)
 	if err != nil {
-		return NewPreferences()
+		logger.Println(err)
+		return
 	}
-	var result Preferences
-	err = json.Unmarshal(bs, &result)
+	err = json.Unmarshal(bs, &c.pref)
 	if err != nil {
-		return NewPreferences()
+		logger.Println(err)
+		return
 	}
-	return &result
 }
 
-func savePreferences(pref *Preferences) error {
-	if pref == nil {
-		return errors.New("pref == nil")
+func (c *Preferences) savePreferences() {
+	if c == nil {
+		logger.Println(errors.New("pref == nil"))
 	}
 	usr, err := user.Current()
 	if err != nil {
-		return err
+		logger.Println(err)
+		return
 	}
 	dir := usr.HomeDir + "/Gazer"
 	err = os.MkdirAll(dir, 0600)
 	if err != nil {
-		return err
+		logger.Println(err)
+		return
 	}
 	fullPath := dir + "/preferences.json"
 	var bs []byte
-	bs, err = json.MarshalIndent(pref, "", " ")
+	bs, err = json.MarshalIndent(pref.pref, "", " ")
 	err = ioutil.WriteFile(fullPath, bs, 0600)
-	return err
 }
 
-func SetTheme(theme string) {
-	mtx.Lock()
-	p := loadPreferences()
-	p.Theme = theme
-	if err := savePreferences(p); err != nil {
-		logger.Println("Set There error:", err)
+func (c *Preferences) SetTheme(theme string) {
+	c.mtx.Lock()
+	c.pref.Theme = theme
+	c.savePreferences()
+	c.mtx.Unlock()
+}
+
+func (c *Preferences) Theme() string {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+	return c.pref.Theme
+}
+
+func (c *Preferences) AddConnection(connection NodeConnection) {
+	c.mtx.Lock()
+	c.pref.Connections = append(c.pref.Connections, connection)
+	c.savePreferences()
+	c.mtx.Unlock()
+}
+
+func (c *Preferences) SetConnection(index int, connection NodeConnection) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+	if index >= 0 && index < len(c.pref.Connections) {
+		c.pref.Connections[index] = connection
 	}
-	mtx.Unlock()
+	c.savePreferences()
 }
 
-func Theme() string {
-	mtx.Lock()
-	p := loadPreferences()
-	mtx.Unlock()
-	return p.Theme
+func (c *Preferences) ConnectionCount() int {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+	return len(c.pref.Connections)
+}
+
+func (c *Preferences) Connections() []NodeConnection {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+	result := make([]NodeConnection, len(c.pref.Connections))
+	for i, conn := range c.pref.Connections {
+		result[i] = conn
+	}
+	return result
+}
+
+func (c *Preferences) RemoveConnection(index int) {
+	c.mtx.Lock()
+	if index >= 0 && index < len(c.pref.Connections) {
+		c.pref.Connections = append(c.pref.Connections[:index], c.pref.Connections[index+1:]...)
+		c.savePreferences()
+	}
+	c.mtx.Unlock()
 }

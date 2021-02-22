@@ -9,6 +9,7 @@ import (
 func (c *HttpServer) requestJson(function string, requestText []byte) ([]byte, error) {
 	var err error
 	var result []byte
+
 	switch function {
 
 	// *** UnitType ***
@@ -84,6 +85,10 @@ func (c *HttpServer) requestJson(function string, requestText []byte) ([]byte, e
 		result, err = c.DataItemWrite(requestText)
 	case nodeinterface.FuncDataItemHistory:
 		result, err = c.DataItemHistory(requestText)
+
+		// *** Data Item ***
+	case nodeinterface.FuncSessionOpen:
+		result, err = c.SessionOpen(requestText)
 
 	default:
 		err = errors.New("function not supported")

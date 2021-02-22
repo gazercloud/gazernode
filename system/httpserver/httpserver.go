@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -110,13 +111,6 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	requestJson := r.FormValue("rj")
 	function := r.FormValue("func")
 
-	authToken, err := r.Cookie("auth_token")
-	if err == nil {
-		logger.Println(authToken)
-	} else {
-		logger.Println(err)
-	}
-
 	if r.Method == "POST" {
 		//body, err := ioutil.ReadAll(r.Body)
 		//logger.Println("ParseMultipartForm: ", err, body)
@@ -124,11 +118,34 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(function) > 0 {
-		responseText, err = c.requestJson(function, []byte(requestJson))
+		var sessionToken string
+		sessionTokenCookie, errSessionToken := r.Cookie("session_token")
 
-		expiration := time.Now().Add(365 * 24 * time.Hour)
-		cookie := http.Cookie{Name: "auth_token", Value: "TOKEN-TOKEN", Expires: expiration}
-		http.SetCookie(w, &cookie)
+		if errSessionToken == nil {
+			sessionToken = sessionTokenCookie.Value
+		}
+
+		if function != nodeinterface.FuncSessionOpen {
+			_, err = c.system.CheckSession(sessionToken)
+			if err != nil {
+				logger.Println("Session Token error: ", err, "Token:", sessionToken)
+			}
+		}
+
+		if err == nil {
+			responseText, err = c.requestJson(function, []byte(requestJson))
+		}
+
+		if function == nodeinterface.FuncSessionOpen && err == nil {
+			// Set cookie
+			var sessionOpenResponse nodeinterface.SessionOpenResponse
+			errSessionOpenResp := json.Unmarshal(responseText, &sessionOpenResponse)
+			if errSessionOpenResp == nil {
+				expiration := time.Now().Add(365 * 24 * time.Hour)
+				cookie := http.Cookie{Name: "session_token", Value: sessionOpenResponse.SessionToken, Expires: expiration}
+				http.SetCookie(w, &cookie)
+			}
+		}
 	}
 
 	if err != nil {
