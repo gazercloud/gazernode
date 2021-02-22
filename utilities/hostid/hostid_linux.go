@@ -3,6 +3,8 @@ package hostid
 import (
 	"encoding/json"
 	"errors"
+	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/google/uuid"
 	"io/ioutil"
 	"time"

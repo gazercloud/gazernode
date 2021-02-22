@@ -48,3 +48,8 @@ func (c *UnitSystemProcess) Tick() {
 	fmt.Println("stopped")
 	c.Started = false
 }
+
+func GetProcesses() []ProcessInfo {
+	result := make([]ProcessInfo, 0)
+	return result
+}
