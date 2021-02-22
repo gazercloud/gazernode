@@ -50,7 +50,7 @@ func (c *Preferences) loadPreferences() {
 		return
 	}
 	dir := usr.HomeDir + "/Gazer"
-	err = os.MkdirAll(dir, 0600)
+	err = os.MkdirAll(dir, 0700)
 	if err != nil {
 		logger.Println(err)
 		return

@@ -16,7 +16,7 @@ func Write(items []*common_interfaces.Item) {
 	dir := paths.ProgramDataFolder() + "/gazer/last_values/"
 	fullPath := dir + "/" + fmt.Sprintf("%016X", time.Now().UTC().UnixNano())
 	_ = os.MkdirAll(dir, 0755)
-	f, err := os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 755)
+	f, err := os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 655)
 	if err == nil {
 		bs, err := json.MarshalIndent(items, "", " ")
 		if err == nil {

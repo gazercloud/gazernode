@@ -115,7 +115,7 @@ func (c *Item) Flush() FlushResult {
 				f = nil
 			}
 			_ = os.MkdirAll(dir, 0755)
-			f, err = os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
+			f, err = os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0655)
 			if err != nil {
 				currentDir = dir
 			}
