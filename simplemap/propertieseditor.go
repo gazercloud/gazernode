@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
+	"github.com/gazercloud/gazernode/dialogs"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/coreforms"
@@ -121,7 +122,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 			lblName.SetName("Prop " + property.Name)
 			lblName.TextHAlign = canvas.HAlignLeft
 
-			/*if property.Type == uiproperties.PropertyTypeBool {
+			if property.Type == uiproperties.PropertyTypeBool {
 				numEditor := groupPanel.AddCheckBoxOnGrid(1, indexInGroup, "")
 				numEditor.SetAnchors(uicontrols.ANCHOR_LEFT | uicontrols.ANCHOR_RIGHT | uicontrols.ANCHOR_TOP)
 				numEditor.OnCheckedChanged = c.CheckBoxChanged
@@ -181,7 +182,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 				txtEditor.SetUserData("propName", property.Name)
 				txtEditor.SetUserData("propType", property.Type)
 				c.propControls[property.Name] = txtEditor
-			}*/
+			}
 
 			///////
 
@@ -330,6 +331,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 	//c.EndUpdate()
 
 	c.LoadPropertiesValues()
+	c.Window().UpdateLayout()
 	c.loading = false
 }
 
