@@ -120,11 +120,11 @@ func StartService() {
 	prg := &program{}
 	s, err := service.New(prg, NewSvcConfig())
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	err = s.Start()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	} else {
 		fmt.Println("Service started")
 	}
@@ -135,11 +135,11 @@ func StopService() {
 	prg := &program{}
 	s, err := service.New(prg, NewSvcConfig())
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	err = s.Stop()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	} else {
 		fmt.Println("Service stopped")
