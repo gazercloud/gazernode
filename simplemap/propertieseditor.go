@@ -130,8 +130,6 @@ func (c *PropertiesEditor) RebuildInterface() {
 				c.propControls[property.Name] = numEditor
 			}
 
-			continue
-
 			if property.Type == uiproperties.PropertyTypeInt {
 				numEditor := groupPanel.AddSpinBoxOnGrid(1, indexInGroup)
 				numEditor.SetPrecision(0)
@@ -184,6 +182,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 				txtEditor.SetUserData("propType", property.Type)
 				c.propControls[property.Name] = txtEditor
 			}
+			continue
 			if property.Type == uiproperties.PropertyTypeString && property.SubType == "action" {
 				txtEditor := groupPanel.AddButtonOnGrid(1, indexInGroup, "Edit ...", nil)
 				txtEditor.SetOnPress(func(ev *uievents.Event) {
