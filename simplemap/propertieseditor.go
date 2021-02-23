@@ -107,6 +107,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 				groupPanel.SetPanelPadding(0)
 				groupPanel.SetCellPadding(2)
 				groupIndex++
+				indexInGroup = 0
 			}
 
 			if groupPanel == nil {
