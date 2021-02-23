@@ -35,6 +35,7 @@ func init() {
 }
 
 func TryService() bool {
+	setupFlagPtr := flag.Bool("setup", false, "Install to /usr/local/bin")
 	serviceFlagPtr := flag.Bool("service", false, "Run as service")
 	installFlagPtr := flag.Bool("install", false, "Install service")
 	uninstallFlagPtr := flag.Bool("uninstall", false, "Uninstall service")
@@ -42,6 +43,11 @@ func TryService() bool {
 	stopFlagPtr := flag.Bool("stop", false, "Stop service")
 
 	flag.Parse()
+
+	if *setupFlagPtr {
+		setupPosix()
+		return true
+	}
 
 	if *serviceFlagPtr {
 		runService()
