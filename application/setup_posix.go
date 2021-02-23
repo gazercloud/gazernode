@@ -21,7 +21,7 @@ func setupPosix() {
 		return
 	}
 
-	err = ioutil.WriteFile(destinationFile, input, 0644)
+	err = ioutil.WriteFile(destinationFile, input, 0755)
 	if err != nil {
 		log.Println("Error (write):", err)
 		return
