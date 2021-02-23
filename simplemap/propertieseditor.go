@@ -88,7 +88,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 	groupIndex := 0
 	var groupPanel *uicontrols.Panel
 	indexInGroup := 0
-	if false {
+	if true {
 		for _, property := range c.iPropertiesContainer.GetProperties() {
 			if !property.Visible() {
 				continue
@@ -112,6 +112,8 @@ func (c *PropertiesEditor) RebuildInterface() {
 			if groupPanel == nil {
 				break
 			}
+
+			return
 
 			c.propsMap[property.Name] = property
 
