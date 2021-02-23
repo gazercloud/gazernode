@@ -121,8 +121,6 @@ func (c *PropertiesEditor) RebuildInterface() {
 			lblName.SetName("Prop " + property.Name)
 			lblName.TextHAlign = canvas.HAlignLeft
 
-			return
-
 			if property.Type == uiproperties.PropertyTypeBool {
 				numEditor := groupPanel.AddCheckBoxOnGrid(1, indexInGroup, "")
 				numEditor.SetAnchors(uicontrols.ANCHOR_LEFT | uicontrols.ANCHOR_RIGHT | uicontrols.ANCHOR_TOP)
@@ -131,6 +129,9 @@ func (c *PropertiesEditor) RebuildInterface() {
 				numEditor.SetUserData("propType", property.Type)
 				c.propControls[property.Name] = numEditor
 			}
+
+			continue
+
 			if property.Type == uiproperties.PropertyTypeInt {
 				numEditor := groupPanel.AddSpinBoxOnGrid(1, indexInGroup)
 				numEditor.SetPrecision(0)
