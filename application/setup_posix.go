@@ -28,9 +28,17 @@ func setupPosix() {
 	}
 	log.Println("copying to /usr/local/bin - complete")
 	log.Println("installing service ...")
-	exec.Command(destinationFile, "-install")
+	cmdInstall := exec.Command(destinationFile, "-install")
+	err = cmdInstall.Run()
+	if err != nil {
+		log.Println(err)
+	}
 	log.Println("installing service ... complete")
 	log.Println("starting service ...")
-	exec.Command(destinationFile, "-start")
+	cmdStart := exec.Command(destinationFile, "-start")
+	err = cmdStart.Run()
+	if err != nil {
+		log.Println(err)
+	}
 	log.Println("starting service ... complete")
 }
