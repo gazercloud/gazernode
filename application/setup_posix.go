@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 )
 
 func setupPosix() {
@@ -14,7 +13,7 @@ func setupPosix() {
 	log.Println("stopping service - complete")
 
 	log.Println("copying to /usr/local/bin")
-	sourceFile := filepath.Dir(os.Args[0])
+	sourceFile := os.Args[0]
 	destinationFile := "/usr/local/bin/gazer_node"
 	input, err := ioutil.ReadFile(sourceFile)
 	if err != nil {
