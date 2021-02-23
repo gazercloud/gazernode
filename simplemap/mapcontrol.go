@@ -563,11 +563,10 @@ func (c *MapControl) SetOriginalHeight(height int32) {
 }
 
 func (c *MapControl) mouseMove(lastMouseDownPos, pos Point32, leftButton, centerButton, rightButton, shift, control, alt bool) bool {
-
 	needToUpdatePropertiesContainer := false
 
 	c.mouseMovePointInches_ = pos
-	if c.selected_ && leftButton {
+	if c.selected_ && leftButton && !c.modeResizeItem_ {
 		delta := Point32{pos.x - lastMouseDownPos.x, pos.y - lastMouseDownPos.y}
 
 		newX := c.posOfControlAtLastMouseDown_.x + delta.x
@@ -629,7 +628,6 @@ func (c *MapControl) mouseMove(lastMouseDownPos, pos Point32, leftButton, center
 		}
 
 		if X1 != c.X() || W1 != c.Width() || Y1 != c.Y() || H1 != c.Height() {
-			fmt.Println(X1, c.X(), Y1, c.Y(), W1, c.Width(), H1, c.Height())
 			c.SetX(X1)
 			c.SetWidth(W1)
 			c.SetY(Y1)
