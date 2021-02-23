@@ -586,6 +586,8 @@ func (c *MapControlView) checkExclusiveSelectedItem() {
 		}
 	}
 
+	return
+
 	if c.selectionChanged_ {
 		c.selectionChanged_ = false
 		if c.OnSelectionChanged != nil {
@@ -681,8 +683,6 @@ func (c *MapControlView) mouseDown(x int32, y int32, leftButton, centerButton, r
 				c.setSelectedForItem(item, false)
 			}
 		}
-
-		return true
 
 		c.checkExclusiveSelectedItem()
 
