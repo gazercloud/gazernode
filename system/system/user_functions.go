@@ -104,6 +104,8 @@ func (c *System) saveSessions() {
 		if err != nil {
 			logger.Println("saveSessions error", err)
 		}
+	} else {
+		logger.Println("saveSessions (marshal) error", err)
 	}
 }
 
@@ -112,7 +114,9 @@ func (c *System) loadSessions() {
 	if err == nil {
 		err = json.Unmarshal(configString, &c.sessions)
 		if err != nil {
-			logger.Println("loadSessions error ", err)
+			logger.Println("loadSessions (unmarshal) error ", err)
 		}
+	} else {
+		logger.Println("loadSessions error ", err)
 	}
 }
