@@ -182,7 +182,9 @@ func (c *PropertiesEditor) RebuildInterface() {
 				txtEditor.SetUserData("propType", property.Type)
 				c.propControls[property.Name] = txtEditor
 			}
-			continue
+
+			///////
+
 			if property.Type == uiproperties.PropertyTypeString && property.SubType == "action" {
 				txtEditor := groupPanel.AddButtonOnGrid(1, indexInGroup, "Edit ...", nil)
 				txtEditor.SetOnPress(func(ev *uievents.Event) {
@@ -294,6 +296,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 				groupPanel.AddWidgetOnGrid(txtEditor, 1, indexInGroup)
 				c.propControls[property.Name] = txtEditor
 			}
+			continue
 
 			if property.DefaultValue != nil {
 				btnSetDefault := groupPanel.AddButtonOnGrid(2, indexInGroup, "", func(event *uievents.Event) {
