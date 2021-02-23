@@ -88,7 +88,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 	groupIndex := 0
 	var groupPanel *uicontrols.Panel
 	indexInGroup := 0
-	if true {
+	if false {
 		for _, property := range c.iPropertiesContainer.GetProperties() {
 			if !property.Visible() {
 				continue
