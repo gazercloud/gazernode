@@ -629,6 +629,7 @@ func (c *MapControl) mouseMove(lastMouseDownPos, pos Point32, leftButton, center
 		}
 
 		if X1 != c.X() || W1 != c.Width() || Y1 != c.Y() || H1 != c.Height() {
+			fmt.Println(X1, c.X(), Y1, c.Y(), W1, c.Width(), H1, c.Height())
 			c.SetX(X1)
 			c.SetWidth(W1)
 			c.SetY(Y1)
