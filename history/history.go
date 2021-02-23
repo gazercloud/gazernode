@@ -47,9 +47,20 @@ func (c *History) Stop() {
 	logger.Println("HISTORY flushing ...")
 	c.mtx.Lock()
 	for _, item := range c.items {
-		logger.Println("HISTORY flushing ", item.id)
-		res := item.Flush()
-		logger.Println("HISTORY flushed ", item.id, "OK items:", res.CountOfItems, "data size:", res.FullDataSize)
+		go item.FinishFlush()
+	}
+	for {
+		countOfFinished := 0
+		for _, item := range c.items {
+			if item.flushFinished {
+				countOfFinished++
+			}
+		}
+		if countOfFinished == len(c.items) {
+			break
+		}
+		logger.Println("HISTORY flushing", countOfFinished, " of ", len(c.items), "finished")
+		time.Sleep(250 * time.Millisecond)
 	}
 	c.mtx.Unlock()
 	logger.Println("HISTORY flushing ... OK")

@@ -452,11 +452,7 @@ func (c *PanelUnits) loadUnits() {
 	})
 }
 
-func (c *PanelUnits) timerUpdate() {
-	if c.lvUnits == nil {
-		return
-	}
-
+func (c *PanelUnits) updateUnitsButtons() {
 	if len(c.lvUnits.SelectedItems()) > 0 {
 		if len(c.lvUnits.SelectedItems()) == 1 {
 			c.btnEdit.SetEnabled(true)
@@ -472,9 +468,10 @@ func (c *PanelUnits) timerUpdate() {
 		c.btnStart.SetEnabled(false)
 		c.btnStop.SetEnabled(false)
 	}
+}
 
+func (c *PanelUnits) updateDataItemsButtons() {
 	itemsSelected := c.lvItems.SelectedItems()
-
 	if c.lvItems.ItemsCount() > 0 {
 		c.btnAddToCloud.SetEnabled(true)
 	} else {
@@ -507,7 +504,9 @@ func (c *PanelUnits) timerUpdate() {
 		c.btnShowFullScreen.SetEnabled(false)
 		c.btnRemoveFromCloud.SetEnabled(false)
 	}
+}
 
+func (c *PanelUnits) updateUnitsState() {
 	for i := 0; i < c.lvUnits.ItemsCount(); i++ {
 		unitId := c.lvUnits.Item(i).UserData("id").(string)
 		c.client.GetUnitState(unitId, func(state nodeinterface.UnitStateResponse, err error) {
@@ -546,8 +545,15 @@ func (c *PanelUnits) timerUpdate() {
 		})
 	}
 
+}
+
+func (c *PanelUnits) updateDataItemsState() {
 	if len(c.currentUnitName) > 0 {
 		c.client.GetUnitValues(c.currentUnitName, func(items []common_interfaces.ItemGetUnitItems, err error) {
+			if err != nil {
+				return
+			}
+
 			itemsToShow := make([]common_interfaces.ItemGetUnitItems, 0)
 			for _, di := range items {
 				if !strings.Contains(di.Name, "/.service/") {
@@ -627,6 +633,19 @@ func (c *PanelUnits) timerUpdate() {
 	} else {
 		c.lvItems.RemoveItems()
 	}
+
+}
+
+func (c *PanelUnits) timerUpdate() {
+	if c.Disposed() {
+		return
+	}
+
+	c.updateUnitsButtons()
+	c.updateUnitsState()
+
+	c.updateDataItemsButtons()
+	c.updateDataItemsState()
 }
 
 func (c *PanelUnits) addSelectedItemsToCloud() {

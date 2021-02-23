@@ -18,6 +18,7 @@ type Item struct {
 	data             []*common_interfaces.ItemValue
 	mtx              sync.Mutex
 	files            map[string]*FileCache
+	flushFinished    bool
 }
 
 func NewItem(id uint64) *Item {
@@ -30,7 +31,6 @@ func NewItem(id uint64) *Item {
 }
 
 func (c *Item) Write(value common_interfaces.ItemValue) {
-
 	c.mtx.Lock()
 	c.data = append(c.data, &value)
 	c.mtx.Unlock()
@@ -78,7 +78,15 @@ type FlushResult struct {
 	CountOfItems int
 }
 
+func (c *Item) FinishFlush() {
+	res := c.Flush()
+	//logger.Println("HISTORY flushed ", c.id, "OK items:", res.CountOfItems, "data size:", res.FullDataSize)
+	_ = res
+	c.flushFinished = true
+}
+
 func (c *Item) Flush() FlushResult {
+
 	var result FlushResult
 	var err error
 	var f *os.File
@@ -91,6 +99,7 @@ func (c *Item) Flush() FlushResult {
 
 	// Prepare data for writing
 	c.mtx.Lock()
+
 	items := make([]ItemToWrite, 0)
 	itemsAsObjects := make([]*common_interfaces.ItemValue, 0)
 	for _, item := range c.data {
@@ -116,7 +125,7 @@ func (c *Item) Flush() FlushResult {
 			}
 			_ = os.MkdirAll(dir, 0755)
 			f, err = os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
+			if err == nil {
 				currentDir = dir
 			}
 			currentFilePath = fullPath
