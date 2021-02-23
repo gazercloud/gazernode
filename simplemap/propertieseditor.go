@@ -113,8 +113,6 @@ func (c *PropertiesEditor) RebuildInterface() {
 				break
 			}
 
-			return
-
 			c.propsMap[property.Name] = property
 
 			//panelPropEditor := c.AddPanelOnGrid(0, index)
@@ -122,6 +120,8 @@ func (c *PropertiesEditor) RebuildInterface() {
 			lblName := groupPanel.AddTextBlockOnGrid(0, indexInGroup, "  "+property.DisplayName+":")
 			lblName.SetName("Prop " + property.Name)
 			lblName.TextHAlign = canvas.HAlignLeft
+
+			return
 
 			if property.Type == uiproperties.PropertyTypeBool {
 				numEditor := groupPanel.AddCheckBoxOnGrid(1, indexInGroup, "")
