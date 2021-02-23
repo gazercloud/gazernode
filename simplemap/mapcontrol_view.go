@@ -586,8 +586,6 @@ func (c *MapControlView) checkExclusiveSelectedItem() {
 		}
 	}
 
-	return
-
 	if c.selectionChanged_ {
 		c.selectionChanged_ = false
 		if c.OnSelectionChanged != nil {

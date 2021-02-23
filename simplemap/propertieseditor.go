@@ -74,7 +74,7 @@ func (c *PropertiesEditor) SetPropertiesContainer(propertiesContainer uiproperti
 
 func (c *PropertiesEditor) RebuildInterface() {
 	logger.Println("RebuildInterface")
-	c.BeginUpdate()
+	//c.BeginUpdate()
 	c.loading = true
 	c.RemoveAllWidgets()
 	if c.iPropertiesContainer == nil || reflect.ValueOf(c.iPropertiesContainer).IsNil() {
@@ -323,7 +323,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 		}
 	}
 	c.AddVSpacerOnGrid(0, groupIndex*2+2)
-	c.EndUpdate()
+	//c.EndUpdate()
 
 	c.LoadPropertiesValues()
 	c.loading = false
