@@ -110,6 +110,7 @@ func (c *System) saveSessions() {
 }
 
 func (c *System) loadSessions() {
+	logger.Println("System loadSessions begin")
 	configString, err := ioutil.ReadFile(paths.ProgramDataFolder() + "/gazer/sessions.json")
 	if err == nil {
 		err = json.Unmarshal(configString, &c.sessions)
@@ -119,4 +120,7 @@ func (c *System) loadSessions() {
 	} else {
 		logger.Println("loadSessions error ", err)
 	}
+	logger.Println("System loadSessions")
+	logger.Println(c.sessions)
+	logger.Println("System loadSessions end")
 }
