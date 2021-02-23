@@ -1,10 +1,13 @@
 package app
 
 import (
-	"fmt"
+	"flag"
+	"github.com/gazercloud/gazernode/forms"
 	"github.com/gazercloud/gazernode/system/httpserver"
 	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gazercloud/gazernode/utilities/hostid"
+	"github.com/gazercloud/gazerui/ui"
+	"github.com/gazercloud/gazerui/uiforms"
 	"os"
 	"path/filepath"
 )
@@ -16,6 +19,7 @@ func CurrentExePath() string {
 
 var httpServer *httpserver.HttpServer
 var sys *system.System
+var runServerFlagPtr = flag.Bool("server", false, "Run server")
 
 func start() {
 	hostid.InitHostId()
@@ -36,9 +40,21 @@ func stop() {
 }
 
 func RunDesktop() {
-	start()
-	_, _ = fmt.Scanln()
-	stop()
+	ui.InitUISystem()
+
+	if *runServerFlagPtr {
+		start()
+	}
+
+	{
+		var form forms.MainForm
+		uiforms.StartMainForm(&form)
+		form.Dispose()
+	}
+
+	if *runServerFlagPtr {
+		stop()
+	}
 }
 
 func RunAsService() error {
