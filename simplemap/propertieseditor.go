@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/dialogs"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/coreforms"
 	"github.com/gazercloud/gazerui/filedialogs"
@@ -15,6 +16,7 @@ import (
 	"image/color"
 	"io/ioutil"
 	"reflect"
+	"time"
 )
 
 type PropertiesEditor struct {
@@ -53,6 +55,7 @@ func (c *PropertiesEditor) Dispose() {
 }
 
 func (c *PropertiesEditor) SetPropertiesContainer(propertiesContainer uiproperties.IPropertiesContainer) {
+	logger.Println("SetPropertiesContainer")
 
 	c.propControls = make(map[string]uiinterfaces.Widget)
 	c.propsMap = make(map[string]*uiproperties.Property)
@@ -70,7 +73,7 @@ func (c *PropertiesEditor) SetPropertiesContainer(propertiesContainer uiproperti
 }
 
 func (c *PropertiesEditor) RebuildInterface() {
-
+	logger.Println("RebuildInterface")
 	c.BeginUpdate()
 	c.loading = true
 	c.RemoveAllWidgets()
@@ -327,6 +330,9 @@ func (c *PropertiesEditor) RebuildInterface() {
 }
 
 func (c *PropertiesEditor) LoadPropertiesValues() {
+	logger.Println("LoadPropertiesValues")
+	t1 := time.Now()
+
 	c.BeginUpdate()
 	c.loading = true
 	for propName, widget := range c.propControls {
@@ -430,6 +436,9 @@ func (c *PropertiesEditor) LoadPropertiesValues() {
 	}
 	c.loading = false
 	c.EndUpdate()
+
+	t2 := time.Now()
+	fmt.Println("1:", t2.Sub(t1))
 }
 
 func (c *PropertiesEditor) TextBoxChanged(txtBox *uicontrols.TextBox, oldValue string, newValue string) {
@@ -510,5 +519,6 @@ func (c *PropertiesEditor) ColorPickerChanged(colorPicker *uicontrols.ColorPicke
 }
 
 func (c *PropertiesEditor) OnPropertyChanged(prop *uiproperties.Property) {
+	logger.Println("OnPropertyChanged")
 	c.LoadPropertiesValues()
 }
