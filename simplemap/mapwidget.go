@@ -3,6 +3,7 @@ package simplemap
 import (
 	"errors"
 	"fmt"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazerui/go-gl/glfw/v3.3/glfw"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -14,6 +15,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"time"
 )
 
 type Point struct {
@@ -192,6 +194,7 @@ func (c *MapWidget) SetMapDataSource(mapDataSource IMapDataSource) {
 }
 
 func (c *MapWidget) Draw(canvas ui.DrawContext) {
+	t1 := time.Now()
 
 	// Background
 	canvas.SetColor(colornames.Black)
@@ -209,6 +212,8 @@ func (c *MapWidget) Draw(canvas ui.DrawContext) {
 	canvas.GG().DrawRectangle(float64(cX), float64(cY), float64(c.Width()), float64(c.Height()))
 	canvas.GG().Clip()
 
+	t2 := time.Now()
+
 	{
 		// Map
 		c.drawView(canvas, float64(c.Width()), float64(c.Height()))
@@ -220,6 +225,8 @@ func (c *MapWidget) Draw(canvas ui.DrawContext) {
 
 	canvas.GG().Pop()
 
+	t3 := time.Now()
+
 	canvas.Load()
 
 	//c.drawGroupSelecting(canvas)
@@ -227,6 +234,11 @@ func (c *MapWidget) Draw(canvas ui.DrawContext) {
 	c.drawErrors(canvas)
 
 	c.drawZoomByMouse(canvas)
+
+	t4 := time.Now()
+	logger.Println("map 1", t2.Sub(t1))
+	logger.Println("map 2", t3.Sub(t2))
+	logger.Println("map 3", t4.Sub(t3))
 
 	if c.view_.currentLayer() != nil {
 		canvas.SetColor(colornames.Blue)
