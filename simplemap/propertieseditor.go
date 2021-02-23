@@ -323,7 +323,6 @@ func (c *PropertiesEditor) RebuildInterface() {
 				btnSetDefault.SetMaxHeight(24)
 				btnSetDefault.SetTooltip("Reset to default value")
 			}
-			continue
 			indexInGroup++
 		}
 	}
