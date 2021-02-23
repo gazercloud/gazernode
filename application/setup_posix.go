@@ -8,6 +8,7 @@ import (
 )
 
 func setupPosix() {
+	log.Println(" *** Gazer setup procedure ***")
 	log.Println("stopping service")
 	StopService()
 	log.Println("stopping service - complete")
@@ -41,4 +42,5 @@ func setupPosix() {
 		log.Println(err)
 	}
 	log.Println("starting service ... complete")
+	log.Println(" *** Gazer setup procedure: complete ***")
 }
