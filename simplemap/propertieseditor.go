@@ -296,7 +296,6 @@ func (c *PropertiesEditor) RebuildInterface() {
 				groupPanel.AddWidgetOnGrid(txtEditor, 1, indexInGroup)
 				c.propControls[property.Name] = txtEditor
 			}
-			continue
 
 			if property.DefaultValue != nil {
 				btnSetDefault := groupPanel.AddButtonOnGrid(2, indexInGroup, "", func(event *uievents.Event) {
@@ -324,6 +323,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 				btnSetDefault.SetMaxHeight(24)
 				btnSetDefault.SetTooltip("Reset to default value")
 			}
+			continue
 			indexInGroup++
 		}
 	}
