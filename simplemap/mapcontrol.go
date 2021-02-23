@@ -572,11 +572,15 @@ func (c *MapControl) mouseMove(lastMouseDownPos, pos Point32, leftButton, center
 
 		newX := c.posOfControlAtLastMouseDown_.x + delta.x
 		newY := c.posOfControlAtLastMouseDown_.y + delta.y
-		c.SetX(c.align(newX))
-		c.SetY(c.align(newY))
-		c.saveSizesAsOriginal()
+		newX = c.align(newX)
+		newY = c.align(newY)
 
-		needToUpdatePropertiesContainer = true
+		if newX != c.X() || newY != c.Y() {
+			c.SetX(newX)
+			c.SetY(newY)
+			c.saveSizesAsOriginal()
+			needToUpdatePropertiesContainer = true
+		}
 	}
 
 	for _, point := range c.points_ {
@@ -624,30 +628,32 @@ func (c *MapControl) mouseMove(lastMouseDownPos, pos Point32, leftButton, center
 			Y1 = Y1 - H1
 		}
 
-		c.SetX(X1)
-		c.SetWidth(W1)
-		c.SetY(Y1)
-		c.SetHeight(H1)
+		if X1 != c.X() || W1 != c.Width() || Y1 != c.Y() || H1 != c.Height() {
+			c.SetX(X1)
+			c.SetWidth(W1)
+			c.SetY(Y1)
+			c.SetHeight(H1)
 
-		c.imapControl.updateLayout(true)
+			c.imapControl.updateLayout(true)
 
-		c.saveSizesAsOriginal()
+			c.saveSizesAsOriginal()
 
-		c.imapControl.refreshScale()
+			c.imapControl.refreshScale()
 
-		// Highlight of resize point (depends of resize type)
-		switch c.resizeItemVertex_ {
-		case MapControlVertexLeftTop:
-			c.pointTopLeft_.highlight = true
-		case MapControlVertexRightTop:
-			c.pointTopRight_.highlight = true
-		case MapControlVertexRightBottom:
-			c.pointBottomRight_.highlight = true
-		case MapControlVertexLeftBottom:
-			c.pointBottomLeft_.highlight = true
+			// Highlight of resize point (depends of resize type)
+			switch c.resizeItemVertex_ {
+			case MapControlVertexLeftTop:
+				c.pointTopLeft_.highlight = true
+			case MapControlVertexRightTop:
+				c.pointTopRight_.highlight = true
+			case MapControlVertexRightBottom:
+				c.pointBottomRight_.highlight = true
+			case MapControlVertexLeftBottom:
+				c.pointBottomLeft_.highlight = true
+			}
+
+			needToUpdatePropertiesContainer = true
 		}
-
-		needToUpdatePropertiesContainer = true
 
 	} else {
 
