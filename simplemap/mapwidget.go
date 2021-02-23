@@ -508,7 +508,7 @@ func (c *MapWidget) MouseDown(event *uievents.MouseDownEvent) {
 
 	fmt.Println("----------------")
 
-	processed = c.view_.mouseDown(c.mousePressPointInches_.x, c.mousePressPointInches_.y, c.isLeftButtonDown_, c.isCenterButtonDown_, c.isRightButtonDown_, event.Modifiers.Shift, event.Modifiers.Control, event.Modifiers.Alt)
+	//processed = c.view_.mouseDown(c.mousePressPointInches_.x, c.mousePressPointInches_.y, c.isLeftButtonDown_, c.isCenterButtonDown_, c.isRightButtonDown_, event.Modifiers.Shift, event.Modifiers.Control, event.Modifiers.Alt)
 	/*if c.isLeftButtonDown_ && c.view_.editing_ {
 		if c.view_ != nil {
 			processed = c.view_.mouseDown(c.mousePressPointInches_.x, c.mousePressPointInches_.y, c.isLeftButtonDown_, c.isCenterButtonDown_, c.isRightButtonDown_, event.Modifiers.Shift, event.Modifiers.Control, event.Modifiers.Alt)
