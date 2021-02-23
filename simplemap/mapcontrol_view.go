@@ -674,6 +674,8 @@ func (c *MapControlView) mouseDown(x int32, y int32, leftButton, centerButton, r
 			c.setSelectedForItem(topItem, !topItem.selected())
 		}*/
 
+		return true
+
 		for _, item := range c.currentLayer_.items_ {
 			if item == topItem {
 				c.setSelectedForItem(item, true)
