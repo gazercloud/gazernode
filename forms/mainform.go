@@ -4,10 +4,10 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/local_user_storage"
 	"github.com/gazercloud/gazernode/product/productinfo"
-	"github.com/gazercloud/gazerui/go-gl/glfw/v3.3/glfw"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiforms"
 	"github.com/gazercloud/gazerui/uistyles"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 type MainForm struct {
