@@ -125,7 +125,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			sessionToken = sessionTokenCookie.Value
 		}
 
-		if function != nodeinterface.FuncSessionOpen {
+		if function != nodeinterface.FuncSessionOpen && function != nodeinterface.FuncSessionActivate {
 			_, err = c.system.CheckSession(sessionToken)
 			if err != nil {
 				logger.Println("Session Token error: ", err, "Token:", sessionToken)
