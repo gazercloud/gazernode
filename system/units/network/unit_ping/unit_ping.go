@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/sparrc/go-ping"
+	"github.com/go-ping/ping"
 	"math"
 	"runtime"
 	"time"
