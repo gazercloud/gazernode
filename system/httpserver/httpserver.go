@@ -146,6 +146,17 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 				http.SetCookie(w, &cookie)
 			}
 		}
+
+		if function == nodeinterface.FuncSessionActivate && err == nil {
+			// Set cookie
+			var sessionActivateResponse nodeinterface.SessionActivateResponse
+			errSessionActivateResp := json.Unmarshal(responseText, &sessionActivateResponse)
+			if errSessionActivateResp == nil {
+				expiration := time.Now().Add(365 * 24 * time.Hour)
+				cookie := http.Cookie{Name: "session_token", Value: sessionActivateResponse.SessionToken, Expires: expiration}
+				http.SetCookie(w, &cookie)
+			}
+		}
 	}
 
 	if err != nil {

@@ -89,6 +89,8 @@ func (c *HttpServer) requestJson(function string, requestText []byte) ([]byte, e
 		// *** Data Item ***
 	case nodeinterface.FuncSessionOpen:
 		result, err = c.SessionOpen(requestText)
+	case nodeinterface.FuncSessionActivate:
+		result, err = c.SessionActivate(requestText)
 
 	default:
 		err = errors.New("function not supported")

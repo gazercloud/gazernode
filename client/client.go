@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazerui/uievents"
@@ -58,17 +57,7 @@ func NewWithSessionToken(window uiinterfaces.Window, address string, userName st
 	c.userName = userName
 	c.sessionToken = sessionToken
 	c.initClient(window)
-	uu := c.sessionTokenUrl()
-	fmt.Println(uu)
-	var cookie http.Cookie
-	cookie.Secure = false
-	cookie.Name = "session_token"
-	cookie.Domain = "localhost"
-	cookie.Path = "/api"
-	cookie.HttpOnly = true
-	cookie.Expires = time.Now().Add(24 * 365 * time.Hour)
-	cookie.Value = sessionToken
-	c.client.Jar.SetCookies(c.sessionTokenUrl(), []*http.Cookie{&cookie})
+	c.SessionActivate(sessionToken, nil)
 	return &c
 }
 

@@ -8,3 +8,11 @@ type SessionOpenRequest struct {
 type SessionOpenResponse struct {
 	SessionToken string `json:"session_token"`
 }
+
+type SessionActivateRequest struct {
+	SessionToken string `json:"session_token"`
+}
+
+type SessionActivateResponse struct {
+	SessionToken string `json:"session_token"`
+}

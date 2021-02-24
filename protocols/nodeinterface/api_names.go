@@ -45,5 +45,6 @@ const (
 	FuncResourceList   = "res_list"
 
 	// *** User ***
-	FuncSessionOpen = "session_open"
+	FuncSessionOpen     = "session_open"
+	FuncSessionActivate = "session_activate"
 )

@@ -34,3 +34,32 @@ func (c *Client) SessionOpen(userName string, password string, f func(nodeinterf
 
 	go c.thCall(&call)
 }
+
+func (c *Client) SessionActivate(sessionToken string, f func(nodeinterface.SessionActivateResponse, error)) {
+	var call Call
+	var req nodeinterface.SessionActivateRequest
+	req.SessionToken = sessionToken
+	call.function = nodeinterface.FuncSessionActivate
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.SessionActivateResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+
+			// Save session token
+			if err == nil {
+				c.sessionToken = resp.SessionToken
+				if c.OnSessionOpen != nil {
+					c.OnSessionOpen()
+				}
+			}
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+
+	go c.thCall(&call)
+}
