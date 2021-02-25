@@ -30,12 +30,15 @@ type PanelNode struct {
 	btnPanelCharts *uicontrols.Button
 	btnPanelCloud  *uicontrols.Button
 	btnPanelMaps   *uicontrols.Button
-	btnSettings    *uicontrols.Button
+	btnPanelUsers  *uicontrols.Button
+
+	btnSettings *uicontrols.Button
 
 	panelUnits  *PanelUnits
 	panelCloud  *PanelCloud
 	panelCharts *PanelCharts
 	panelMaps   *PanelMaps
+	panelUsers  *PanelUsers
 
 	currentButton *uicontrols.Button
 	buttons       []*uicontrols.Button
@@ -72,6 +75,15 @@ func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionI
 		c.FullRefresh()
 	}
 
+	c.client.OnSessionClose = func() {
+		var conn local_user_storage.NodeConnection
+		conn.UserName = c.client.UserName()
+		conn.Address = c.client.Address()
+		conn.SessionToken = c.client.SessionToken()
+		local_user_storage.Instance().SetConnection(c.connectionIndex, conn)
+		c.FullRefresh()
+	}
+
 	if c.client.SessionToken() == "" {
 		c.client.SessionOpen(client.UserName(), client.Password(), nil)
 	}
@@ -91,6 +103,7 @@ func (c *PanelNode) Dispose() {
 	c.btnPanelUnits = nil
 	c.btnPanelCharts = nil
 	c.btnPanelCloud = nil
+	c.btnPanelUsers = nil
 	c.btnSettings = nil
 
 	c.panelUnits = nil
@@ -113,6 +126,7 @@ func (c *PanelNode) FullRefresh() {
 	c.panelCharts.FullRefresh()
 	c.panelMaps.FullRefresh()
 	c.panelCloud.FullRefresh()
+	c.panelUsers.FullRefresh()
 }
 
 func (c *PanelNode) StylizeButton() {
@@ -120,10 +134,16 @@ func (c *PanelNode) StylizeButton() {
 	c.btnPanelCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelCloud.AccentColor()))
 	c.btnPanelCharts.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_editor_stacked_line_chart_materialiconsoutlined_48dp_1x_outline_stacked_line_chart_black_48dp_png, c.btnPanelCharts.AccentColor()))
 	c.btnPanelMaps.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.btnPanelCharts.AccentColor()))
+	c.btnPanelUsers.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.btnPanelCharts.AccentColor()))
 
 	for _, btn := range c.buttons {
 		btn.SetBorders(0, color.White)
-		btn.SetBorderBottom(1, c.ForeColor())
+		if btn == c.btnPanelUsers {
+			btn.SetBorderTop(1, c.ForeColor())
+			btn.SetBorderBottom(1, c.ForeColor())
+		} else {
+			btn.SetBorderBottom(1, c.ForeColor())
+		}
 		if c.currentButton != nil {
 			if btn.Text() == c.currentButton.Text() {
 				btn.SetBorderLeft(3, c.AccentColor())
@@ -164,6 +184,7 @@ func (c *PanelNode) OnInit() {
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(false)
 		c.panelMaps.SetVisible(false)
+		c.panelUsers.SetVisible(false)
 		c.currentButton = c.btnPanelUnits
 		c.panelUnits.Activate()
 		c.StylizeButton()
@@ -176,6 +197,7 @@ func (c *PanelNode) OnInit() {
 		c.panelCloud.SetVisible(true)
 		c.panelCharts.SetVisible(false)
 		c.panelMaps.SetVisible(false)
+		c.panelUsers.SetVisible(false)
 		c.currentButton = c.btnPanelCloud
 		c.StylizeButton()
 	})
@@ -187,6 +209,7 @@ func (c *PanelNode) OnInit() {
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(true)
 		c.panelMaps.SetVisible(false)
+		c.panelUsers.SetVisible(false)
 		c.currentButton = c.btnPanelCharts
 		c.StylizeButton()
 	})
@@ -198,6 +221,7 @@ func (c *PanelNode) OnInit() {
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(false)
 		c.panelMaps.SetVisible(true)
+		c.panelUsers.SetVisible(false)
 		c.currentButton = c.btnPanelMaps
 		c.StylizeButton()
 	})
@@ -205,6 +229,18 @@ func (c *PanelNode) OnInit() {
 	c.buttons = append(c.buttons, c.btnPanelMaps)
 
 	panelLeftMenu.AddVSpacerOnGrid(0, 5)
+
+	c.btnPanelUsers = panelLeftMenu.AddButtonOnGrid(0, 6, "Users", func(event *uievents.Event) {
+		c.panelUnits.SetVisible(false)
+		c.panelCloud.SetVisible(false)
+		c.panelCharts.SetVisible(false)
+		c.panelMaps.SetVisible(false)
+		c.panelUsers.SetVisible(true)
+		c.currentButton = c.btnPanelUsers
+		c.StylizeButton()
+	})
+	c.btnPanelUsers.SetMouseCursor(ui.MouseCursorPointer)
+	c.buttons = append(c.buttons, c.btnPanelUsers)
 
 	c.StylizeButton()
 
@@ -221,16 +257,20 @@ func (c *PanelNode) OnInit() {
 	panelContent.AddWidgetOnGrid(c.panelCharts, 0, 2)
 	c.panelMaps = NewPanelMaps(panelContent, c.client)
 	panelContent.AddWidgetOnGrid(c.panelMaps, 0, 3)
+	c.panelUsers = NewPanelUsers(panelContent, c.client)
+	panelContent.AddWidgetOnGrid(c.panelUsers, 0, 4)
 
 	c.panelUnits.SetVisible(false)
 	c.panelCloud.SetVisible(false)
 	c.panelCharts.SetVisible(false)
 	c.panelMaps.SetVisible(false)
+	c.panelUsers.SetVisible(false)
 
 	c.panelUnits.SetPanelPadding(0)
 	c.panelCloud.SetPanelPadding(0)
 	c.panelCharts.SetPanelPadding(0)
 	c.panelMaps.SetPanelPadding(0)
+	c.panelUsers.SetPanelPadding(0)
 
 	t4 := time.Now()
 
@@ -281,7 +321,7 @@ func (c *PanelNode) OnInit() {
 
 	c.lblStatistics = c.panelBottom.AddTextBlockOnGrid(2, 0, "---")
 	c.lblStatistics.OnClick = func(ev *uievents.Event) {
-		dialog := NewNodeConnectionDialog(c)
+		dialog := NewNodeConnectionDialog(c, c.client)
 		dialog.OnAccept = func() {
 			c.client.SessionOpen(dialog.Connection.UserName, dialog.Connection.Password, nil)
 		}
@@ -294,11 +334,11 @@ func (c *PanelNode) OnInit() {
 	t5 := time.Now()
 
 	c.panelBottom.AddHSpacerOnGrid(5, 0)
-	c.lblAd = c.panelBottom.AddTextBlockOnGrid(6, 0, "This is a beta version of the software!")
-	c.lblAd.SetForeColor(colornames.Red)
+	c.lblAd = c.panelBottom.AddTextBlockOnGrid(6, 0, "")
+	c.lblAd.SetForeColor(settings.GoodColor)
 	c.lblAd.SetUnderline(true)
 	c.lblAd.OnClick = func(ev *uievents.Event) {
-		client.OpenBrowser("https://gazer.cloud/ad/beta_version")
+		client.OpenBrowser(adFromSite.Url)
 	}
 	c.lblAd.SetMouseCursor(ui.MouseCursorPointer)
 	c.panelBottom.AddTextBlockOnGrid(7, 0, "  ")
@@ -346,16 +386,26 @@ func (c *PanelNode) timerUpdate() {
 		if c.lblStatistics != nil {
 			if err == nil {
 				c.lblStatistics.SetForeColor(settings.GoodColor)
-				c.lblStatistics.SetText("connected to " + c.client.Address())
+				txt := "Connected (" + c.client.UserName() + "@" + c.client.Address() + ")"
+				c.lblStatistics.SetText(Substr(txt, 0, 64))
 				c.imgBottomStatus.SetImage(c.imgConnectionOK)
 			} else {
-				c.lblStatistics.SetForeColor(colornames.Red)
-				c.lblStatistics.SetText(Substr(err.Error(), 0, 32))
-				c.imgBottomStatus.SetImage(c.imgConnectionError)
+				if c.client.SessionToken() == "" {
+					c.lblStatistics.SetForeColor(colornames.Red)
+					txt := "Authentication required (" + c.client.Address() + ")"
+					c.lblStatistics.SetText(Substr(txt, 0, 64))
+					c.imgBottomStatus.SetImage(c.imgConnectionError)
+				} else {
+					c.lblStatistics.SetForeColor(colornames.Red)
+					txt := "Error: " + err.Error() + " (" + c.client.UserName() + "@" + c.client.Address() + ")"
+					c.lblStatistics.SetText(Substr(txt, 0, 64))
+					c.imgBottomStatus.SetImage(c.imgConnectionError)
+				}
 			}
 			c.imgBottomStatus.SetMinWidth(48)
 		}
 	})
+	c.lblAd.SetText(Substr(adFromSite.Text, 0, 64))
 }
 
 func (c *PanelNode) ShowFullScreenValue(show bool, itemId string) {

@@ -23,8 +23,8 @@ type System struct {
 	history   *history.History
 	resources *resources.Resources
 
-	users      []*User
-	userByName map[string]*User
+	users      []*common_interfaces.User
+	userByName map[string]*common_interfaces.User
 	sessions   map[string]*UserSession
 
 	mtx sync.Mutex
@@ -40,15 +40,9 @@ func NewSystem() *System {
 	c.history = history.NewHistory()
 	c.resources = resources.NewResources()
 
-	c.users = make([]*User, 0)
-	c.userByName = make(map[string]*User)
+	c.users = make([]*common_interfaces.User, 0)
+	c.userByName = make(map[string]*common_interfaces.User)
 	c.sessions = make(map[string]*UserSession)
-
-	var u User
-	u.Name = "root"
-	u.PasswordHash = ""
-	c.users = append(c.users, &u)
-	c.userByName[u.Name] = &u
 
 	return &c
 }
@@ -56,6 +50,7 @@ func NewSystem() *System {
 func (c *System) Start() {
 	c.LoadConfig()
 	c.loadSessions()
+
 	items := last_values.Read()
 	for _, item := range items {
 		if realItem, ok := c.itemsByName[item.Name]; ok {
@@ -72,5 +67,6 @@ func (c *System) Stop() {
 	c.cloud.Stop()
 	c.history.Stop()
 	c.SaveConfig()
+	c.saveSessions()
 	last_values.Write(c.items)
 }

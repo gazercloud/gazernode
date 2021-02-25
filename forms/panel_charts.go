@@ -26,6 +26,8 @@ type PanelCharts struct {
 	btnRename *uicontrols.Button
 	btnRemove *uicontrols.Button
 
+	btnRefresh *uicontrols.Button
+
 	btnEdit   *uicontrols.Button
 	btnReject *uicontrols.Button
 	btnSave   *uicontrols.Button
@@ -106,7 +108,14 @@ func (c *PanelCharts) OnInit() {
 	})
 	c.btnRemove.SetTooltip("Remove selected chart group")
 
-	pButtons.AddHSpacerOnGrid(3, 0)
+	pButtons.AddTextBlockOnGrid(3, 0, " | ")
+
+	c.btnRefresh = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
+		c.loadChartGroups("")
+	})
+	c.btnRefresh.SetTooltip("Refresh")
+
+	pButtons.AddHSpacerOnGrid(5, 0)
 
 	pMapButtons := splitter.Panel2.AddPanelOnGrid(0, 0)
 	c.btnEdit = pMapButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
@@ -272,8 +281,10 @@ func (c *PanelCharts) loadSelected() {
 	if selectedItem != nil {
 		resId := selectedItem.TempData
 		c.client.ResGet(resId, func(item *common_interfaces.ResourcesItem, err error) {
-			if c.SetCurrentRes(resId, item.Info.Type) {
-				c.timeChart.Load(item.Content)
+			if err == nil {
+				if c.SetCurrentRes(resId, item.Info.Type) {
+					c.timeChart.Load(item.Content)
+				}
 			}
 		})
 	} else {
@@ -338,6 +349,8 @@ func (c *PanelCharts) UpdateStyle() {
 	c.btnReject.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_communication_cancel_presentation_materialicons_48dp_1x_baseline_cancel_presentation_black_48dp_png, inactiveColor))
 	c.btnRemove.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, inactiveColor))
 
+	c.btnRefresh.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, activeColor))
+	c.btnRefresh.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, inactiveColor))
 }
 
 func (c *PanelCharts) GetDataItemValue(path string, control simplemap.IMapControl) {

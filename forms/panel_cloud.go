@@ -31,6 +31,8 @@ type PanelCloud struct {
 	btnEdit   *uicontrols.Button
 	btnRemove *uicontrols.Button
 
+	btnRefresh *uicontrols.Button
+
 	btnStart         *uicontrols.Button
 	btnStop          *uicontrols.Button
 	btnOpenInBrowser *uicontrols.Button
@@ -102,7 +104,14 @@ func (c *PanelCloud) OnInit() {
 	})
 	c.btnRemove.SetTooltip("Remove channel")
 
-	pButtons.AddHSpacerOnGrid(3, 0)
+	pButtons.AddTextBlockOnGrid(3, 0, " | ")
+
+	c.btnRefresh = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
+		c.loadChannels()
+	})
+	c.btnRefresh.SetTooltip("Refresh")
+
+	pButtons.AddHSpacerOnGrid(5, 0)
 	/*
 		c.btnStart = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
 			unitId := c.lvChannels.SelectedItem().TempData
@@ -297,6 +306,8 @@ func (c *PanelCloud) UpdateStyle() {
 	c.btnShowFullScreen.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialicons_48dp_1x_baseline_fullscreen_black_48dp_png, inactiveColor))
 	c.btnRemoveFromCloud.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialicons_48dp_1x_baseline_cloud_off_black_48dp_png, inactiveColor))
 
+	c.btnRefresh.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, activeColor))
+	c.btnRefresh.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, inactiveColor))
 }
 
 func (c *PanelCloud) SetCurrentChannelId(channelId string, name string) {

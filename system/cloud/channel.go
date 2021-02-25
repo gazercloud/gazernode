@@ -214,10 +214,10 @@ type Item struct {
 }
 
 type ChannelFullInfo struct {
-	Id       string
-	Password string
-	Name     string
-	Items    []string
+	Id       string   `json:"id"`
+	Password string   `json:"password"`
+	Name     string   `json:"name"`
+	Items    []string `json:"items"`
 }
 
 type ChannelInfo struct {

@@ -30,7 +30,8 @@ type Client struct {
 	password     string
 	sessionToken string
 
-	OnSessionOpen func()
+	OnSessionOpen  func()
+	OnSessionClose func()
 }
 
 type Call struct {

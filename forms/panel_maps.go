@@ -28,6 +28,8 @@ type PanelMaps struct {
 	btnRename *uicontrols.Button
 	btnRemove *uicontrols.Button
 
+	btnRefresh *uicontrols.Button
+
 	btnEdit   *uicontrols.Button
 	btnReject *uicontrols.Button
 	btnSave   *uicontrols.Button
@@ -130,7 +132,14 @@ func (c *PanelMaps) OnInit() {
 	})
 	c.btnRemove.SetTooltip("Remove selected map")
 
-	pButtons.AddHSpacerOnGrid(3, 0)
+	pButtons.AddTextBlockOnGrid(3, 0, " | ")
+
+	c.btnRefresh = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
+		c.loadMaps()
+	})
+	c.btnRefresh.SetTooltip("Refresh")
+
+	pButtons.AddHSpacerOnGrid(5, 0)
 
 	pMapButtons := c.splitter.Panel2.AddPanelOnGrid(0, 0)
 	c.btnEdit = pMapButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
@@ -442,6 +451,8 @@ func (c *PanelMaps) UpdateStyle() {
 	c.btnZoom100.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_custom_zoom_100_png, inactiveColor))
 	c.btnZoomInContainer.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_with_materialicons_48dp_1x_baseline_open_with_black_48dp_png, inactiveColor))
 
+	c.btnRefresh.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, activeColor))
+	c.btnRefresh.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, inactiveColor))
 }
 
 func (c *PanelMaps) GetDataItemValue(path string, control simplemap.IMapControl) {

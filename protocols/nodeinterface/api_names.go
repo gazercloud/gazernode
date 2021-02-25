@@ -47,4 +47,11 @@ const (
 	// *** User ***
 	FuncSessionOpen     = "session_open"
 	FuncSessionActivate = "session_activate"
+	FuncSessionRemove   = "session_remove"
+	FuncSessionList     = "session_list"
+
+	FuncUserList        = "user_list"
+	FuncUserAdd         = "user_add"
+	FuncUserSetPassword = "user_set_password"
+	FuncUserRemove      = "user_remove"
 )

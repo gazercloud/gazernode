@@ -226,13 +226,6 @@ func (c *MapWidget) Draw(canvas ui.DrawContext) {
 	c.drawErrors(canvas)
 
 	c.drawZoomByMouse(canvas)
-
-	if c.view_.currentLayer() != nil {
-		canvas.SetColor(colornames.Blue)
-		canvas.SetFontFamily("Roboto")
-		canvas.SetFontSize(12)
-		canvas.DrawText(10, c.Height()-50, 100, 100, c.view_.currentLayer().name_)
-	}
 }
 
 func (c *MapWidget) drawGrid(canvas ui.DrawContext) {

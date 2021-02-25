@@ -10,6 +10,7 @@ func (c *Client) SessionOpen(userName string, password string, f func(nodeinterf
 	var req nodeinterface.SessionOpenRequest
 	req.UserName = userName
 	req.Password = password
+	c.userName = userName
 	call.function = nodeinterface.FuncSessionOpen
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
@@ -55,6 +56,142 @@ func (c *Client) SessionActivate(sessionToken string, f func(nodeinterface.Sessi
 				}
 			}
 		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+
+	go c.thCall(&call)
+}
+
+func (c *Client) SessionRemove(sessionToken string, f func(nodeinterface.SessionRemoveResponse, error)) {
+	var call Call
+	var req nodeinterface.SessionRemoveRequest
+	req.SessionToken = sessionToken
+	call.function = nodeinterface.FuncSessionRemove
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.SessionRemoveResponse
+		if c.sessionToken == sessionToken {
+			c.sessionToken = ""
+		}
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+			if c.OnSessionClose != nil {
+				c.OnSessionClose()
+			}
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+
+	go c.thCall(&call)
+}
+
+func (c *Client) SessionList(userName string, f func(nodeinterface.SessionListResponse, error)) {
+	var call Call
+	var req nodeinterface.SessionListRequest
+	req.UserName = userName
+	call.function = nodeinterface.FuncSessionList
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.SessionListResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+
+	go c.thCall(&call)
+}
+
+func (c *Client) UserList(f func(nodeinterface.UserListResponse, error)) {
+	var call Call
+	var req nodeinterface.UserListRequest
+	call.function = nodeinterface.FuncUserList
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.UserListResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+
+	go c.thCall(&call)
+}
+
+func (c *Client) UserAdd(userName string, password string, f func(nodeinterface.UserAddResponse, error)) {
+	var call Call
+	var req nodeinterface.UserAddRequest
+	req.UserName = userName
+	req.Password = password
+	call.function = nodeinterface.FuncUserAdd
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.UserAddResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+
+	go c.thCall(&call)
+}
+
+func (c *Client) UserSetPassword(userName string, password string, f func(nodeinterface.UserSetPasswordResponse, error)) {
+	var call Call
+	var req nodeinterface.UserSetPasswordRequest
+	req.UserName = userName
+	req.Password = password
+	call.function = nodeinterface.FuncUserSetPassword
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.UserSetPasswordResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+
+	go c.thCall(&call)
+}
+
+func (c *Client) UserRemove(userName string, f func(nodeinterface.UserRemoveResponse, error)) {
+	var call Call
+	var req nodeinterface.UserRemoveRequest
+	req.UserName = userName
+	call.function = nodeinterface.FuncUserRemove
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.UserRemoveResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+
 		if f != nil {
 			f(resp, err)
 		}

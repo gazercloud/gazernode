@@ -3,6 +3,7 @@ package system
 import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/system/cloud"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/utilities/paths"
@@ -10,10 +11,11 @@ import (
 )
 
 type Config struct {
-	Units      []units_common.UnitInfo
-	Channels   []cloud.ChannelFullInfo
-	Items      []common_interfaces.ItemConfiguration
-	NextItemId uint64
+	Users      []common_interfaces.User              `json:"users"`
+	Units      []units_common.UnitInfo               `json:"units"`
+	Channels   []cloud.ChannelFullInfo               `json:"channels"`
+	Items      []common_interfaces.ItemConfiguration `json:"items"`
+	NextItemId uint64                                `json:"next_item_id"`
 }
 
 func (c *System) SaveConfig() error {
@@ -23,6 +25,10 @@ func (c *System) SaveConfig() error {
 	var conf Config
 	conf.Units = c.unitsSystem.Units()
 	conf.Channels = c.cloud.ChannelsFullInfo()
+	conf.Users = make([]common_interfaces.User, 0)
+	for _, u := range c.users {
+		conf.Users = append(conf.Users, *u)
+	}
 
 	conf.Items = make([]common_interfaces.ItemConfiguration, 0)
 	for _, item := range c.items {
@@ -57,6 +63,22 @@ func (c *System) LoadConfig() error {
 	err = json.Unmarshal([]byte(configString), &conf)
 	if err != nil {
 		return err
+	}
+
+	c.users = make([]*common_interfaces.User, 0)
+	for _, u := range conf.Users {
+		us := u
+		c.users = append(c.users, &us)
+		c.userByName[us.Name] = &us
+	}
+
+	if len(c.users) == 0 {
+		logger.Println("System loadUsers adding default user")
+		var u common_interfaces.User
+		u.Name = DefaultUserName
+		u.PasswordHash = c.hashPassword(DefaultUserPassword)
+		c.users = append(c.users, &u)
+		c.userByName[u.Name] = &u
 	}
 
 	c.nextItemId = conf.NextItemId

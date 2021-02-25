@@ -1,6 +1,8 @@
 package forms
 
 import (
+	"crypto/tls"
+	"encoding/json"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/local_user_storage"
 	"github.com/gazercloud/gazernode/product/productinfo"
@@ -8,12 +10,34 @@ import (
 	"github.com/gazercloud/gazerui/uiforms"
 	"github.com/gazercloud/gazerui/uistyles"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"io/ioutil"
+	"net/http"
 )
 
 type MainForm struct {
 	uiforms.Form
 	tabNodes    *uicontrols.TabControl
 	nodeWidgets []*PanelNode
+}
+
+type AdFromSite struct {
+	Text string `json:"text"`
+	Url  string `json:"url"`
+}
+
+var adFromSite AdFromSite
+
+func updateAdFromSite() {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
+	}
+	client := &http.Client{Transport: tr}
+	resp, err := client.Get("https://gazer.cloud/download/ad.json")
+	if err == nil {
+		content, _ := ioutil.ReadAll(resp.Body)
+		json.Unmarshal(content, &adFromSite)
+		resp.Body.Close()
+	}
 }
 
 var MainFormInstance *MainForm
@@ -66,6 +90,8 @@ func (c *MainForm) OnInit() {
 
 	c.tabNodes.SetCurrentPage(0)
 
+	go updateAdFromSite()
+
 	//MainFormInstance.SetTheme(MainFormInstance.GetTheme())
 }
 
@@ -74,7 +100,7 @@ func (c *MainForm) Dispose() {
 }
 
 func (c *MainForm) AddNode() {
-	dialog := NewNodeConnectionDialog(c.Panel())
+	dialog := NewNodeConnectionDialog(c.Panel(), nil)
 	dialog.OnAccept = func() {
 		// Add to preferences
 		var conn local_user_storage.NodeConnection

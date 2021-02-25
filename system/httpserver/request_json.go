@@ -91,6 +91,19 @@ func (c *HttpServer) requestJson(function string, requestText []byte) ([]byte, e
 		result, err = c.SessionOpen(requestText)
 	case nodeinterface.FuncSessionActivate:
 		result, err = c.SessionActivate(requestText)
+	case nodeinterface.FuncSessionRemove:
+		result, err = c.SessionRemove(requestText)
+	case nodeinterface.FuncSessionList:
+		result, err = c.SessionList(requestText)
+
+	case nodeinterface.FuncUserList:
+		result, err = c.UserList(requestText)
+	case nodeinterface.FuncUserAdd:
+		result, err = c.UserAdd(requestText)
+	case nodeinterface.FuncUserSetPassword:
+		result, err = c.UserSetPassword(requestText)
+	case nodeinterface.FuncUserRemove:
+		result, err = c.UserRemove(requestText)
 
 	default:
 		err = errors.New("function not supported")

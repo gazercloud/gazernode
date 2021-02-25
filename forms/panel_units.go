@@ -34,6 +34,8 @@ type PanelUnits struct {
 	btnStart *uicontrols.Button
 	btnStop  *uicontrols.Button
 
+	btnRefresh *uicontrols.Button
+
 	btnShowFullScreen  *uicontrols.Button
 	btnAddToCloud      *uicontrols.Button
 	btnRemoveFromCloud *uicontrols.Button
@@ -102,7 +104,14 @@ func (c *PanelUnits) OnInit() {
 	})
 	c.btnStop.SetTooltip("Stop selected units")
 
-	pButtons.AddHSpacerOnGrid(7, 0)
+	pButtons.AddTextBlockOnGrid(7, 0, " | ")
+
+	c.btnRefresh = pButtons.AddButtonOnGrid(8, 0, "", func(event *uievents.Event) {
+		c.loadUnits()
+	})
+	c.btnRefresh.SetTooltip("Refresh")
+
+	pButtons.AddHSpacerOnGrid(9, 0)
 
 	c.lvUnits = pUnitsList.AddListViewOnGrid(0, 2)
 	c.lvUnits.AddColumn("Name", 150)
@@ -412,6 +421,8 @@ func (c *PanelUnits) UpdateStyle() {
 	c.btnRemoveFromCloud.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, inactiveColor))
 	c.btnOpenInBrowser.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, inactiveColor))
 
+	c.btnRefresh.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, activeColor))
+	c.btnRefresh.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, inactiveColor))
 }
 
 func (c *PanelUnits) SetCurrentUnit(unitId string, unitName string, mainItem string) {
