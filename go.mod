@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/fogleman/gg v1.3.0
-	github.com/gazercloud/gazerui v1.0.3
+	github.com/gazercloud/gazerui v1.0.4
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
 	github.com/go-ping/ping v0.0.0-20210216210419-25d1413fb7bb
 	github.com/google/uuid v1.2.0
@@ -24,4 +24,4 @@ require (
 	golang.org/x/text v0.3.5
 )
 
-replace github.com/gazercloud/gazerui => ../gazerui
+// replace github.com/gazercloud/gazerui => ../gazerui
