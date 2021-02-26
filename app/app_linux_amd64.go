@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/gazercloud/gazernode/forms"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uiforms"
 )

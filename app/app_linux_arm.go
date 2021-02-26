@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/utilities/paths"
 )
 
 func RunDesktop() {
