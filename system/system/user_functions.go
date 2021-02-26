@@ -11,6 +11,7 @@ import (
 	"github.com/gazercloud/gazernode/utilities/paths"
 	"io/ioutil"
 	"math/rand"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -71,6 +72,11 @@ func (c *System) SessionList(userName string) (nodeinterface.SessionListResponse
 		}
 	}
 	c.mtx.Unlock()
+
+	sort.Slice(result.Items, func(i, j int) bool {
+		return result.Items[i].SessionOpenTime < result.Items[j].SessionOpenTime
+	})
+
 	return result, err
 }
 

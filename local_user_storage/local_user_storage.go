@@ -49,7 +49,7 @@ func (c *Preferences) loadPreferences() {
 		logger.Println(err)
 		return
 	}
-	dir := usr.HomeDir + "/Gazer"
+	dir := usr.HomeDir + "/gazer"
 	err = os.MkdirAll(dir, 0700)
 	if err != nil {
 		logger.Println(err)
@@ -78,7 +78,7 @@ func (c *Preferences) savePreferences() {
 		logger.Println(err)
 		return
 	}
-	dir := usr.HomeDir + "/Gazer"
+	dir := usr.HomeDir + "/gazer"
 	err = os.MkdirAll(dir, 0700)
 	if err != nil {
 		logger.Println(err)

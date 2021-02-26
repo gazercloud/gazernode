@@ -12,7 +12,6 @@ type FormEditUser struct {
 	client      *client.Client
 	txtUnitName *uicontrols.TextBox
 	txtPassword *uicontrols.TextBox
-	txtError    *uicontrols.TextBlock
 }
 
 func NewFormEditUser(parent uiinterfaces.Widget, client *client.Client, name string) *FormEditUser {
@@ -38,10 +37,8 @@ func NewFormEditUser(parent uiinterfaces.Widget, client *client.Client, name str
 	c.txtUnitName = pRight.AddTextBoxOnGrid(1, 0)
 	c.txtUnitName.SetText(name)
 	c.txtUnitName.SetReadOnly(true)
-	pRight.AddTextBlockOnGrid(0, 0, "Password:")
+	pRight.AddTextBlockOnGrid(0, 1, "Password:")
 	c.txtPassword = pRight.AddTextBoxOnGrid(1, 1)
-	c.txtError = pRight.AddTextBlockOnGrid(1, 3, "")
-	c.txtError.SetForeColor(c.AccentColor())
 
 	pRight.AddVSpacerOnGrid(0, 10)
 
