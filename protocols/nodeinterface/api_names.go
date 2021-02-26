@@ -2,47 +2,47 @@ package nodeinterface
 
 const (
 	// *** UnitType ***
-	FuncUnitTypeList       = "unit_types_list"
-	FuncUnitTypeCategories = "unit_categories"
-	FuncUnitTypeConfigMeta = "unit_config_by_type"
+	FuncUnitTypeList       = "unit_type_list"
+	FuncUnitTypeCategories = "unit_type_categories"
+	FuncUnitTypeConfigMeta = "unit_type_config_meta"
 
 	// *** Unit ***
-	FuncUnitAdd         = "add_unit"
-	FuncUnitRemove      = "remove_unit"
+	FuncUnitAdd         = "unit_add"
+	FuncUnitRemove      = "unit_remove"
 	FuncUnitState       = "unit_state"
-	FuncUnitItemsValues = "unit_values"
-	FuncUnitList        = "units"
-	FuncUnitStart       = "start_units"
-	FuncUnitStop        = "stop_units"
-	FuncUnitSetConfig   = "set_unit_config"
-	FuncUnitGetConfig   = "unit_config"
+	FuncUnitItemsValues = "unit_items_values"
+	FuncUnitList        = "unit_list"
+	FuncUnitStart       = "unit_start"
+	FuncUnitStop        = "unit_stop"
+	FuncUnitSetConfig   = "unit_set_config"
+	FuncUnitGetConfig   = "unit_get_config"
 
 	// *** Data Item ***
-	FuncDataItemList    = "items"
-	FuncDataItemListAll = "all_items"
-	FuncDataItemWrite   = "write"
-	FuncDataItemHistory = "history"
+	FuncDataItemList    = "data_item_list"
+	FuncDataItemListAll = "data_item_list_all"
+	FuncDataItemWrite   = "data_item_write"
+	FuncDataItemHistory = "data_item_history"
 
 	// *** Public Channel ***
-	FuncPublicChannelList       = "cloud_channels"
-	FuncPublicChannelAdd        = "add_cloud_channel"
-	FuncPublicChannelSetName    = "edit_cloud_channel"
-	FuncPublicChannelRemove     = "remove_cloud_channel"
-	FuncPublicChannelItemAdd    = "cloud_add_items"
-	FuncPublicChannelItemRemove = "cloud_remove_items"
-	FuncPublicChannelItemsState = "cloud_channel_values"
+	FuncPublicChannelList       = "public_channel_list"
+	FuncPublicChannelAdd        = "public_channel_add"
+	FuncPublicChannelSetName    = "public_channel_set_name"
+	FuncPublicChannelRemove     = "public_channel_remove"
+	FuncPublicChannelItemAdd    = "public_channel_item_add"
+	FuncPublicChannelItemRemove = "public_channel_item_remove"
+	FuncPublicChannelItemsState = "public_channel_item_state"
 
 	// *** Service ***
-	FuncServiceLookup     = "lookup"
-	FuncServiceStatistics = "statistics"
+	FuncServiceLookup     = "service_lookup"
+	FuncServiceStatistics = "service_statistics"
 
 	// *** Resource ***
-	FuncResourceAdd    = "res_add"
-	FuncResourceSet    = "res_set"
-	FuncResourceGet    = "res_get"
-	FuncResourceRemove = "res_remove"
-	FuncResourceRename = "res_rename"
-	FuncResourceList   = "res_list"
+	FuncResourceAdd    = "resource_add"
+	FuncResourceSet    = "resource_set"
+	FuncResourceGet    = "resource_get"
+	FuncResourceRemove = "resource_remove"
+	FuncResourceRename = "resource_rename"
+	FuncResourceList   = "resource_list"
 
 	// *** User ***
 	FuncSessionOpen     = "session_open"
