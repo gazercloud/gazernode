@@ -60,7 +60,7 @@ func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelClou
 
 func (c *PanelCloud) OnInit() {
 	pHeader := c.AddPanelOnGrid(0, 0)
-	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Gazer Cloud")
+	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Public channels")
 	txtHeader.SetFontSize(24)
 
 	pContent := c.AddPanelOnGrid(0, 1)
@@ -82,7 +82,7 @@ func (c *PanelCloud) OnInit() {
 			c.loadChannels()
 		}
 	})
-	c.btnAdd.SetTooltip("Add new channel")
+	c.btnAdd.SetTooltip("Add new public channel")
 
 	c.btnEdit = pButtons.AddButtonOnGrid(1, 0, "", func(event *uievents.Event) {
 		channelId := c.lvChannels.SelectedItem().TempData
@@ -92,17 +92,17 @@ func (c *PanelCloud) OnInit() {
 			c.loadChannels()
 		}
 	})
-	c.btnEdit.SetTooltip("Edit channel")
+	c.btnEdit.SetTooltip("Edit public channel")
 
 	c.btnRemove = pButtons.AddButtonOnGrid(2, 0, "", func(event *uievents.Event) {
-		uicontrols.ShowQuestionMessageOKCancel(c, "Remove channel?", "Confirmation", func() {
+		uicontrols.ShowQuestionMessageOKCancel(c, "Remove public channel?", "Confirmation", func() {
 			channelId := c.lvChannels.SelectedItem().TempData
 			c.client.RemoveCloudChannel(channelId, func(err error) {
 				c.loadChannels()
 			})
 		}, nil)
 	})
-	c.btnRemove.SetTooltip("Remove channel")
+	c.btnRemove.SetTooltip("Remove public channel")
 
 	pButtons.AddTextBlockOnGrid(3, 0, " | ")
 
@@ -226,7 +226,7 @@ func (c *PanelCloud) OnInit() {
 			c.client.CloudRemoveItems([]string{c.currentChannelId}, items, nil)
 		}, nil)
 	})
-	c.btnRemoveFromCloud.SetTooltip("Remove from Gazer-Cloud")
+	c.btnRemoveFromCloud.SetTooltip("Remove selected items from the public channel")
 
 	c.lvItems = pItems.AddListViewOnGrid(0, 1)
 	c.lvItems.AddColumn("Name", 300)

@@ -136,7 +136,7 @@ func (c *PanelNode) StylizeButton() {
 
 	for _, btn := range c.buttons {
 		btn.SetBorders(0, color.White)
-		if btn == c.btnPanelUsers {
+		if btn == c.btnPanelCloud {
 			btn.SetBorderTop(1, c.ForeColor())
 			btn.SetBorderBottom(1, c.ForeColor())
 		} else {
@@ -186,18 +186,6 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelUnits.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelUnits)
 
-	c.btnPanelCloud = panelLeftMenu.AddButtonOnGrid(0, 1, "Cloud", func(event *uievents.Event) {
-		c.panelUnits.SetVisible(false)
-		c.panelCloud.SetVisible(true)
-		c.panelCharts.SetVisible(false)
-		c.panelMaps.SetVisible(false)
-		c.panelUsers.SetVisible(false)
-		c.currentButton = c.btnPanelCloud
-		c.StylizeButton()
-	})
-	c.btnPanelCloud.SetMouseCursor(ui.MouseCursorPointer)
-	c.buttons = append(c.buttons, c.btnPanelCloud)
-
 	c.btnPanelCharts = panelLeftMenu.AddButtonOnGrid(0, 2, "Charts", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
@@ -224,7 +212,19 @@ func (c *PanelNode) OnInit() {
 
 	panelLeftMenu.AddVSpacerOnGrid(0, 5)
 
-	c.btnPanelUsers = panelLeftMenu.AddButtonOnGrid(0, 6, "Users", func(event *uievents.Event) {
+	c.btnPanelCloud = panelLeftMenu.AddButtonOnGrid(0, 6, "Public\r\nChannels", func(event *uievents.Event) {
+		c.panelUnits.SetVisible(false)
+		c.panelCloud.SetVisible(true)
+		c.panelCharts.SetVisible(false)
+		c.panelMaps.SetVisible(false)
+		c.panelUsers.SetVisible(false)
+		c.currentButton = c.btnPanelCloud
+		c.StylizeButton()
+	})
+	c.btnPanelCloud.SetMouseCursor(ui.MouseCursorPointer)
+	c.buttons = append(c.buttons, c.btnPanelCloud)
+
+	c.btnPanelUsers = panelLeftMenu.AddButtonOnGrid(0, 7, "Users", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(false)
