@@ -4,7 +4,6 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/local_user_storage"
-	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -16,7 +15,6 @@ import (
 	"golang.org/x/image/colornames"
 	"image"
 	"image/color"
-	"time"
 )
 
 type PanelNode struct {
@@ -134,7 +132,7 @@ func (c *PanelNode) StylizeButton() {
 	c.btnPanelCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelCloud.AccentColor()))
 	c.btnPanelCharts.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_editor_stacked_line_chart_materialiconsoutlined_48dp_1x_outline_stacked_line_chart_black_48dp_png, c.btnPanelCharts.AccentColor()))
 	c.btnPanelMaps.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.btnPanelCharts.AccentColor()))
-	c.btnPanelUsers.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.btnPanelCharts.AccentColor()))
+	c.btnPanelUsers.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_perm_identity_materialiconsoutlined_48dp_1x_outline_perm_identity_black_48dp_png, c.btnPanelCharts.AccentColor()))
 
 	for _, btn := range c.buttons {
 		btn.SetBorders(0, color.White)
@@ -158,8 +156,6 @@ func (c *PanelNode) StylizeButton() {
 func (c *PanelNode) OnInit() {
 	c.SetPanelPadding(0)
 
-	t1 := time.Now()
-
 	c.imgConnectionOK = uiresources.ResImgCol(uiresources.R_icons_material4_png_action_verified_user_materialicons_48dp_1x_baseline_verified_user_black_48dp_png, settings.GoodColor)
 	c.imgConnectionOK = resize.Resize(24, 24, c.imgConnectionOK, resize.Bilinear)
 	c.imgConnectionError = uiresources.ResImgCol(uiresources.R_icons_material4_png_action_verified_user_materialicons_48dp_1x_baseline_verified_user_black_48dp_png, colornames.Red)
@@ -176,8 +172,6 @@ func (c *PanelNode) OnInit() {
 	panelLeftMenu.SetCellPadding(0)
 	panelLeftMenu.SetMinWidth(100)
 	panelLeftMenu.SetMaxWidth(100)
-
-	t2 := time.Now()
 
 	c.btnPanelUnits = panelLeftMenu.AddButtonOnGrid(0, 0, "Units", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(true)
@@ -244,8 +238,6 @@ func (c *PanelNode) OnInit() {
 
 	c.StylizeButton()
 
-	t3 := time.Now()
-
 	panelContent := c.panelMain.AddPanelOnGrid(1, 0)
 	panelContent.SetName("PanelContent")
 	panelContent.SetPanelPadding(0)
@@ -271,8 +263,6 @@ func (c *PanelNode) OnInit() {
 	c.panelCharts.SetPanelPadding(0)
 	c.panelMaps.SetPanelPadding(0)
 	c.panelUsers.SetPanelPadding(0)
-
-	t4 := time.Now()
 
 	// Bottom
 	c.panelBottom = c.AddPanelOnGrid(0, 1)
@@ -331,8 +321,6 @@ func (c *PanelNode) OnInit() {
 	c.lblStatistics.SetUnderline(true)
 	c.lblStatistics.SetMinHeight(24)
 
-	t5 := time.Now()
-
 	c.panelBottom.AddHSpacerOnGrid(5, 0)
 	c.lblAd = c.panelBottom.AddTextBlockOnGrid(6, 0, "")
 	c.lblAd.SetForeColor(settings.GoodColor)
@@ -360,22 +348,7 @@ func (c *PanelNode) OnInit() {
 	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
 
-	t6 := time.Now()
-
-	t7 := time.Now()
-
 	c.btnPanelUnits.Press()
-
-	t8 := time.Now()
-
-	logger.Println("Times:")
-	logger.Println("1", t2.Sub(t1))
-	logger.Println("2", t3.Sub(t2))
-	logger.Println("3", t4.Sub(t3))
-	logger.Println("4", t5.Sub(t4))
-	logger.Println("5", t6.Sub(t5))
-	logger.Println("6", t7.Sub(t6))
-	logger.Println("7", t8.Sub(t7))
 }
 
 func (c *PanelNode) timerUpdate() {

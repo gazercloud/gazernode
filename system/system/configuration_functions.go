@@ -83,6 +83,7 @@ func (c *System) LoadConfig() error {
 
 	c.nextItemId = conf.NextItemId
 
+	realMaxItemId := uint64(0)
 	for _, itemConf := range conf.Items {
 		var item common_interfaces.Item
 		item.Id = itemConf.Id
@@ -91,6 +92,14 @@ func (c *System) LoadConfig() error {
 		c.items = append(c.items, &item)
 		c.itemsByName[item.Name] = &item
 		c.itemsById[item.Id] = &item
+
+		if item.Id > realMaxItemId {
+			realMaxItemId = item.Id
+		}
+	}
+
+	if c.nextItemId < realMaxItemId+1 {
+		c.nextItemId = realMaxItemId + 1
 	}
 
 	for _, sens := range conf.Units {
