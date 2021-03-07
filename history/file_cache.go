@@ -39,7 +39,7 @@ func (c *FileCache) Write(item *common_interfaces.ItemValue) {
 func (c *FileCache) readFile() {
 	c.items = make([]*common_interfaces.ItemValue, 0)
 	bs, err := ioutil.ReadFile(c.filePath)
-	//logger.Println("read file ", c.filePath)
+	logger.Println("read file ", c.filePath)
 	if err == nil {
 		currentLine := make([]byte, 0)
 		for _, b := range bs {

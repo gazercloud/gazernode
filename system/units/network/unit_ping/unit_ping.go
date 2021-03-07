@@ -8,7 +8,6 @@ import (
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/go-ping/ping"
 	"math"
-	"runtime"
 	"time"
 )
 
@@ -161,9 +160,9 @@ func (c *UnitPing) Tick() {
 			continue
 		}
 
-		if runtime.GOOS == "windows" {
-			pingObject.SetPrivileged(true)
-		}
+		//if runtime.GOOS == "windows" {
+		pingObject.SetPrivileged(true)
+		//}
 
 		pingObject.Count = 1
 		pingObject.Size = int(frameSize)

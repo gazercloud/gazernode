@@ -40,6 +40,10 @@ func (c *Area) SetHeight(h int) {
 	c.height = h
 }
 
+func (c *Area) TimeChart() *TimeChart {
+	return c.timeChart
+}
+
 func (c *Area) RemoveSeriesByIndex(index int) {
 	if index < 0 || index > len(c.series) {
 		return

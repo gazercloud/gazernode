@@ -422,11 +422,13 @@ func (c *DocumentChartValues) checkValues(timeFrom, timeTo int64) {
 			c.requestHistory(&task)
 		}
 	} else {*/
-	var task LoadingTask
-	task.timeFrom = timeFrom
-	task.timeTo = timeTo
-	c.loadingRanges = append(c.loadingRanges, &task)
-	c.requestHistory(&task)
+	if len(c.loadingRanges) < 2 {
+		var task LoadingTask
+		task.timeFrom = timeFrom
+		task.timeTo = timeTo
+		c.loadingRanges = append(c.loadingRanges, &task)
+		c.requestHistory(&task)
+	}
 	//}
 }
 

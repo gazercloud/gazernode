@@ -115,7 +115,7 @@ func (c *FormAddUnit) UpdateStyle() {
 }
 
 func (c *FormAddUnit) addCategory(index int, cat nodeinterface.UnitTypeCategoriesResponseItem, code string) {
-	btn := c.pCategories.AddButtonOnGrid(0, index, " "+cat.Name+" ", func(event *uievents.Event) {
+	btn := c.pCategories.AddButtonOnGrid(0, index, " "+cat.DisplayName+" ", func(event *uievents.Event) {
 		t, ok := event.Sender.(*uicontrols.Button).UserData("key").(string)
 		if ok {
 			c.currentCategory = t
@@ -144,9 +144,6 @@ func (c *FormAddUnit) updateCategories() {
 			c.pCategories.AddTextBlockOnGrid(0, 0, err.Error())
 		} else {
 			maxI := 0
-			var allCat nodeinterface.UnitTypeCategoriesResponseItem
-			allCat.Name = "All"
-			c.addCategory(0, allCat, "")
 			for i, cat := range infos.Items {
 				c.addCategory(i+1, cat, cat.Name)
 				maxI = i
@@ -172,6 +169,8 @@ func (c *FormAddUnit) updateCategoriesButtons() {
 					btn.SetForeColor(nil)
 					btn.SetBackColor(nil)
 				}
+
+				btn.SetMouseCursor(ui.MouseCursorPointer)
 
 				if cat.Image == nil {
 					//btn.SetImage(uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", btn.ForeColor()))

@@ -257,6 +257,10 @@ func (c *TimeChart) RemoveAreaByIndex(index int) {
 	c.SetHeight(c.Height())
 }
 
+func (c *TimeChart) IsChartMoving() bool {
+	return c.chartMoving
+}
+
 func (c *TimeChart) AddSeries(area *Area, id string) *Series {
 	ser := NewSeries(id, area)
 

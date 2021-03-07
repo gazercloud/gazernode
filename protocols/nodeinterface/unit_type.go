@@ -26,8 +26,9 @@ type UnitTypeCategoriesRequest struct {
 }
 
 type UnitTypeCategoriesResponseItem struct {
-	Name  string `json:"name"`
-	Image []byte `json:"image"`
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Image       []byte `json:"image"`
 }
 
 type UnitTypeCategoriesResponse struct {

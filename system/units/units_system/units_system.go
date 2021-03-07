@@ -35,6 +35,7 @@ type UnitsSystem struct {
 }
 
 var unitCategoriesIcons map[string][]byte
+var unitCategoriesNames map[string]string
 
 func init() {
 	unitCategoriesIcons = make(map[string][]byte)
@@ -43,6 +44,15 @@ func init() {
 	unitCategoriesIcons["file"] = resources.R_files_sensors_sensor_files_png
 	unitCategoriesIcons["general"] = resources.R_files_sensors_sensor_general_png
 	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_sensor_serial_port_png
+	unitCategoriesIcons[""] = resources.R_files_sensors_sensor_all_png
+
+	unitCategoriesNames = make(map[string]string)
+	unitCategoriesNames["network"] = "Network"
+	unitCategoriesNames["windows"] = "Windows"
+	unitCategoriesNames["file"] = "Files"
+	unitCategoriesNames["general"] = "General"
+	unitCategoriesNames["serial_port"] = "Serial Port"
+	unitCategoriesNames[""] = "All"
 }
 
 func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
@@ -119,10 +129,26 @@ func (c *UnitsSystem) UnitCategories() nodeinterface.UnitTypeCategoriesResponse 
 	var result nodeinterface.UnitTypeCategoriesResponse
 	result.Items = make([]nodeinterface.UnitTypeCategoriesResponseItem, 0)
 	addedCats := make(map[string]bool)
+
+	catAllName := ""
+	var unitCategoryInfoAll nodeinterface.UnitTypeCategoriesResponseItem
+	unitCategoryInfoAll.Name = catAllName
+	unitCategoryInfoAll.DisplayName = "All"
+	if imgBytes, ok := unitCategoriesIcons[catAllName]; ok {
+		unitCategoryInfoAll.Image = imgBytes
+	}
+	result.Items = append(result.Items, unitCategoryInfoAll)
+	addedCats[catAllName] = true
+
 	for _, st := range c.unitTypes {
 		if _, ok := addedCats[st.Category]; !ok {
 			var unitCategoryInfo nodeinterface.UnitTypeCategoriesResponseItem
 			unitCategoryInfo.Name = st.Category
+			if catName, ok := unitCategoriesNames[st.Category]; ok {
+				unitCategoryInfo.DisplayName = catName
+			} else {
+				unitCategoryInfo.DisplayName = st.Category
+			}
 			if imgBytes, ok := unitCategoriesIcons[st.Category]; ok {
 				unitCategoryInfo.Image = imgBytes
 			} else {
