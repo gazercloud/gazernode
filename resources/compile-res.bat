@@ -1,1 +1,3 @@
-go-bindata -pkg resources -o files.go files/...
+echo processing
+gobin -pkg resources -o files.go -p files
+echo complete

@@ -52,20 +52,26 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) 
 
 		pRight.AddTextBlockOnGrid(0, 0, "Address:")
 		c.txtAddress = pRight.AddTextBoxOnGrid(1, 0)
-		c.txtAddress.SetText("localhost:8084")
+		c.txtAddress.SetText("localhost")
+		c.txtAddress.SetTabIndex(1)
 
 		if c.client != nil {
 			c.txtAddress.SetEnabled(false)
+		} else {
+			c.txtAddress.SelectAllText()
 		}
 
 		pRight.AddTextBlockOnGrid(0, 1, "User name:")
 		c.txtUserName = pRight.AddTextBoxOnGrid(1, 1)
+		c.txtUserName.SetTabIndex(2)
 		pRight.AddTextBlockOnGrid(0, 2, "Password:")
 		c.txtPassword = pRight.AddTextBoxOnGrid(1, 2)
+		c.txtPassword.SetTabIndex(3)
 
 		pRight.AddVSpacerOnGrid(0, 10)
 		pButtons.AddHSpacerOnGrid(0, 0)
 		c.btnOK = pButtons.AddButtonOnGrid(1, 0, "OK", nil)
+		c.btnOK.SetTabIndex(4)
 		c.TryAccept = func() bool {
 			c.btnOK.SetEnabled(false)
 			c.Connection.Address = c.txtAddress.Text()
@@ -79,9 +85,15 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) 
 			c.Reject()
 		})
 		btnCancel.SetMinWidth(70)
+		btnCancel.SetTabIndex(5)
 
 		c.SetAcceptButton(c.btnOK)
 		c.SetRejectButton(btnCancel)
+		if c.client != nil {
+			c.txtUserName.Focus()
+		} else {
+			c.txtAddress.Focus()
+		}
 	} else {
 		c.SetTitle("Connection to node")
 		c.Resize(450, 300)
@@ -114,7 +126,7 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) 
 		pRight.AddHSpacerOnGrid(1, 3)
 
 		pRight.AddVSpacerOnGrid(0, 10)
-
+		//c.txtAddress.Focus()
 	}
 
 	return &c

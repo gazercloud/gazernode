@@ -448,6 +448,36 @@ func (c *MapControlView) drawControl(ctx ui.DrawContext) {
 				//ctx.DrawRect(int(leftX), int(topY), int(c.scaleValue(c.Width())), int(c.scaleValue(c.Height())))
 			}
 
+			if c.MapWidget.IsEditing() && c.isRootControl() && item.TypeName() == "line" {
+
+				cc := ctx.GG()
+				cc.Push()
+				cc.SetLineCapSquare()
+				cc.Translate(float64(ctx.State().TranslateX), float64(ctx.State().TranslateY))
+
+				if item.selected() {
+					cc.SetColor(colornames.Crimson)
+				} else {
+					cc.SetColor(colornames.Yellow)
+				}
+
+				cc.SetLineWidth(1.5)
+				cc.SetDash(5, 5)
+
+				x1 := c.scaleValue(item.(*MapControlLine).X1())
+				y1 := c.scaleValue(item.(*MapControlLine).Y1())
+				x2 := c.scaleValue(item.(*MapControlLine).X2())
+				y2 := c.scaleValue(item.(*MapControlLine).Y2())
+
+				cc.DrawLine(float64(x1)-float64(item.X()), float64(y1)-float64(item.Y()), float64(x2)-float64(item.X()), float64(y2)-float64(item.Y()))
+				cc.Stroke()
+				cc.Pop()
+
+				//ctx.SetColor(colornames.Lightgray)
+				//ctx.SetStrokeWidth(int(c.scaleValue(1)))
+				//ctx.DrawRect(int(leftX), int(topY), int(c.scaleValue(c.Width())), int(c.scaleValue(c.Height())))
+			}
+
 			ctx.Load()
 		}
 	}
@@ -592,6 +622,10 @@ func (c *MapControlView) checkExclusiveSelectedItem() {
 			c.OnSelectionChanged()
 		}
 	}
+
+}
+
+func (c *MapControlView) beginChangingSize() {
 
 }
 
@@ -742,7 +776,7 @@ func (c *MapControlView) FindControlUnderPoint(x, y int) IMapControl {
 			}
 		}
 	}
-	return c
+	return c.imapControl
 }
 
 func (c *MapControlView) mouseMove(lastMouseDownPos, pos Point32, leftButton, centerButton, rightButton, shift, control, alt bool) bool {
@@ -904,8 +938,18 @@ func (c *MapControlView) addItem(control IMapControl, x0, y0 int32) {
 		return
 	}
 
-	control.SetX(x0)
-	control.SetY(y0)
+	if control.TypeName() == "line" {
+		control.(*MapControlLine).loadingCoordinates = true
+		control.(*MapControlLine).SetX1(x0)
+		control.(*MapControlLine).SetY1(y0)
+		control.(*MapControlLine).SetX2(x0 + 1)
+		control.(*MapControlLine).SetY2(y0 + 1)
+		control.(*MapControlLine).loadingCoordinates = false
+		control.(*MapControlLine).UpdateXYWH()
+	} else {
+		control.SetX(x0)
+		control.SetY(y0)
+	}
 	c.currentLayer_.items_ = append([]IMapControl{control}, c.currentLayer_.items_...)
 
 	if control.isView() {
@@ -1181,14 +1225,15 @@ func (c *MapControlView) makeControlByType(typeName string) IMapControl {
 	var control IMapControl
 
 	if typeName == "line" {
-		control = NewMapControlLine(c.MapWidget, c)
+		mapControlLine := NewMapControlLine(c.MapWidget, c)
+		control = mapControlLine
 	}
 
 	if typeName == "text" {
 		mapControlText := NewMapControlText(c.MapWidget, c)
 		mapControlText.SetBorderTypeRect()
-		mapControlText.SetWidth(200)
-		mapControlText.SetHeight(100)
+		mapControlText.SetWidth(1)
+		mapControlText.SetHeight(1)
 		mapControlText.SetBorderWidth(4)
 		control = mapControlText
 	}
@@ -1196,8 +1241,8 @@ func (c *MapControlView) makeControlByType(typeName string) IMapControl {
 	if typeName == "circle" {
 		mapControlText := NewMapControlText(c.MapWidget, c)
 		mapControlText.SetBorderTypeCircle()
-		mapControlText.SetWidth(200)
-		mapControlText.SetHeight(200)
+		mapControlText.SetWidth(1)
+		mapControlText.SetHeight(1)
 		mapControlText.SetBorderWidth(4)
 		control = mapControlText
 	}
@@ -1205,8 +1250,8 @@ func (c *MapControlView) makeControlByType(typeName string) IMapControl {
 	if control == nil {
 		control = NewMapControlView(c.MapWidget, c)
 		control.SetType(typeName)
-		control.SetWidth(200)
-		control.SetHeight(200)
+		control.SetWidth(1)
+		control.SetHeight(1)
 	}
 
 	return control

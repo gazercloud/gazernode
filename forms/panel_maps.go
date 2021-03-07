@@ -311,10 +311,6 @@ func (c *PanelMaps) OnInit() {
 		c.lblScale.SetText("Scale: " + fmt.Sprint(int(scale*100)) + "%")
 	}
 
-	c.OnActionOpenMap = func(resId string) {
-		c.openMap(resId)
-	}
-
 	c.OnActionWriteItem = func(item string, value string) {
 		c.client.Write(item, value, nil)
 	}
@@ -355,7 +351,7 @@ func (c *PanelMaps) SaveMap() {
 	if c.currentResId != "" {
 		c.saving = true
 		c.updateButtons()
-		imgThumbnail := c.GetThumbnail(48, 48)
+		imgThumbnail := c.GetThumbnail(192, 192)
 
 		var thumbnailBytes bytes.Buffer
 		w := bufio.NewWriter(&thumbnailBytes)
@@ -379,7 +375,7 @@ func (c *PanelMaps) openMap(resId string) {
 	c.client.ResGet(resId, func(item *common_interfaces.ResourcesItem, err error) {
 		if err == nil {
 			c.SetEdit(false)
-			err = c.Load(resId, item.Content)
+			err = c.Load(resId, item.Content) // error:= null pointer
 			if err != nil {
 				c.SetCurrentRes("", "")
 				uicontrols.ShowErrorMessage(c, err.Error(), "Error")
@@ -392,6 +388,16 @@ func (c *PanelMaps) openMap(resId string) {
 			uicontrols.ShowErrorMessage(c, err.Error(), "Error")
 		}
 	})
+}
+
+func (c *PanelMaps) SelectMap(resId string) {
+	for i := 0; i < c.lvItems.ItemsCount(); i++ {
+		item := c.lvItems.Item(i)
+		if item.TempData == resId {
+			c.lvItems.SelectItem(i)
+			break
+		}
+	}
 }
 
 func (c *PanelMaps) loadSelected() {

@@ -66,7 +66,7 @@ func (c *Client) initClient(window uiinterfaces.Window) {
 	tr := &http.Transport{}
 	jar, _ := cookiejar.New(nil)
 	c.client = &http.Client{Transport: tr, Jar: jar}
-	c.client.Timeout = 3 * time.Second
+	c.client.Timeout = 5 * time.Second
 	c.tm = window.NewTimer(100, c.timer)
 	c.tm.StartTimer()
 	c.watcher = NewItemsWatcher(c)
@@ -121,7 +121,12 @@ func (c *Client) thCall(call *Call) {
 
 	AddStatSent(body.Len())
 
-	response, err := c.client.Post("http://"+c.address+"/api/request", writer.FormDataContentType(), &body)
+	addr := c.address
+	if !strings.Contains(addr, ":") {
+		addr += ":8084"
+	}
+
+	response, err := c.client.Post("http://"+addr+"/api/request", writer.FormDataContentType(), &body)
 	if err != nil {
 		call.err = errors.New("no connection to " + c.address)
 		logger.Println(err)

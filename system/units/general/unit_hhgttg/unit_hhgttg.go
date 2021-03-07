@@ -2,6 +2,7 @@ package unit_hhgttg
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"time"
 )
@@ -22,6 +23,7 @@ const (
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_general_hhgttg_png
 }
 
 func (c *UnitHHGTTG) GetConfigMeta() string {

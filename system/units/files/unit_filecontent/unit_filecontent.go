@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"io/ioutil"
 	"time"
@@ -27,6 +28,7 @@ const (
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_file_content_png
 }
 
 func (c *UnitFileContent) GetConfigMeta() string {

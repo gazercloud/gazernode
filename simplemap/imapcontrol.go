@@ -1,6 +1,7 @@
 package simplemap
 
 import (
+	"github.com/gazercloud/gazernode/actions"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uiproperties"
@@ -96,6 +97,7 @@ type IMapControl interface {
 	OnMouseDown(x, y int)
 	FindControlUnderPoint(x, y int) IMapControl
 	HasAction() bool
+	Action() *actions.Action
 
 	GetFullPathToMapControl() []string
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"net"
 	"time"
@@ -29,6 +30,7 @@ const (
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_network_tcp_connect_png
 }
 
 func (c *UnitTcpConnect) GetConfigMeta() string {

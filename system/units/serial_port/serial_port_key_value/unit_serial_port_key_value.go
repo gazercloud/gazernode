@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/tarm/serial"
 	"strconv"
@@ -43,6 +44,7 @@ func New() common_interfaces.IUnit {
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_serial_port_key_value_png
 }
 
 func (c *UnitSerialPortKeyValue) GetConfigMeta() string {

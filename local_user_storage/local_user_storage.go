@@ -16,6 +16,10 @@ type NodeConnection struct {
 	SessionToken string `json:"password"`
 }
 
+func (c *NodeConnection) String() string {
+	return c.UserName + "@" + c.Address
+}
+
 type PreferencesStruct struct {
 	Theme       string           `json:"theme"`
 	Connections []NodeConnection `json:"connections"`

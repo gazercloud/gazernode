@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/resources"
 	"golang.org/x/sys/windows"
 	"strings"
 	"syscall"
@@ -14,6 +15,7 @@ import (
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_windows_proc_png
 }
 
 func (c *UnitSystemProcess) InternalUnitStart() error {

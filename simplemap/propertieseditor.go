@@ -3,6 +3,7 @@ package simplemap
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/gazercloud/gazernode/actions"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/dialogs"
 	"github.com/gazercloud/gazernode/logger"
@@ -189,7 +190,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 			if property.Type == uiproperties.PropertyTypeString && property.SubType == "action" {
 				txtEditor := groupPanel.AddButtonOnGrid(1, indexInGroup, "Edit ...", nil)
 				txtEditor.SetOnPress(func(ev *uievents.Event) {
-					dialog := NewActionEditor(c, txtEditor.TempData)
+					dialog := actions.NewActionEditor(c, txtEditor.TempData, c.client)
 					dialog.OnAccept = func() {
 						txtEditor.TempData = dialog.ActionText()
 						if c.loading {

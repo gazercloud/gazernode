@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fogleman/gg"
+	"github.com/gazercloud/gazernode/actions"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uiproperties"
@@ -137,7 +138,7 @@ func (c *MapControlText) OnMouseDown(x, y int) {
 }
 
 func (c *MapControlText) ExecuteAction() {
-	var a Action
+	var a actions.Action
 	err := json.Unmarshal([]byte(c.action.String()), &a)
 	if err == nil {
 		_ = c.ExecAction(&a)
@@ -332,4 +333,17 @@ func (c *MapControlText) Tick() {
 
 		c.text.SetOwnValue(txt)
 	}
+}
+
+func (c *MapControlText) Action() *actions.Action {
+	if c.action.String() == "" {
+		return nil
+	}
+
+	var a actions.Action
+	err := json.Unmarshal([]byte(c.action.String()), &a)
+	if err == nil {
+		return &a
+	}
+	return nil
 }

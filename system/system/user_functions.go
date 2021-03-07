@@ -51,9 +51,9 @@ func (c *System) RemoveSession(sessionToken string) error {
 	} else {
 		err = errors.New("wrong session token")
 	}
-	c.mtx.Unlock()
-
 	c.saveSessions()
+
+	c.mtx.Unlock()
 
 	return err
 }

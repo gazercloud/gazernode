@@ -212,6 +212,10 @@ func (c *PanelUsers) UpdateStyle() {
 }
 
 func (c *PanelUsers) timerUpdate() {
+	if c.Disposed() {
+		return
+	}
+
 	if len(c.lvUsers.SelectedItems()) > 0 {
 		if len(c.lvUsers.SelectedItems()) == 1 {
 			c.btnEdit.SetEnabled(true)

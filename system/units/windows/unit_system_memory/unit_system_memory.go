@@ -2,6 +2,7 @@ package unit_system_memory
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/shirou/gopsutil/mem"
 	"time"
@@ -14,6 +15,7 @@ type UnitSystemMemory struct {
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_windows_ram_png
 }
 
 func New() common_interfaces.IUnit {

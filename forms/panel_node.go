@@ -32,6 +32,8 @@ type PanelNode struct {
 
 	btnSettings *uicontrols.Button
 
+	panelLeftMenu *uicontrols.Panel
+
 	panelUnits  *PanelUnits
 	panelCloud  *PanelCloud
 	panelCharts *PanelCharts
@@ -85,6 +87,8 @@ func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionI
 	if c.client.SessionToken() == "" {
 		c.client.SessionOpen(client.UserName(), client.Password(), nil)
 	}
+
+	c.UpdateStyle()
 
 	return &c
 }
@@ -167,13 +171,13 @@ func (c *PanelNode) OnInit() {
 
 	c.panelMain = c.AddPanelOnGrid(0, 0)
 	c.panelMain.SetPanelPadding(0)
-	panelLeftMenu := c.panelMain.AddPanelOnGrid(0, 0)
-	panelLeftMenu.SetPanelPadding(0)
-	panelLeftMenu.SetCellPadding(0)
-	panelLeftMenu.SetMinWidth(100)
-	panelLeftMenu.SetMaxWidth(100)
+	c.panelLeftMenu = c.panelMain.AddPanelOnGrid(0, 0)
+	c.panelLeftMenu.SetPanelPadding(0)
+	c.panelLeftMenu.SetCellPadding(0)
+	c.panelLeftMenu.SetMinWidth(100)
+	c.panelLeftMenu.SetMaxWidth(100)
 
-	c.btnPanelUnits = panelLeftMenu.AddButtonOnGrid(0, 0, "Units", func(event *uievents.Event) {
+	c.btnPanelUnits = c.panelLeftMenu.AddButtonOnGrid(0, 0, "Units", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(true)
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(false)
@@ -186,7 +190,7 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelUnits.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelUnits)
 
-	c.btnPanelCharts = panelLeftMenu.AddButtonOnGrid(0, 2, "Charts", func(event *uievents.Event) {
+	c.btnPanelCharts = c.panelLeftMenu.AddButtonOnGrid(0, 2, "Charts", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(true)
@@ -198,7 +202,7 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelCharts.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelCharts)
 
-	c.btnPanelMaps = panelLeftMenu.AddButtonOnGrid(0, 3, "Maps", func(event *uievents.Event) {
+	c.btnPanelMaps = c.panelLeftMenu.AddButtonOnGrid(0, 3, "Maps", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(false)
@@ -210,9 +214,9 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelMaps.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelMaps)
 
-	panelLeftMenu.AddVSpacerOnGrid(0, 5)
+	c.panelLeftMenu.AddVSpacerOnGrid(0, 5)
 
-	c.btnPanelCloud = panelLeftMenu.AddButtonOnGrid(0, 6, "Public\r\nChannels", func(event *uievents.Event) {
+	c.btnPanelCloud = c.panelLeftMenu.AddButtonOnGrid(0, 6, "Public\r\nChannels", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(true)
 		c.panelCharts.SetVisible(false)
@@ -224,7 +228,7 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelCloud.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelCloud)
 
-	c.btnPanelUsers = panelLeftMenu.AddButtonOnGrid(0, 7, "Users", func(event *uievents.Event) {
+	c.btnPanelUsers = c.panelLeftMenu.AddButtonOnGrid(0, 7, "Users", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
 		c.panelCharts.SetVisible(false)
@@ -251,6 +255,25 @@ func (c *PanelNode) OnInit() {
 	panelContent.AddWidgetOnGrid(c.panelMaps, 0, 3)
 	c.panelUsers = NewPanelUsers(panelContent, c.client)
 	panelContent.AddWidgetOnGrid(c.panelUsers, 0, 4)
+
+	c.panelMaps.OnActionOpenMap = func(resId string) {
+		c.client.ResGet(resId, func(item *common_interfaces.ResourcesItem, err error) {
+			if err != nil {
+				return
+			}
+			if item == nil {
+				return
+			}
+			if item.Info.Type == "simple_map" {
+				c.btnPanelMaps.Press()
+				c.panelMaps.SelectMap(resId)
+			}
+			if item.Info.Type == "chart_group" {
+				c.btnPanelCharts.Press()
+				c.panelCharts.SelectChartGroup(resId)
+			}
+		})
+	}
 
 	c.panelUnits.SetVisible(false)
 	c.panelCloud.SetVisible(false)
@@ -349,6 +372,14 @@ func (c *PanelNode) OnInit() {
 	c.timer.StartTimer()
 
 	c.btnPanelUnits.Press()
+}
+
+func (c *PanelNode) ShowNavigation() {
+	c.panelLeftMenu.SetVisible(true)
+}
+
+func (c *PanelNode) HideNavigation() {
+	c.panelLeftMenu.SetVisible(false)
 }
 
 func (c *PanelNode) timerUpdate() {

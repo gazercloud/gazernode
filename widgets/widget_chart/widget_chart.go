@@ -405,11 +405,29 @@ func (c *DocumentChartValues) checkValues(timeFrom, timeTo int64) {
 	}
 
 	// Make task for loading
+	/*if timeTo - timeFrom > 3600000000 {
+		for t := timeFrom; t < timeTo; t += 3600000000 {
+			tBegin := t
+			tEnd := t + 3600000000
+			if tEnd > timeTo {
+				tEnd = timeTo
+			}
+			if tEnd <= tBegin {
+				continue
+			}
+			var task LoadingTask
+			task.timeFrom = tBegin
+			task.timeTo = tEnd
+			c.loadingRanges = append(c.loadingRanges, &task)
+			c.requestHistory(&task)
+		}
+	} else {*/
 	var task LoadingTask
 	task.timeFrom = timeFrom
 	task.timeTo = timeTo
 	c.loadingRanges = append(c.loadingRanges, &task)
 	c.requestHistory(&task)
+	//}
 }
 
 func (c *DocumentChartValues) insertValues(readResult *history.ReadResult, timeFrom, timeTo int64) {

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -43,6 +44,7 @@ const (
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_network_json_units_png
 }
 
 func (c *UnitHttpJsonUnitServer) GetConfigMeta() string {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"math"
 	"time"
@@ -39,6 +40,7 @@ const (
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_general_sig_generator_png
 }
 
 func (c *UnitSignalGenerator) GetConfigMeta() string {

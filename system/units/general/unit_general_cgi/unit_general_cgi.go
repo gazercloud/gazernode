@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"os/exec"
 	"time"
@@ -32,6 +33,7 @@ const (
 var Image []byte
 
 func init() {
+	Image = resources.R_files_sensors_sensor_general_console_png
 }
 
 func (c *UnitGeneralCGI) GetConfigMeta() string {

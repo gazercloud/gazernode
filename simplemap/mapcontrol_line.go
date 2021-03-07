@@ -25,6 +25,8 @@ type MapControlLine struct {
 	lineWidth_ *uiproperties.Property
 
 	edges_ *uiproperties.Property
+
+	loadingCoordinates bool
 }
 
 func NewMapControlLine(mapWidget *MapWidget, parent IMapControl) *MapControlLine {
@@ -56,7 +58,7 @@ func NewMapControlLine(mapWidget *MapWidget, parent IMapControl) *MapControlLine
 	c.color_.SetOwnValue(colornames.Gray)
 
 	c.lineWidth_ = AddPropertyToControl(&c, "line_width", "Width", uiproperties.PropertyTypeInt32, "Line", "")
-	c.lineWidth_.SetOwnValue(int32(1))
+	c.lineWidth_.SetOwnValue(int32(4))
 
 	c.edges_ = AddPropertyToControl(&c, "edges", "Edges", uiproperties.PropertyTypeString, "Line", "edges")
 	c.edges_.SetOwnValue("square")
@@ -141,6 +143,9 @@ func (c *MapControlLine) UpdateXYWH() {
 }
 
 func (c *MapControlLine) OnCoordinatesChanged(property *uiproperties.Property, oldValue interface{}, newValue interface{}) {
+	if c.loadingCoordinates {
+		return
+	}
 	c.UpdateXYWH()
 }
 

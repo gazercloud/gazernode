@@ -20,13 +20,11 @@ func BuildTime() string {
 }
 
 func Icon() image.Image {
-	iconBin, _ := resources.Asset("files/favicon.ico")
-	img, _ := canvas.Decode(bytes.NewBuffer(iconBin))
+	img, _ := canvas.Decode(bytes.NewBuffer(resources.R_files_favicon_ico))
 	return img
 }
 
 func Icon64() image.Image {
-	iconBin, _ := resources.Asset("files/mainicon64.png")
-	img, _, _ := image.Decode(bytes.NewBuffer(iconBin))
+	img, _, _ := image.Decode(bytes.NewBuffer(resources.R_files_mainicon64_png))
 	return img
 }

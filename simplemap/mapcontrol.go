@@ -1,7 +1,9 @@
 package simplemap
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/gazercloud/gazernode/actions"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uiproperties"
@@ -859,4 +861,42 @@ func (c *MapControl) FullDataSource() string {
 		}
 	}
 	return result
+}
+
+func (c *MapControl) ExecAction(action *actions.Action) error {
+	c.actionElapsed = true
+	switch action.Type {
+	case "write_item":
+		return c.execWriteItemAction(action.Content)
+	case "open_map":
+		return c.execOpenMapAction(action.Content)
+	}
+
+	return nil
+}
+
+func (c *MapControl) execWriteItemAction(content string) error {
+	var a actions.WriteItemAction
+	err := json.Unmarshal([]byte(content), &a)
+	if err != nil {
+		return err
+	}
+
+	c.MapWidget.ActionWriteItem(a.Item, a.Value)
+	return nil
+}
+
+func (c *MapControl) execOpenMapAction(content string) error {
+	var a actions.OpenMapAction
+	err := json.Unmarshal([]byte(content), &a)
+	if err != nil {
+		return err
+	}
+
+	c.MapWidget.ActionOpenMap(a.ResId)
+	return nil
+}
+
+func (c *MapControl) Action() *actions.Action {
+	return nil
 }

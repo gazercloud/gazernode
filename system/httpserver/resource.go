@@ -14,6 +14,9 @@ func (c *HttpServer) ResourceAdd(request []byte) (response []byte, err error) {
 	}
 
 	resp.Id, err = c.system.ResAdd(req.Name, req.Type, req.Content)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -28,6 +31,9 @@ func (c *HttpServer) ResourceSet(request []byte) (response []byte, err error) {
 	}
 
 	err = c.system.ResSet(req.Id, req.Thumbnail, req.Content)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -42,6 +48,9 @@ func (c *HttpServer) ResourceGet(request []byte) (response []byte, err error) {
 	}
 
 	resp.Item, err = c.system.ResGet(req.Id)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -56,6 +65,9 @@ func (c *HttpServer) ResourceRemove(request []byte) (response []byte, err error)
 	}
 
 	err = c.system.ResRemove(req.Id)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -70,6 +82,9 @@ func (c *HttpServer) ResourceRename(request []byte) (response []byte, err error)
 	}
 
 	err = c.system.ResRename(req.Id, req.Name)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return

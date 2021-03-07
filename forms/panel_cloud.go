@@ -324,7 +324,13 @@ func (c *PanelCloud) SetCurrentChannelId(channelId string, name string) {
 }
 
 func (c *PanelCloud) loadChannels() {
+	if c.client == nil {
+		return
+	}
 	c.client.GetCloudChannels(func(channels []cloud.ChannelInfo, err error) {
+		if c.lvChannels == nil {
+			return
+		}
 		c.lvChannels.RemoveItems()
 		for _, s := range channels {
 			lvItem := c.lvChannels.AddItem(s.Name)

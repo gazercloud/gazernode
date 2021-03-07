@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/files/unit_csv_export"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
@@ -14,8 +15,6 @@ import (
 	"github.com/gazercloud/gazernode/system/units/general/unit_hhgttg"
 	"github.com/gazercloud/gazernode/system/units/general/unit_manual"
 	"github.com/gazercloud/gazernode/system/units/general/unit_signal_generator"
-	"github.com/gazercloud/gazernode/system/units/network/unit_http_json_items_server"
-	"github.com/gazercloud/gazernode/system/units/network/unit_http_json_units_server"
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
 	"github.com/gazercloud/gazernode/system/units/network/unit_tcp_connect"
 	unit_tcp_telnet_control "github.com/gazercloud/gazernode/system/units/network/unit_tcp_control"
@@ -33,6 +32,17 @@ type UnitsSystem struct {
 	unitTypesMap map[string]*UnitType
 	iDataStorage common_interfaces.IDataStorage
 	mtx          sync.Mutex
+}
+
+var unitCategoriesIcons map[string][]byte
+
+func init() {
+	unitCategoriesIcons = make(map[string][]byte)
+	unitCategoriesIcons["network"] = resources.R_files_sensors_sensor_network_png
+	unitCategoriesIcons["windows"] = resources.R_files_sensors_sensor_os_png
+	unitCategoriesIcons["file"] = resources.R_files_sensors_sensor_files_png
+	unitCategoriesIcons["general"] = resources.R_files_sensors_sensor_general_png
+	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_sensor_serial_port_png
 }
 
 func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
@@ -54,8 +64,8 @@ Frame size: 4-500 bytes. Default value is 64
 `
 	unitType = c.RegisterUnit("network_tcp_connect", "network", "TCP Connect", unit_tcp_connect.New, unit_tcp_connect.Image, "")
 	unitType = c.RegisterUnit("network_tcp_telnet_control", "network", "TCP Telnet Control", unit_tcp_telnet_control.New, unit_tcp_telnet_control.Image, "")
-	unitType = c.RegisterUnit("network_http_json_items_server", "network", "HTTP Json Items Server", unit_http_json_items_server.New, unit_http_json_items_server.Image, "")
-	unitType = c.RegisterUnit("network_http_json_units_server", "network", "HTTP Json Units Server", unit_http_json_units_server.New, unit_http_json_units_server.Image, "")
+	//unitType = c.RegisterUnit("network_http_json_items_server", "network", "HTTP Json Items Server", unit_http_json_items_server.New, unit_http_json_items_server.Image, "")
+	//unitType = c.RegisterUnit("network_http_json_units_server", "network", "HTTP Json Units Server", unit_http_json_units_server.New, unit_http_json_units_server.Image, "")
 
 	unitType = c.RegisterUnit("windows_memory", "windows", "OS Memory", unit_system_memory.New, unit_system_memory.Image, "")
 	unitType = c.RegisterUnit("windows_process", "windows", "OS Process", unit_process.New, unit_process.Image, "")
@@ -71,6 +81,8 @@ Frame size: 4-500 bytes. Default value is 64
 	unitType = c.RegisterUnit("general_signal_generator", "general", "Signal Generator", unit_signal_generator.New, unit_signal_generator.Image, "")
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
+
+	//unitType = c.RegisterUnit("industrial_modbus", "industrial", "Modbus TCP", unit_modbus.New, unit_modbus.Image, "Modbus TCP")
 
 	return &c
 }
@@ -111,7 +123,11 @@ func (c *UnitsSystem) UnitCategories() nodeinterface.UnitTypeCategoriesResponse 
 		if _, ok := addedCats[st.Category]; !ok {
 			var unitCategoryInfo nodeinterface.UnitTypeCategoriesResponseItem
 			unitCategoryInfo.Name = st.Category
-			unitCategoryInfo.Image = st.Picture
+			if imgBytes, ok := unitCategoriesIcons[st.Category]; ok {
+				unitCategoryInfo.Image = imgBytes
+			} else {
+				unitCategoryInfo.Image = st.Picture
+			}
 			result.Items = append(result.Items, unitCategoryInfo)
 			addedCats[st.Category] = true
 		}

@@ -246,6 +246,16 @@ func (c *PanelCharts) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *PanelCharts) SelectChartGroup(resId string) {
+	for i := 0; i < c.lvItems.ItemsCount(); i++ {
+		item := c.lvItems.Item(i)
+		if item.TempData == resId {
+			c.lvItems.SelectItem(i)
+			break
+		}
+	}
+}
+
 func (c *PanelCharts) FullRefresh() {
 	if !c.IsEditing() {
 		c.loadChartGroups("")

@@ -2,7 +2,6 @@ package simplemap
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
@@ -491,15 +490,13 @@ func (c *MapWidget) MouseDown(event *uievents.MouseDownEvent) {
 	c.mousePressPoint_ = Point{event.X, event.Y}
 	c.mousePressPointInches_ = c.translateToInches(c.mousePressPoint_)
 	if c.applyCurrentTool(c.mousePressPointInches_) {
-		return
+
 	}
 
 	c.mouseMovePoint_ = Point{event.X, event.Y}
 	c.mouseMovePointInches_ = c.translateToInches(c.mouseMovePoint_)
 
 	processed := false
-
-	fmt.Println("----------------")
 
 	processed = c.view_.mouseDown(c.mousePressPointInches_.x, c.mousePressPointInches_.y, c.isLeftButtonDown_, c.isCenterButtonDown_, c.isRightButtonDown_, event.Modifiers.Shift, event.Modifiers.Control, event.Modifiers.Alt)
 	/*if c.isLeftButtonDown_ && c.view_.editing_ {
@@ -634,8 +631,13 @@ func (c *MapWidget) MouseMove(event *uievents.MouseMoveEvent) {
 	if c.view_ != nil {
 		c.view_.mouseMove(c.mousePressPointInches_, c.mouseMovePointInches_, c.isLeftButtonDown_, c.isCenterButtonDown_, c.isRightButtonDown_, event.Modifiers.Shift, event.Modifiers.Control, event.Modifiers.Alt)
 		controlUnderPoint := c.view_.FindControlUnderPoint(int(c.mouseMovePointInches_.x), int(c.mouseMovePointInches_.y))
+		c.SetTooltip("")
 		if controlUnderPoint != nil {
 			if controlUnderPoint.HasAction() && !c.IsEditing() {
+				action := controlUnderPoint.Action()
+				if action != nil {
+					c.SetTooltip(action.Comment)
+				}
 				c.Window().SetMouseCursor(ui.MouseCursorPointer)
 			} else {
 				c.Window().SetMouseCursor(ui.MouseCursorArrow)
@@ -686,10 +688,6 @@ func (c *MapWidget) applyCurrentTool(point Point32) bool {
 		return false
 	}
 
-	if c.view_ == nil {
-		return false
-	}
-
 	layer := c.view_.currentLayer()
 	if layer == nil {
 		return false
@@ -703,7 +701,12 @@ func (c *MapWidget) applyCurrentTool(point Point32) bool {
 	}
 
 	control.SetAdding()
-	c.view_.addItem(control, point.x-control.Width()/2, point.y-control.Height()/2)
+	c.view_.addItem(control, point.x, point.y)
+
+	c.view_.setSelectedForItems(false)
+	c.view_.setSelectedForItem(control, true)
+	c.view_.checkExclusiveSelectedItem()
+	c.view_.beginChangingSize()
 
 	return true
 }
@@ -729,12 +732,12 @@ func (c *MapWidget) KeyDown(event *uievents.KeyDownEvent) bool {
 		c.Update("MapWidget")
 		return true
 	}
-	if event.Key == 'g' {
+	if event.Key == glfw.KeyG {
 		c.showGrid_ = !c.showGrid_
 		c.Update("MapWidget")
 		return true
 	}
-	if event.Key == 'a' && event.Modifiers.Control {
+	if event.Key == glfw.KeyA && event.Modifiers.Control {
 		c.selectAllItems()
 		c.Update("MapWidget")
 		return true

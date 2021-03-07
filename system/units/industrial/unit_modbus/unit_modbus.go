@@ -1,19 +1,18 @@
-package unit_tcp_telnet_control
+package unit_modbus
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"net"
-	"strings"
 	"time"
 )
 
 type Item struct {
-	Name   string `json:"item_name"`
-	Format string `json:"format"`
+	Name string  `json:"item_name"`
+	Addr float64 `json:"addr"`
 }
 
 type Config struct {
@@ -23,13 +22,13 @@ type Config struct {
 	Items   []Item `json:"items"`
 }
 
-type UnitTcpControl struct {
+type UnitModbus struct {
 	units_common.Unit
 	config Config
 }
 
 func New() common_interfaces.IUnit {
-	var c UnitTcpControl
+	var c UnitModbus
 	return &c
 }
 
@@ -40,21 +39,21 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_network_telnet_control_png
 }
 
-func (c *UnitTcpControl) GetConfigMeta() string {
+func (c *UnitModbus) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
-	meta.Add("addr", "Address", "localhost:7777", "string", "", "", "")
-	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
-	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
-	t1 := meta.Add("items", "Items", "", "table", "", "", "")
+	meta.Add("addr", "Address", "localhost:502", "string", "", "", "")
+	tChannels := meta.Add("channels", "Channels", "", "table", "", "", "")
+	tChannels.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	tChannels.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
+	t1 := tChannels.Add("items", "Items", "", "table", "", "", "")
 	t1.Add("item_name", "Item Name", "Unit/Item", "string", "", "", "data-item")
-	t1.Add("format", "Format", "item=%VALUE%\\r\\n", "string", "", "", "")
+	t1.Add("addr", "Address", "0", "num", "0", "65535", "")
 	return meta.Marshal()
 }
 
-func (c *UnitTcpControl) InternalUnitStart() error {
+func (c *UnitModbus) InternalUnitStart() error {
 	var err error
 
 	err = json.Unmarshal([]byte(c.GetConfig()), &c.config)
@@ -111,13 +110,34 @@ func (c *UnitTcpControl) InternalUnitStart() error {
 	return nil
 }
 
-func (c *UnitTcpControl) InternalUnitStop() {
+func (c *UnitModbus) InternalUnitStop() {
 	c.Stopping = true
 }
 
-func (c *UnitTcpControl) Tick() {
+func (c *UnitModbus) WriteCoil(addr uint16, on bool) error {
 	var err error
 	var conn net.Conn
+	conn, err = net.DialTimeout("tcp", c.config.Addr, time.Duration(c.config.Timeout)*time.Millisecond)
+
+	data := []byte{0x00, 0x00, 0x00, 0x00, 0x0, 0x6, 1, 0x05, 0x00, 0x00, 0xFF, 0x00}
+	if on {
+		data = []byte{0x00, 0x00, 0x00, 0x00, 0x0, 0x6, 1, 0x05, 0x00, 0x00, 0xFF, 0x00}
+	} else {
+		data = []byte{0x00, 0x00, 0x00, 0x00, 0x0, 0x6, 1, 0x05, 0x00, 0x00, 0x00, 0x00}
+	}
+
+	binary.BigEndian.PutUint16(data[8:], addr)
+
+	if conn != nil {
+		_, err = conn.Write(data)
+		conn.Close()
+	}
+	conn = nil
+	return err
+}
+
+func (c *UnitModbus) Tick() {
+	var err error
 
 	c.Started = true
 	dtLastTime := time.Now().UTC()
@@ -136,30 +156,13 @@ func (c *UnitTcpControl) Tick() {
 		dtLastTime = time.Now().UTC()
 
 		timeBegin := time.Now()
-		if conn == nil {
-			conn, err = net.DialTimeout("tcp", c.config.Addr, time.Duration(c.config.Timeout)*time.Millisecond)
-		}
 		timeEnd := time.Now()
 		duration := timeEnd.Sub(timeBegin)
 
 		for _, item := range c.config.Items {
 			val, err := c.GetItem(item.Name)
 			if err == nil {
-				format := item.Format
-				format = strings.ReplaceAll(format, "\\r", "\r")
-				format = strings.ReplaceAll(format, "\\n", "\n")
-				format = strings.ReplaceAll(format, "%VALUE%", val.Value)
-				format = strings.ReplaceAll(format, "%DT%", time.Unix(0, val.DT*1000).Format("2006-01-02 15:04:05.000"))
-				format = strings.ReplaceAll(format, "%UOM%", val.UOM)
-				dataStr := format
-				if conn != nil {
-					c.SetString("string", dataStr, "")
-					_, err = conn.Write([]byte(dataStr))
-					if err != nil {
-						conn.Close()
-						conn = nil
-					}
-				}
+				c.WriteCoil(uint16(item.Addr), val.Value == "1")
 			}
 		}
 
@@ -173,10 +176,6 @@ func (c *UnitTcpControl) Tick() {
 				c.SetError("")
 			}
 		}
-	}
-
-	if conn != nil {
-		conn.Close()
 	}
 
 	c.SetString(ItemNameStatus, "", "stopped")

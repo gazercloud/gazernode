@@ -3,10 +3,12 @@ package forms
 import (
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/local_user_storage"
 	"github.com/gazercloud/gazernode/product/productinfo"
 	"github.com/gazercloud/gazerui/uicontrols"
+	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiforms"
 	"github.com/gazercloud/gazerui/uistyles"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -18,6 +20,9 @@ type MainForm struct {
 	uiforms.Form
 	tabNodes    *uicontrols.TabControl
 	nodeWidgets []*PanelNode
+
+	loadingConnections            []local_user_storage.NodeConnection
+	currentConnectionLoadingIndex int
 }
 
 type AdFromSite struct {
@@ -82,8 +87,11 @@ func (c *MainForm) OnInit() {
 		c.AddNode()
 	}
 	c.tabNodes.OnNeedClose = func(index int) {
-		c.RemoveNode(index)
+		uicontrols.ShowQuestionMessageOKCancel(c.Panel(), "Remove connection to node?", "Confirmation", func() {
+			c.RemoveNode(index)
+		}, nil)
 	}
+
 	c.loadNodes()
 
 	c.SetTheme(c.GetTheme())
@@ -133,14 +141,33 @@ func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 }
 
 func (c *MainForm) loadNodes() {
-	connections := local_user_storage.Instance().Connections()
-	for i, conn := range connections {
-		cl := client.NewWithSessionToken(c, conn.Address, conn.UserName, conn.SessionToken)
-		c.addNodeTab(cl, i)
-	}
+	c.currentConnectionLoadingIndex = 0
+	c.loadingConnections = local_user_storage.Instance().Connections()
 
-	if len(connections) == 0 {
+	if len(c.loadingConnections) == 0 {
 		c.AddNode()
+	} else {
+		loadingDialog := uicontrols.NewDialog(c.Panel(), "Loading nodes", 500, 500)
+		txtProgress := loadingDialog.ContentPanel().AddTextBlockOnGrid(0, 0, "")
+		txtProgress.SetXExpandable(true)
+		loadingDialog.ContentPanel().AddVSpacerOnGrid(0, 1)
+		loadingDialog.ShowDialog()
+
+		c.MakeTimerAndStart(100, func(timer *uievents.FormTimer) {
+			if c.currentConnectionLoadingIndex == len(c.loadingConnections) {
+				if loadingDialog != nil {
+					loadingDialog.Close()
+				}
+				loadingDialog = nil
+				timer.StopTimer()
+			} else {
+				conn := c.loadingConnections[c.currentConnectionLoadingIndex]
+				txtProgress.SetText(txtProgress.Text() + "loading node " + conn.String() + " (" + fmt.Sprint(c.currentConnectionLoadingIndex) + " / " + fmt.Sprint(len(c.loadingConnections)) + ")\r\n")
+				cl := client.NewWithSessionToken(c, conn.Address, conn.UserName, conn.SessionToken)
+				c.addNodeTab(cl, c.currentConnectionLoadingIndex)
+				c.currentConnectionLoadingIndex++
+			}
+		})
 	}
 }
 
