@@ -22,14 +22,16 @@ type FormStatistics struct {
 	itemLocalSend *uicontrols.ListViewItem
 	itemCloudRcv  *uicontrols.ListViewItem
 	itemCloudSend *uicontrols.ListViewItem
+	itemApiCalls  *uicontrols.ListViewItem
 
 	lastReceivedBytes int
 	lastSentBytes     int
 	lastStatDT        time.Time
 
-	lastStatSrvCloudSend int
-	lastStatSrvCloudRvc  int
-	lastStatSrvDT        time.Time
+	lastStatSrvCloudSend    int
+	lastStatSrvCloudRvc     int
+	lastStatSrvApiCallCount int
+	lastStatSrvDT           time.Time
 }
 
 func NewFormStatistics(parent uiinterfaces.Widget, client *client.Client) *FormStatistics {
@@ -63,6 +65,7 @@ func (c *FormStatistics) OnInit() {
 	c.itemLocalSend = c.lvItems.AddItem("UI app -> LocalService")
 	c.itemCloudRcv = c.lvItems.AddItem("Cloud(Internet) -> LocalService")
 	c.itemCloudSend = c.lvItems.AddItem("LocalService -> Cloud(Internet)")
+	c.itemApiCalls = c.lvItems.AddItem("API calls")
 
 	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
@@ -100,18 +103,23 @@ func (c *FormStatistics) timerUpdate() {
 			duration := t.Sub(c.lastStatSrvDT).Seconds()
 			speedCloudSend := float64(0)
 			speedCloudReceive := float64(0)
+			speedApiCalls := float64(0)
 			if duration > 0 {
 				sent := statistics.CloudSentBytes
 				received := statistics.CloudReceivedBytes
+				apiCalls := statistics.ApiCalls
 				speedCloudSend = float64(sent-c.lastStatSrvCloudSend) / duration
 				speedCloudReceive = float64(received-c.lastStatSrvCloudRvc) / duration
+				speedApiCalls = float64(apiCalls-c.lastStatSrvApiCallCount) / duration
 				c.lastStatSrvDT = time.Now().UTC()
 				c.lastStatSrvCloudSend = sent
 				c.lastStatSrvCloudRvc = received
+				c.lastStatSrvApiCallCount = apiCalls
 			}
 
 			c.itemCloudSend.SetValue(1, strconv.FormatFloat(speedCloudSend/1024.0, 'f', 1, 64)+" KB/sec")
 			c.itemCloudRcv.SetValue(1, strconv.FormatFloat(speedCloudReceive/1024.0, 'f', 1, 64)+" KB/sec")
+			c.itemApiCalls.SetValue(1, strconv.FormatFloat(speedApiCalls, 'f', 1, 64)+" count/sec")
 		} else {
 		}
 	})

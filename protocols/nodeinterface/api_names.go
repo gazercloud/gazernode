@@ -35,6 +35,7 @@ const (
 	// *** Service ***
 	FuncServiceLookup     = "service_lookup"
 	FuncServiceStatistics = "service_statistics"
+	FuncServiceApi        = "service_api"
 
 	// *** Resource ***
 	FuncResourceAdd    = "resource_add"

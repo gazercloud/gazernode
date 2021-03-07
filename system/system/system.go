@@ -27,6 +27,8 @@ type System struct {
 	userByName map[string]*common_interfaces.User
 	sessions   map[string]*UserSession
 
+	apiCallsCount int
+
 	mtx sync.Mutex
 }
 
@@ -69,4 +71,10 @@ func (c *System) Stop() {
 	c.SaveConfig()
 	c.saveSessions()
 	last_values.Write(c.items)
+}
+
+func (c *System) RegApiCall() {
+	c.mtx.Lock()
+	c.apiCallsCount++
+	c.mtx.Unlock()
 }

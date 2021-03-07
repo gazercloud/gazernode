@@ -20,3 +20,10 @@ type ServiceStatisticsRequest struct {
 type ServiceStatisticsResponse struct {
 	Stat common_interfaces.Statistics
 }
+
+type ServiceApiRequest struct {
+}
+
+type ServiceApiResponse struct {
+	SupportedFunctions []string `json:"supported_functions"`
+}

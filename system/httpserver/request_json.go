@@ -10,6 +10,8 @@ func (c *HttpServer) requestJson(function string, requestText []byte) ([]byte, e
 	var err error
 	var result []byte
 
+	c.system.RegApiCall()
+
 	switch function {
 
 	// *** UnitType ***

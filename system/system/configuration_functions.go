@@ -55,21 +55,49 @@ func (c *System) SaveConfig() error {
 
 func (c *System) LoadConfig() error {
 	configString, err := ioutil.ReadFile(paths.ProgramDataFolder() + "/gazer/config.json")
-	if err != nil {
-		return err
-	}
+	if err == nil {
+		var conf Config
+		err = json.Unmarshal([]byte(configString), &conf)
+		if err != nil {
+			return err
+		}
 
-	var conf Config
-	err = json.Unmarshal([]byte(configString), &conf)
-	if err != nil {
-		return err
-	}
+		c.users = make([]*common_interfaces.User, 0)
+		for _, u := range conf.Users {
+			us := u
+			c.users = append(c.users, &us)
+			c.userByName[us.Name] = &us
+		}
 
-	c.users = make([]*common_interfaces.User, 0)
-	for _, u := range conf.Users {
-		us := u
-		c.users = append(c.users, &us)
-		c.userByName[us.Name] = &us
+		c.nextItemId = conf.NextItemId
+
+		realMaxItemId := uint64(0)
+		for _, itemConf := range conf.Items {
+			var item common_interfaces.Item
+			item.Id = itemConf.Id
+			item.Name = itemConf.Name
+
+			c.items = append(c.items, &item)
+			c.itemsByName[item.Name] = &item
+			c.itemsById[item.Id] = &item
+
+			if item.Id > realMaxItemId {
+				realMaxItemId = item.Id
+			}
+		}
+
+		if c.nextItemId < realMaxItemId+1 {
+			c.nextItemId = realMaxItemId + 1
+		}
+
+		for _, sens := range conf.Units {
+			c.unitsSystem.AddUnit(sens.Type, sens.Id, sens.Name, sens.Config)
+		}
+
+		for _, ch := range conf.Channels {
+			c.cloud.AddChannel(ch.Id, ch.Password, ch.Name)
+			c.cloud.AddItems([]string{ch.Id}, ch.Items)
+		}
 	}
 
 	if len(c.users) == 0 {
@@ -81,34 +109,5 @@ func (c *System) LoadConfig() error {
 		c.userByName[u.Name] = &u
 	}
 
-	c.nextItemId = conf.NextItemId
-
-	realMaxItemId := uint64(0)
-	for _, itemConf := range conf.Items {
-		var item common_interfaces.Item
-		item.Id = itemConf.Id
-		item.Name = itemConf.Name
-
-		c.items = append(c.items, &item)
-		c.itemsByName[item.Name] = &item
-		c.itemsById[item.Id] = &item
-
-		if item.Id > realMaxItemId {
-			realMaxItemId = item.Id
-		}
-	}
-
-	if c.nextItemId < realMaxItemId+1 {
-		c.nextItemId = realMaxItemId + 1
-	}
-
-	for _, sens := range conf.Units {
-		c.unitsSystem.AddUnit(sens.Type, sens.Id, sens.Name, sens.Config)
-	}
-
-	for _, ch := range conf.Channels {
-		c.cloud.AddChannel(ch.Id, ch.Password, ch.Name)
-		c.cloud.AddItems([]string{ch.Id}, ch.Items)
-	}
-	return nil
+	return err
 }

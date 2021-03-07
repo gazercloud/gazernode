@@ -4,11 +4,9 @@ go 1.16
 
 require (
 	github.com/fogleman/gg v1.3.0
-	github.com/gazercloud/gazerui v1.0.5
+	github.com/gazercloud/gazerui v1.0.6
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
 	github.com/go-ping/ping v0.0.0-20210216210419-25d1413fb7bb
-	github.com/goburrow/modbus v0.1.0 // indirect
-	github.com/goburrow/serial v0.1.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
 	github.com/josephspurrier/goversioninfo v1.2.0

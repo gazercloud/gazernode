@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"strings"
 	"time"
 )
@@ -105,5 +106,59 @@ func (c *System) GetStatistics() (common_interfaces.Statistics, error) {
 	var res common_interfaces.Statistics
 	res.CloudSentBytes = c.cloud.SentBytes()
 	res.CloudReceivedBytes = c.cloud.ReceivedBytes()
+	res.ApiCalls = c.apiCallsCount
+	return res, nil
+}
+
+func (c *System) GetApi() (nodeinterface.ServiceApiResponse, error) {
+	var res nodeinterface.ServiceApiResponse
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitTypeList)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitTypeCategories)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitTypeConfigMeta)
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitAdd)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitRemove)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitState)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitItemsValues)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitList)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitStart)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitStop)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitSetConfig)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitGetConfig)
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncDataItemList)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncDataItemListAll)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncDataItemWrite)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncDataItemHistory)
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncPublicChannelList)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncPublicChannelAdd)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncPublicChannelSetName)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncPublicChannelRemove)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncPublicChannelItemAdd)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncPublicChannelItemRemove)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncPublicChannelItemsState)
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncServiceLookup)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncServiceStatistics)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncServiceApi)
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncResourceAdd)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncResourceSet)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncResourceGet)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncResourceRemove)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncResourceRename)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncResourceList)
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncSessionOpen)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncSessionActivate)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncSessionRemove)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncSessionList)
+
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUserList)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUserAdd)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUserSetPassword)
+	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUserRemove)
 	return res, nil
 }
