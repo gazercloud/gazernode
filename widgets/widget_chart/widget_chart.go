@@ -27,6 +27,7 @@ type WidgetCharts struct {
 	timeChart        *timechart.TimeChart
 	items            []*DocumentChartItem
 	timeFilter       *widget_time_filter.TimeFilterWidget
+	isActive_        bool
 }
 
 func NewWidgetCharts(parent uiinterfaces.Widget, client *client.Client) *WidgetCharts {
@@ -63,6 +64,14 @@ func (c *WidgetCharts) OnInit() {
 
 func (c *WidgetCharts) SetOnChartContextMenuNeed(OnChartContextMenuNeed func(timeChart *timechart.TimeChart, area *timechart.Area, areaIndex int) uiinterfaces.Menu) {
 	c.timeChart.OnChartContextMenuNeed = OnChartContextMenuNeed
+}
+
+func (c *WidgetCharts) IsActive() bool {
+	return c.isActive_
+}
+
+func (c *WidgetCharts) SetIsActive(isActive bool) {
+	c.isActive_ = isActive
 }
 
 func (c *WidgetCharts) Dispose() {
@@ -187,9 +196,11 @@ func (c *WidgetCharts) AddSeries(name string, area *timechart.Area) *timechart.S
 }
 
 func (c *WidgetCharts) timerUpdate() {
-	c.timeChart.SetDefaultDisplayRange(c.timeFilter.TimeFrom(), c.timeFilter.TimeTo())
-	for _, item := range c.items {
-		item.Clean()
+	if c.isActive_ {
+		c.timeChart.SetDefaultDisplayRange(c.timeFilter.TimeFrom(), c.timeFilter.TimeTo())
+		for _, item := range c.items {
+			item.Clean()
+		}
 	}
 }
 

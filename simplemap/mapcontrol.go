@@ -868,7 +868,7 @@ func (c *MapControl) ExecAction(action *actions.Action) error {
 	switch action.Type {
 	case "write_item":
 		return c.execWriteItemAction(action.Content)
-	case "open_map":
+	case "open_document":
 		return c.execOpenMapAction(action.Content)
 	}
 

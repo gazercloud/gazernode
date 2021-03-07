@@ -46,7 +46,7 @@ func NewActionEditor(parent uiinterfaces.Widget, value string, client *client.Cl
 	c.pContent.AddTextBlockOnGrid(0, 0, "Type:")
 	c.cmbActionType = c.pContent.AddComboBoxOnGrid(1, 0)
 	c.cmbActionType.AddItem("write_item", "write_item")
-	c.cmbActionType.AddItem("open_map", "open_map")
+	c.cmbActionType.AddItem("open_document", "open_document")
 	c.cmbActionType.SetCurrentItemKey(a.Type)
 	c.cmbActionType.OnCurrentIndexChanged = func(event *uicontrols.ComboBoxEvent) {
 		c.buildResult()
@@ -111,7 +111,7 @@ func (c *ActionEditor) LoadEditor(actionType string, actionContent string) {
 	}
 
 	switch actionType {
-	case "open_map":
+	case "open_document":
 		c.wEditor = NewOpenMap(c.pContent, c.client)
 	case "write_item":
 		c.wEditor = NewWriteItem(c.pContent, c.client)

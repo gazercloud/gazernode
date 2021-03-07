@@ -8,6 +8,7 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/tarm/serial"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -90,7 +91,11 @@ func (c *UnitSerialPortKeyValue) InternalUnitStart() error {
 		return err
 	}
 
-	c.port = "\\\\.\\" + config.Port
+	c.port = config.Port
+
+	if runtime.GOOS == "windows" {
+		c.port = "\\\\.\\" + config.Port
+	}
 
 	c.receiveAll = config.ReceiveAll
 

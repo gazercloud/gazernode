@@ -366,6 +366,10 @@ func (c *PanelCloud) createCloudChannelIfItDoesntExists() {
 }
 
 func (c *PanelCloud) timerUpdate() {
+	if !c.IsVisible() {
+		return
+	}
+
 	if len(c.lvChannels.SelectedItems()) > 0 {
 		if len(c.lvChannels.SelectedItems()) == 1 {
 			c.btnEdit.SetEnabled(true)

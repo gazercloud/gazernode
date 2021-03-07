@@ -246,6 +246,11 @@ func (c *PanelCharts) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *PanelCharts) SetVisible(visible bool) {
+	c.Panel.SetVisible(visible)
+	c.timeChart.SetIsActive(visible)
+}
+
 func (c *PanelCharts) SelectChartGroup(resId string) {
 	for i := 0; i < c.lvItems.ItemsCount(); i++ {
 		item := c.lvItems.Item(i)

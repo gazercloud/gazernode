@@ -216,6 +216,10 @@ func (c *PanelUsers) timerUpdate() {
 		return
 	}
 
+	if !c.IsVisible() {
+		return
+	}
+
 	if len(c.lvUsers.SelectedItems()) > 0 {
 		if len(c.lvUsers.SelectedItems()) == 1 {
 			c.btnEdit.SetEnabled(true)

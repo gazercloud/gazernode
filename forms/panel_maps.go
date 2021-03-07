@@ -565,6 +565,10 @@ func (c *PanelMaps) OnSelectionChanged() {
 }
 
 func (c *PanelMaps) Tick() {
+	if !c.IsVisible() {
+		return
+	}
+
 	c.mapWidget_.Tick()
 }
 

@@ -656,6 +656,10 @@ func (c *PanelUnits) timerUpdate() {
 		return
 	}
 
+	if !c.IsVisible() {
+		return
+	}
+
 	c.updateUnitsButtons()
 	c.updateUnitsState()
 
