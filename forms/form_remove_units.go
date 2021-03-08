@@ -11,7 +11,6 @@ type FormRemoveUnits struct {
 	uicontrols.Dialog
 	client      *client.Client
 	txtUnitName *uicontrols.TextBox
-	txtError    *uicontrols.TextBlock
 	lvUnits     *uicontrols.ListView
 	units       []*nodeinterface.UnitListResponseItem
 }
@@ -64,7 +63,7 @@ func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units
 				c.TryAccept = nil
 				c.Accept()
 			} else {
-				c.txtError.SetText(err.Error())
+				uicontrols.ShowErrorMessage(&c, err.Error(), "Error")
 			}
 		})
 		return false

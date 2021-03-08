@@ -56,6 +56,7 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) 
 		c.txtAddress.SetTabIndex(1)
 
 		if c.client != nil {
+			c.txtAddress.SetText(c.client.Address())
 			c.txtAddress.SetEnabled(false)
 		} else {
 			c.txtAddress.SelectAllText()

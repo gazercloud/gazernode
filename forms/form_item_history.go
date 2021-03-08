@@ -122,6 +122,14 @@ func (c *FormItemHistory) loadHistory() {
 	c.client.ReadHistory(c.itemName, c.lastLoadedDT+1, c.timeFilter.TimeTo(), func(result *history.ReadResult, err error) {
 		c.loading = false
 
+		if err != nil {
+			return
+		}
+
+		if result == nil {
+			return
+		}
+
 		if c.lvItems == nil {
 			return
 		}
