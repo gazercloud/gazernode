@@ -6,7 +6,7 @@ import (
 	"runtime"
 )
 
-func ProgramDataFolder() string {
+func ProgramDataFolder1() string {
 	if runtime.GOOS == "windows" {
 		return os.Getenv("PROGRAMDATA")
 	}
@@ -24,7 +24,7 @@ func HomeFolder() string {
 	if err == nil {
 		return usr.HomeDir
 	}
-	return ProgramDataFolder()
+	return ProgramDataFolder1()
 }
 
 func DocumentsFolder() string {
@@ -41,7 +41,7 @@ func DocumentsFolder() string {
 		}
 		return usr.HomeDir
 	}
-	return ProgramDataFolder()
+	return ProgramDataFolder1()
 }
 
 func DownloadsFolder() string {
@@ -58,7 +58,7 @@ func DownloadsFolder() string {
 		}
 		return usr.HomeDir
 	}
-	return ProgramDataFolder()
+	return ProgramDataFolder1()
 }
 
 func PicturesFolder() string {
@@ -75,7 +75,7 @@ func PicturesFolder() string {
 		}
 		return usr.HomeDir
 	}
-	return ProgramDataFolder()
+	return ProgramDataFolder1()
 }
 
 func DesktopFolder() string {
@@ -92,5 +92,5 @@ func DesktopFolder() string {
 		}
 		return usr.HomeDir
 	}
-	return ProgramDataFolder()
+	return ProgramDataFolder1()
 }

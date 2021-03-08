@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/cloud"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/gazercloud/gazernode/utilities/paths"
 	"io/ioutil"
 )
 
@@ -45,7 +45,7 @@ func (c *System) SaveConfig() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(paths.ProgramDataFolder()+"/gazer/config.json", configBytes, 0666)
+	err = ioutil.WriteFile(settings.ServerDataPath()+"/config.json", configBytes, 0666)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (c *System) SaveConfig() error {
 }
 
 func (c *System) LoadConfig() error {
-	configString, err := ioutil.ReadFile(paths.ProgramDataFolder() + "/gazer/config.json")
+	configString, err := ioutil.ReadFile(settings.ServerDataPath() + "/config.json")
 	if err == nil {
 		var conf Config
 		err = json.Unmarshal([]byte(configString), &conf)

@@ -5,6 +5,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/gazercloud/gazerui/uiresources"
 )
 
 type FormEditUser struct {
@@ -27,10 +28,10 @@ func NewFormEditUser(parent uiinterfaces.Widget, client *client.Client, name str
 	pRight := pContent.AddPanelOnGrid(1, 0)
 	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
 
-	/*img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.ForeColor()))
+	img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_perm_identity_materialiconsoutlined_48dp_1x_outline_perm_identity_black_48dp_png, c.ForeColor()))
 	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
 	img.SetMinHeight(64)
-	img.SetMinWidth(64)*/
+	img.SetMinWidth(64)
 	pLeft.AddVSpacerOnGrid(0, 1)
 
 	pRight.AddTextBlockOnGrid(0, 0, "User name:")
@@ -62,6 +63,10 @@ func NewFormEditUser(parent uiinterfaces.Widget, client *client.Client, name str
 
 	c.SetAcceptButton(btnOK)
 	c.SetRejectButton(btnCancel)
+
+	c.OnShow = func() {
+		c.txtPassword.Focus()
+	}
 
 	return &c
 }

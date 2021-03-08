@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/utilities/paths"
+	"github.com/gazercloud/gazernode/settings"
 	"io/ioutil"
 	"os"
 	"sort"
@@ -13,7 +13,7 @@ import (
 )
 
 func Write(items []*common_interfaces.Item) {
-	dir := paths.ProgramDataFolder() + "/gazer/last_values/"
+	dir := settings.ServerDataPath() + "/last_values/"
 	fullPath := dir + "/" + fmt.Sprintf("%016X", time.Now().UTC().UnixNano())
 	_ = os.MkdirAll(dir, 0755)
 	f, err := os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -28,7 +28,7 @@ func Write(items []*common_interfaces.Item) {
 
 func Read() []*common_interfaces.Item {
 	result := make([]*common_interfaces.Item, 0)
-	dir := paths.ProgramDataFolder() + "/gazer/last_values/"
+	dir := settings.ServerDataPath() + "/last_values/"
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return result

@@ -4,6 +4,7 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/gazercloud/gazerui/uiresources"
 )
 
 type DialogEditMapName struct {
@@ -22,12 +23,25 @@ func NewDialogEditMapName(parent uiinterfaces.Widget, client *client.Client, id 
 	c.InitControl(parent, &c)
 
 	pContent := c.ContentPanel().AddPanelOnGrid(0, 0)
-	c.txtText = pContent.AddTextBoxOnGrid(0, 0)
+	pLeft := pContent.AddPanelOnGrid(0, 0)
+	pLeft.SetPanelPadding(0)
+	//pLeft.SetBorderRight(1, c.ForeColor())
+	pLeft.SetMinWidth(100)
+	pRight := pContent.AddPanelOnGrid(1, 0)
+	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
+
+	img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.ForeColor()))
+	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
+	img.SetMinHeight(64)
+	img.SetMinWidth(64)
+	pLeft.AddVSpacerOnGrid(0, 1)
+
+	pRight.AddTextBlockOnGrid(0, 0, "Map name:")
+	c.txtText = pRight.AddTextBoxOnGrid(1, 0)
 	c.txtText.SetText(text)
 
-	pContent.AddVSpacerOnGrid(0, 5)
+	pRight.AddVSpacerOnGrid(0, 10)
 
-	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
 	pButtons.AddHSpacerOnGrid(0, 0)
 	c.btnOK = pButtons.AddButtonOnGrid(1, 0, "OK", nil)
 	c.TryAccept = func() bool {
@@ -47,6 +61,10 @@ func NewDialogEditMapName(parent uiinterfaces.Widget, client *client.Client, id 
 
 	c.Resize(500, 300)
 	c.SetTitle("Edit")
+
+	c.OnShow = func() {
+		c.txtText.Focus()
+	}
 
 	return &c
 }

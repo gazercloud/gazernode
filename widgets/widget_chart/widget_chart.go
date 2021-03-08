@@ -196,11 +196,9 @@ func (c *WidgetCharts) AddSeries(name string, area *timechart.Area) *timechart.S
 }
 
 func (c *WidgetCharts) timerUpdate() {
-	if c.isActive_ {
-		c.timeChart.SetDefaultDisplayRange(c.timeFilter.TimeFrom(), c.timeFilter.TimeTo())
-		for _, item := range c.items {
-			item.Clean()
-		}
+	c.timeChart.SetDefaultDisplayRange(c.timeFilter.TimeFrom(), c.timeFilter.TimeTo())
+	for _, item := range c.items {
+		item.Clean()
 	}
 }
 

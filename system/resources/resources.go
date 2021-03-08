@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/utilities/paths"
+	"github.com/gazercloud/gazernode/settings"
 	"github.com/google/uuid"
 	"io/ioutil"
 	"os"
@@ -23,7 +23,7 @@ func NewResources() *Resources {
 }
 
 func (c *Resources) dir() string {
-	return paths.ProgramDataFolder() + "/gazer/res"
+	return settings.ServerDataPath() + "/res"
 }
 
 func (c *Resources) fileName(name string) string {

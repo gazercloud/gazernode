@@ -3,10 +3,10 @@ package app
 import (
 	"flag"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/httpserver"
 	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gazercloud/gazernode/utilities/hostid"
-	"github.com/gazercloud/gazernode/utilities/paths"
 )
 
 var httpServer *httpserver.HttpServer
@@ -32,7 +32,7 @@ func stop() {
 }
 
 func RunAsService() error {
-	logger.Init(paths.ProgramDataFolder() + "/gazer/log_service")
+	logger.Init(settings.ServerDataPath() + "/log_service")
 	logger.Println("Started as Service")
 	start()
 	return nil

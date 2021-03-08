@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/utilities/paths"
+	"github.com/gazercloud/gazernode/settings"
 	"github.com/google/uuid"
 	"io/ioutil"
 	"time"
@@ -27,7 +27,7 @@ func InitHostId() {
 }
 
 func LoadHostId() error {
-	hostIdString, err := ioutil.ReadFile(paths.ProgramDataFolder() + "/gazer/host_id.json")
+	hostIdString, err := ioutil.ReadFile(settings.ServerDataPath() + "/host_id.json")
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func MakeHostId() error {
 	var bs []byte
 	bs, err = json.Marshal(hostId)
 	if err == nil {
-		err = ioutil.WriteFile(paths.ProgramDataFolder()+"/gazer/host_id.json", bs, 0666)
+		err = ioutil.WriteFile(settings.ServerDataPath()+"/host_id.json", bs, 0666)
 		if err != nil {
 			return err
 		}

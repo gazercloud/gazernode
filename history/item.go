@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/utilities"
-	"github.com/gazercloud/gazernode/utilities/paths"
 	"os"
 	"sync"
 	"time"
@@ -50,11 +50,15 @@ func (c *Item) Read(dtBegin int64, dtEnd int64) *ReadResult {
 	return &result
 }
 
+func (c *Item) historyPath() string {
+	return settings.ServerDataPath() + "/history"
+}
+
 func (c *Item) readFiles(begin int64, end int64) []*common_interfaces.ItemValue {
 	result := make([]*common_interfaces.ItemValue, 0)
 	currentDT := begin
 	for currentDT < end+86400*1000000 {
-		dir := paths.ProgramDataFolder() + "/gazer/history/" + time.Unix(0, currentDT*1000).Format("2006-01-02")
+		dir := c.historyPath() + "/" + time.Unix(0, currentDT*1000).Format("2006-01-02")
 		fullPath := dir + "/" + fmt.Sprintf("%016X", c.id) + ".jis"
 
 		var file *FileCache
@@ -115,7 +119,7 @@ func (c *Item) Flush() FlushResult {
 
 	// Writing
 	for index, item := range items {
-		dir := paths.ProgramDataFolder() + "/gazer/history/" + item.DT.Format("2006-01-02")
+		dir := c.historyPath() + "/" + item.DT.Format("2006-01-02")
 		if dir != currentDir {
 			fullPath := dir + "/" + fmt.Sprintf("%016X", c.id) + ".jis"
 			if f != nil {
@@ -180,7 +184,7 @@ func (c *Item) Flush() FlushResult {
 }
 
 func (c *Item) CheckDepth() {
-	historyDir := paths.ProgramDataFolder() + "/gazer/history"
+	historyDir := c.historyPath()
 
 	dirs, err := utilities.GetDir(historyDir)
 	if err == nil {

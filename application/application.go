@@ -3,6 +3,8 @@ package application
 import (
 	"flag"
 	"fmt"
+	"github.com/gazercloud/gazernode/settings"
+	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/kardianos/osext"
 	"github.com/kardianos/service"
 	"log"
@@ -41,8 +43,11 @@ func TryService() bool {
 	uninstallFlagPtr := flag.Bool("uninstall", false, "Uninstall service")
 	startFlagPtr := flag.Bool("start", false, "Start service")
 	stopFlagPtr := flag.Bool("stop", false, "Stop service")
+	serverPath := flag.String("path", paths.ProgramDataFolder1()+"/gazer", "Server data path")
 
 	flag.Parse()
+
+	settings.SetServerDataPath(*serverPath)
 
 	if *setupFlagPtr {
 		setupPosix()
