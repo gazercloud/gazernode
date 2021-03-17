@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -23,8 +24,9 @@ func New() common_interfaces.IUnit {
 }
 
 const (
-	ItemNameTime = "Time"
-	ItemNameAddr = "Address"
+	ItemNameAddress = "Address"
+	ItemNameTime    = "Time"
+	ItemNameIP      = "IP"
 )
 
 var Image []byte
@@ -104,9 +106,9 @@ func (c *UnitTcpConnect) InternalUnitStart() error {
 
 	c.SetMainItem(ItemNameTime)
 
-	c.SetStringService(ItemNameAddr, c.addr, "")
 	c.SetString(ItemNameTime, "", "")
-
+	c.SetString(ItemNameAddress, c.addr, "-")
+	c.SetString(ItemNameIP, "", "-")
 	go c.Tick()
 	return nil
 }
@@ -115,6 +117,9 @@ func (c *UnitTcpConnect) InternalUnitStop() {
 }
 
 func (c *UnitTcpConnect) Tick() {
+	var lastError string
+	var lastIP string
+
 	c.Started = true
 	dtLastTime := time.Now().UTC()
 
@@ -133,24 +138,49 @@ func (c *UnitTcpConnect) Tick() {
 
 		var err error
 		var conn net.Conn
+		var resolvedAddr *net.IPAddr
 
-		timeBegin := time.Now()
-		conn, err = net.DialTimeout("tcp", c.addr, time.Duration(c.timeoutMs)*time.Millisecond)
-		timeEnd := time.Now()
-		duration := timeEnd.Sub(timeBegin)
+		posOfColon := strings.Index(c.addr, ":")
+		cleanAddr := c.addr
+		if posOfColon > -1 {
+			cleanAddr = c.addr[:posOfColon]
+		}
 
-		if conn != nil {
-			conn.Close()
+		resolvedAddr, err = net.ResolveIPAddr("", cleanAddr)
+		if err == nil {
+			ip := resolvedAddr.IP.String()
+			if ip != lastIP {
+				lastIP = ip
+				c.SetString(ItemNameIP, ip, "-")
+			}
+
+			timeBegin := time.Now()
+			conn, err = net.DialTimeout("tcp", c.addr, time.Duration(c.timeoutMs)*time.Millisecond)
+			timeEnd := time.Now()
+			duration := timeEnd.Sub(timeBegin)
+			if err == nil {
+				c.SetInt(ItemNameTime, int(duration.Milliseconds()), "ms")
+			}
+
+			if conn != nil {
+				conn.Close()
+			}
 		}
 
 		if err != nil {
-			c.SetString(ItemNameTime, "timeout", "error")
+			if lastError != err.Error() {
+				lastError = err.Error()
+				lastIP = ""
+				c.SetError(lastError)
+				c.SetString(ItemNameIP, lastIP, "error")
+			}
+			c.SetString(ItemNameTime, lastError, "error")
 		} else {
 			if !c.Stopping {
-				c.SetInt(ItemNameTime, int(duration.Milliseconds()), "ms")
-				c.SetError("")
-			} else {
-				c.SetError("")
+				if lastError != "" {
+					c.SetError("")
+				}
+				lastError = ""
 			}
 		}
 	}

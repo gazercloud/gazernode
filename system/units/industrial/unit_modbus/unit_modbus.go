@@ -4,15 +4,19 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"net"
+	"sync"
 	"time"
 )
 
 type Item struct {
 	Name string  `json:"item_name"`
 	Addr float64 `json:"addr"`
+	Type float64 `json:"type"`
 }
 
 type Config struct {
@@ -25,6 +29,9 @@ type Config struct {
 type UnitModbus struct {
 	units_common.Unit
 	config Config
+
+	mtxConn sync.Mutex
+	conn    net.Conn
 }
 
 func New() common_interfaces.IUnit {
@@ -44,12 +51,12 @@ func init() {
 func (c *UnitModbus) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("addr", "Address", "localhost:502", "string", "", "", "")
-	tChannels := meta.Add("channels", "Channels", "", "table", "", "", "")
-	tChannels.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
-	tChannels.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
-	t1 := tChannels.Add("items", "Items", "", "table", "", "", "")
+	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
+	t1 := meta.Add("items", "Items", "", "table", "", "", "")
 	t1.Add("item_name", "Item Name", "Unit/Item", "string", "", "", "data-item")
 	t1.Add("addr", "Address", "0", "num", "0", "65535", "")
+	t1.Add("type", "Type", "0", "num", "0", "65535", "")
 	return meta.Marshal()
 }
 
@@ -107,6 +114,7 @@ func (c *UnitModbus) InternalUnitStart() error {
 	c.SetString(ItemNameStatus, "", "")
 
 	go c.Tick()
+	go c.readThread()
 	return nil
 }
 
@@ -114,26 +122,116 @@ func (c *UnitModbus) InternalUnitStop() {
 	c.Stopping = true
 }
 
-func (c *UnitModbus) WriteCoil(addr uint16, on bool) error {
+func (c *UnitModbus) WriteCoil(conn net.Conn, addr uint16, on bool) error {
 	var err error
-	var conn net.Conn
-	conn, err = net.DialTimeout("tcp", c.config.Addr, time.Duration(c.config.Timeout)*time.Millisecond)
-
 	data := []byte{0x00, 0x00, 0x00, 0x00, 0x0, 0x6, 1, 0x05, 0x00, 0x00, 0xFF, 0x00}
 	if on {
 		data = []byte{0x00, 0x00, 0x00, 0x00, 0x0, 0x6, 1, 0x05, 0x00, 0x00, 0xFF, 0x00}
 	} else {
 		data = []byte{0x00, 0x00, 0x00, 0x00, 0x0, 0x6, 1, 0x05, 0x00, 0x00, 0x00, 0x00}
 	}
-
 	binary.BigEndian.PutUint16(data[8:], addr)
-
-	if conn != nil {
-		_, err = conn.Write(data)
-		conn.Close()
+	var n int
+	for n < len(data) {
+		var writeResult int
+		writeResult, err = conn.Write(data[n:])
+		if err != nil {
+			break
+		}
+		n += writeResult
 	}
-	conn = nil
 	return err
+}
+
+func (c *UnitModbus) ReadCoil(conn net.Conn, addr uint16) error {
+	var err error
+	data := []byte{0x00, 0x00, 0x00, 0x00, 0x0, 0x6, 1, 0x02, 0x00, 0x00, 0x00, 0x08}
+	//binary.BigEndian.PutUint16(data[8:], addr)
+	//binary.BigEndian.PutUint16(data[10:], addr)
+	var n int
+	for n < len(data) {
+		var writeResult int
+		writeResult, err = conn.Write(data[n:])
+		if err != nil {
+			break
+		}
+		n += writeResult
+	}
+	return err
+}
+
+func (c *UnitModbus) readThread() {
+	var err error
+	inputBuffer := make([]byte, 0)
+	logger.Println("modbus - start")
+
+	for !c.Stopping {
+		c.mtxConn.Lock()
+		connection := c.conn
+		c.mtxConn.Unlock()
+		if connection == nil {
+			time.Sleep(10 * time.Millisecond)
+			continue
+		}
+		buffer := make([]byte, 1024)
+		var n int
+		//logger.Println("modbus - reading ...")
+		n, err = connection.Read(buffer)
+		if err != nil {
+			c.disconnect()
+			continue
+		}
+		//logger.Println("modbus - read", n)
+		if n > 0 {
+			inputBuffer = append(inputBuffer, buffer[:n]...)
+		}
+
+		// parsing
+		for len(inputBuffer) > 6 {
+			lenOfFrame := int(binary.BigEndian.Uint16(inputBuffer[4:]))
+			if len(inputBuffer) >= lenOfFrame+6 {
+				//fmt.Println("MODBUS: ", inputBuffer)
+				fmt.Println("frame: ", inputBuffer[0:lenOfFrame+6])
+				if inputBuffer[2] == 0 && inputBuffer[3] == 0 {
+					if inputBuffer[7] == 0x02 {
+						fmt.Println("INPUT MODBUS!", inputBuffer[8:lenOfFrame+6])
+						if inputBuffer[9] == 0 {
+							c.SetString("input", "0", "")
+						} else {
+							c.SetString("input", "1", "")
+						}
+
+					}
+				}
+				inputBuffer = inputBuffer[lenOfFrame+6:]
+			} else {
+				break
+			}
+		}
+	}
+
+	logger.Println("modbus - stop")
+}
+
+func (c *UnitModbus) connect() error {
+	var err error
+	c.mtxConn.Lock()
+	c.conn, err = net.DialTimeout("tcp", c.config.Addr, time.Duration(c.config.Timeout)*time.Millisecond)
+	if err != nil {
+		c.SetString(ItemNameStatus, err.Error(), "error")
+		c.conn = nil
+	}
+	c.mtxConn.Unlock()
+	return err
+}
+
+func (c *UnitModbus) disconnect() {
+	c.mtxConn.Lock()
+	if c.conn != nil {
+		_ = c.conn.Close()
+		c.conn = nil
+	}
+	c.mtxConn.Unlock()
 }
 
 func (c *UnitModbus) Tick() {
@@ -155,19 +253,38 @@ func (c *UnitModbus) Tick() {
 		}
 		dtLastTime = time.Now().UTC()
 
-		timeBegin := time.Now()
-		timeEnd := time.Now()
-		duration := timeEnd.Sub(timeBegin)
-
-		for _, item := range c.config.Items {
-			val, err := c.GetItem(item.Name)
-			if err == nil {
-				c.WriteCoil(uint16(item.Addr), val.Value == "1")
+		if c.conn == nil {
+			if c.connect() != nil {
+				continue
 			}
 		}
 
+		timeBegin := time.Now()
+
+		for _, item := range c.config.Items {
+			if item.Type == 0 {
+				var val common_interfaces.ItemValue
+				val, err = c.GetItem(item.Name)
+				if err == nil {
+					err = c.WriteCoil(c.conn, uint16(item.Addr), val.Value == "1")
+				}
+			}
+		}
+
+		for _, item := range c.config.Items {
+			if item.Type == 1 {
+				if err == nil {
+					err = c.ReadCoil(c.conn, uint16(item.Addr))
+				}
+			}
+		}
+
+		timeEnd := time.Now()
+		duration := timeEnd.Sub(timeBegin)
+
 		if err != nil {
-			c.SetString(ItemNameStatus, "timeout", "error")
+			c.SetString(ItemNameStatus, err.Error(), "error")
+			c.disconnect()
 		} else {
 			if !c.Stopping {
 				c.SetInt(ItemNameStatus, int(duration.Milliseconds()), "ms")
@@ -178,6 +295,7 @@ func (c *UnitModbus) Tick() {
 		}
 	}
 
+	c.disconnect()
 	c.SetString(ItemNameStatus, "", "stopped")
 	c.Started = false
 }

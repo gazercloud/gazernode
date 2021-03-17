@@ -183,6 +183,40 @@ func (c *Item) Flush() FlushResult {
 	return result
 }
 
+func (c *Item) Remove() {
+	c.mtx.Lock()
+	c.data = nil
+	c.files = nil
+
+	historyDir := c.historyPath()
+
+	dirs, err := utilities.GetDir(historyDir)
+	if err == nil {
+		for _, dir := range dirs {
+			if dir.Dir {
+				files, err := utilities.GetDir(dir.Path)
+				if err == nil {
+					for _, file := range files {
+						if !file.Dir {
+							if file.NameWithoutExt == fmt.Sprintf("%016X", c.id) {
+								logger.Println("Item removing", file.Path)
+								err = os.Remove(file.Path)
+								if err != nil {
+									logger.Println("Item removing", file.Path, "error", err)
+								}
+								logger.Println("Item removing", file.Path, "OK")
+							}
+						}
+					}
+				}
+
+			}
+		}
+	}
+
+	c.mtx.Unlock()
+}
+
 func (c *Item) CheckDepth() {
 	historyDir := c.historyPath()
 

@@ -5,6 +5,8 @@ import (
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uievents"
+	"github.com/gazercloud/gazerui/uiresources"
+	"github.com/nfnt/resize"
 	"golang.org/x/image/colornames"
 	"time"
 )
@@ -171,10 +173,10 @@ func (c *HorizontalScale) Draw(ctx ui.DrawContext, xOffset int, yOffset int, wid
 
 		ctx.SetColor(backColor)
 		ctx.FillRect(btnX, btnY, btnW, btnH)
-		//ctx.SetColor(foreColor)
-		//ctx.DrawRect(btnX, btnY, btnW, btnH)
-		//img := resize.Resize(uint(24), uint(24), uiresources.ResImageAdjusted("icons/material/action/drawable-hdpi/ic_settings_black_48dp.png", foreColor), resize.Bicubic)
-		//ctx.DrawImage(btnX+12, btnY+12, btnW, btnH, img)
+		ctx.SetColor(foreColor)
+		ctx.DrawRect(btnX, btnY, btnW, btnH)
+		img := resize.Resize(uint(24), uint(24), uiresources.ResImgCol(uiresources.R_icons_material4_png_action_settings_materialicons_48dp_1x_baseline_settings_black_48dp_png, foreColor), resize.Bicubic)
+		ctx.DrawImage(btnX+12, btnY+12, btnW, btnH, img)
 	}
 
 	/*c.drawDates(ctx, xOffset, yOffset, c.displayMin_, c.displayMax_)

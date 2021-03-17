@@ -9,6 +9,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/widgets/widget_chart"
+	"github.com/gazercloud/gazernode/widgets/widget_item_history"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
@@ -17,6 +18,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -26,6 +28,8 @@ type PanelUnits struct {
 	uicontrols.Panel
 	client  *client.Client
 	lvUnits *uicontrols.ListView
+
+	txtHeaderItems *uicontrols.TextBlock
 
 	btnAdd    *uicontrols.Button
 	btnEdit   *uicontrols.Button
@@ -45,9 +49,14 @@ type PanelUnits struct {
 	currentUnitName string
 	currentMainItem string
 
-	lvItems      *uicontrols.ListView
-	timer        *uievents.FormTimer
-	wItemDetails *widget_chart.WidgetCharts
+	lvItems *uicontrols.ListView
+	timer   *uievents.FormTimer
+
+	itemValues map[string]common_interfaces.ItemValue
+
+	// Details
+	wItemChart   *widget_chart.WidgetCharts
+	wItemHistory *widget_item_history.WidgetItemHistory
 
 	menuUnits *uicontrols.PopupMenu
 }
@@ -55,6 +64,7 @@ type PanelUnits struct {
 func NewPanelUnits(parent uiinterfaces.Widget, client *client.Client) *PanelUnits {
 	var c PanelUnits
 	c.client = client
+	c.itemValues = make(map[string]common_interfaces.ItemValue)
 	c.InitControl(parent, &c)
 	return &c
 }
@@ -158,8 +168,8 @@ func (c *PanelUnits) OnInit() {
 	pItems := splitter.Panel2.AddPanelOnGrid(1, 0)
 	pItems.SetPanelPadding(0)
 
-	txtHeaderItems := pItems.AddTextBlockOnGrid(0, 0, "Data Items")
-	txtHeaderItems.SetFontSize(24)
+	c.txtHeaderItems = pItems.AddTextBlockOnGrid(0, 0, "Data Items")
+	c.txtHeaderItems.SetFontSize(24)
 
 	pItems.SetOnKeyDown(func(event *uievents.KeyDownEvent) bool {
 		if event.Key == glfw.KeyEnter || event.Key == glfw.KeyKPEnter {
@@ -233,7 +243,7 @@ func (c *PanelUnits) OnInit() {
 
 	c.lvItems = pItems.AddListViewOnGrid(0, 2)
 	c.lvItems.AddColumn("Name", 200)
-	c.lvItems.AddColumn("Value", 100)
+	c.lvItems.AddColumn("Value", 150)
 	c.lvItems.AddColumn("UOM", 70)
 	c.lvItems.AddColumn("Time", 80)
 	c.lvItems.AddColumn("Sharing", 200)
@@ -286,12 +296,41 @@ func (c *PanelUnits) OnInit() {
 
 	c.lvItems.SetContextMenu(menuItems)
 	c.lvItems.OnSelectionChanged = func() {
-		c.wItemDetails.SetDataItems(c.SelectedItems())
-		c.wItemDetails.SetShowQualities(true)
+		needToShowEvents := false
+		if len(c.SelectedItems()) > 0 {
+			firstItem := c.SelectedItems()[0]
+			val, ok := c.itemValues[firstItem]
+			if ok && (val.UOM == "-") {
+				needToShowEvents = true
+			}
+		}
+
+		if !needToShowEvents {
+			c.wItemHistory.SetVisible(false)
+			c.wItemChart.SetVisible(true)
+
+			c.wItemChart.SetDataItems(c.SelectedItems())
+			c.wItemChart.SetShowQualities(true)
+		} else {
+			//c.wItemHistory.SetMinHeight(300)
+			c.wItemHistory.SetVisible(true)
+			c.wItemChart.SetVisible(false)
+			//c.Window().UpdateLayout()
+
+			if len(c.SelectedItems()) == 1 {
+				c.wItemHistory.SetItem(c.SelectedItems()[0])
+			} else {
+				c.wItemHistory.SetItem("")
+			}
+		}
 	}
 
-	c.wItemDetails = widget_chart.NewWidgetCharts(pItems, c.client)
-	pItems.AddWidgetOnGrid(c.wItemDetails, 0, 3)
+	c.wItemChart = widget_chart.NewWidgetCharts(pItems, c.client)
+	pItems.AddWidgetOnGrid(c.wItemChart, 0, 3)
+
+	c.wItemHistory = widget_item_history.NewWidgetItemHistory(pItems, c.client)
+	pItems.AddWidgetOnGrid(c.wItemHistory, 0, 4)
+	c.wItemHistory.SetVisible(false)
 
 	c.timer = c.Window().NewTimer(500, c.timerUpdate)
 	c.timer.StartTimer()
@@ -433,6 +472,7 @@ func (c *PanelUnits) SetCurrentUnit(unitId string, unitName string, mainItem str
 	c.currentUnitId = unitId
 	c.currentUnitName = unitName
 	c.lvItems.RemoveItems()
+	c.updateHeader()
 }
 
 func (c *PanelUnits) SelectedItems() []string {
@@ -562,10 +602,22 @@ func (c *PanelUnits) updateUnitsState() {
 
 }
 
+func (c *PanelUnits) updateHeader() {
+	if len(c.currentUnitName) > 0 {
+		c.txtHeaderItems.SetText(c.currentUnitName + " data items")
+	} else {
+		c.txtHeaderItems.SetText("no unit selected")
+	}
+}
+
 func (c *PanelUnits) updateDataItemsState() {
 	if len(c.currentUnitName) > 0 {
 		c.client.GetUnitValues(c.currentUnitName, func(items []common_interfaces.ItemGetUnitItems, err error) {
 			if err != nil {
+				return
+			}
+
+			if c.lvItems == nil {
 				return
 			}
 
@@ -575,6 +627,10 @@ func (c *PanelUnits) updateDataItemsState() {
 					itemsToShow = append(itemsToShow, di)
 				}
 			}
+
+			sort.Slice(itemsToShow, func(i, j int) bool {
+				return itemsToShow[i].Name < itemsToShow[j].Name
+			})
 
 			needToSelectMainItem := false
 
@@ -587,7 +643,7 @@ func (c *PanelUnits) updateDataItemsState() {
 			}
 			for index, di := range itemsToShow {
 				shortName := di.Name
-				lastIndexOfSlash := strings.LastIndex(shortName, "/")
+				lastIndexOfSlash := strings.Index(shortName, "/")
 				if lastIndexOfSlash > -1 {
 					shortName = shortName[lastIndexOfSlash+1:]
 				}
@@ -632,12 +688,20 @@ func (c *PanelUnits) updateDataItemsState() {
 				//c.lvItems.SetItemValue(c.lvItems.Item(index), 4, strings.Repeat("∆", len(di.CloudChannels)))
 				//c.lvItems.SetItemValue(c.lvItems.Item(index), 4, fmt.Sprint(di.CloudChannels))
 
+				c.itemValues[di.Name] = di.Value
+
 				if di.Value.UOM == "error" {
 					c.lvItems.Item(index).SetForeColorForCell(1, settings.BadColor)
 					c.lvItems.Item(index).SetForeColorForCell(2, settings.BadColor)
 				} else {
 					c.lvItems.Item(index).SetForeColorForCell(1, settings.GoodColor)
 					c.lvItems.Item(index).SetForeColorForCell(2, nil)
+				}
+
+				if di.Name == c.currentMainItem {
+					c.lvItems.Item(index).SetForeColorForCell(0, c.AccentColor())
+				} else {
+					c.lvItems.Item(index).SetForeColorForCell(0, nil)
 				}
 
 				if needToSelectMainItem && di.Name == c.currentMainItem {
@@ -649,6 +713,7 @@ func (c *PanelUnits) updateDataItemsState() {
 		c.lvItems.RemoveItems()
 	}
 
+	c.updateHeader()
 }
 
 func (c *PanelUnits) timerUpdate() {

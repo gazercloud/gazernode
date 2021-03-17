@@ -236,32 +236,32 @@ func (c *UnitSystemProcess) Tick() {
 			c.SetString("Common/ProcessID", "not found", "error")
 
 			// Main
-			c.SetUInt64("Main/Working Set Size", 0, "error")
-			c.SetUInt32("Main/Thread Count", 0, "error")
-			c.SetUInt32("Main/Handle Count", 0, "error")
-			c.SetInt64("Main/GDI Objects", 0, "error")
-			c.SetInt64("Main/GDI Objects Peak", 0, "error")
-			c.SetInt64("Main/User Objects", 0, "error")
-			c.SetInt64("Main/User Objects Peak", 0, "error")
+			c.SetString("Main/Working Set Size", "", "error")
+			c.SetString("Main/Thread Count", "", "error")
+			c.SetString("Main/Handle Count", "", "error")
+			c.SetString("Main/GDI Objects", "", "error")
+			c.SetString("Main/GDI Objects Peak", "", "error")
+			c.SetString("Main/User Objects", "", "error")
+			c.SetString("Main/User Objects Peak", "", "error")
 
 			// Operations
-			c.SetUInt64("Operations/Read Operation Count", 0, "error")
-			c.SetUInt64("Operations/Read Transfer Count", 0, "error")
-			c.SetUInt64("Operations/Write Operation Count", 0, "error")
-			c.SetUInt64("Operations/Write Transfer Count", 0, "error")
-			c.SetUInt64("Operations/Other Operation Count", 0, "error")
-			c.SetUInt64("Operations/Other Transfer Count", 0, "error")
+			c.SetString("Operations/Read Operation Count", "", "error")
+			c.SetString("Operations/Read Transfer Count", "", "error")
+			c.SetString("Operations/Write Operation Count", "", "error")
+			c.SetString("Operations/Write Transfer Count", "", "error")
+			c.SetString("Operations/Other Operation Count", "", "error")
+			c.SetString("Operations/Other Transfer Count", "", "error")
 
 			// CPU
-			c.SetUInt64("CPU/Kernel Mode Time", 0, "error")
-			c.SetUInt64("CPU/User Mode Time", 0, "error")
-			c.SetInt64("CPU/Usage", 0, "error")
-			c.SetInt64("CPU/Usage Kernel", 0, "error")
-			c.SetInt64("CPU/Usage User", 0, "error")
+			c.SetString("CPU/Kernel Mode Time", "", "error")
+			c.SetString("CPU/User Mode Time", "", "error")
+			c.SetString("CPU/Usage", "", "error")
+			c.SetString("CPU/Usage Kernel", "", "error")
+			c.SetString("CPU/Usage User", "", "error")
 			// Memory
-			c.SetUInt32("Memory/Page Faults", 0, "error")
-			c.SetUInt32("Memory/Peak Working SetSize", 0, "error")
-			c.SetUInt64("Memory/Private Usage", 0, "error")
+			c.SetString("Memory/Page Faults", "", "error")
+			c.SetString("Memory/Peak Working SetSize", "", "error")
+			c.SetString("Memory/Private Usage", "", "error")
 		}
 
 		dtOperationTime = time.Now().UTC()

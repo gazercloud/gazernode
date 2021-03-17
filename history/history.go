@@ -153,3 +153,13 @@ func (c *History) Read(id uint64, dtBegin int64, dtEnd int64) *ReadResult {
 	result.DTEnd = dtEnd
 	return result
 }
+
+func (c *History) RemoveItem(id uint64) {
+	c.mtx.Lock()
+	item, ok := c.items[id]
+	if ok {
+		item.Remove()
+		delete(c.items, id)
+	}
+	c.mtx.Unlock()
+}

@@ -4,14 +4,17 @@ go 1.16
 
 require (
 	github.com/fogleman/gg v1.3.0
-	github.com/gazercloud/gazerui v1.0.6
+	github.com/gazercloud/gazerui v1.0.7
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
 	github.com/go-ping/ping v0.0.0-20210216210419-25d1413fb7bb
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
+	github.com/jaypipes/ghw v0.7.0 // indirect
 	github.com/josephspurrier/goversioninfo v1.2.0
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/kardianos/service v1.2.0
+	github.com/kbinani/win v0.3.0 // indirect
+	github.com/minio/minio v0.0.0-20210313185243-afbd3e41ebfc // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/shirou/gopsutil v3.21.1+incompatible
 	github.com/srwiley/oksvg v0.0.0-20210209000435-a757b9cbd472
@@ -24,4 +27,4 @@ require (
 	golang.org/x/text v0.3.5
 )
 
-// replace github.com/gazercloud/gazerui => ../gazerui
+//replace github.com/gazercloud/gazerui => ../gazerui

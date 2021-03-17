@@ -6,7 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 )
 
-func (c *HttpServer) requestJson(function string, requestText []byte) ([]byte, error) {
+func (c *HttpServer) requestJson(function string, requestText []byte, host string) ([]byte, error) {
 	var err error
 	var result []byte
 
@@ -90,7 +90,7 @@ func (c *HttpServer) requestJson(function string, requestText []byte) ([]byte, e
 
 		// *** Data Item ***
 	case nodeinterface.FuncSessionOpen:
-		result, err = c.SessionOpen(requestText)
+		result, err = c.SessionOpen(requestText, host)
 	case nodeinterface.FuncSessionActivate:
 		result, err = c.SessionActivate(requestText)
 	case nodeinterface.FuncSessionRemove:

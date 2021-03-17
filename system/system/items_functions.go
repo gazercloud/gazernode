@@ -65,6 +65,35 @@ func (c *System) GetItem(name string) (common_interfaces.Item, error) {
 	return item, nil
 }
 
+func (c *System) RemoveItems(itemsNames []string) {
+	c.mtx.Lock()
+	newItems := make([]*common_interfaces.Item, 0)
+	itemsForRemove := make([]*common_interfaces.Item, 0)
+
+	itemsNamesMap := make(map[string]bool)
+	for _, itemName := range itemsNames {
+		itemsNamesMap[itemName] = true
+	}
+
+	for _, item := range c.items {
+		if _, ok := itemsNamesMap[item.Name]; ok {
+			itemsForRemove = append(itemsForRemove, item)
+		} else {
+			newItems = append(newItems, item)
+		}
+	}
+	c.items = newItems
+
+	for _, item := range itemsForRemove {
+		delete(c.itemsByName, item.Name)
+		delete(c.itemsById, item.Id)
+		c.history.RemoveItem(item.Id)
+	}
+	c.mtx.Unlock()
+
+	c.cloud.RemoveItems(nil, itemsNames)
+}
+
 func (c *System) GetItems() []common_interfaces.Item {
 	var items []common_interfaces.Item
 	c.mtx.Lock()

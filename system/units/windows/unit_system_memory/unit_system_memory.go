@@ -64,10 +64,10 @@ func (c *UnitSystemMemory) Tick() {
 		c.SetFloat64("UsedPercent", percents, "%", 1)
 	}
 
+	time.Sleep(1 * time.Millisecond)
 	c.SetString("Total", "", "stopped")
 	c.SetString("Available", "", "stopped")
 	c.SetString("Used", "", "stopped")
-
 	c.SetString("UsedPercent", "", "stopped")
 
 	c.Started = false

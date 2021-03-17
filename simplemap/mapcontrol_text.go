@@ -220,6 +220,13 @@ func (c *MapControlText) drawControl(ctx ui.DrawContext) {
 			ctx.FillRect(0, 0, int(c.scaleValue(c.Width())), int(c.scaleValue(c.Height())))
 		}
 
+		text := c.text.String()
+		if c.parent_.isEditing() {
+			if c.dataSource() != "" {
+				text = "[dynamic]"
+			}
+		}
+
 		c.drawBackImage(ctx)
 
 		ctx.Save()
@@ -245,7 +252,7 @@ func (c *MapControlText) drawControl(ctx ui.DrawContext) {
 		ctx.SetFontFamily("Roboto")
 		fontSize := c.textFontSize.Int32()
 		ctx.SetFontSize(float64(fontSize))
-		w, h := ctx.MeasureText(c.text.String())
+		w, h := ctx.MeasureText(text)
 
 		if c.textAdaptiveFontSize.Bool() {
 			kW := float64(w) / float64(c.Width())
@@ -271,7 +278,8 @@ func (c *MapControlText) drawControl(ctx ui.DrawContext) {
 		}
 
 		ctx.SetFontSize(float64(c.scaleValue(fontSize)))
-		ctx.DrawText(0, 0, int(c.scaleValue(c.Width())), int(c.scaleValue(c.Height())), c.text.String())
+
+		ctx.DrawText(0, 0, int(c.scaleValue(c.Width())), int(c.scaleValue(c.Height())), text)
 		ctx.Load()
 
 		if c.borderType.String() == "rect" {

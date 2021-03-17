@@ -28,8 +28,10 @@ func New() common_interfaces.IUnit {
 }
 
 const (
-	ItemNameTime = "Time"
-	ItemNameAddr = "Address"
+	ItemNameAddress  = "Address"
+	ItemNameTime     = "Time"
+	ItemNameIP       = "IP"
+	ItemNameDataSize = "DataSize"
 )
 
 var Image []byte
@@ -114,10 +116,10 @@ func (c *UnitPing) InternalUnitStart() error {
 		return err
 	}
 
-	c.SetStringService(ItemNameAddr, c.addr, "")
-
-	c.SetString(ItemNameAddr, c.addr, "")
+	c.SetString(ItemNameAddress, c.addr, "-")
 	c.SetString(ItemNameTime, "", "")
+	c.SetString(ItemNameIP, "", "-")
+	c.SetInt(ItemNameDataSize, c.frameSize, "bytes")
 
 	go c.Tick()
 	return nil
@@ -128,6 +130,9 @@ func (c *UnitPing) InternalUnitStop() {
 }
 
 func (c *UnitPing) Tick() {
+	var lastError string
+	var lastIP string
+
 	c.Started = true
 	dtLastPingTime := time.Now().UTC()
 	for !c.Stopping {
@@ -170,20 +175,30 @@ func (c *UnitPing) Tick() {
 		pingObject.Size = int(frameSize)
 		pingObject.Timeout = time.Duration(timeoutMSec) * time.Millisecond
 
-		//logger.Println("PING 2 ", c.addr)
 		pingObject.Run()
 
 		stats := pingObject.Statistics()
-		//logger.Println("PING 3 ", c.addr)
+		ip := stats.IPAddr.String()
+		if ip != lastIP {
+			lastIP = ip
+			c.SetString(ItemNameIP, ip, "-")
+		}
 
 		if stats.PacketsRecv < 1 {
-			c.SetString(ItemNameTime, "timeout", "error")
+			if lastError != "timeout" {
+				lastError = "timeout"
+				lastIP = ""
+				c.SetError(lastError)
+				c.SetString(ItemNameIP, lastIP, "error")
+			}
+			c.SetString(ItemNameTime, lastError, "error")
 		} else {
 			if !c.Stopping {
 				c.SetInt(ItemNameTime, int(stats.AvgRtt.Nanoseconds())/1000000, "ms")
-				c.SetError("")
-			} else {
-				c.SetError("")
+				if lastError != "" {
+					c.SetError("")
+				}
+				lastError = ""
 			}
 		}
 

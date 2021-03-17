@@ -15,12 +15,16 @@ import (
 	"github.com/gazercloud/gazernode/system/units/general/unit_hhgttg"
 	"github.com/gazercloud/gazernode/system/units/general/unit_manual"
 	"github.com/gazercloud/gazernode/system/units/general/unit_signal_generator"
+	"github.com/gazercloud/gazernode/system/units/industrial/unit_modbus"
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
 	"github.com/gazercloud/gazernode/system/units/network/unit_tcp_connect"
 	unit_tcp_telnet_control "github.com/gazercloud/gazernode/system/units/network/unit_tcp_control"
 	unit_serial_port_key_value "github.com/gazercloud/gazernode/system/units/serial_port/serial_port_key_value"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/system/units/windows/unit_network"
+	"github.com/gazercloud/gazernode/system/units/windows/unit_network_interface"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
+	"github.com/gazercloud/gazernode/system/units/windows/unit_storage"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_system_memory"
 	"sync"
 	"time"
@@ -79,6 +83,9 @@ Frame size: 4-500 bytes. Default value is 64
 
 	unitType = c.RegisterUnit("windows_memory", "windows", "OS Memory", unit_system_memory.New, unit_system_memory.Image, "")
 	unitType = c.RegisterUnit("windows_process", "windows", "OS Process", unit_process.New, unit_process.Image, "")
+	unitType = c.RegisterUnit("windows_storage", "windows", "OS Storage", unit_storage.New, unit_storage.Image, "")
+	unitType = c.RegisterUnit("windows_network", "windows", "OS Network", unit_network.New, unit_network.Image, "")
+	unitType = c.RegisterUnit("windows_network_interface", "windows", "OS Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
 
 	unitType = c.RegisterUnit("file_size", "file", "File Size", unit_filesize.New, unit_filesize.Image, "")
 	unitType = c.RegisterUnit("file_content", "file", "File Content", unit_filecontent.New, unit_filecontent.Image, "")
@@ -92,7 +99,7 @@ Frame size: 4-500 bytes. Default value is 64
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
 
-	//unitType = c.RegisterUnit("industrial_modbus", "industrial", "Modbus TCP", unit_modbus.New, unit_modbus.Image, "Modbus TCP")
+	unitType = c.RegisterUnit("industrial_modbus", "industrial", "Modbus TCP", unit_modbus.New, unit_modbus.Image, "Modbus TCP")
 
 	return &c
 }
@@ -333,6 +340,7 @@ func (c *UnitsSystem) RemoveUnits(units []string) error {
 			if s.Id() == unitToRemove {
 				s.Stop()
 				c.units = append(c.units[:index], c.units[index+1:]...)
+				_ = c.iDataStorage.RemoveItemsOfUnit(s.Name())
 				break
 			}
 		}

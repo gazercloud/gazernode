@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
 	"go.bug.st/serial"
+	"net"
 	"strings"
 	"time"
 )
@@ -150,6 +151,21 @@ func (c *System) GetUnitValues(unitName string) []common_interfaces.ItemGetUnitI
 	return items
 }
 
+func (c *System) RemoveItemsOfUnit(unitName string) error {
+	c.mtx.Lock()
+	itemsToRemove := make([]string, 0)
+	for _, item := range c.items {
+		if strings.HasPrefix(item.Name, unitName+"/") {
+			itemsToRemove = append(itemsToRemove, item.Name)
+		}
+	}
+	c.mtx.Unlock()
+
+	c.RemoveItems(itemsToRemove)
+
+	return nil
+}
+
 func (c *System) GetItemsValues(reqItems []string) []common_interfaces.ItemGetUnitItems {
 	var items []common_interfaces.ItemGetUnitItems
 	items = make([]common_interfaces.ItemGetUnitItems, 0)
@@ -217,6 +233,18 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		processes := unit_process.GetProcesses()
 		for _, proc := range processes {
 			result.AddRow2(proc.Name, fmt.Sprint(proc.Id))
+		}
+	}
+	if entity == "network_interface" {
+		result.KeyColumn = "name"
+		result.AddColumn("name", "Name")
+		result.AddColumn("id", "Index")
+
+		interfaces, err := net.Interfaces()
+		if err == nil {
+			for _, ni := range interfaces {
+				result.AddRow2(ni.Name, fmt.Sprint(ni.Index))
+			}
 		}
 	}
 	if entity == "data-items" {

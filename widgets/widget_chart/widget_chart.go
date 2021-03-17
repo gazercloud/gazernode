@@ -188,6 +188,7 @@ func (c *WidgetCharts) AddSeries(name string, area *timechart.Area) *timechart.S
 	//c.timeChart.RemoveAllAreas()
 	if area == nil {
 		area = c.timeChart.AddArea()
+		area.SetShowQualities(true)
 	}
 
 	item := NewDocumentChartItem(c.OwnWindow, c.timeChart, area, name, c.client)

@@ -1,4 +1,4 @@
-package forms
+package widget_item_history
 
 import (
 	"fmt"
@@ -15,8 +15,8 @@ import (
 	"time"
 )
 
-type FormItemHistory struct {
-	uicontrols.Dialog
+type WidgetItemHistory struct {
+	uicontrols.Panel
 	client         *client.Client
 	itemName       string
 	wideValue      bool
@@ -32,28 +32,21 @@ type FormItemHistory struct {
 	loading       bool
 }
 
-func NewFormItemHistory(parent uiinterfaces.Widget, client *client.Client, itemName string) *FormItemHistory {
-	var c FormItemHistory
+func NewWidgetItemHistory(parent uiinterfaces.Widget, client *client.Client) *WidgetItemHistory {
+	var c WidgetItemHistory
 	c.client = client
-	c.itemName = itemName
 	c.InitControl(parent, &c)
+
+	c.SetPanelPadding(0)
 
 	c.loadedItems = make([]*common_interfaces.ItemValue, 0)
 	c.loadedItemsMap = make(map[int64]*common_interfaces.ItemValue)
 
-	pContent := c.ContentPanel().AddPanelOnGrid(0, 0)
-	pLeft := pContent.AddPanelOnGrid(0, 0)
-	pLeft.SetPanelPadding(0)
-	//pLeft.SetBorderRight(1, c.ForeColor())
-	pLeft.SetMinWidth(100)
+	pContent := c.AddPanelOnGrid(0, 0)
+	pContent.SetPanelPadding(0)
 	pRight := pContent.AddPanelOnGrid(1, 0)
-	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
-
-	/*img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.ForeColor()))
-	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
-	img.SetMinHeight(64)
-	img.SetMinWidth(64)*/
-	pLeft.AddVSpacerOnGrid(0, 1)
+	pRight.SetPanelPadding(0)
+	pButtons := c.AddPanelOnGrid(0, 1)
 
 	c.timeFilter = widget_time_filter.NewTimeFilterWidget(pRight)
 	c.timeFilter.OnEdited = c.timeFilterChanged
@@ -77,44 +70,33 @@ func NewFormItemHistory(parent uiinterfaces.Widget, client *client.Client, itemN
 	c.lblStatistics = pRight.AddTextBlockOnGrid(0, 2, "")
 
 	c.timeFilterChanged()
-	c.loadHistory()
 
 	c.chkAutoscroll = pButtons.AddCheckBoxOnGrid(0, 0, "Autoscroll")
 	c.chkAutoscroll.SetChecked(true)
 	pButtons.AddHSpacerOnGrid(1, 0)
-	btnCancel := pButtons.AddButtonOnGrid(2, 0, "Close", func(event *uievents.Event) {
-		c.Reject()
-	})
-	btnCancel.SetMinWidth(70)
-
-	c.SetRejectButton(btnCancel)
 
 	c.timer = c.Window().NewTimer(1000, func() {
 		c.loadHistory()
 	})
 	c.timer.StartTimer()
 
-	c.CloseEvent = func() {
-		if c.timer != nil {
-			c.timer.StopTimer()
-			c.timer = nil
-		}
-
-		c.client = nil
-		c.loadedItems = nil
-		c.loadedItemsMap = nil
-		c.timeFilter = nil
-		c.lvItems = nil
-		c.chkAutoscroll = nil
-		c.lblStatistics = nil
-	}
-
 	c.SetWideValue(c.wideValue)
+	c.SetMinHeight(300)
 
 	return &c
 }
 
-func (c *FormItemHistory) loadHistory() {
+func (c *WidgetItemHistory) SetItem(itemName string) {
+	c.itemName = itemName
+	c.timeFilterChanged()
+}
+
+func (c *WidgetItemHistory) loadHistory() {
+	if c.itemName == "" {
+		c.lvItems.RemoveItems()
+		return
+	}
+
 	if c.loading {
 		return
 	}
@@ -192,7 +174,7 @@ func (c *FormItemHistory) loadHistory() {
 	})
 }
 
-func (c *FormItemHistory) timeFilterChanged() {
+func (c *WidgetItemHistory) timeFilterChanged() {
 	c.lastLoadedDT = c.timeFilter.TimeFrom() - 1
 	c.loadedItems = make([]*common_interfaces.ItemValue, 0)
 	c.loadedItemsMap = make(map[int64]*common_interfaces.ItemValue)
@@ -204,13 +186,7 @@ func (c *FormItemHistory) timeFilterChanged() {
 	//logger.Println("Filter: ", c.lastLoadedDT)
 }
 
-func (c *FormItemHistory) OnInit() {
-	c.Dialog.OnInit()
-	c.SetTitle("Item history - " + c.itemName)
-	c.Resize(800, 700)
-}
-
-func (c *FormItemHistory) SetWideValue(wideValue bool) {
+func (c *WidgetItemHistory) SetWideValue(wideValue bool) {
 	c.wideValue = wideValue
 	if c.lvItems != nil {
 		if c.wideValue {

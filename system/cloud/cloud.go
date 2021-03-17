@@ -173,19 +173,33 @@ func (c *Cloud) GetChannelsNamesWithItem(name string) []string {
 }
 
 func (c *Cloud) RemoveItems(channels []string, items []string) error {
-	chs := make([]*Channel, 0)
-	channelsAsMap := make(map[string]string)
-	for _, ch := range channels {
-		channelsAsMap[ch] = ch
-	}
 	var err error
-	c.mtx.Lock()
-	for _, ch := range c.channels {
-		if _, ok := channelsAsMap[ch.channelId]; ok {
+	removeFromAllChannels := false
+	if channels == nil {
+		removeFromAllChannels = true
+	}
+
+	chs := make([]*Channel, 0)
+
+	if !removeFromAllChannels {
+		channelsAsMap := make(map[string]string)
+		for _, ch := range channels {
+			channelsAsMap[ch] = ch
+		}
+		c.mtx.Lock()
+		for _, ch := range c.channels {
+			if _, ok := channelsAsMap[ch.channelId]; ok {
+				chs = append(chs, ch)
+			}
+		}
+		c.mtx.Unlock()
+	} else {
+		c.mtx.Lock()
+		for _, ch := range c.channels {
 			chs = append(chs, ch)
 		}
+		c.mtx.Unlock()
 	}
-	c.mtx.Unlock()
 
 	for _, ch := range chs {
 		err = ch.RemoveItems(items)

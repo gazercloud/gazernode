@@ -133,7 +133,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err == nil {
-			responseText, err = c.requestJson(function, []byte(requestJson))
+			responseText, err = c.requestJson(function, []byte(requestJson), r.RemoteAddr)
 		}
 
 		if function == nodeinterface.FuncSessionOpen && err == nil {

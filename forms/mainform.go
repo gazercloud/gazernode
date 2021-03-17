@@ -18,8 +18,9 @@ import (
 
 type MainForm struct {
 	uiforms.Form
-	tabNodes    *uicontrols.TabControl
-	nodeWidgets []*PanelNode
+	tabNodes          *uicontrols.TabControl
+	nodeWidgets       []*PanelNode
+	currentNodeWidget *PanelNode
 
 	loadingConnections            []local_user_storage.NodeConnection
 	currentConnectionLoadingIndex int
@@ -92,6 +93,12 @@ func (c *MainForm) OnInit() {
 		}, nil)
 	}
 
+	c.tabNodes.OnPageSelected = func(index int) {
+		if index >= 0 && index < len(c.nodeWidgets) {
+			c.currentNodeWidget = c.nodeWidgets[index]
+		}
+	}
+
 	c.loadNodes()
 
 	c.SetTheme(c.GetTheme())
@@ -138,6 +145,7 @@ func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 	panelNode := NewPanelNode(page, cl, index)
 	page.AddWidgetOnGrid(panelNode, 0, 0)
 	c.nodeWidgets = append(c.nodeWidgets, panelNode)
+	c.tabNodes.SetCurrentPage(len(c.nodeWidgets) - 1)
 }
 
 func (c *MainForm) loadNodes() {
@@ -183,7 +191,9 @@ func (c *MainForm) GetTheme() int {
 }
 
 func (c *MainForm) ShowFullScreenValue(show bool, itemId string) {
-	//c.panelNode.ShowFullScreenValue(show, itemId)
+	if c.currentNodeWidget != nil {
+		c.currentNodeWidget.ShowFullScreenValue(show, itemId)
+	}
 }
 
 func (c *MainForm) SetTheme(theme int) {

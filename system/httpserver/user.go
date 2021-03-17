@@ -5,7 +5,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 )
 
-func (c *HttpServer) SessionOpen(request []byte) (response []byte, err error) {
+func (c *HttpServer) SessionOpen(request []byte, host string) (response []byte, err error) {
 	var req nodeinterface.SessionOpenRequest
 	var resp nodeinterface.SessionOpenResponse
 	err = json.Unmarshal(request, &req)
@@ -13,7 +13,7 @@ func (c *HttpServer) SessionOpen(request []byte) (response []byte, err error) {
 		return
 	}
 
-	resp, err = c.system.OpenSession(req.UserName, req.Password)
+	resp, err = c.system.OpenSession(req.UserName, req.Password, host)
 	if err != nil {
 		return
 	}

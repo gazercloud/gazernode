@@ -25,9 +25,11 @@ func init() {
 }
 
 type UserSession struct {
-	SessionToken    string `json:"session_token"`
-	UserName        string `json:"user_name"`
-	SessionOpenTime int64  `json:"session_open_time"`
+	SessionToken              string `json:"session_token"`
+	UserName                  string `json:"user_name"`
+	SessionOpenTime           int64  `json:"session_open_time"`
+	SessionOpenTimeForDisplay string `json:"session_open_time_for_display"`
+	Host                      string `json:"host"`
 }
 
 func (c *System) CheckSession(sessionToken string) (string, error) {
@@ -80,7 +82,7 @@ func (c *System) SessionList(userName string) (nodeinterface.SessionListResponse
 	return result, err
 }
 
-func (c *System) OpenSession(name string, password string) (nodeinterface.SessionOpenResponse, error) {
+func (c *System) OpenSession(name string, password string, host string) (nodeinterface.SessionOpenResponse, error) {
 	var result nodeinterface.SessionOpenResponse
 	var err error
 
@@ -90,10 +92,15 @@ func (c *System) OpenSession(name string, password string) (nodeinterface.Sessio
 			stringForHash := time.Now().Format("2006-01-02-15-04-05") + strconv.FormatInt(rand.Int63(), 10) + "42"
 			sessionToken := c.hashSession(stringForHash)
 			result.SessionToken = sessionToken
+
+			timeOpenSession := time.Now().UTC()
+
 			var ss UserSession
 			ss.UserName = name
 			ss.SessionToken = result.SessionToken
-			ss.SessionOpenTime = time.Now().UTC().UnixNano() / 1000
+			ss.SessionOpenTime = timeOpenSession.UnixNano() / 1000
+			ss.SessionOpenTimeForDisplay = timeOpenSession.Format("2006-01-02 15:04:05.999")
+			ss.Host = host
 			c.sessions[result.SessionToken] = &ss
 		} else {
 			err = errors.New("wrong password")
