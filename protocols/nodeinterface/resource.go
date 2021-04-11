@@ -3,13 +3,13 @@ package nodeinterface
 import "github.com/gazercloud/gazernode/common_interfaces"
 
 type ResourceAddRequest struct {
-	Name    string
-	Type    string
-	Content []byte
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Content []byte `json:"content"`
 }
 
 type ResourceAddResponse struct {
-	Id string
+	Id string `json:"id"`
 }
 
 type ResourceSetRequest struct {
@@ -22,11 +22,11 @@ type ResourceSetResponse struct {
 }
 
 type ResourceGetRequest struct {
-	Id string
+	Id string `json:"id"`
 }
 
 type ResourceGetResponse struct {
-	Item *common_interfaces.ResourcesItem
+	Item *common_interfaces.ResourcesItem `json:"item"`
 }
 
 type ResourceRemoveRequest struct {
@@ -52,5 +52,5 @@ type ResourceListRequest struct {
 }
 
 type ResourceListResponse struct {
-	Items common_interfaces.ResourcesInfo
+	Items common_interfaces.ResourcesInfo `json:"items"`
 }

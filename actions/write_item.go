@@ -24,7 +24,7 @@ func NewWriteItem(parent uiinterfaces.Widget, client *client.Client) *WriteItem 
 
 	c.AddTextBlockOnGrid(0, 0, "Data Item:")
 	c.txtDataItem = c.AddTextBoxExtOnGrid(1, 0, "", func(textBoxExt *uicontrols.TextBoxExt) {
-		dialogs.LookupDataItem(&c, c.client, func(key string) {
+		dialogs.LookupDataItem(&c, c.client, "", "", func(key string) {
 			textBoxExt.SetText(key)
 		})
 	})

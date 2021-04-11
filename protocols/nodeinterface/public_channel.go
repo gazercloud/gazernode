@@ -9,7 +9,7 @@ type PublicChannelListRequest struct {
 }
 
 type PublicChannelListResponse struct {
-	Channels []cloud.ChannelInfo
+	Channels []cloud.ChannelInfo `json:"channels"`
 }
 
 type PublicChannelAddRequest struct {
@@ -55,5 +55,5 @@ type PublicChannelItemsStateRequest struct {
 }
 
 type PublicChannelItemsStateResponse struct {
-	UnitValues []common_interfaces.Item
+	UnitValues []common_interfaces.Item `json:"unit_values"`
 }

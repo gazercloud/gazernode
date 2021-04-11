@@ -224,8 +224,8 @@ type ChannelFullInfo struct {
 }
 
 type ChannelInfo struct {
-	Id   string
-	Name string
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
 
 func (c *Channel) thWorker() {

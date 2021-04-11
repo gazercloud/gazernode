@@ -14,13 +14,13 @@ type DialogSelectDataItem struct {
 	selectedItem         string
 }
 
-func NewDialogSelectDataItem(parent uiinterfaces.Widget, client *client.Client) *DialogSelectDataItem {
+func NewDialogSelectDataItem(parent uiinterfaces.Widget, client *client.Client, text1 string, text2 string) *DialogSelectDataItem {
 	var c DialogSelectDataItem
 	c.client = client
 	c.InitControl(parent, &c)
 
 	pContent := c.ContentPanel().AddPanelOnGrid(0, 0)
-	c.widgetSelectDataItem = widget_dataitems.NewWidgetDataItems(pContent, c.client)
+	c.widgetSelectDataItem = widget_dataitems.NewWidgetDataItems(pContent, c.client, text1, text2)
 	pContent.AddWidgetOnGrid(c.widgetSelectDataItem, 0, 0)
 	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
 
@@ -47,8 +47,8 @@ func (c *DialogSelectDataItem) OnInit() {
 	c.Resize(600, 600)
 }
 
-func LookupDataItem(parent uiinterfaces.Widget, client *client.Client, selected func(key string)) {
-	dialog := NewDialogSelectDataItem(parent, client)
+func LookupDataItem(parent uiinterfaces.Widget, client *client.Client, text1 string, text2 string, selected func(key string)) {
+	dialog := NewDialogSelectDataItem(parent, client, text1, text2)
 	dialog.ShowDialog()
 	dialog.OnAccept = func() {
 		if selected != nil {

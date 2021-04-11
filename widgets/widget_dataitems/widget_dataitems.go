@@ -18,11 +18,15 @@ type WidgetDataItems struct {
 	tvItems      *uicontrols.TreeView
 	client       *client.Client
 	timer        *uievents.FormTimer
+	text1        string
+	text2        string
 }
 
-func NewWidgetDataItems(parent uiinterfaces.Widget, client *client.Client) *WidgetDataItems {
+func NewWidgetDataItems(parent uiinterfaces.Widget, client *client.Client, text1 string, text2 string) *WidgetDataItems {
 	var c WidgetDataItems
 	c.client = client
+	c.text1 = text1
+	c.text2 = text2
 	c.InitControl(parent, &c)
 	c.LoadItems()
 	return &c
@@ -51,7 +55,8 @@ func (c *WidgetDataItems) OnInit() {
 		return node.UserData
 	}
 
-	c.AddTextBlockOnGrid(0, 2, "drag and drop available")
+	c.AddTextBlockOnGrid(0, 2, c.text1)
+	c.AddTextBlockOnGrid(0, 3, c.text2)
 
 	c.timer = c.Window().NewTimer(500, func() {
 		nodes := c.tvItems.VisibleNodes()

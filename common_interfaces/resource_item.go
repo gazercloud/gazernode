@@ -1,6 +1,6 @@
 package common_interfaces
 
 type ResourcesItem struct {
-	Info    ResourcesItemInfo
-	Content []byte
+	Info    ResourcesItemInfo `json:"info"`
+	Content []byte            `json:"content"`
 }

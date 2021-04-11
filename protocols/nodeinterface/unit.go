@@ -24,12 +24,12 @@ type UnitStateRequest struct {
 }
 
 type UnitStateResponse struct {
-	UnitId   string
-	UnitName string
-	Status   string
-	MainItem string
-	Value    string
-	UOM      string
+	UnitId   string `json:"unit_id"`
+	UnitName string `json:"unit_name"`
+	Status   string `json:"status"`
+	MainItem string `json:"main_item"`
+	Value    string `json:"value"`
+	UOM      string `json:"uom"`
 }
 
 type UnitItemsValuesRequest struct {

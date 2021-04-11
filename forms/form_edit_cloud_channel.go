@@ -50,6 +50,11 @@ func NewFormEditCloudChannel(parent uiinterfaces.Widget, client *client.Client, 
 	btnCancel.SetMinWidth(70)
 
 	c.TryAccept = func() bool {
+		if c.txtUnitName.Text() == "" || len(c.txtUnitName.Text()) > 50 {
+			uicontrols.ShowErrorMessage(&c, "wrong name", "Error")
+			return false
+		}
+
 		c.client.EditCloudChannel(c.channelId, c.txtUnitName.Text(), func(err error) {
 			if err == nil {
 				c.TryAccept = nil

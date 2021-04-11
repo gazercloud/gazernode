@@ -42,6 +42,11 @@ func NewFormAddCloudChannel(parent uiinterfaces.Widget, client *client.Client) *
 	pButtons.AddHSpacerOnGrid(0, 0)
 	c.btnOK = pButtons.AddButtonOnGrid(1, 0, "OK", nil)
 	c.TryAccept = func() bool {
+		if c.txtUnitName.Text() == "" || len(c.txtUnitName.Text()) > 50 {
+			uicontrols.ShowErrorMessage(&c, "wrong name", "Error")
+			return false
+		}
+
 		c.btnOK.SetEnabled(false)
 		c.client.AddCloudChannel(c.txtUnitName.Text(), func(err error) {
 			if err == nil {

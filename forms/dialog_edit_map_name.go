@@ -45,6 +45,11 @@ func NewDialogEditMapName(parent uiinterfaces.Widget, client *client.Client, id 
 	pButtons.AddHSpacerOnGrid(0, 0)
 	c.btnOK = pButtons.AddButtonOnGrid(1, 0, "OK", nil)
 	c.TryAccept = func() bool {
+		if c.txtText.Text() == "" || len(c.txtText.Text()) > 50 {
+			uicontrols.ShowErrorMessage(&c, "wrong name", "Error")
+			return false
+		}
+
 		c.client.ResRename(c.id, c.txtText.Text(), func(err error) {
 			c.TryAccept = nil
 			c.Accept()

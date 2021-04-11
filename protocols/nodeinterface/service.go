@@ -11,14 +11,14 @@ type ServiceLookupRequest struct {
 }
 
 type ServiceLookupResponse struct {
-	Result lookup.Result
+	Result lookup.Result `json:"result"`
 }
 
 type ServiceStatisticsRequest struct {
 }
 
 type ServiceStatisticsResponse struct {
-	Stat common_interfaces.Statistics
+	Stat common_interfaces.Statistics `json:"stat"`
 }
 
 type ServiceApiRequest struct {

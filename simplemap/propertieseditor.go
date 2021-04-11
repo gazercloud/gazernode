@@ -162,7 +162,7 @@ func (c *PropertiesEditor) RebuildInterface() {
 			}
 			if property.Type == uiproperties.PropertyTypeString && property.SubType == "datasource" {
 				txtEditor := groupPanel.AddTextBoxExtOnGrid(1, indexInGroup, "", func(textBoxExt *uicontrols.TextBoxExt) {
-					dialogs.LookupDataItem(c, c.client, func(key string) {
+					dialogs.LookupDataItem(c, c.client, "", "", func(key string) {
 						textBoxExt.SetText(key)
 					})
 				})

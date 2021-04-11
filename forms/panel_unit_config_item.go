@@ -67,7 +67,7 @@ func NewPanelUnitConfigItem(parent uiinterfaces.Widget, item *units_common.UnitC
 			if item.Format != "" {
 				lookUpButton := c.AddButtonOnGrid(2, 0, "Select ...", func(event *uievents.Event) {
 					if item.Format == "data-item" {
-						dialogs.LookupDataItem(&c, c.client, func(key string) {
+						dialogs.LookupDataItem(&c, c.client, "", "", func(key string) {
 							c.txtValue.SetText(key)
 						})
 					} else {

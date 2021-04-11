@@ -239,7 +239,7 @@ func (c *PanelCharts) OnInit() {
 		return m
 	})
 
-	c.itemsPanel = widget_dataitems.NewWidgetDataItems(c, c.client)
+	c.itemsPanel = widget_dataitems.NewWidgetDataItems(c, c.client, "Drag the item onto the chart", "To add an area, drag the item onto the timeline")
 	c.splitterEditor.Panel2.AddWidgetOnGrid(c.itemsPanel, 0, 1)
 
 	c.loadChartGroups("")
