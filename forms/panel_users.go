@@ -21,6 +21,8 @@ type PanelUsers struct {
 	btnRemove  *uicontrols.Button
 	btnRefresh *uicontrols.Button
 
+	txtHeaderChartGroup *uicontrols.TextBlock
+
 	btnRemoveSession *uicontrols.Button
 
 	timer       *uievents.FormTimer
@@ -36,9 +38,9 @@ func NewPanelUsers(parent uiinterfaces.Widget, client *client.Client) *PanelUser
 }
 
 func (c *PanelUsers) OnInit() {
-	pHeader := c.AddPanelOnGrid(0, 0)
-	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Users")
-	txtHeader.SetFontSize(24)
+	//pHeader := c.AddPanelOnGrid(0, 0)
+	//txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Users")
+	//txtHeader.SetFontSize(24)
 
 	pContent := c.AddPanelOnGrid(0, 1)
 	pContent.SetPanelPadding(0)
@@ -49,7 +51,10 @@ func (c *PanelUsers) OnInit() {
 	pUnitsList := splitter.Panel1.AddPanelOnGrid(0, 0)
 	pUnitsList.SetPanelPadding(0)
 
-	pButtons := pUnitsList.AddPanelOnGrid(0, 0)
+	txtHeader := pUnitsList.AddTextBlockOnGrid(0, 0, "Users")
+	txtHeader.SetFontSize(24)
+
+	pButtons := pUnitsList.AddPanelOnGrid(0, 1)
 	pButtons.SetPanelPadding(0)
 
 	c.btnAdd = pButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
@@ -87,17 +92,9 @@ func (c *PanelUsers) OnInit() {
 	})
 	c.btnRefresh.SetTooltip("Refresh")
 
-	c.lvUsers = pUnitsList.AddListViewOnGrid(0, 1)
+	c.lvUsers = pUnitsList.AddListViewOnGrid(0, 2)
 	c.lvUsers.AddColumn("Name", 200)
-	c.lvUsers.OnSelectionChanged = func() {
-		selectedItem := c.lvUsers.SelectedItem()
-		if selectedItem != nil {
-			name := c.lvUsers.SelectedItem().UserData("userName").(string)
-			c.SetCurrentUser(name)
-		} else {
-			c.SetCurrentUser("")
-		}
-	}
+	c.lvUsers.OnSelectionChanged = c.loadSelected
 
 	menu := uicontrols.NewPopupMenu(c.lvUsers)
 	menu.AddItem("Remove user", func(event *uievents.Event) {
@@ -110,7 +107,12 @@ func (c *PanelUsers) OnInit() {
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, c.ForeColor()), "")
 	c.lvUsers.SetContextMenu(menu)
 
-	pItems := splitter.Panel2.AddPanelOnGrid(1, 0)
+	pHeaderRight := splitter.Panel2.AddPanelOnGrid(0, 0)
+	pHeaderRight.SetPanelPadding(0)
+	c.txtHeaderChartGroup = pHeaderRight.AddTextBlockOnGrid(0, 0, "")
+	c.txtHeaderChartGroup.SetFontSize(24)
+
+	pItems := splitter.Panel2.AddPanelOnGrid(0, 1)
 	pItems.SetPanelPadding(0)
 
 	pButtonsRight := pItems.AddPanelOnGrid(0, 0)
@@ -141,6 +143,7 @@ func (c *PanelUsers) OnInit() {
 
 	c.loadUsers()
 	c.UpdateStyle()
+	c.loadSelected()
 }
 
 func (c *PanelUsers) Dispose() {
@@ -156,6 +159,18 @@ func (c *PanelUsers) Dispose() {
 
 	c.lvSessions = nil
 	c.Panel.Dispose()
+}
+
+func (c *PanelUsers) loadSelected() {
+	selectedItem := c.lvUsers.SelectedItem()
+	if selectedItem != nil {
+		name := c.lvUsers.SelectedItem().UserData("userName").(string)
+		c.txtHeaderChartGroup.SetText("Sessions of user: " + name)
+		c.SetCurrentUser(name)
+	} else {
+		c.txtHeaderChartGroup.SetText("no user selected")
+		c.SetCurrentUser("")
+	}
 }
 
 func (c *PanelUsers) FullRefresh() {

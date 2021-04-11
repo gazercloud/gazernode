@@ -33,6 +33,8 @@ type PanelCloud struct {
 
 	btnRefresh *uicontrols.Button
 
+	txtHeaderChartGroup *uicontrols.TextBlock
+
 	btnStart         *uicontrols.Button
 	btnStop          *uicontrols.Button
 	btnOpenInBrowser *uicontrols.Button
@@ -59,9 +61,9 @@ func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelClou
 }
 
 func (c *PanelCloud) OnInit() {
-	pHeader := c.AddPanelOnGrid(0, 0)
-	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Public channels")
-	txtHeader.SetFontSize(24)
+	//pHeader := c.AddPanelOnGrid(0, 0)
+	//txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Public channels")
+	//txtHeader.SetFontSize(24)
 
 	pContent := c.AddPanelOnGrid(0, 1)
 	pContent.SetPanelPadding(0)
@@ -72,7 +74,10 @@ func (c *PanelCloud) OnInit() {
 	pUnitsList := splitter.Panel1.AddPanelOnGrid(0, 0)
 	pUnitsList.SetPanelPadding(0)
 
-	pButtons := pUnitsList.AddPanelOnGrid(0, 0)
+	txtHeader := pUnitsList.AddTextBlockOnGrid(0, 0, "Public channels")
+	txtHeader.SetFontSize(24)
+
+	pButtons := pUnitsList.AddPanelOnGrid(0, 1)
 	pButtons.SetPanelPadding(0)
 
 	c.btnAdd = pButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
@@ -127,20 +132,10 @@ func (c *PanelCloud) OnInit() {
 	*/
 	//pButtons.AddHSpacerOnGrid(5, 0)
 
-	c.lvChannels = pUnitsList.AddListViewOnGrid(0, 1)
+	c.lvChannels = pUnitsList.AddListViewOnGrid(0, 2)
 	c.lvChannels.AddColumn("Name", 200)
 	c.lvChannels.AddColumn("Id", 100)
-	c.lvChannels.OnSelectionChanged = func() {
-		selectedItem := c.lvChannels.SelectedItem()
-		if selectedItem != nil {
-			name := c.lvChannels.SelectedItem().UserData("channelName").(string)
-			unitId := selectedItem.TempData
-			c.SetCurrentChannelId(unitId, name)
-		} else {
-			unitId := ""
-			c.SetCurrentChannelId(unitId, "")
-		}
-	}
+	c.lvChannels.OnSelectionChanged = c.loadSelected
 
 	menu := uicontrols.NewPopupMenu(c.lvChannels)
 	menu.AddItem("Open in Browser ...", func(event *uievents.Event) {
@@ -154,7 +149,12 @@ func (c *PanelCloud) OnInit() {
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_content_content_copy_materialicons_48dp_1x_baseline_content_copy_black_48dp_png, c.ForeColor()), "")
 	c.lvChannels.SetContextMenu(menu)
 
-	pItems := splitter.Panel2.AddPanelOnGrid(1, 0)
+	pHeaderRight := splitter.Panel2.AddPanelOnGrid(0, 0)
+	pHeaderRight.SetPanelPadding(0)
+	c.txtHeaderChartGroup = pHeaderRight.AddTextBlockOnGrid(0, 0, "")
+	c.txtHeaderChartGroup.SetFontSize(24)
+
+	pItems := splitter.Panel2.AddPanelOnGrid(0, 1)
 	pItems.SetPanelPadding(0)
 
 	pItems.SetOnKeyDown(func(event *uievents.KeyDownEvent) bool {
@@ -241,6 +241,8 @@ func (c *PanelCloud) OnInit() {
 	c.UpdateStyle()
 
 	c.createCloudChannelIfItDoesntExists()
+
+	c.loadSelected()
 }
 
 func (c *PanelCloud) Dispose() {
@@ -270,6 +272,20 @@ func (c *PanelCloud) Dispose() {
 
 	c.lvItems = nil
 	c.Panel.Dispose()
+}
+
+func (c *PanelCloud) loadSelected() {
+	selectedItem := c.lvChannels.SelectedItem()
+	if selectedItem != nil {
+		name := c.lvChannels.SelectedItem().UserData("channelName").(string)
+		c.txtHeaderChartGroup.SetText("Channel: " + name)
+		unitId := selectedItem.TempData
+		c.SetCurrentChannelId(unitId, name)
+	} else {
+		c.txtHeaderChartGroup.SetText("no channel selected")
+		unitId := ""
+		c.SetCurrentChannelId(unitId, "")
+	}
 }
 
 func (c *PanelCloud) FullRefresh() {
