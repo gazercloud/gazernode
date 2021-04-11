@@ -1,5 +1,5 @@
 # gazernode
-Monitoring node.
+Monitoring node. Single executable file. Works as Windows Service. UI-client.
 
 # Unit types
 
