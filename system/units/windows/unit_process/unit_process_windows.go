@@ -75,7 +75,7 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 	runes := []rune(config.ProcessName)
 	indexOfSlash := -1
 	for i, r := range runes {
-		if r == '/' {
+		if r == '#' {
 			indexOfSlash = i
 		}
 	}

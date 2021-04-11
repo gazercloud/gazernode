@@ -13,6 +13,8 @@ type PanelUnitConfigItems struct {
 	configMeta []*units_common.UnitConfigItem
 	config     interface{}
 	OnChanged  func()
+
+	OnConfigChanged func()
 }
 
 func NewPanelUnitConfigItems(parent uiinterfaces.Widget, configMeta []*units_common.UnitConfigItem, config interface{}, client *client.Client) *PanelUnitConfigItems {
@@ -65,5 +67,9 @@ func (c *PanelUnitConfigItems) Dispose() {
 func (c *PanelUnitConfigItems) Changed() {
 	if c.OnChanged != nil {
 		c.OnChanged()
+	}
+
+	if c.OnConfigChanged != nil {
+		c.OnConfigChanged()
 	}
 }

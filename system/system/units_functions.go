@@ -240,7 +240,7 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		result.AddColumn("id", "Process Id")
 		processes := unit_process.GetProcesses()
 		for _, proc := range processes {
-			result.AddRow2(proc.Name+"/"+fmt.Sprint(proc.Id), fmt.Sprint(proc.Id))
+			result.AddRow2(proc.Name+"#"+fmt.Sprint(proc.Id), fmt.Sprint(proc.Id))
 		}
 	}
 	if entity == "network_interface" {

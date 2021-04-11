@@ -2,6 +2,7 @@ package forms
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/units_common"
@@ -9,19 +10,22 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"time"
 )
 
 type FormUnitEdit struct {
 	uicontrols.Dialog
-	unitId       string
-	unitType     string
-	unitTypeName string
-	client       *client.Client
-	panelName    *uicontrols.Panel
-	txtHelp      *uicontrols.TextBlock
-	txtName      *uicontrols.TextBox
-	configObj    interface{}
-	help         string
+	unitId        string
+	unitType      string
+	unitTypeName  string
+	client        *client.Client
+	panelName     *uicontrols.Panel
+	txtHelp       *uicontrols.TextBlock
+	txtName       *uicontrols.TextBox
+	chkAutoName   *uicontrols.CheckBox
+	configObj     interface{}
+	configMetaObj []*units_common.UnitConfigItem
+	help          string
 }
 
 func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId string, unitType string) *FormUnitEdit {
@@ -94,7 +98,7 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 
 	if c.unitId != "" {
 		c.client.GetUnitConfig(unitId, func(name string, config string, configMeta string, unitType string, err error) {
-			configMetaObj := units_common.LoadUnitConfigItems(configMeta)
+			c.configMetaObj = units_common.LoadUnitConfigItems(configMeta)
 			if len(config) == 0 {
 				config = `{}`
 			}
@@ -106,7 +110,11 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 				c.txtName.SetText(name)
 				c.txtName.Focus()
 
-				pan := NewPanelUnitConfigItems(&c, configMetaObj, c.configObj, c.client)
+				c.chkAutoName = c.panelName.AddCheckBoxOnGrid(1, 1, "AutoName")
+				c.chkAutoName.SetChecked(true)
+
+				pan := NewPanelUnitConfigItems(&c, c.configMetaObj, c.configObj, c.client)
+				pan.OnConfigChanged = c.onConfigChanged
 				pRight.AddWidgetOnGrid(pan, 0, 1)
 
 				makeHelpButton(c.panelName)
@@ -123,7 +131,7 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 		})
 	} else {
 		c.client.GetUnitConfigByType(c.unitType, func(name string, configMeta string, err error) {
-			configMetaObj := units_common.LoadUnitConfigItems(configMeta)
+			c.configMetaObj = units_common.LoadUnitConfigItems(configMeta)
 			config := `{}`
 			err = json.Unmarshal([]byte(config), &c.configObj)
 			if err == nil {
@@ -133,7 +141,11 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 				c.txtName.SetText(name)
 				c.txtName.Focus()
 
-				pan := NewPanelUnitConfigItems(&c, configMetaObj, c.configObj, c.client)
+				c.chkAutoName = c.panelName.AddCheckBoxOnGrid(1, 1, "AutoName")
+				c.chkAutoName.SetChecked(true)
+
+				pan := NewPanelUnitConfigItems(&c, c.configMetaObj, c.configObj, c.client)
+				pan.OnConfigChanged = c.onConfigChanged
 				pRight.AddWidgetOnGrid(pan, 0, 1)
 				makeHelpButton(c.panelName)
 			}
@@ -166,4 +178,32 @@ func (c *FormUnitEdit) Dispose() {
 	c.txtName = nil
 	c.configObj = nil
 	c.Dialog.Dispose()
+}
+
+type ConfigForName struct {
+	Address string
+}
+
+func (c *FormUnitEdit) onConfigChanged() {
+	c.SetTitle("Edit unit " + time.Now().String())
+	if c.chkAutoName.IsChecked() {
+		propName := ""
+		if c.configMetaObj != nil {
+			for _, item := range c.configMetaObj {
+				if item.ItemIsDisplayName {
+					propName = item.Name
+				}
+			}
+		}
+
+		if propName != "" {
+			if conf, ok := c.configObj.(map[string]interface{}); ok {
+				if propValue, ok := conf[propName]; ok {
+					c.txtName.SetText(c.unitTypeName + " " + fmt.Sprint(propValue))
+				}
+			}
+		} else {
+			c.chkAutoName.SetChecked(false)
+		}
+	}
 }

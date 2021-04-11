@@ -3,14 +3,15 @@ package units_common
 import "encoding/json"
 
 type UnitConfigItem struct {
-	Name         string            `json:"name"`
-	DisplayName  string            `json:"display_name"`
-	Type         string            `json:"type"`
-	MinValue     string            `json:"min_value"`
-	MaxValue     string            `json:"max_value"`
-	Format       string            `json:"format"`
-	Children     []*UnitConfigItem `json:"children"`
-	DefaultValue string            `json:"default_value"`
+	Name              string            `json:"name"`
+	DisplayName       string            `json:"display_name"`
+	Type              string            `json:"type"`
+	MinValue          string            `json:"min_value"`
+	MaxValue          string            `json:"max_value"`
+	Format            string            `json:"format"`
+	Children          []*UnitConfigItem `json:"children"`
+	DefaultValue      string            `json:"default_value"`
+	ItemIsDisplayName bool              `json:"item_is_display_name"`
 }
 
 func NewUnitConfigItem(name string, displayName string, defaultValue string, tp string, minValue string, maxValue string, format string) *UnitConfigItem {

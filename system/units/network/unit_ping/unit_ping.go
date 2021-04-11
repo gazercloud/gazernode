@@ -42,7 +42,8 @@ func init() {
 
 func (c *UnitPing) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
-	meta.Add("addr", "Address", "localhost", "string", "", "", "")
+	pAddr := meta.Add("addr", "Address", "localhost", "string", "", "", "")
+	pAddr.ItemIsDisplayName = true
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "0")
 	meta.Add("timeout", "Timeout, ms", "1000", "num", "100", "10000", "0")
 	meta.Add("frame_size", "Frame Size, bytes", "64", "num", "4", "500", "0")
