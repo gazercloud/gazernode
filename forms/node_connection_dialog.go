@@ -20,6 +20,7 @@ type NodeConnectionDialog struct {
 	client      *client.Client
 	Id          string
 	tp          string
+	first       bool
 	txtAddress  *uicontrols.TextBox
 	txtUserName *uicontrols.TextBox
 	txtPassword *uicontrols.TextBox
@@ -28,9 +29,10 @@ type NodeConnectionDialog struct {
 	Connection NodeConnectionInfo
 }
 
-func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) *NodeConnectionDialog {
+func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client, first bool) *NodeConnectionDialog {
 	var c NodeConnectionDialog
 	c.client = client
+	c.first = first
 	c.InitControl(parent, &c)
 
 	if c.client == nil || c.client.SessionToken() == "" {
@@ -55,13 +57,6 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) 
 		c.txtAddress.SetText("localhost")
 		c.txtAddress.SetTabIndex(1)
 
-		if c.client != nil {
-			c.txtAddress.SetText(c.client.Address())
-			c.txtAddress.SetEnabled(false)
-		} else {
-			c.txtAddress.SelectAllText()
-		}
-
 		pRight.AddTextBlockOnGrid(0, 1, "User name:")
 		c.txtUserName = pRight.AddTextBoxOnGrid(1, 1)
 		c.txtUserName.SetTabIndex(2)
@@ -69,6 +64,17 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) 
 		c.txtPassword = pRight.AddTextBoxOnGrid(1, 2)
 		c.txtPassword.SetTabIndex(3)
 		c.txtPassword.SetIsPassword(true)
+
+		if c.client != nil {
+			c.txtAddress.SetText(c.client.Address())
+			c.txtAddress.SetEnabled(false)
+		} else {
+			c.txtAddress.SelectAllText()
+			if first {
+				c.txtUserName.SetText("admin")
+				c.txtPassword.SetText("admin")
+			}
+		}
 
 		pRight.AddVSpacerOnGrid(0, 10)
 		pButtons.AddHSpacerOnGrid(0, 0)

@@ -85,7 +85,7 @@ func (c *MainForm) OnInit() {
 	c.tabNodes = c.Panel().AddTabControlOnGrid(0, 0)
 	c.tabNodes.SetShowAddButton(true)
 	c.tabNodes.OnAddButtonPressed = func() {
-		c.AddNode()
+		c.AddNode(false)
 	}
 	c.tabNodes.OnNeedClose = func(index int) {
 		uicontrols.ShowQuestionMessageOKCancel(c.Panel(), "Remove connection to node?", "Confirmation", func() {
@@ -114,8 +114,8 @@ func (c *MainForm) Dispose() {
 	c.Form.Dispose()
 }
 
-func (c *MainForm) AddNode() {
-	dialog := NewNodeConnectionDialog(c.Panel(), nil)
+func (c *MainForm) AddNode(first bool) {
+	dialog := NewNodeConnectionDialog(c.Panel(), nil, first)
 	dialog.OnAccept = func() {
 		// Add to preferences
 		var conn local_user_storage.NodeConnection
@@ -153,7 +153,7 @@ func (c *MainForm) loadNodes() {
 	c.loadingConnections = local_user_storage.Instance().Connections()
 
 	if len(c.loadingConnections) == 0 {
-		c.AddNode()
+		c.AddNode(true)
 	} else {
 		loadingDialog := uicontrols.NewDialog(c.Panel(), "Loading nodes", 500, 500)
 		txtProgress := loadingDialog.ContentPanel().AddTextBlockOnGrid(0, 0, "")

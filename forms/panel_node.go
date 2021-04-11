@@ -347,7 +347,7 @@ func (c *PanelNode) OnInit() {
 
 	c.lblStatistics = c.panelBottom.AddTextBlockOnGrid(2, 0, "---")
 	c.lblStatistics.OnClick = func(ev *uievents.Event) {
-		dialog := NewNodeConnectionDialog(c, c.client)
+		dialog := NewNodeConnectionDialog(c, c.client, false)
 		dialog.OnAccept = func() {
 			c.client.SessionOpen(dialog.Connection.UserName, dialog.Connection.Password, nil)
 		}

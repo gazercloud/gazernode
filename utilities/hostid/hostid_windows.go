@@ -17,6 +17,10 @@ type HostId struct {
 
 var hostId HostId
 
+func Get() HostId {
+	return hostId
+}
+
 func InitHostId() {
 	if LoadHostId() != nil {
 		err := MakeHostId()
