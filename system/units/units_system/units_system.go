@@ -75,27 +75,83 @@ Period: 0-999999 ms. Default value is 1000
 Frame size: 4-500 bytes. Default value is 64
 `
 	unitType = c.RegisterUnit("network_tcp_connect", "network", "TCP Connect", unit_tcp_connect.New, unit_tcp_connect.Image, "")
+	unitType.Help = `The sensor tries to connect to the specified address and writes the result to the data item.
+
+Address - Destination host
+Timeout - Timeout in milliseconds to wait for each reply.
+Period - The period between sensor activities
+
+The result time is written to the data item "Time"
+`
+
 	unitType = c.RegisterUnit("network_tcp_telnet_control", "network", "TCP Telnet Control", unit_tcp_telnet_control.New, unit_tcp_telnet_control.Image, "")
+	unitType.Help = `
+No description available
+`
 	//unitType = c.RegisterUnit("network_http_json_items_server", "network", "HTTP Json Items Server", unit_http_json_items_server.New, unit_http_json_items_server.Image, "")
 	//unitType = c.RegisterUnit("network_http_json_units_server", "network", "HTTP Json Units Server", unit_http_json_units_server.New, unit_http_json_units_server.Image, "")
 
 	unitType = c.RegisterUnit("windows_memory", "windows", "OS Memory", unit_system_memory.New, unit_system_memory.Image, "")
+	unitType.Help = `
+No description available
+`
 	unitType = c.RegisterUnit("windows_process", "windows", "OS Process", unit_process.New, unit_process.Image, "")
+	unitType.Help = `
+The sensor periodically gets information about the process and writes it to the corresponding data items.
+`
 	unitType = c.RegisterUnit("windows_storage", "windows", "OS Storage", unit_storage.New, unit_storage.Image, "")
+	unitType.Help = `
+No description available
+`
 	unitType = c.RegisterUnit("windows_network", "windows", "OS Network", unit_network.New, unit_network.Image, "")
+	unitType.Help = `
+No description available
+`
 	unitType = c.RegisterUnit("windows_network_interface", "windows", "OS Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
+	unitType.Help = `
+No description available
+`
 
 	unitType = c.RegisterUnit("file_size", "file", "File Size", unit_filesize.New, unit_filesize.Image, "")
+	unitType.Help = `
+The sensor writes the file size to the data item.
+`
 	unitType = c.RegisterUnit("file_content", "file", "File Content", unit_filecontent.New, unit_filecontent.Image, "")
+	unitType.Help = `
+The sensor reads the file contents and writes it to the data item. 
+The maximum size to be read is 1 kilobyte.
+`
 	//unitType = c.RegisterUnit("file_csv_export", "file", "CSV Export", unit_csv_export.New, unit_csv_export.Image, "")
 
 	unitType = c.RegisterUnit("general_cgi", "general", "Console", unit_general_cgi.New, unit_general_cgi.Image, "")
+	unitType.Help = `
+CGI is an interface for requesting information through the command line interface. 
+The sensor reads the output stream of the external program. All external program output is written to the data item. 
+In fact, this sensor allows you transfer a file content to the cloud in real time.
+`
 	unitType = c.RegisterUnit("general_cgi_key_value", "general", "Console Key=Value", unit_general_cgi_key_value.New, unit_general_cgi_key_value.Image, "")
+	unitType.Help = `
+The Sensor is similar to CGI-sensor, but it can parse data by sorting it out into data elements. 
+The sensor requires each data item to be written on a separate line. 
+The item name is placed before the equal sign(=), and the value is placed after it.
+`
 	unitType = c.RegisterUnit("general_manual", "general", "Manual Items", unit_manual.New, unit_manual.Image, "")
+	unitType.Help = `
+No description available
+`
 	unitType = c.RegisterUnit("general_hhgttg", "general", "HHGTTG", unit_hhgttg.New, unit_hhgttg.Image, "")
+	unitType.Help = `
+Ultimate Question of Life, the Universe, and Everything
+`
 	unitType = c.RegisterUnit("general_signal_generator", "general", "Signal Generator", unit_signal_generator.New, unit_signal_generator.Image, "")
+	unitType.Help = `
+No description available
+`
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
+	unitType.Help = `
+No description available
+`
 
 	//unitType = c.RegisterUnit("industrial_modbus", "industrial", "Modbus TCP", unit_modbus.New, unit_modbus.Image, "Modbus TCP")
 
