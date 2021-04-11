@@ -28,3 +28,4 @@ require (
 )
 
 // replace github.com/gazercloud/gazerui => ../gazerui
+replace github.com/go-gl/glfw/v3.3/glfw => ../glfw/v3.3/glfw
