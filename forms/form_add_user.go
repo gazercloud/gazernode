@@ -41,6 +41,7 @@ func NewFormAddUser(parent uiinterfaces.Widget, client *client.Client) *FormAddU
 
 	pRight.AddTextBlockOnGrid(0, 1, "Password:")
 	c.txtPassword = pRight.AddTextBoxOnGrid(1, 1)
+	c.txtPassword.SetIsPassword(true)
 
 	pRight.AddVSpacerOnGrid(0, 10)
 

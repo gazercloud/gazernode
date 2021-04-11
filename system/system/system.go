@@ -16,6 +16,8 @@ type System struct {
 	itemsById   map[uint64]*common_interfaces.Item
 	nextItemId  uint64
 
+	requester common_interfaces.Requester
+
 	unitsSystem *units_system.UnitsSystem
 
 	cloud *cloud.Cloud
@@ -49,6 +51,10 @@ func NewSystem() *System {
 	return &c
 }
 
+func (c *System) SetRequester(requester common_interfaces.Requester) {
+	c.requester = requester
+}
+
 func (c *System) Start() {
 	c.LoadConfig()
 	c.loadSessions()
@@ -77,4 +83,8 @@ func (c *System) RegApiCall() {
 	c.mtx.Lock()
 	c.apiCallsCount++
 	c.mtx.Unlock()
+}
+
+func (c *System) Exec(function string, request []byte, host string) ([]byte, error) {
+	return c.requester.RequestJson(function, request, host)
 }

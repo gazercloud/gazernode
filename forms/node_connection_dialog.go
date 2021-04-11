@@ -68,6 +68,7 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client) 
 		pRight.AddTextBlockOnGrid(0, 2, "Password:")
 		c.txtPassword = pRight.AddTextBoxOnGrid(1, 2)
 		c.txtPassword.SetTabIndex(3)
+		c.txtPassword.SetIsPassword(true)
 
 		pRight.AddVSpacerOnGrid(0, 10)
 		pButtons.AddHSpacerOnGrid(0, 0)

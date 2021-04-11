@@ -8,8 +8,13 @@ import (
 type UnitSystemProcess struct {
 	units_common.Unit
 
-	processName string
-	periodMs    int
+	processIdActive   bool
+	processId         uint32
+	processNameActive bool
+	processName       string
+	periodMs          int
+
+	actualProcessName string
 }
 
 func New() common_interfaces.IUnit {

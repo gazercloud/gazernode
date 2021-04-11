@@ -14,7 +14,9 @@ func (c *HttpServer) ServiceLookup(request []byte) (response []byte, err error) 
 	}
 
 	resp.Result, err = c.system.Lookup(req.Entity)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -28,7 +30,9 @@ func (c *HttpServer) ServiceStatistics(request []byte) (response []byte, err err
 	}
 
 	resp.Stat, err = c.system.GetStatistics()
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -42,7 +46,9 @@ func (c *HttpServer) ServiceApi(request []byte) (response []byte, err error) {
 	}
 
 	resp, err = c.system.GetApi()
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }

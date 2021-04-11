@@ -13,9 +13,10 @@ func (c *HttpServer) UnitAdd(request []byte) (response []byte, err error) {
 		return
 	}
 
-	resp.UnitId, err = c.system.AddUnit(req.UnitName, req.UnitType)
-
-	response, err = json.MarshalIndent(resp, "", " ")
+	resp.UnitId, err = c.system.AddUnit(req.UnitName, req.UnitType, req.Config)
+	if err == nil {
+		response, err = json.MarshalIndent(resp, "", " ")
+	}
 	return
 }
 
@@ -28,7 +29,9 @@ func (c *HttpServer) UnitRemove(request []byte) (response []byte, err error) {
 	}
 
 	err = c.system.RemoveUnits(req.Units)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -42,6 +45,9 @@ func (c *HttpServer) UnitState(request []byte) (response []byte, err error) {
 	}
 
 	resp, err = c.system.GetUnitState(req.UnitId)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -84,6 +90,9 @@ func (c *HttpServer) UnitStart(request []byte) (response []byte, err error) {
 	}
 
 	err = c.system.StartUnits(req.Ids)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -98,6 +107,9 @@ func (c *HttpServer) UnitStop(request []byte) (response []byte, err error) {
 	}
 
 	err = c.system.StopUnits(req.Ids)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -112,6 +124,9 @@ func (c *HttpServer) UnitSetConfig(request []byte) (response []byte, err error) 
 	}
 
 	err = c.system.SetConfig(req.UnitId, req.UnitName, req.UnitConfig)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -126,6 +141,9 @@ func (c *HttpServer) UnitGetConfig(request []byte) (response []byte, err error) 
 	}
 
 	resp.UnitName, resp.UnitConfig, resp.UnitConfigMeta, resp.UnitType, err = c.system.GetConfig(req.UnitId)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return

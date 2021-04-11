@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/resources"
 	"golang.org/x/sys/windows"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -71,9 +72,41 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 		return err
 	}
 
-	c.processName = config.ProcessName
-	if c.processName == "" {
-		err = errors.New("wrong address")
+	runes := []rune(config.ProcessName)
+	indexOfSlash := -1
+	for i, r := range runes {
+		if r == '/' {
+			indexOfSlash = i
+		}
+	}
+
+	if indexOfSlash > -1 {
+		var prId uint64
+		prId, err = strconv.ParseUint(string(runes[indexOfSlash+1:]), 10, 32)
+		if err == nil {
+			c.processId = uint32(prId)
+			c.processIdActive = true
+		} else {
+			c.processId = 0
+			c.processIdActive = false
+		}
+
+		c.processNameActive = false
+		c.processName = ""
+
+		if indexOfSlash > 0 {
+			c.processNameActive = true
+			c.processName = string(runes[:indexOfSlash])
+		}
+	} else {
+		c.processIdActive = false
+		c.processId = 0
+		c.processNameActive = true
+		c.processName = config.ProcessName
+	}
+
+	if !c.processIdActive && !c.processNameActive {
+		err = errors.New("wrong filter")
 		c.SetString("Common/ProcessID", err.Error(), "error")
 		return err
 	}
@@ -118,6 +151,11 @@ func (c *UnitSystemProcess) Tick() {
 		processJustFound := false
 
 		if processId < 0 {
+			if !c.processIdActive && !c.processNameActive {
+				time.Sleep(100 * time.Millisecond)
+				continue
+			}
+
 			handle, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
 			if err == nil {
 				var entry windows.ProcessEntry32
@@ -131,12 +169,35 @@ func (c *UnitSystemProcess) Tick() {
 						}
 						nameSize++
 					}
+
+					id := entry.ProcessID
 					name := syscall.UTF16ToString(entry.ExeFile[:nameSize])
-					if strings.ToLower(name) == strings.ToLower(c.processName) {
+
+					// Filtering
+					matchId := false
+					matchName := false
+					if c.processIdActive {
+						if id == c.processId {
+							matchId = true
+						}
+					} else {
+						matchId = true
+					}
+					if c.processNameActive {
+						if strings.ToLower(name) == strings.ToLower(c.processName) {
+							matchName = true
+						}
+					} else {
+						matchName = true
+					}
+					if matchId && matchName {
 						processId = int32(entry.ProcessID)
 						processJustFound = true
+						c.actualProcessName = name
 						break
 					}
+					// /////////////////
+
 					err = windows.Process32Next(handle, &entry)
 				}
 
@@ -148,7 +209,7 @@ func (c *UnitSystemProcess) Tick() {
 			hProcess, err := windows.OpenProcess(windows.STANDARD_RIGHTS_REQUIRED|windows.SYNCHRONIZE|windows.SPECIFIC_RIGHTS_ALL, false, uint32(processId))
 			if err == nil {
 				// Common
-				c.SetString("Common/Name", c.processName, "")
+				c.SetString("Common/Name", c.actualProcessName, "")
 				c.SetUInt32("Common/ProcessID", uint32(processId), "")
 
 				{

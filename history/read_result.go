@@ -15,8 +15,8 @@ type ReadResultItem struct {
 }
 
 type ReadResult struct {
-	Id      uint64
-	DTBegin int64
-	DTEnd   int64
-	Items   []*common_interfaces.ItemValue
+	Id      uint64                         `json:"id"`
+	DTBegin int64                          `json:"dt_begin"`
+	DTEnd   int64                          `json:"dt_end"`
+	Items   []*common_interfaces.ItemValue `json:"items"`
 }

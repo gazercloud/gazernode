@@ -42,6 +42,9 @@ func (c *HttpServer) UnitTypeConfigMeta(request []byte) (response []byte, err er
 	}
 
 	resp.UnitName, resp.UnitConfigMeta, err = c.system.GetConfigByType(req.UnitType)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return

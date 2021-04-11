@@ -25,7 +25,7 @@ func (c *BinFrame) Marshal() ([]byte, error) {
 		return nil, errors.New("wrong password length")
 	}
 
-	if lenData > 10*1024 {
+	if lenData > 100*1024 {
 		return nil, errors.New("wrong data length")
 	}
 

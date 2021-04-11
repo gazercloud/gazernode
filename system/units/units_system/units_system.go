@@ -7,7 +7,6 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/resources"
-	"github.com/gazercloud/gazernode/system/units/files/unit_csv_export"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi"
@@ -15,7 +14,6 @@ import (
 	"github.com/gazercloud/gazernode/system/units/general/unit_hhgttg"
 	"github.com/gazercloud/gazernode/system/units/general/unit_manual"
 	"github.com/gazercloud/gazernode/system/units/general/unit_signal_generator"
-	"github.com/gazercloud/gazernode/system/units/industrial/unit_modbus"
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
 	"github.com/gazercloud/gazernode/system/units/network/unit_tcp_connect"
 	unit_tcp_telnet_control "github.com/gazercloud/gazernode/system/units/network/unit_tcp_control"
@@ -89,7 +87,7 @@ Frame size: 4-500 bytes. Default value is 64
 
 	unitType = c.RegisterUnit("file_size", "file", "File Size", unit_filesize.New, unit_filesize.Image, "")
 	unitType = c.RegisterUnit("file_content", "file", "File Content", unit_filecontent.New, unit_filecontent.Image, "")
-	unitType = c.RegisterUnit("file_csv_export", "file", "CSV Export", unit_csv_export.New, unit_csv_export.Image, "")
+	//unitType = c.RegisterUnit("file_csv_export", "file", "CSV Export", unit_csv_export.New, unit_csv_export.Image, "")
 
 	unitType = c.RegisterUnit("general_cgi", "general", "Console", unit_general_cgi.New, unit_general_cgi.Image, "")
 	unitType = c.RegisterUnit("general_cgi_key_value", "general", "Console Key=Value", unit_general_cgi_key_value.New, unit_general_cgi_key_value.Image, "")
@@ -99,7 +97,7 @@ Frame size: 4-500 bytes. Default value is 64
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
 
-	unitType = c.RegisterUnit("industrial_modbus", "industrial", "Modbus TCP", unit_modbus.New, unit_modbus.Image, "Modbus TCP")
+	//unitType = c.RegisterUnit("industrial_modbus", "industrial", "Modbus TCP", unit_modbus.New, unit_modbus.Image, "Modbus TCP")
 
 	return &c
 }
@@ -227,7 +225,8 @@ func (c *UnitsSystem) MakeUnitByType(unitType string, dataStorage common_interfa
 	return unit
 }
 
-func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, config string) error {
+func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, config string) (common_interfaces.IUnit, error) {
+	var unit common_interfaces.IUnit
 	nameIsExists := false
 	c.mtx.Lock()
 	for _, s := range c.units {
@@ -238,7 +237,7 @@ func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, confi
 	c.mtx.Unlock()
 
 	if !nameIsExists {
-		unit := c.MakeUnitByType(unitType, c.iDataStorage)
+		unit = c.MakeUnitByType(unitType, c.iDataStorage)
 		if unit != nil {
 			unit.SetId(unitId)
 			unit.SetName(name)
@@ -248,9 +247,9 @@ func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, confi
 			c.units = append(c.units, unit)
 		}
 	} else {
-		return errors.New("unit already exists")
+		return nil, errors.New("unit already exists")
 	}
-	return nil
+	return unit, nil
 }
 
 func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface.UnitStateResponse, error) {

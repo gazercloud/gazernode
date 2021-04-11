@@ -40,6 +40,7 @@ func NewFormEditUser(parent uiinterfaces.Widget, client *client.Client, name str
 	c.txtUnitName.SetReadOnly(true)
 	pRight.AddTextBlockOnGrid(0, 1, "Password:")
 	c.txtPassword = pRight.AddTextBoxOnGrid(1, 1)
+	c.txtPassword.SetIsPassword(true)
 
 	pRight.AddVSpacerOnGrid(0, 10)
 

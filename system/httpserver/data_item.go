@@ -14,7 +14,7 @@ func (c *HttpServer) DataItemList(request []byte) (response []byte, err error) {
 		return
 	}
 
-	resp.UnitValues = c.system.GetItemsValues(req.Items)
+	resp.Items = c.system.GetItemsValues(req.Items)
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -28,7 +28,7 @@ func (c *HttpServer) DataItemListAll(request []byte) (response []byte, err error
 		return
 	}
 
-	resp.UnitValues = c.system.GetAllItems()
+	resp.Items = c.system.GetAllItems()
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -56,7 +56,7 @@ func (c *HttpServer) DataItemHistory(request []byte) (response []byte, err error
 		return
 	}
 
-	resp.ReadResult, err = c.system.ReadHistory(req.Name, req.DTBegin, req.DTEnd)
+	resp.History, err = c.system.ReadHistory(req.Name, req.DTBegin, req.DTEnd)
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return

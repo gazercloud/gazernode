@@ -6,7 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 )
 
-func (c *HttpServer) requestJson(function string, requestText []byte, host string) ([]byte, error) {
+func (c *HttpServer) RequestJson(function string, requestText []byte, host string) ([]byte, error) {
 	var err error
 	var result []byte
 
@@ -115,7 +115,7 @@ func (c *HttpServer) requestJson(function string, requestText []byte, host strin
 		return result, nil
 	}
 
-	logger.Println("Function execution error: ", err, "\r\n", requestText)
+	logger.Println("Function execution error: ", err, "\r\n", function, string(requestText))
 	return nil, err
 }
 

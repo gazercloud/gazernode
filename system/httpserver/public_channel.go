@@ -14,7 +14,9 @@ func (c *HttpServer) PublicChannelList(request []byte) (response []byte, err err
 	}
 
 	resp.Channels, err = c.system.GetCloudChannels()
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -28,7 +30,9 @@ func (c *HttpServer) PublicChannelAdd(request []byte) (response []byte, err erro
 	}
 
 	err = c.system.AddCloudChannel(req.ChannelName)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -42,7 +46,9 @@ func (c *HttpServer) PublicChannelSetName(request []byte) (response []byte, err 
 	}
 
 	err = c.system.EditCloudChannel(req.ChannelId, req.ChannelName)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -56,7 +62,9 @@ func (c *HttpServer) PublicChannelRemove(request []byte) (response []byte, err e
 	}
 
 	err = c.system.RemoveCloudChannel(req.ChannelId)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -70,7 +78,9 @@ func (c *HttpServer) PublicChannelItemAdd(request []byte) (response []byte, err 
 	}
 
 	err = c.system.CloudAddItems(req.Channels, req.Items)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -84,7 +94,9 @@ func (c *HttpServer) PublicChannelItemRemove(request []byte) (response []byte, e
 	}
 
 	err = c.system.CloudRemoveItems(req.Channels, req.Items)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
@@ -98,7 +110,9 @@ func (c *HttpServer) PublicChannelItemsState(request []byte) (response []byte, e
 	}
 
 	resp.UnitValues, err = c.system.GetCloudChannelValues(req.ChannelId)
-
+	if err != nil {
+		return
+	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }

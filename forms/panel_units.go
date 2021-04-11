@@ -290,9 +290,10 @@ func (c *PanelUnits) OnInit() {
 			glfw.SetClipboardString(items[0])
 		}
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
-	/*menuItems.AddItem("Add to chart group ...", func(event *uievents.Event) {
+
+	menuItems.AddItem("Add to chart group ...", func(event *uievents.Event) {
 		c.addSelectedItemsToChartGroup()
-	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.ForeColor()), "")*/
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.ForeColor()), "")
 
 	c.lvItems.SetContextMenu(menuItems)
 	c.lvItems.OnSelectionChanged = func() {
@@ -762,9 +763,13 @@ func (c *PanelUnits) addSelectedItemsToCloud() {
 }
 
 func (c *PanelUnits) addSelectedItemsToChartGroup() {
-	f := NewFormAddToChartGroup(c, c.client, c.SelectedItems(), c.AllItems())
-	f.ShowDialog()
-	f.OnAccept = func() {
+	if len(c.SelectedItems()) > 0 {
+		f := NewFormAddToChartGroup(c, c.client, c.SelectedItems(), c.AllItems())
+		f.ShowDialog()
+		f.OnAccept = func() {
+			MainFormInstance.currentNodeWidget.btnPanelCharts.Press()
+			MainFormInstance.currentNodeWidget.panelCharts.SelectChartGroup(c.SelectedItems()[0])
+		}
 	}
 }
 

@@ -205,7 +205,9 @@ func (c *BinClient) thConn() {
 			if len(c.addr) > 0 {
 				var err error
 				var conn net.Conn
-				conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1}, "tcp", c.addr, &tls.Config{})
+				//conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1}, "tcp", c.addr, &tls.Config{})
+				conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1}, "tcp", c.addr, &tls.Config{InsecureSkipVerify: true})
+
 				if err != nil {
 					c.lastError = err
 					c.conn = nil

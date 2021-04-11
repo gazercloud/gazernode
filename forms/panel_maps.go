@@ -53,7 +53,8 @@ type PanelMaps struct {
 
 	ToolBox *simplemap.MapToolbox
 
-	mapWidget_ *simplemap.MapWidget
+	mapWidget_          *simplemap.MapWidget
+	txtHeaderChartGroup *uicontrols.TextBlock
 
 	panelRight       *uicontrols.Panel
 	propertiesEditor *simplemap.PropertiesEditor
@@ -141,7 +142,12 @@ func (c *PanelMaps) OnInit() {
 
 	pButtons.AddHSpacerOnGrid(5, 0)
 
-	pMapButtons := c.splitter.Panel2.AddPanelOnGrid(0, 0)
+	pHeader := c.splitter.Panel2.AddPanelOnGrid(0, 0)
+	pHeader.SetPanelPadding(0)
+	c.txtHeaderChartGroup = pHeader.AddTextBlockOnGrid(0, 0, "")
+	c.txtHeaderChartGroup.SetFontSize(24)
+
+	pMapButtons := c.splitter.Panel2.AddPanelOnGrid(0, 1)
 	c.btnEdit = pMapButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
 		if c.IsLoaded() {
 			c.splitter.SetLeftCollapsed(true)
@@ -253,7 +259,7 @@ func (c *PanelMaps) OnInit() {
 	})
 	c.btnZoomInContainer.SetTooltip("Show All")
 
-	c.panelMapDocument = c.splitter.Panel2.AddPanelOnGrid(0, 1)
+	c.panelMapDocument = c.splitter.Panel2.AddPanelOnGrid(0, 2)
 	//c.splitter.Panel2.AddWidgetOnGrid(c.mapWidget, 0, 1)
 
 	///////////////////
@@ -323,6 +329,7 @@ func (c *PanelMaps) OnInit() {
 	c.loadMaps()
 	c.updateButtons()
 	c.SetEdit(false)
+	c.loadSelected()
 }
 
 func (c *PanelMaps) Dispose() {
@@ -403,9 +410,11 @@ func (c *PanelMaps) SelectMap(resId string) {
 func (c *PanelMaps) loadSelected() {
 	selectedItem := c.lvItems.SelectedItem()
 	if selectedItem != nil {
+		c.txtHeaderChartGroup.SetText(selectedItem.Value(0))
 		resId := selectedItem.TempData
 		c.openMap(resId)
 	} else {
+		c.txtHeaderChartGroup.SetText("no map selected")
 		c.Load("", nil)
 		c.SetCurrentRes("", "")
 	}

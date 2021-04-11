@@ -86,6 +86,24 @@ func NewWidgetItemHistory(parent uiinterfaces.Widget, client *client.Client) *Wi
 	return &c
 }
 
+func (c *WidgetItemHistory) Dispose() {
+	c.client = nil
+	if c.timer != nil {
+		c.timer.StopTimer()
+		c.Window().RemoveTimer(c.timer)
+		c.timer = nil
+	}
+
+	c.loadedItems = nil
+	c.loadedItemsMap = nil
+	c.timeFilter = nil
+	c.lvItems = nil
+	c.chkAutoscroll = nil
+	c.lblStatistics = nil
+
+	c.Panel.Dispose()
+}
+
 func (c *WidgetItemHistory) SetItem(itemName string) {
 	c.itemName = itemName
 	c.timeFilterChanged()

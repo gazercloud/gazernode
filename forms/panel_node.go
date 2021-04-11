@@ -4,6 +4,7 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/local_user_storage"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -73,6 +74,18 @@ func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionI
 		conn.SessionToken = c.client.SessionToken()
 		local_user_storage.Instance().SetConnection(c.connectionIndex, conn)
 		c.FullRefresh()
+
+		if MainFormInstance.currentNodeWidget == &c {
+			c.client.ListOfUnits(func(items []nodeinterface.UnitListResponseItem, err error) {
+				if len(items) == 0 {
+					dialog := NewFormWizard(&c, c.client)
+					dialog.ShowDialog()
+					dialog.OnAccept = func() {
+						c.FullRefresh()
+					}
+				}
+			})
+		}
 	}
 
 	c.client.OnSessionClose = func() {

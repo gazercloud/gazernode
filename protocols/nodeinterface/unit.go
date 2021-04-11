@@ -5,6 +5,7 @@ import "github.com/gazercloud/gazernode/common_interfaces"
 type UnitAddRequest struct {
 	UnitType string `json:"type"`
 	UnitName string `json:"name"`
+	Config   string `json:"config"`
 }
 
 type UnitAddResponse struct {

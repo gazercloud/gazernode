@@ -57,11 +57,6 @@ func NewServiceDialog(parent uiinterfaces.Widget, cl *client.Client) *ServiceDia
 	pContent.AddVSpacerOnGrid(0, 1)
 
 	pButtons := c.ContentPanel().AddPanelOnGrid(0, 2)
-	btnPoweredBy := pButtons.AddButtonOnGrid(0, 0, "Powered by open-source software", func(event *uievents.Event) {
-		formPoweredBy := NewFormPoweredBy(&c)
-		formPoweredBy.ShowDialog()
-	})
-	btnPoweredBy.SetMinWidth(70)
 
 	pButtons.AddHSpacerOnGrid(1, 0)
 

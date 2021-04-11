@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/system"
@@ -109,13 +110,22 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var responseText []byte
 	requestJson := r.FormValue("rj")
-	function := r.FormValue("func")
+	function := r.FormValue("fn")
+
+	//logger.Println(function)
 
 	if r.Method == "POST" {
-		//body, err := ioutil.ReadAll(r.Body)
-		//logger.Println("ParseMultipartForm: ", err, body)
-		//requestJson = string(body)
+		if err := r.ParseMultipartForm(1000000); err != nil {
+			fmt.Fprintf(w, "ParseForm() err: %v", err)
+			return
+		}
+		requestJson = r.FormValue("rj")
+		function = r.FormValue("fn")
 	}
+
+	//if strings.Contains(function, "session") {
+	//logger.Println("function", function, "request", requestJson)
+	//}
 
 	if len(function) > 0 {
 		var sessionToken string
@@ -133,7 +143,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err == nil {
-			responseText, err = c.requestJson(function, []byte(requestJson), r.RemoteAddr)
+			responseText, err = c.RequestJson(function, []byte(requestJson), r.RemoteAddr)
 		}
 
 		if function == nodeinterface.FuncSessionOpen && err == nil {
@@ -216,30 +226,43 @@ func (c *HttpServer) contentTypeByExt(ext string) string {
 }
 
 func (c *HttpServer) processFile(w http.ResponseWriter, r *http.Request) {
+	c.file(w, r, r.URL.Path)
+}
+
+func (c *HttpServer) file(w http.ResponseWriter, r *http.Request, urlPath string) {
 	var err error
 	var fileContent []byte
 	var writtenBytes int
 
 	realIP := getRealAddr(r)
+
 	logger.Println("Real IP: ", realIP)
 	logger.Println("HttpServer processFile: ", r.URL.String())
-	URL := *r.URL
 
-	if URL.Path == "/" || URL.Path == "" {
-		URL.Path = "/index.html"
+	if urlPath == "/" || urlPath == "" {
+		urlPath = "/index.html"
 	}
 
-	//fileContent, err = httpdata.Asset("www" + URL.Path)
+	demo := false
 
-	//fileContent, err = ioutil.ReadFile(url)
-	fileContent = []byte("GAZER")
+	url, err := c.fullpath(urlPath, demo)
 
-	if strings.Contains(URL.Path, "light") {
-		fileContent, _ = ioutil.ReadFile("d:\\2\\index.html")
+	logger.Println("FullPath: " + url)
+
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	fileContent, err = ioutil.ReadFile(url)
+
+	ext := filepath.Ext(url)
+	if ext == ".html" {
+		fileContent = c.processTemplate(fileContent, demo)
 	}
 
 	if err == nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Content-Type", c.contentTypeByExt(filepath.Ext(url)))
 		writtenBytes, err = w.Write(fileContent)
 		if err != nil {
 			logger.Println("HttpServer sendError w.Write error:", err)

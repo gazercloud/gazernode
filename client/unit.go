@@ -25,11 +25,12 @@ func (c *Client) ListOfUnits(f func([]nodeinterface.UnitListResponseItem, error)
 	go c.thCall(&call)
 }
 
-func (c *Client) AddUnit(unitType string, unitName string, f func(string, error)) {
+func (c *Client) AddUnit(unitType string, unitName string, config string, f func(string, error)) {
 	var call Call
 	var req nodeinterface.UnitAddRequest
 	req.UnitType = unitType
 	req.UnitName = unitName
+	req.Config = config
 	call.function = nodeinterface.FuncUnitAdd
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {

@@ -5,7 +5,6 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/gazercloud/gazerui/coreforms"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
@@ -14,14 +13,15 @@ import (
 
 type FormUnitEdit struct {
 	uicontrols.Dialog
-	unitId    string
-	unitType  string
-	client    *client.Client
-	panelName *uicontrols.Panel
-	txtHelp   *uicontrols.TextBlock
-	txtName   *uicontrols.TextBox
-	configObj interface{}
-	help      string
+	unitId       string
+	unitType     string
+	unitTypeName string
+	client       *client.Client
+	panelName    *uicontrols.Panel
+	txtHelp      *uicontrols.TextBlock
+	txtName      *uicontrols.TextBox
+	configObj    interface{}
+	help         string
 }
 
 func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId string, unitType string) *FormUnitEdit {
@@ -59,21 +59,15 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 					c.TryAccept = nil
 					c.Accept()
 				} else {
-					//c.txtError.SetText(err.Error())
+					uicontrols.ShowInformationMessage(c.ContentPanel(), err.Error(), "error")
 				}
 			})
 		} else {
-			c.client.AddUnit(c.unitType, c.txtName.Text(), func(unitId string, err error) {
+			configBytes, _ := json.MarshalIndent(c.configObj, "", "")
+			c.client.AddUnit(c.unitType, c.txtName.Text(), string(configBytes), func(unitId string, err error) {
 				if err == nil {
-					b, _ := json.MarshalIndent(c.configObj, "", "")
-					c.client.SetUnitConfig(unitId, c.txtName.Text(), string(b), func(err error) {
-						if err == nil {
-							c.TryAccept = nil
-							c.Accept()
-						} else {
-							//c.txtError.SetText(err.Error())
-						}
-					})
+					c.TryAccept = nil
+					c.Accept()
 				} else {
 					uicontrols.ShowInformationMessage(c.ContentPanel(), err.Error(), "error")
 				}
@@ -89,7 +83,7 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 	makeHelpButton := func(panel *uicontrols.Panel) {
 		c.txtHelp = panel.AddTextBlockOnGrid(2, 0, "Help")
 		c.txtHelp.OnClick = func(ev *uievents.Event) {
-			dialog := coreforms.NewMultilineEditor(&c, c.help)
+			dialog := NewFormHelp(&c, c.unitTypeName, c.help)
 			dialog.Resize(900, 500)
 			dialog.ShowDialog()
 		}
@@ -121,6 +115,7 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 					for _, ut := range types.Types {
 						if ut.Type == unitType {
 							c.help = ut.Help
+							c.unitTypeName = ut.DisplayName
 						}
 					}
 				})
@@ -142,19 +137,20 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 				pRight.AddWidgetOnGrid(pan, 0, 1)
 				makeHelpButton(c.panelName)
 			}
+
+			c.client.UnitTypes("", "", 0, 10000000, func(types nodeinterface.UnitTypeListResponse, err error) {
+				for _, ut := range types.Types {
+					if ut.Type == unitType {
+						c.help = ut.Help
+						c.unitTypeName = ut.DisplayName
+					}
+				}
+			})
 		})
 	}
 
 	c.OnShow = func() {
 	}
-
-	c.client.UnitTypes("", "", 0, 10000000, func(types nodeinterface.UnitTypeListResponse, err error) {
-		for _, ut := range types.Types {
-			if ut.Type == c.unitType {
-				c.help = ut.Help
-			}
-		}
-	})
 
 	return &c
 }

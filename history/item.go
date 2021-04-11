@@ -1,7 +1,7 @@
 package history
 
 import (
-	"encoding/json"
+	"encoding/binary"
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
@@ -59,7 +59,7 @@ func (c *Item) readFiles(begin int64, end int64) []*common_interfaces.ItemValue 
 	currentDT := begin
 	for currentDT < end+86400*1000000 {
 		dir := c.historyPath() + "/" + time.Unix(0, currentDT*1000).Format("2006-01-02")
-		fullPath := dir + "/" + fmt.Sprintf("%016X", c.id) + ".jis"
+		fullPath := dir + "/" + fmt.Sprintf("%016X", c.id) + ".bin"
 
 		var file *FileCache
 		if _, ok := c.files[fullPath]; !ok {
@@ -72,7 +72,12 @@ func (c *Item) readFiles(begin int64, end int64) []*common_interfaces.ItemValue 
 		result = append(result, file.Read(begin, end)...)
 		currentDT += 86400 * 1000000
 	}
-	//logger.Println("history read files result", len(result))
+	logger.Println("history read files result", len(result))
+
+	if len(result) > 0 {
+		logger.Println("history read files result", len(result))
+	}
+
 	return result
 }
 
@@ -107,10 +112,18 @@ func (c *Item) Flush() FlushResult {
 	items := make([]ItemToWrite, 0)
 	itemsAsObjects := make([]*common_interfaces.ItemValue, 0)
 	for _, item := range c.data {
-		bs, _ := json.Marshal(item)
-		bs = append(bs, []byte("\r\n")...)
 
-		items = append(items, ItemToWrite{DT: time.Unix(0, item.DT*1000), data: bs})
+		itemBinary := make([]byte, 1+1+8+1+len(item.Value)+1+len(item.UOM)+1)
+		itemBinary[0] = 0xAA
+		itemBinary[1] = byte(1 + 1 + 8 + 1 + len(item.Value) + 1 + len(item.UOM) + 1)
+		binary.LittleEndian.PutUint64(itemBinary[1+1:], uint64(item.DT))
+		itemBinary[1+1+8] = byte(len(item.Value))
+		copy(itemBinary[1+1+8+1:], item.Value)
+		itemBinary[1+1+8+1+len(item.Value)] = byte(len(item.UOM))
+		copy(itemBinary[1+1+8+1+len(item.Value)+1:], item.UOM)
+		itemBinary[1+1+8+1+len(item.Value)+1+len(item.UOM)] = 0x55
+
+		items = append(items, ItemToWrite{DT: time.Unix(0, item.DT*1000), data: itemBinary})
 		itemsAsObjects = append(itemsAsObjects, item)
 	}
 	c.data = make([]*common_interfaces.ItemValue, 0)
@@ -121,7 +134,7 @@ func (c *Item) Flush() FlushResult {
 	for index, item := range items {
 		dir := c.historyPath() + "/" + item.DT.Format("2006-01-02")
 		if dir != currentDir {
-			fullPath := dir + "/" + fmt.Sprintf("%016X", c.id) + ".jis"
+			fullPath := dir + "/" + fmt.Sprintf("%016X", c.id) + ".bin"
 			if f != nil {
 				_ = f.Close()
 				currentDir = ""

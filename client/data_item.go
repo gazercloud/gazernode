@@ -41,7 +41,7 @@ func (c *Client) GetItemsValues(items []string, f func([]common_interfaces.ItemG
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
 		if f != nil {
-			f(resp.UnitValues, err)
+			f(resp.Items, err)
 		}
 	}
 	call.client = c
@@ -60,7 +60,7 @@ func (c *Client) GetAllItems(f func([]common_interfaces.ItemGetUnitItems, error)
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
 		if f != nil {
-			f(resp.UnitValues, err)
+			f(resp.Items, err)
 		}
 	}
 	call.client = c
@@ -82,7 +82,7 @@ func (c *Client) ReadHistory(name string, dtBegin int64, dtEnd int64, f func(*hi
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
 		if f != nil {
-			f(resp.ReadResult, err)
+			f(resp.History, err)
 		}
 	}
 	call.client = c

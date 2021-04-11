@@ -8,11 +8,11 @@ import (
 )
 
 func Name() string {
-	return "gazer_node"
+	return "GazerNode"
 }
 
 func Version() string {
-	return "1.2.5 BETA"
+	return "2.4.1"
 }
 
 func BuildTime() string {

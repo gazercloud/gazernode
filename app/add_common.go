@@ -18,6 +18,7 @@ func start() {
 
 	sys = system.NewSystem()
 	httpServer = httpserver.NewHttpServer(sys)
+	sys.SetRequester(httpServer)
 	sys.Start()
 	httpServer.Start()
 }

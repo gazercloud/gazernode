@@ -10,14 +10,14 @@ type DataItemListRequest struct {
 }
 
 type DataItemListResponse struct {
-	UnitValues []common_interfaces.ItemGetUnitItems
+	Items []common_interfaces.ItemGetUnitItems `json:"items"`
 }
 
 type DataItemListAllRequest struct {
 }
 
 type DataItemListAllResponse struct {
-	UnitValues []common_interfaces.ItemGetUnitItems
+	Items []common_interfaces.ItemGetUnitItems `json:"items"`
 }
 
 type DataItemWriteRequest struct {
@@ -35,5 +35,5 @@ type DataItemHistoryRequest struct {
 }
 
 type DataItemHistoryResponse struct {
-	ReadResult *history.ReadResult
+	History *history.ReadResult `json:"history"`
 }

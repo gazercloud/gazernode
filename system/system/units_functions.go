@@ -7,7 +7,9 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
 	"go.bug.st/serial"
+	"math/rand"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -50,9 +52,13 @@ func (c *System) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
 	return c.unitsSystem.UnitCategories()
 }
 
-func (c *System) AddUnit(unitName string, unitType string) (string, error) {
-	unitId := time.Now().Format("2006-01-02 15-04-05")
-	err := c.unitsSystem.AddUnit(unitType, unitId, unitName, "")
+func (c *System) AddUnit(unitName string, unitType string, config string) (string, error) {
+	unitId := strconv.FormatInt(time.Now().UnixNano(), 16) + "_" + strconv.FormatInt(int64(rand.Int()), 16)
+	unit, err := c.unitsSystem.AddUnit(unitType, unitId, unitName, config)
+	if err != nil {
+		return "", err
+	}
+	err = unit.Start(c)
 	if err != nil {
 		return "", err
 	}
@@ -89,10 +95,12 @@ func (c *System) GetConfigByType(unitType string) (string, string, error) {
 
 func (c *System) SetConfig(unitId string, name string, config string) error {
 	err := c.unitsSystem.SetConfig(unitId, name, config)
+	//logger.Println("system - SetConfig:", unitId, "name:", name, "error:", err)
 	if err != nil {
 		return err
 	}
 	err = c.SaveConfig()
+	//logger.Println("system - SetConfig - save config:", unitId, "name:", name, "error:", err)
 	return err
 }
 
@@ -232,7 +240,7 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		result.AddColumn("id", "Process Id")
 		processes := unit_process.GetProcesses()
 		for _, proc := range processes {
-			result.AddRow2(proc.Name, fmt.Sprint(proc.Id))
+			result.AddRow2(proc.Name+"/"+fmt.Sprint(proc.Id), fmt.Sprint(proc.Id))
 		}
 	}
 	if entity == "network_interface" {

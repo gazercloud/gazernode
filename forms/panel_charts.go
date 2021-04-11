@@ -32,7 +32,8 @@ type PanelCharts struct {
 	btnReject *uicontrols.Button
 	btnSave   *uicontrols.Button
 
-	splitterEditor *uicontrols.SplitContainer
+	txtHeaderChartGroup *uicontrols.TextBlock
+	splitterEditor      *uicontrols.SplitContainer
 
 	timeChart      *widget_chart.WidgetCharts
 	itemsPanel     *widget_dataitems.WidgetDataItems
@@ -117,21 +118,30 @@ func (c *PanelCharts) OnInit() {
 
 	pButtons.AddHSpacerOnGrid(5, 0)
 
-	pMapButtons := splitter.Panel2.AddPanelOnGrid(0, 0)
-	c.btnEdit = pMapButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
+	pHeader := splitter.Panel2.AddPanelOnGrid(0, 0)
+	pHeader.SetPanelPadding(0)
+	c.txtHeaderChartGroup = pHeader.AddTextBlockOnGrid(0, 0, "")
+	c.txtHeaderChartGroup.SetFontSize(24)
+
+	pChartGroupButtons := splitter.Panel2.AddPanelOnGrid(0, 1)
+	pChartGroupButtons.SetPanelPadding(0)
+	c.btnEdit = pChartGroupButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
+		if c.currentResId == "" {
+			return
+		}
 		c.SetEdit(true)
 		c.updateButtons()
 	})
 	c.btnEdit.SetTooltip("Switch to Edit")
 	c.btnEdit.SetMinWidth(70)
-	c.btnReject = pMapButtons.AddButtonOnGrid(1, 0, "", func(event *uievents.Event) {
+	c.btnReject = pChartGroupButtons.AddButtonOnGrid(1, 0, "", func(event *uievents.Event) {
 		c.SetEdit(false)
 		c.loadSelected()
 		c.updateButtons()
 	})
 	c.btnReject.SetTooltip("Reject changes")
 	c.btnReject.SetMinWidth(70)
-	c.btnSave = pMapButtons.AddButtonOnGrid(2, 0, "", func(event *uievents.Event) {
+	c.btnSave = pChartGroupButtons.AddButtonOnGrid(2, 0, "", func(event *uievents.Event) {
 		if c.currentResId != "" {
 			c.client.ResSet(c.currentResId, nil, c.Save(), func(err error) {
 				c.SetEdit(false)
@@ -142,13 +152,14 @@ func (c *PanelCharts) OnInit() {
 	c.btnSave.SetTooltip("Save")
 	c.btnSave.SetMinWidth(70)
 
-	pMapButtons.AddHSpacerOnGrid(3, 0)
+	pChartGroupButtons.AddHSpacerOnGrid(3, 0)
 
-	c.splitterEditor = splitter.Panel2.AddSplitContainerOnGrid(0, 1)
+	c.splitterEditor = splitter.Panel2.AddSplitContainerOnGrid(0, 2)
 	c.splitterEditor.SetYExpandable(true)
 
 	c.timeChart = widget_chart.NewWidgetCharts(c, c.client)
 	c.splitterEditor.Panel1.AddWidgetOnGrid(c.timeChart, 0, 1)
+	c.splitterEditor.Panel1.SetPanelPadding(0)
 
 	c.timeChart.SetOnChartContextMenuNeed(func(timeChart *timechart.TimeChart, area *timechart.Area, areaIndex int) uiinterfaces.Menu {
 		var m *uicontrols.PopupMenu
@@ -234,6 +245,7 @@ func (c *PanelCharts) OnInit() {
 	c.loadChartGroups("")
 	c.SetEdit(false)
 	c.updateButtons()
+	c.loadSelected()
 }
 
 func (c *PanelCharts) Dispose() {
@@ -256,6 +268,7 @@ func (c *PanelCharts) SelectChartGroup(resId string) {
 		item := c.lvItems.Item(i)
 		if item.TempData == resId {
 			c.lvItems.SelectItem(i)
+			c.loadSelected()
 			break
 		}
 	}
@@ -294,6 +307,7 @@ func (c *PanelCharts) Save() []byte {
 func (c *PanelCharts) loadSelected() {
 	selectedItem := c.lvItems.SelectedItem()
 	if selectedItem != nil {
+		c.txtHeaderChartGroup.SetText(selectedItem.Value(0))
 		resId := selectedItem.TempData
 		c.client.ResGet(resId, func(item *common_interfaces.ResourcesItem, err error) {
 			if err == nil {
@@ -303,7 +317,7 @@ func (c *PanelCharts) loadSelected() {
 			}
 		})
 	} else {
-
+		c.txtHeaderChartGroup.SetText("no chart group selected")
 		if c.SetCurrentRes("", "") {
 			c.timeChart.Load([]byte(""))
 		}
@@ -333,14 +347,21 @@ func (c *PanelCharts) SetCurrentRes(resId string, resType string) bool {
 }
 
 func (c *PanelCharts) updateButtons() {
-	if c.IsEditing() {
-		c.btnEdit.SetVisible(false)
-		c.btnReject.SetVisible(true)
-		c.btnSave.SetVisible(true)
-	} else {
-		c.btnEdit.SetVisible(true)
+	if c.currentResId == "" {
+		c.btnEdit.SetEnabled(false)
 		c.btnReject.SetVisible(false)
 		c.btnSave.SetVisible(false)
+	} else {
+		if c.IsEditing() {
+			c.btnEdit.SetVisible(false)
+			c.btnReject.SetVisible(true)
+			c.btnSave.SetVisible(true)
+		} else {
+			c.btnEdit.SetEnabled(true)
+			c.btnEdit.SetVisible(true)
+			c.btnReject.SetVisible(false)
+			c.btnSave.SetVisible(false)
+		}
 	}
 }
 

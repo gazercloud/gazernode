@@ -105,7 +105,7 @@ func (c *Client) thCall(call *Call) {
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 	{
-		fw, _ := writer.CreateFormField("func")
+		fw, _ := writer.CreateFormField("fn")
 		fw.Write([]byte(call.function))
 	}
 	{
@@ -131,10 +131,15 @@ func (c *Client) thCall(call *Call) {
 		call.err = errors.New("no connection to " + c.address)
 		logger.Println(err)
 	} else {
-		content, _ := ioutil.ReadAll(response.Body)
-		call.response = strings.TrimSpace(string(content))
-		AddStatReceived(len(call.response))
-		response.Body.Close()
+		var content []byte
+		content, err = ioutil.ReadAll(response.Body)
+		if err == nil {
+			call.response = strings.TrimSpace(string(content))
+			AddStatReceived(len(call.response))
+			response.Body.Close()
+		} else {
+			call.err = err
+		}
 
 		type ErrorContainer struct {
 			Error string `json:"error"`

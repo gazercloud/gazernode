@@ -8,16 +8,16 @@ type ItemValue struct {
 }
 
 type Item struct {
-	Id     uint64
-	UnitId string
-	Name   string
-	Value  ItemValue
+	Id     uint64    `json:"id"`
+	UnitId string    `json:"unit_id"`
+	Name   string    `json:"name"`
+	Value  ItemValue `json:"value"`
 }
 
 type ItemGetUnitItems struct {
 	Item
-	CloudChannels      []string
-	CloudChannelsNames []string
+	CloudChannels      []string `json:"cloud_channels"`
+	CloudChannelsNames []string `json:"cloud_channels_names"`
 }
 
 func NewItem() *Item {
