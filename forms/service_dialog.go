@@ -37,7 +37,7 @@ func NewServiceDialog(parent uiinterfaces.Widget, cl *client.Client) *ServiceDia
 
 	pRight := pContent.AddPanelOnGrid(1, 0)
 	pRight.AddTextBlockOnGrid(0, 0, "Gazer version "+productinfo.Version())
-	pRight.AddTextBlockOnGrid(0, 1, "Copyright (c) Poluianov Ivan, 2020")
+	pRight.AddTextBlockOnGrid(0, 1, "Copyright (c) Poluianov Ivan, 2020-2021")
 	txtEMail := pRight.AddTextBlockOnGrid(0, 2, "eMail: "+eMailAddress)
 	txtEMail.OnClick = func(ev *uievents.Event) {
 		client.OpenBrowser("mailto:" + eMailAddress)
