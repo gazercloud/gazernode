@@ -10,7 +10,6 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
-	"time"
 )
 
 type FormUnitEdit struct {
@@ -185,7 +184,7 @@ type ConfigForName struct {
 }
 
 func (c *FormUnitEdit) onConfigChanged() {
-	c.SetTitle("Edit unit " + time.Now().String())
+	//c.SetTitle("Edit unit " + time.Now().String())
 	if c.chkAutoName.IsChecked() {
 		propName := ""
 		if c.configMetaObj != nil {

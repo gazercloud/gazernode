@@ -8,6 +8,7 @@ type Value struct {
 	MinValue      float64
 	MaxValue      float64
 	AvgValue      float64
+	CountOfValues int
 	Qualities     []int64
 	Loaded        bool
 }
