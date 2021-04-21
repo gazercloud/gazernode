@@ -88,3 +88,26 @@ func (c *Client) ReadHistory(name string, dtBegin int64, dtEnd int64, f func(*hi
 	call.client = c
 	go c.thCall(&call)
 }
+
+func (c *Client) ReadHistoryChart(name string, dtBegin int64, dtEnd int64, groupTimeRange int64, f func(*nodeinterface.DataItemHistoryChartResponse, error)) {
+	var call Call
+	var req nodeinterface.DataItemHistoryChartRequest
+	req.Name = name
+	req.DTBegin = dtBegin
+	req.DTEnd = dtEnd
+	req.GroupTimeRange = groupTimeRange
+	call.function = nodeinterface.FuncDataItemHistoryChart
+	call.request, _ = json.MarshalIndent(req, "", " ")
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.DataItemHistoryChartResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(&resp, err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}

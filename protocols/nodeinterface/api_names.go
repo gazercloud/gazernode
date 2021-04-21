@@ -18,10 +18,11 @@ const (
 	FuncUnitGetConfig   = "unit_get_config"
 
 	// *** Data Item ***
-	FuncDataItemList    = "data_item_list"
-	FuncDataItemListAll = "data_item_list_all"
-	FuncDataItemWrite   = "data_item_write"
-	FuncDataItemHistory = "data_item_history"
+	FuncDataItemList         = "data_item_list"
+	FuncDataItemListAll      = "data_item_list_all"
+	FuncDataItemWrite        = "data_item_write"
+	FuncDataItemHistory      = "data_item_history"
+	FuncDataItemHistoryChart = "data_item_history_chart"
 
 	// *** Public Channel ***
 	FuncPublicChannelList       = "public_channel_list"

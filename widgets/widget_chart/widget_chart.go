@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/timechart"
 	"github.com/gazercloud/gazernode/widgets/widget_time_filter"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -14,7 +13,6 @@ import (
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiproperties"
 	"sort"
-	"strconv"
 	"time"
 )
 
@@ -292,6 +290,21 @@ func AlignGroupTimeRange(groupTimeRange int64) int64 {
 	return groupTimeRange
 }
 
+func (c *DocumentChartItem) GetLoadingDiapasons() []timechart.LoadingDiapason {
+	result := make([]timechart.LoadingDiapason, 0)
+
+	for _, values := range c.values {
+		for _, r := range values.loadingRanges {
+			var diapason timechart.LoadingDiapason
+			diapason.MinTime = r.timeFrom
+			diapason.MaxTime = r.timeTo
+			result = append(result, diapason)
+		}
+	}
+
+	return result
+}
+
 func (c *DocumentChartItem) GetData(key string, minTime, maxTime int64, groupTimeRange int64) []*timechart.Value {
 
 	groupTimeRange = AlignGroupTimeRange(groupTimeRange)
@@ -366,99 +379,25 @@ func (c *DocumentChartValues) GetData(minTime, maxTime int64) []*timechart.Value
 func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
 	//logger.Println("DocumentChartValues requestHistory sec:", (task.timeTo-task.timeFrom)/1000000, " q size: ", len(c.loadingRanges))
 
-	c.client.ReadHistory(c.name, task.timeFrom, task.timeTo, func(result *history.ReadResult, err error) {
+	c.client.ReadHistoryChart(c.name, task.timeFrom, task.timeTo, c.groupTimeRange, func(result *nodeinterface.DataItemHistoryChartResponse, err error) {
 		logger.Println("client ReadHistory ", c.groupTimeRange)
 		if err == nil {
-			resultItems := make([]*timechart.Value, 0)
 			if result != nil {
-				{
+				resultItems := make([]*timechart.Value, len(result.Items))
 
-					rawValues := make([]*common_interfaces.ItemValue, 0)
-					rawValuesGroupIndex := make([]int64, 0)
-
-					for _, item := range result.Items {
-						rawValues = append(rawValues, item)
-						groupIndex := (item.DT - result.DTBegin) / c.groupTimeRange
-						rawValuesGroupIndex = append(rawValuesGroupIndex, groupIndex)
+				for index, item := range result.Items {
+					resultItems[index] = &timechart.Value{
+						DatetimeFirst: item.DatetimeFirst,
+						DatetimeLast:  item.DatetimeLast,
+						FirstValue:    item.FirstValue,
+						LastValue:     item.LastValue,
+						MinValue:      item.MinValue,
+						MaxValue:      item.MaxValue,
+						AvgValue:      item.AvgValue,
+						CountOfValues: item.CountOfValues,
+						Qualities:     item.Qualities,
+						Loaded:        false,
 					}
-
-					lastGroupIndex := int64(-1)
-					var currentValueRange *timechart.Value
-
-					for index := range rawValuesGroupIndex {
-						r := rawValues[index]
-						valudValue := false
-
-						if lastGroupIndex != rawValuesGroupIndex[index] {
-							if currentValueRange != nil {
-								resultItems = append(resultItems, currentValueRange)
-								currentValueRange = nil
-							}
-							lastGroupIndex = rawValuesGroupIndex[index]
-						}
-
-						if currentValueRange == nil {
-							currentValueRange = &timechart.Value{}
-							currentValueRange.DatetimeFirst = r.DT - (r.DT % c.groupTimeRange)
-							currentValueRange.DatetimeLast = r.DT - (r.DT % c.groupTimeRange) + c.groupTimeRange - 1
-							currentValueRange.Qualities = make([]int64, 0)
-							currentValueRange.MinValue = 1000000000000
-							currentValueRange.MaxValue = -1000000000000
-							currentValueRange.AvgValue = 0
-							currentValueRange.FirstValue = 0
-							currentValueRange.LastValue = 0
-						}
-
-						if r.UOM != "error" {
-							valueAsFloat, err := strconv.ParseFloat(r.Value, 64)
-							if err == nil {
-								valudValue = true
-
-								if valueAsFloat < currentValueRange.MinValue {
-									currentValueRange.MinValue = valueAsFloat
-								}
-								if valueAsFloat > currentValueRange.MaxValue {
-									currentValueRange.MaxValue = valueAsFloat
-								}
-								currentValueRange.AvgValue += valueAsFloat
-								if currentValueRange.CountOfValues > 0 {
-									currentValueRange.AvgValue /= 2
-								}
-
-								if currentValueRange.CountOfValues == 0 {
-									currentValueRange.FirstValue = valueAsFloat
-								}
-
-								currentValueRange.LastValue = valueAsFloat
-
-								currentValueRange.CountOfValues++
-							}
-						}
-
-						if r.UOM != "error" && valudValue {
-							foundGood := false
-							for _, q := range currentValueRange.Qualities {
-								if q == 192 {
-									foundGood = true
-								}
-							}
-							if !foundGood {
-								currentValueRange.Qualities = append(currentValueRange.Qualities, 192)
-							}
-						} else {
-							foundBad := false
-							for _, q := range currentValueRange.Qualities {
-								if q == 0 {
-									foundBad = true
-								}
-							}
-							if !foundBad {
-								currentValueRange.Qualities = append(currentValueRange.Qualities, 0)
-							}
-						}
-
-					}
-
 				}
 
 				// Apply incoming data
@@ -489,47 +428,59 @@ func (c *DocumentChartValues) checkValues(timeFrom, timeTo int64) {
 		}
 	}
 
-	// Part of data already loaded
+	type NeedToLoad struct {
+		timeFrom, timeTo int64
+	}
+	needToLoad := make([]NeedToLoad, 0)
+
+	workFrom := int64(timeFrom)
+
 	for _, rng := range c.loadedRanges {
+		if rng.timeFrom > timeTo {
+			break
+		}
+
+		if rng.timeFrom > workFrom {
+			needToLoad = append(needToLoad, NeedToLoad{
+				timeFrom: workFrom,
+				timeTo:   rng.timeFrom,
+			})
+		}
+		workFrom = rng.timeTo
+	}
+
+	if timeTo > workFrom {
+		needToLoad = append(needToLoad, NeedToLoad{
+			timeFrom: workFrom,
+			timeTo:   timeTo,
+		})
+	}
+
+	// Part of data already loaded
+	/*for _, rng := range c.loadedRanges {
 		if timeFrom >= rng.timeFrom && timeFrom <= rng.timeTo {
 			timeFrom = rng.timeTo + 1
 			break
 		}
-	}
+	}*/
 
-	// Already loading
-	for _, rng := range c.loadingRanges {
-		if timeFrom == rng.timeFrom && timeTo == rng.timeTo {
-			return
+	for _, r := range needToLoad {
+		// Already loading
+		for _, rng := range c.loadingRanges {
+			if r.timeFrom == rng.timeFrom && r.timeTo == rng.timeTo {
+				return
+			}
 		}
-	}
 
-	// Make task for loading
-	/*if timeTo - timeFrom > 3600000000 {
-		for t := timeFrom; t < timeTo; t += 3600000000 {
-			tBegin := t
-			tEnd := t + 3600000000
-			if tEnd > timeTo {
-				tEnd = timeTo
-			}
-			if tEnd <= tBegin {
-				continue
-			}
+		// Make task for loading
+		if len(c.loadingRanges) < 10 {
 			var task LoadingTask
-			task.timeFrom = tBegin
-			task.timeTo = tEnd
+			task.timeFrom = r.timeFrom
+			task.timeTo = r.timeTo
 			c.loadingRanges = append(c.loadingRanges, &task)
 			c.requestHistory(&task)
 		}
-	} else {*/
-	if len(c.loadingRanges) < 2 {
-		var task LoadingTask
-		task.timeFrom = timeFrom
-		task.timeTo = timeTo
-		c.loadingRanges = append(c.loadingRanges, &task)
-		c.requestHistory(&task)
 	}
-	//}
 }
 
 func (c *DocumentChartValues) insertValues(readResult []*timechart.Value, timeFrom, timeTo int64) {
@@ -537,6 +488,7 @@ func (c *DocumentChartValues) insertValues(readResult []*timechart.Value, timeFr
 	indexOfBeginForDeleteFound := false
 	indexOfEndForDelete := -1
 	indexOfEndForDeleteFound := false
+
 	for index, v := range c.values {
 		if v.DatetimeFirst > timeFrom {
 			indexOfBeginForDelete = index
@@ -559,25 +511,6 @@ func (c *DocumentChartValues) insertValues(readResult []*timechart.Value, timeFr
 	}
 
 	for _, dataItemValue := range readResult {
-		//val := strings.ReplaceAll(dataItemValue.Value, "\n", "")
-		//valueAsFloat, err := strconv.ParseFloat(val, 64)
-		/*if dataItemValue.Value == "" || dataItemValue.UOM == "error" || dataItemValue.UOM == "stopped" {
-			err = errors.New("W")
-		}*/
-
-		/*var v timechart.Value
-		v.DatetimeFirst = dataItemValue.DT
-		v.DatetimeLast = dataItemValue.DT
-		v.FirstValue = valueAsFloat
-		v.LastValue = valueAsFloat
-		v.MinValue = valueAsFloat
-		v.MaxValue = valueAsFloat
-		v.AvgValue = valueAsFloat*/
-		/*if err == nil {
-			dataItemValue.Qualities = []int64{192}
-		} else {
-			dataItemValue.Qualities = []int64{0}
-		}*/
 		c.values = append(c.values, dataItemValue)
 	}
 

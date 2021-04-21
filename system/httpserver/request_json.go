@@ -87,6 +87,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.DataItemWrite(requestText)
 	case nodeinterface.FuncDataItemHistory:
 		result, err = c.DataItemHistory(requestText)
+	case nodeinterface.FuncDataItemHistoryChart:
+		result, err = c.DataItemHistoryChart(requestText)
 
 		// *** Data Item ***
 	case nodeinterface.FuncSessionOpen:

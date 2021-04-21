@@ -56,14 +56,6 @@ func NewTimeFilterWidget(parent uiinterfaces.Widget) *TimeFilterWidget {
 
 	c.pButtons = c.AddPanelOnGrid(0, 0)
 	c.pButtons.SetPanelPadding(0)
-	/*txtBlockLast := pButtons.AddTextBlockOnGrid(0, 0, "Last:")
-	txtBlockLast.TextHAlign = canvas.HAlignRight
-
-	c.AddButton(pButtons.AddButtonOnGrid(1, 0, "1 min", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(2, 0, "5 min", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(3, 0, "10 min", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(4, 0, "30 min", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(5, 0, "60 min", c.rbTimeChecked))*/
 
 	c.pButtons.AddTextBlockOnGrid(0, 0, "Time filter:")
 	c.AddButton(1, "1m", "last1min", "Last 1 minute")
@@ -77,7 +69,7 @@ func NewTimeFilterWidget(parent uiinterfaces.Widget) *TimeFilterWidget {
 	c.AddButton(9, "yesterday", "previous_day", "Previous Day")
 	c.AddButton(10, "custom", "custom", "Custom")
 
-	c.cmbIntervals = c.pButtons.AddComboBoxOnGrid(10, 0)
+	c.cmbIntervals = c.pButtons.AddComboBoxOnGrid(15, 0)
 	c.cmbIntervals.SetMinWidth(170)
 	c.cmbIntervals.SetXExpandable(false)
 	//c.cmbIntervals.SetMaxWidth(200)
@@ -90,54 +82,28 @@ func NewTimeFilterWidget(parent uiinterfaces.Widget) *TimeFilterWidget {
 
 	c.cmbIntervals.AddItem("Current Hour", "current_hour")
 	c.cmbIntervals.AddItem("Current Day", "current_day")
+	c.cmbIntervals.AddItem("Current Week", "current_week")
+	c.cmbIntervals.AddItem("Current Month", "current_month")
+	c.cmbIntervals.AddItem("Current Year", "current_year")
 
 	c.cmbIntervals.AddItem("Previous Hour", "previous_hour")
 	c.cmbIntervals.AddItem("Previous Day", "previous_day")
 	c.cmbIntervals.AddItem("Custom", "custom")
-	c.cmbIntervals.SetVisible(false)
+	//c.cmbIntervals.SetVisible(false)
 
 	c.cmbIntervals.OnCurrentIndexChanged = func(event *uicontrols.ComboBoxEvent) {
 		c.updateCustomDateTime()
 	}
 
-	/*txtBlockCurrent := pButtons.AddTextBlockOnGrid(0, 1, "Current:")
-	txtBlockCurrent.TextHAlign = canvas.HAlignRight
-
-	c.AddButton(pButtons.AddButtonOnGrid(1, 1, "Hour", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(2, 1, "Day", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(3, 1, "Week", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(4, 1, "Month", c.rbTimeChecked))
-	c.AddButton(pButtons.AddButtonOnGrid(5, 1, "Year", c.rbTimeChecked))
-
-	txtBlockPrev := pButtons.AddTextBlockOnGrid(0, 2, "Prev:")
-	txtBlockPrev.TextHAlign = canvas.HAlignRight
-	c.rbTimePrev1Hour = pButtons.AddButtonOnGrid(1, 2, "Hour", c.rbTimeChecked)
-	c.AddButton(c.rbTimePrev1Hour)
-	c.rbTimePrev1Day = pButtons.AddButtonOnGrid(2, 2, "Day", c.rbTimeChecked)
-	c.AddButton(c.rbTimePrev1Day)
-	c.rbTimePrev1Week = pButtons.AddButtonOnGrid(3, 2, "Week", c.rbTimeChecked)
-	c.AddButton(c.rbTimePrev1Week)
-	c.rbTimePrev1Month = pButtons.AddButtonOnGrid(4, 2, "Month", c.rbTimeChecked)
-	c.AddButton(c.rbTimePrev1Month)
-	c.rbTimePrev1Year = pButtons.AddButtonOnGrid(5, 2, "Year", c.rbTimeChecked)
-	c.AddButton(c.rbTimePrev1Year)
-
-
-	c.rbTimeCustom = pCustom.AddButtonOnGrid(0, 0, "Custom", c.rbTimeChecked)
-	c.AddButton(c.rbTimeCustom)*/
-
-	//pCustom := c.AddPanelOnGrid(2, 0)
 	c.dtPickerFrom = c.AddDateTimePickerOnGrid(11, 0)
 	dtFrom := time.Now().Add(-1 * time.Hour)
 	dtFrom = dtFrom.Add(time.Duration(-dtFrom.Nanosecond()))
 	c.dtPickerFrom.SetDateTime(dtFrom)
-	//c.dtPickerFrom.DateTimeChanged = c.rbTimeChecked
 
 	dtTo := time.Now()
 	dtTo = dtTo.Add(time.Duration(-dtTo.Nanosecond()))
 	c.dtPickerTo = c.AddDateTimePickerOnGrid(12, 0)
 	c.dtPickerTo.SetDateTime(dtTo)
-	//c.dtPickerTo.DateTimeChanged = c.rbTimeChecked
 
 	c.AddHSpacerOnGrid(13, 0)
 

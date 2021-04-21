@@ -87,9 +87,18 @@ func (c *HorizontalScale) Dispose() {
 func (c *HorizontalScale) Draw(ctx ui.DrawContext, xOffset int, yOffset int, width int) {
 	c.width = width
 
+	dateTextWidth := 100
+
 	textWidth, _, _ := canvas.MeasureText("Roboto", 10, false, false, "2006-01-02", false)
 	countOfValues := width / textWidth
 	countOfValues /= 2
+
+	displayDatesBlocks := true
+	countOfDays := (c.displayMax_ - c.displayMin_) / (24 * 3600 * 1000000)
+	maxCountOfDaysForDisplay := int64(width / dateTextWidth)
+	if countOfDays > maxCountOfDaysForDisplay {
+		displayDatesBlocks = false
+	}
 
 	beautifulScale := c.getBeautifulScale(c.displayMin_, c.displayMax_, countOfValues, 0)
 	for _, v := range beautifulScale {
@@ -127,13 +136,77 @@ func (c *HorizontalScale) Draw(ctx ui.DrawContext, xOffset int, yOffset int, wid
 		ctx.SetTextAlign(canvas.HAlignCenter, canvas.VAlignTop)
 		ctx.DrawText(xOffset+c.valueToPixel(v)-labelWidth/2, off, labelWidth, 50, timeStr)
 		off += 16
-		ctx.SetColor(colornames.Gray)
-		ctx.SetTextAlign(canvas.HAlignCenter, canvas.VAlignTop)
-		ctx.DrawText(xOffset+c.valueToPixel(v)-labelWidth/2, off, labelWidth, 50, dateStr)
+		if !displayDatesBlocks {
+			ctx.SetColor(colornames.Gray)
+			ctx.SetTextAlign(canvas.HAlignCenter, canvas.VAlignTop)
+			ctx.DrawText(xOffset+c.valueToPixel(v)-labelWidth/2, off, labelWidth, 50, dateStr)
+		}
 		//ctx.DrawText(xOffset+c.valueToPixel(v), yOffset+15, timeStr, "Roboto", 10, colornames.Gray)
 		ctx.SetColor(colornames.Gray)
 		ctx.SetStrokeWidth(1)
 		ctx.DrawLine(xOffset+c.valueToPixel(v), yOffset-5, xOffset+c.valueToPixel(v), yOffset)
+	}
+
+	if displayDatesBlocks {
+		beautifulScaleForDates := c.getBeautifulScaleForDates(c.displayMin_, c.displayMax_)
+		for _, v := range beautifulScaleForDates {
+			date := time.Unix(0, v*1000)
+			off := yOffset + 20
+
+			currentColor := colornames.Gray
+
+			isToday := false
+			dateNow := time.Now()
+			if date.Year() == dateNow.Year() && date.Month() == dateNow.Month() && date.Day() == dateNow.Day() {
+				isToday = true
+			}
+
+			if isToday {
+				currentColor = colornames.Green
+			}
+
+			dateStr := date.Format("2006-01-02")
+			xPos1 := xOffset + c.valueToPixel(v)
+			xPos2 := xOffset + c.valueToPixel(v+24*3600*1000000)
+
+			xPos1Visible := xPos1
+			if xPos1Visible < 0 {
+				xPos1Visible = 0
+			}
+			xPos2Visible := xPos2
+			if xPos2Visible > c.width {
+				xPos2Visible = c.width
+			}
+
+			ctx.SetColor(currentColor)
+			ctx.DrawLine(xPos1+2, off+5, xPos1+2, off+20)
+			ctx.DrawLine(xPos2-2, off+5, xPos2-2, off+20)
+			ctx.DrawLine(xPos1+5, off+13, xPos2-5, off+13)
+
+			dateTextHeight := 50
+			dateTextPosX := xPos1Visible + (xPos2Visible-xPos1Visible)/2 - (dateTextWidth / 2)
+			dateTextPosY := off
+
+			if dateTextPosX+dateTextWidth > c.width {
+				dateTextPosX = c.width - dateTextWidth
+			}
+
+			if dateTextPosX < xPos1 {
+				dateTextPosX = xPos1
+			}
+
+			if dateTextPosX < 0 {
+				dateTextPosX = 0
+			}
+			if dateTextPosX+dateTextWidth > xPos2 {
+				dateTextPosX = xPos2 - dateTextWidth
+			}
+
+			ctx.SetColor(c.timeChart.BackColor())
+			ctx.FillRect(dateTextPosX, dateTextPosY, dateTextWidth, dateTextHeight)
+			ctx.SetColor(currentColor)
+			ctx.DrawText(dateTextPosX, dateTextPosY, dateTextWidth, dateTextHeight, dateStr)
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -144,7 +217,7 @@ func (c *HorizontalScale) Draw(ctx ui.DrawContext, xOffset int, yOffset int, wid
 		ctx.SetStrokeWidth(1)
 		ctx.DrawLine(xHover, 0, xHover, yOffset)
 
-		hoverDateStr := time.Unix(0, c.hoverTime*1000).Format("2006-01-02")
+		hoverDateStr := time.Unix(0, c.hoverTime*1000).Format("2006:01-02")
 		hoverTimeStr := time.Unix(0, c.hoverTime*1000).Format("15:04:05")
 		hoverDateTime := hoverTimeStr + "\r\n" + hoverDateStr
 
@@ -279,6 +352,24 @@ func (c *HorizontalScale) ResetToDefaultRange() {
 	c.displayMax_ = c.defaultDisplayMax_
 }
 
+func (c *HorizontalScale) getBeautifulScaleForDates(min int64, max int64) []int64 {
+	_, timeOffset := time.Now().Zone()
+
+	dates := make([]int64, 0)
+	min += int64(timeOffset) * 1000000
+	max += int64(timeOffset) * 1000000
+
+	min = min - (min % (24 * 3600 * 1000000))
+	max = max + ((24 * 3600 * 1000000) - (max % (24 * 3600 * 1000000)))
+
+	add := int64(24 * 3600 * 1000000)
+	for t := min; t < max; t += add {
+		dates = append(dates, t-int64(timeOffset)*1000000)
+	}
+
+	return dates
+}
+
 func (c *HorizontalScale) getBeautifulScale(min int64, max int64, countOfPoints int, minStep int64) []int64 {
 	var scale []int64
 
@@ -290,6 +381,11 @@ func (c *HorizontalScale) getBeautifulScale(min int64, max int64, countOfPoints 
 		scale = append(scale, min)
 		return scale
 	}
+
+	_, timeOffset := time.Now().Zone()
+
+	min += int64(timeOffset) * 1000000
+	max += int64(timeOffset) * 1000000
 
 	diapason := max - min
 
@@ -315,7 +411,7 @@ func (c *HorizontalScale) getBeautifulScale(min int64, max int64, countOfPoints 
 	// Make points
 	for i := 0; i < countOfPoints; i++ {
 		if newMin < max && newMin > min {
-			scale = append(scale, newMin)
+			scale = append(scale, newMin-int64(timeOffset)*1000000)
 		}
 		newMin += step
 	}

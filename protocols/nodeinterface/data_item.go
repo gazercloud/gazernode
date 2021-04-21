@@ -37,3 +37,28 @@ type DataItemHistoryRequest struct {
 type DataItemHistoryResponse struct {
 	History *history.ReadResult `json:"history"`
 }
+
+type DataItemHistoryChartRequest struct {
+	Name           string `json:"name"`
+	DTBegin        int64  `json:"dt_begin"`
+	DTEnd          int64  `json:"dt_end"`
+	GroupTimeRange int64  `json:"group_time_range"`
+}
+
+type DataItemHistoryChartResponseItem struct {
+	DatetimeFirst int64   `json:"tf"`
+	DatetimeLast  int64   `json:"tl"`
+	FirstValue    float64 `json:"vf"`
+	LastValue     float64 `json:"vl"`
+	MinValue      float64 `json:"vd"`
+	MaxValue      float64 `json:"vu"`
+	AvgValue      float64 `json:"va"`
+	CountOfValues int     `json:"c"`
+	Qualities     []int64
+	HasGood       bool `json:"has_good"`
+	HasBad        bool `json:"has_bad"`
+}
+
+type DataItemHistoryChartResponse struct {
+	Items []*DataItemHistoryChartResponseItem `json:"items"`
+}

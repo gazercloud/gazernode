@@ -211,8 +211,41 @@ func (c *Series) Draw(ctx ui.DrawContext, scaleXOffset int, xOffset int, height 
 	ctx.SetTextAlign(canvas.HAlignLeft, canvas.VAlignTop)
 	ctx.DrawText(xOffset+10, textHeight*index+10, 300, 50, c.id)
 
-	ctx.Load()
+	loadingDiapasons := c.dataProvider.GetLoadingDiapasons()
+	for _, d := range loadingDiapasons {
+		ctx.SetColor(color.RGBA{
+			R: 200,
+			G: 200,
+			B: 0,
+			A: 50,
+		})
+		x1 := hScale.valueToPixel(d.MinTime) + c.verticalScaleWidth()
+		x2 := hScale.valueToPixel(d.MaxTime) + c.verticalScaleWidth()
+		//ctx.FillRect(x1, 0, x2-x1, 5)
+		ii := 0
+		for x := x1; x < x2; x += 10 {
+			ii++
+			if (ii % 2) == 0 {
+				ctx.SetColor(color.RGBA{
+					R: 200,
+					G: 200,
+					B: 0,
+					A: 50,
+				})
+			} else {
+				ctx.SetColor(color.RGBA{
+					R: 100,
+					G: 0,
+					B: 100,
+					A: 50,
+				})
+			}
 
+			ctx.FillRect(x, 0, x+10, 5)
+		}
+	}
+
+	ctx.Load()
 }
 
 func (c *Series) DrawBottomHeader(ctx ui.DrawContext, xOffset int, yOffset int, seriesIndex int, namesLineHeight int) {
