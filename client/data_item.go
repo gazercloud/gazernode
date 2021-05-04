@@ -111,3 +111,23 @@ func (c *Client) ReadHistoryChart(name string, dtBegin int64, dtEnd int64, group
 	call.client = c
 	go c.thCall(&call)
 }
+
+func (c *Client) DataItemRemove(items []string, f func(error)) {
+	var req nodeinterface.DataItemRemoveRequest
+	req.Items = items
+	var call Call
+	call.function = nodeinterface.FuncDataItemRemove
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.DataItemRemoveResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}

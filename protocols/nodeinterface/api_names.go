@@ -10,6 +10,7 @@ const (
 	FuncUnitAdd         = "unit_add"
 	FuncUnitRemove      = "unit_remove"
 	FuncUnitState       = "unit_state"
+	FuncUnitStateAll    = "unit_state_all"
 	FuncUnitItemsValues = "unit_items_values"
 	FuncUnitList        = "unit_list"
 	FuncUnitStart       = "unit_start"
@@ -23,6 +24,7 @@ const (
 	FuncDataItemWrite        = "data_item_write"
 	FuncDataItemHistory      = "data_item_history"
 	FuncDataItemHistoryChart = "data_item_history_chart"
+	FuncDataItemRemove       = "data_item_remove"
 
 	// *** Public Channel ***
 	FuncPublicChannelList       = "public_channel_list"

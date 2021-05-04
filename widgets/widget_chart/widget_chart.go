@@ -380,7 +380,6 @@ func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
 	//logger.Println("DocumentChartValues requestHistory sec:", (task.timeTo-task.timeFrom)/1000000, " q size: ", len(c.loadingRanges))
 
 	c.client.ReadHistoryChart(c.name, task.timeFrom, task.timeTo, c.groupTimeRange, func(result *nodeinterface.DataItemHistoryChartResponse, err error) {
-		logger.Println("client ReadHistory ", c.groupTimeRange)
 		if err == nil {
 			if result != nil {
 				resultItems := make([]*timechart.Value, len(result.Items))

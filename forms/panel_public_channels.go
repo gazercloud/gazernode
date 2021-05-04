@@ -5,7 +5,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/gazer_dictionary"
 	"github.com/gazercloud/gazernode/settings"
-	"github.com/gazercloud/gazernode/system/cloud"
+	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-type PanelCloud struct {
+type PanelPublicChannels struct {
 	uicontrols.Panel
 	client *client.Client
 
@@ -52,15 +52,15 @@ type PanelCloud struct {
 	currentChannelId string
 }
 
-func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelCloud {
-	var c PanelCloud
+func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelPublicChannels {
+	var c PanelPublicChannels
 	c.client = client
 	c.InitControl(parent, &c)
 
 	return &c
 }
 
-func (c *PanelCloud) OnInit() {
+func (c *PanelPublicChannels) OnInit() {
 	//pHeader := c.AddPanelOnGrid(0, 0)
 	//txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Public channels")
 	//txtHeader.SetFontSize(24)
@@ -245,7 +245,7 @@ func (c *PanelCloud) OnInit() {
 	c.loadSelected()
 }
 
-func (c *PanelCloud) Dispose() {
+func (c *PanelPublicChannels) Dispose() {
 	if c.timer != nil {
 		c.timer.StopTimer()
 	}
@@ -274,7 +274,7 @@ func (c *PanelCloud) Dispose() {
 	c.Panel.Dispose()
 }
 
-func (c *PanelCloud) loadSelected() {
+func (c *PanelPublicChannels) loadSelected() {
 	selectedItem := c.lvChannels.SelectedItem()
 	if selectedItem != nil {
 		name := c.lvChannels.SelectedItem().UserData("channelName").(string)
@@ -288,11 +288,11 @@ func (c *PanelCloud) loadSelected() {
 	}
 }
 
-func (c *PanelCloud) FullRefresh() {
+func (c *PanelPublicChannels) FullRefresh() {
 	c.loadChannels()
 }
 
-func (c *PanelCloud) UpdateStyle() {
+func (c *PanelPublicChannels) UpdateStyle() {
 	c.Panel.UpdateStyle()
 
 	activeColor := c.AccentColor()
@@ -326,7 +326,7 @@ func (c *PanelCloud) UpdateStyle() {
 	c.btnRefresh.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, inactiveColor))
 }
 
-func (c *PanelCloud) SetCurrentChannelId(channelId string, name string) {
+func (c *PanelPublicChannels) SetCurrentChannelId(channelId string, name string) {
 	c.lvItems.RemoveItems()
 	if len(channelId) > 0 {
 		c.currentChannelId = channelId
@@ -339,11 +339,11 @@ func (c *PanelCloud) SetCurrentChannelId(channelId string, name string) {
 	}
 }
 
-func (c *PanelCloud) loadChannels() {
+func (c *PanelPublicChannels) loadChannels() {
 	if c.client == nil {
 		return
 	}
-	c.client.GetCloudChannels(func(channels []cloud.ChannelInfo, err error) {
+	c.client.GetCloudChannels(func(channels []public_channel.ChannelInfo, err error) {
 		if c.lvChannels == nil {
 			return
 		}
@@ -357,7 +357,7 @@ func (c *PanelCloud) loadChannels() {
 	})
 }
 
-func (c *PanelCloud) SelectedItems() []string {
+func (c *PanelPublicChannels) SelectedItems() []string {
 	items := make([]string, 0)
 	for _, item := range c.lvItems.SelectedItems() {
 		name := item.TempData
@@ -366,8 +366,8 @@ func (c *PanelCloud) SelectedItems() []string {
 	return items
 }
 
-func (c *PanelCloud) createCloudChannelIfItDoesntExists() {
-	c.client.GetCloudChannels(func(channels []cloud.ChannelInfo, err error) {
+func (c *PanelPublicChannels) createCloudChannelIfItDoesntExists() {
+	c.client.GetCloudChannels(func(channels []public_channel.ChannelInfo, err error) {
 		if err == nil && len(channels) == 0 {
 			var hostName string
 			hostName, err = os.Hostname()
@@ -381,7 +381,7 @@ func (c *PanelCloud) createCloudChannelIfItDoesntExists() {
 	})
 }
 
-func (c *PanelCloud) timerUpdate() {
+func (c *PanelPublicChannels) timerUpdate() {
 	if !c.IsVisible() {
 		return
 	}

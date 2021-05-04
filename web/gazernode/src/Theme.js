@@ -4,9 +4,14 @@ import purple from "@material-ui/core/colors/purple";
 
 const theme = createMuiTheme({
     palette: {
-        primary: green,
-        secondary: purple,
+        primary: {
+            main: '#E30000'
+        },
+        secondary: {
+            main: '#00FF7F'
+        }
     },
+
     status: {
         danger: 'orange',
     },

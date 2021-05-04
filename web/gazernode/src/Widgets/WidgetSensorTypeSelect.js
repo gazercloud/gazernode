@@ -4,10 +4,6 @@ import Paper from "@material-ui/core/Paper";
 import SearchIcon from "@material-ui/icons/Search";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import MemoryIcon from "@material-ui/icons/Memory";
-import ListItemText from "@material-ui/core/ListItemText";
 
 export default function WidgetSensorTypeSelect(props) {
 

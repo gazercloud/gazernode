@@ -5,7 +5,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/settings"
-	"github.com/gazercloud/gazernode/system/cloud"
+	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"io/ioutil"
 )
@@ -13,7 +13,7 @@ import (
 type Config struct {
 	Users      []common_interfaces.User              `json:"users"`
 	Units      []units_common.UnitInfo               `json:"units"`
-	Channels   []cloud.ChannelFullInfo               `json:"channels"`
+	Channels   []public_channel.ChannelFullInfo      `json:"channels"`
 	Items      []common_interfaces.ItemConfiguration `json:"items"`
 	NextItemId uint64                                `json:"next_item_id"`
 }

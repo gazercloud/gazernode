@@ -67,6 +67,16 @@ func NewFormItemProperties(parent uiinterfaces.Widget, client *client.Client, it
 	return &c
 }
 
+func (c *FormItemProperties) Dispose() {
+	c.client = nil
+	c.lvProperties = nil
+	if c.timer != nil {
+		c.Window().RemoveTimer(c.timer)
+		c.timer = nil
+	}
+	c.Dialog.Dispose()
+}
+
 func (c *FormItemProperties) loadProperties() {
 	items := []string{c.itemName}
 	c.client.GetItemsValues(items, func(items []common_interfaces.ItemGetUnitItems, err error) {

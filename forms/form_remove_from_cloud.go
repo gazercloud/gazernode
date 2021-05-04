@@ -2,7 +2,7 @@ package forms
 
 import (
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/system/cloud"
+	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 )
@@ -99,7 +99,7 @@ func NewFormRemoveFromCloud(parent uiinterfaces.Widget, client *client.Client, i
 }
 
 func (c *FormRemoveFromCloud) loadChannels() {
-	c.client.GetCloudChannels(func(channels []cloud.ChannelInfo, err error) {
+	c.client.GetCloudChannels(func(channels []public_channel.ChannelInfo, err error) {
 		c.lvChannels.RemoveItems()
 		for _, s := range channels {
 			lvItem := c.lvChannels.AddItem(s.Id)

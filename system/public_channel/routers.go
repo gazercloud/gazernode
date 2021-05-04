@@ -1,4 +1,4 @@
-package cloud
+package public_channel
 
 import (
 	"github.com/gazercloud/gazernode/logger"

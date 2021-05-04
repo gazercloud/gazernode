@@ -72,11 +72,6 @@ func (c *Item) readFiles(begin int64, end int64) []*common_interfaces.ItemValue 
 		result = append(result, file.Read(begin, end)...)
 		currentDT += 86400 * 1000000
 	}
-	logger.Println("history read files result", len(result))
-
-	if len(result) > 0 {
-		logger.Println("history read files result", len(result))
-	}
 
 	return result
 }

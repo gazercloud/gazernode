@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazerui/ui"
 	"golang.org/x/image/colornames"
 	"image/color"
+	"math"
 )
 
 type Series struct {
@@ -210,6 +211,42 @@ func (c *Series) Draw(ctx ui.DrawContext, scaleXOffset int, xOffset int, height 
 	ctx.SetFontSize(14)
 	ctx.SetTextAlign(canvas.HAlignLeft, canvas.VAlignTop)
 	ctx.DrawText(xOffset+10, textHeight*index+10, 300, 50, c.id)
+
+	if len(c.area.timeChart.selections_) > 0 {
+		// Selection statistics
+		statMinValue := math.MaxFloat64
+		statMaxValue := -math.MaxFloat64
+		statAvgValue := float64(0)
+		statAvgCount := 0
+
+		for i := 0; i < len(c.area.timeChart.selections_); i++ {
+			pSelection := c.area.timeChart.selections_[i]
+			for _, aa := range c.values {
+				if aa.DatetimeFirst >= pSelection.minX && aa.DatetimeLast <= pSelection.maxX {
+					if aa.MaxValue > statMaxValue {
+						statMaxValue = aa.MaxValue
+					}
+					if aa.MinValue < statMinValue {
+						statMinValue = aa.MinValue
+					}
+					statAvgValue += aa.AvgValue
+					statAvgCount++
+				}
+			}
+		}
+
+		statAvgValue = statAvgValue / float64(statAvgCount)
+
+		statYOffset := 0
+
+		statYOffset += 20
+		ctx.DrawText(xOffset+10, textHeight*index+10+statYOffset, 300, 50, "Min: "+fmt.Sprint(statMinValue))
+		statYOffset += 20
+		ctx.DrawText(xOffset+10, textHeight*index+10+statYOffset, 300, 50, "Max: "+fmt.Sprint(statMaxValue))
+		statYOffset += 20
+		ctx.DrawText(xOffset+10, textHeight*index+10+statYOffset, 300, 50, "Avg: "+fmt.Sprint(statAvgValue))
+		statYOffset += 20
+	}
 
 	loadingDiapasons := c.dataProvider.GetLoadingDiapasons()
 	for _, d := range loadingDiapasons {

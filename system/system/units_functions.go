@@ -85,6 +85,27 @@ func (c *System) GetUnitState(unitId string) (nodeinterface.UnitStateResponse, e
 	return unitState, err
 }
 
+func (c *System) GetUnitStateAll() (nodeinterface.UnitStateAllResponse, error) {
+	var err error
+	var result nodeinterface.UnitStateAllResponse
+
+	result, err = c.unitsSystem.GetUnitStateAll()
+	if err != nil {
+		return result, err
+	}
+
+	c.mtx.Lock()
+	for i := range result.Items {
+		if item, ok := c.itemsByName[result.Items[i].MainItem]; ok {
+			result.Items[i].Value = item.Value.Value
+			result.Items[i].UOM = item.Value.UOM
+		}
+	}
+	c.mtx.Unlock()
+
+	return result, err
+}
+
 func (c *System) GetConfig(unitId string) (string, string, string, string, error) {
 	return c.unitsSystem.GetConfig(unitId)
 }
@@ -169,7 +190,7 @@ func (c *System) RemoveItemsOfUnit(unitName string) error {
 	}
 	c.mtx.Unlock()
 
-	c.RemoveItems(itemsToRemove)
+	_ = c.RemoveItems(itemsToRemove)
 
 	return nil
 }

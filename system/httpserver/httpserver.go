@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/repeater_bin_client"
 	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -23,6 +24,9 @@ type HttpServer struct {
 	r        *mux.Router
 	system   *system.System
 	rootPath string
+
+	stopping       bool
+	chCloudChannel chan repeater_bin_client.BinFrameTask
 }
 
 func CurrentExePath() string {
@@ -30,8 +34,9 @@ func CurrentExePath() string {
 	return dir
 }
 
-func NewHttpServer(sys *system.System) *HttpServer {
+func NewHttpServer(sys *system.System, chCloudChannel chan repeater_bin_client.BinFrameTask) *HttpServer {
 	var c HttpServer
+	c.chCloudChannel = chCloudChannel
 	c.rootPath = CurrentExePath() + "/www"
 	c.system = sys
 	return &c
@@ -39,6 +44,8 @@ func NewHttpServer(sys *system.System) *HttpServer {
 
 func (c *HttpServer) Start() {
 	logger.Println("HttpServer start")
+	go c.thRepeaterWorker()
+
 	c.r = mux.NewRouter()
 
 	// API
@@ -152,8 +159,21 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			errSessionOpenResp := json.Unmarshal(responseText, &sessionOpenResponse)
 			if errSessionOpenResp == nil {
 				expiration := time.Now().Add(365 * 24 * time.Hour)
-				cookie := http.Cookie{Name: "session_token", Value: sessionOpenResponse.SessionToken, Expires: expiration}
+				cookie := http.Cookie{Name: "session_token", Path: "/", Value: sessionOpenResponse.SessionToken, Expires: expiration}
 				http.SetCookie(w, &cookie)
+			}
+		}
+
+		if function == nodeinterface.FuncSessionRemove && err == nil {
+			// Set cookie
+			var sessionRemoveRequest nodeinterface.SessionRemoveRequest
+			errSessionOpenResp := json.Unmarshal([]byte(requestJson), &sessionRemoveRequest)
+			if errSessionOpenResp == nil {
+				if sessionRemoveRequest.SessionToken == sessionToken {
+					expiration := time.Now().Add(-365 * 24 * time.Hour)
+					cookie := http.Cookie{Name: "session_token", Path: "/", Value: "", Expires: expiration}
+					http.SetCookie(w, &cookie)
+				}
 			}
 		}
 
@@ -368,4 +388,49 @@ func (c *HttpServer) processTemplate(tmp []byte, demo bool) []byte {
 		tmpString = strings.ReplaceAll(tmpString, reString, string(fileContent))
 	}
 	return []byte(tmpString)
+}
+
+func (c *HttpServer) thRepeaterWorker() {
+	for !c.stopping {
+		var frame repeater_bin_client.BinFrameTask
+		select {
+		case frame = <-c.chCloudChannel:
+			c.processData(frame)
+		case <-time.After(50 * time.Millisecond):
+		}
+	}
+}
+
+func (c *HttpServer) processData(task repeater_bin_client.BinFrameTask) {
+	logger.Println("processData: ", task.Frame.Data)
+
+	bs, err := c.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web")
+	if err != nil {
+		type ErrorStruct struct {
+			Error string `json:"error"`
+		}
+
+		var res ErrorStruct
+		bs, _ = json.MarshalIndent(res, "", " ")
+
+		var frame repeater_bin_client.BinFrame
+		frame.Header.Src = ""
+		frame.Header.Dest = ""
+		frame.Header.Function = task.Frame.Header.Function
+		frame.Header.TransactionId = task.Frame.Header.TransactionId
+		frame.Header.SessionId = ""
+		frame.Data = bs
+		task.Client.SendData(&frame)
+		return
+	}
+
+	var frame repeater_bin_client.BinFrame
+	frame.Header.Src = ""
+	frame.Header.Dest = ""
+	frame.Header.Function = task.Frame.Header.Function
+	frame.Header.TransactionId = task.Frame.Header.TransactionId
+	frame.Header.SessionId = ""
+	frame.Data = bs
+
+	task.Client.SendData(&frame)
 }

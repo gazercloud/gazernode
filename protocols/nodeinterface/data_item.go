@@ -62,3 +62,10 @@ type DataItemHistoryChartResponseItem struct {
 type DataItemHistoryChartResponse struct {
 	Items []*DataItemHistoryChartResponseItem `json:"items"`
 }
+
+type DataItemRemoveRequest struct {
+	Items []string `json:"items"`
+}
+
+type DataItemRemoveResponse struct {
+}

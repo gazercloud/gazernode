@@ -65,7 +65,9 @@ func (c *System) GetItem(name string) (common_interfaces.Item, error) {
 	return item, nil
 }
 
-func (c *System) RemoveItems(itemsNames []string) {
+func (c *System) RemoveItems(itemsNames []string) error {
+	var err error
+
 	c.mtx.Lock()
 	newItems := make([]*common_interfaces.Item, 0)
 	itemsForRemove := make([]*common_interfaces.Item, 0)
@@ -92,6 +94,9 @@ func (c *System) RemoveItems(itemsNames []string) {
 	c.mtx.Unlock()
 
 	c.cloud.RemoveItems(nil, itemsNames)
+
+	err = c.SaveConfig()
+	return err
 }
 
 func (c *System) GetItems() []common_interfaces.Item {

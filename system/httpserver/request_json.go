@@ -29,6 +29,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.UnitRemove(requestText)
 	case nodeinterface.FuncUnitState:
 		result, err = c.UnitState(requestText)
+	case nodeinterface.FuncUnitStateAll:
+		result, err = c.UnitStateAll(requestText)
 	case nodeinterface.FuncUnitItemsValues:
 		result, err = c.UnitItemsValues(requestText)
 	case nodeinterface.FuncUnitList:
@@ -89,6 +91,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.DataItemHistory(requestText)
 	case nodeinterface.FuncDataItemHistoryChart:
 		result, err = c.DataItemHistoryChart(requestText)
+	case nodeinterface.FuncDataItemRemove:
+		result, err = c.DataItemRemove(requestText)
 
 		// *** Data Item ***
 	case nodeinterface.FuncSessionOpen:

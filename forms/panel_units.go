@@ -284,6 +284,10 @@ func (c *PanelUnits) OnInit() {
 			NewFormWriteValue(c, c.client, items[0]).ShowDialog()
 		}
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
+	menuItems.AddItem("Remove", func(event *uievents.Event) {
+		items := c.SelectedItems()
+		NewFormRemoveItems(c, c.client, items).ShowDialog()
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Copy full item name", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {

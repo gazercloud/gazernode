@@ -1,17 +1,4 @@
 import React, {useState} from 'react';
-import TreeItem from '@material-ui/lab/TreeItem';
-import TreeView from '@material-ui/lab/TreeView';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import InfoIcon from '@material-ui/icons/Info';
-import ForumIcon from '@material-ui/icons/Forum';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import MailIcon from '@material-ui/icons/Mail';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Typography from "@material-ui/core/Typography";
-import Label from '@material-ui/icons/Label';
-import { makeStyles } from '@material-ui/core/styles';
 import WidgetDataItems from "../Widgets/WidgetDataItems";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";

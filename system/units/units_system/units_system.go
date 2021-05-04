@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/resources"
+	"github.com/gazercloud/gazernode/system/units/databases/unit_postgreesql"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi"
@@ -46,6 +47,7 @@ func init() {
 	unitCategoriesIcons["file"] = resources.R_files_sensors_sensor_files_png
 	unitCategoriesIcons["general"] = resources.R_files_sensors_sensor_general_png
 	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_sensor_serial_port_png
+	unitCategoriesIcons["databases"] = resources.R_files_sensors_sensor_network_png
 	unitCategoriesIcons[""] = resources.R_files_sensors_sensor_all_png
 
 	unitCategoriesNames = make(map[string]string)
@@ -54,6 +56,7 @@ func init() {
 	unitCategoriesNames["file"] = "Files"
 	unitCategoriesNames["general"] = "General"
 	unitCategoriesNames["serial_port"] = "Serial Port"
+	unitCategoriesNames["databases"] = "Databases"
 	unitCategoriesNames[""] = "All"
 }
 
@@ -149,6 +152,11 @@ No description available
 `
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
+	unitType.Help = `
+No description available
+`
+
+	unitType = c.RegisterUnit("databases_postgresql", "databases", "PostgreSQL", unit_postgreesql.New, unit_postgreesql.Image, "PostgreSQL database query execute")
 	unitType.Help = `
 No description available
 `
@@ -321,6 +329,7 @@ func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface.UnitStateRespon
 	if unit != nil {
 		var unitState nodeinterface.UnitStateResponse
 		unitState.Status = ""
+		unitState.UnitName = unit.Name()
 		unitState.MainItem = unit.Name() + "/" + unit.MainItem()
 		if unit.IsStarted() {
 			unitState.Status = "started"
@@ -330,6 +339,29 @@ func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface.UnitStateRespon
 		return unitState, nil
 	}
 	return nodeinterface.UnitStateResponse{}, errors.New("no unit found")
+}
+
+func (c *UnitsSystem) GetUnitStateAll() (nodeinterface.UnitStateAllResponse, error) {
+	var result nodeinterface.UnitStateAllResponse
+	result.Items = make([]nodeinterface.UnitStateAllResponseItem, 0)
+
+	c.mtx.Lock()
+	for _, unit := range c.units {
+		var unitState nodeinterface.UnitStateAllResponseItem
+		unitState.Status = ""
+		unitState.UnitId = unit.Id()
+		unitState.UnitName = unit.Name()
+		unitState.MainItem = unit.Name() + "/" + unit.MainItem()
+		if unit.IsStarted() {
+			unitState.Status = "started"
+		} else {
+			unitState.Status = "stopped"
+		}
+		result.Items = append(result.Items, unitState)
+	}
+	c.mtx.Unlock()
+
+	return result, nil
 }
 
 func (c *UnitsSystem) ListOfUnits() nodeinterface.UnitListResponse {

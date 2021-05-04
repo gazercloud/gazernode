@@ -4,7 +4,6 @@ import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
 import WidgetSensorTypeSelect from "../Widgets/WidgetSensorTypeSelect";
 import WidgetNewSensorName from "../Widgets/WidgetNewSensorName";
 import WidgetSensorsConfiguration from "../Widgets/WidgetSensorConfiguration";

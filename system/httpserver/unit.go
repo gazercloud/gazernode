@@ -53,6 +53,23 @@ func (c *HttpServer) UnitState(request []byte) (response []byte, err error) {
 	return
 }
 
+func (c *HttpServer) UnitStateAll(request []byte) (response []byte, err error) {
+	var req nodeinterface.UnitStateAllRequest
+	var resp nodeinterface.UnitStateAllResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp, err = c.system.GetUnitStateAll()
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
 func (c *HttpServer) UnitItemsValues(request []byte) (response []byte, err error) {
 	var req nodeinterface.UnitItemsValuesRequest
 	var resp nodeinterface.UnitItemsValuesResponse

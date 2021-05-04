@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import Grid from "@material-ui/core/Grid";
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@material-ui/icons/IndeterminateCheckBoxOutlined';
-import Paper from "@material-ui/core/Paper";
 import Request from "../request";
 
 export default function WidgetDataItems(props) {

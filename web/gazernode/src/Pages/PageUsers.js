@@ -13,8 +13,6 @@ import MemoryIcon from "@material-ui/icons/Memory";
 import ListItemText from "@material-ui/core/ListItemText";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import SensorsDetails from "../Widgets/WidgetSensorDetails";
-import WidgetSensorsConfiguration from "../Widgets/WidgetSensorConfiguration";
 import WidgetUserProperties from "../Widgets/WidgetUserProperties";
 
 const useStyles = makeStyles((theme) => ({

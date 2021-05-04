@@ -2,7 +2,7 @@ package system
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/system/cloud"
+	"github.com/gazercloud/gazernode/system/public_channel"
 )
 
 func (c *System) GetCloudChannelValues(channelId string) ([]common_interfaces.Item, error) {
@@ -55,6 +55,6 @@ func (c *System) CloudRemoveItems(channels []string, items []string) error {
 	return err
 }
 
-func (c *System) GetCloudChannels() ([]cloud.ChannelInfo, error) {
+func (c *System) GetCloudChannels() ([]public_channel.ChannelInfo, error) {
 	return c.cloud.GetChannels()
 }

@@ -42,12 +42,16 @@ func NewPanelUnitConfigItem(parent uiinterfaces.Widget, item *units_common.UnitC
 	c.config = config
 	c.InitControl(parent, &c)
 
-	if c.item.Type == "string" {
+	if c.item.Type == "string" || item.Type == "text" {
 		c.lblName = c.AddTextBlockOnGrid(0, 0, item.DisplayName+":")
 		var value interface{}
 		var ok bool
 		c.txtValue = c.AddTextBoxOnGrid(1, 0)
 		c.txtValue.SetName("unitConfigItem" + item.DisplayName)
+		if item.Type == "text" {
+			c.txtValue.SetMultiline(true)
+		}
+
 		if _, ok = c.config.(map[string]interface{})[c.item.Name]; !ok {
 			c.config.(map[string]interface{})[c.item.Name] = item.DefaultValue
 		}
@@ -247,7 +251,7 @@ func (c *PanelUnitConfigItem) LabelWidth() int {
 }
 
 func (c *PanelUnitConfigItem) Save() interface{} {
-	if c.item.Type == "string" {
+	if c.item.Type == "string" || c.item.Type == "text" {
 		return c.txtValue.Text()
 	}
 	if c.item.Type == "bool" {

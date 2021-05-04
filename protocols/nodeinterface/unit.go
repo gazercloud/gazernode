@@ -32,6 +32,22 @@ type UnitStateResponse struct {
 	UOM      string `json:"uom"`
 }
 
+type UnitStateAllRequest struct {
+}
+
+type UnitStateAllResponse struct {
+	Items []UnitStateAllResponseItem `json:"items"`
+}
+
+type UnitStateAllResponseItem struct {
+	UnitId   string `json:"unit_id"`
+	UnitName string `json:"unit_name"`
+	Status   string `json:"status"`
+	MainItem string `json:"main_item"`
+	Value    string `json:"value"`
+	UOM      string `json:"uom"`
+}
+
 type UnitItemsValuesRequest struct {
 	UnitName string `json:"unit_name"`
 }

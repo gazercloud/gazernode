@@ -817,6 +817,11 @@ func (c *TimeChart) MouseMove(event *uievents.MouseMoveEvent) {
 	c.lastMouseX = event.X
 	c.lastMouseY = event.Y
 
+	pResizingSelection := c.getResizingSelection(event.X, event.Y)
+	if pResizingSelection != nil {
+		c.SetMouseCursor(ui.MouseCursorResizeHor)
+	}
+
 	if c.chartMoving {
 		c.SetMouseCursor(ui.MouseCursorResizeHor)
 		x := event.X

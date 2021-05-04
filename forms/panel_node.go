@@ -36,7 +36,7 @@ type PanelNode struct {
 	panelLeftMenu *uicontrols.Panel
 
 	panelUnits  *PanelUnits
-	panelCloud  *PanelCloud
+	panelCloud  *PanelPublicChannels
 	panelCharts *PanelCharts
 	panelMaps   *PanelMaps
 	panelUsers  *PanelUsers

@@ -88,6 +88,26 @@ func (c *Client) GetUnitState(unitId string, f func(nodeinterface.UnitStateRespo
 	go c.thCall(&call)
 }
 
+func (c *Client) GetUnitStateAll(f func(nodeinterface.UnitStateAllResponse, error)) {
+	var call Call
+	var req nodeinterface.UnitStateAllRequest
+
+	call.function = nodeinterface.FuncUnitStateAll
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.UnitStateAllResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}
+
 func (c *Client) StartUnits(ids []string, f func(error)) {
 	var call Call
 	var req nodeinterface.UnitStartRequest

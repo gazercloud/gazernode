@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -46,6 +47,26 @@ func (c *HttpServer) DataItemWrite(request []byte) (response []byte, err error) 
 	}
 
 	err = c.system.SetItem(req.ItemName, req.Value, "", time.Now().UTC(), "")
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) DataItemRemove(request []byte) (response []byte, err error) {
+	var req nodeinterface.DataItemRemoveRequest
+	var resp nodeinterface.DataItemRemoveResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.RemoveItems(req.Items)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -60,6 +81,9 @@ func (c *HttpServer) DataItemHistory(request []byte) (response []byte, err error
 	}
 
 	resp.History, err = c.system.ReadHistory(req.Name, req.DTBegin, req.DTEnd)
+	if err != nil {
+		return
+	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -118,7 +142,8 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 		}
 
 		if r.UOM != "error" {
-			valueAsFloat, err := strconv.ParseFloat(r.Value, 64)
+			valueAsString := strings.Trim(r.Value, " \r\n\t")
+			valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
 			if err == nil {
 				validValue = true
 

@@ -5,9 +5,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Paper from "@material-ui/core/Paper";
-import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
 import MemoryIcon from '@material-ui/icons/Memory';
-import StorageIcon from '@material-ui/icons/Storage';
 import SearchIcon from '@material-ui/icons/Search';
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
@@ -17,7 +15,6 @@ import Tab from "@material-ui/core/Tab";
 import WidgetSensorsConfiguration from "../Widgets/WidgetSensorConfiguration";
 import Button from "@material-ui/core/Button";
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
-import WidgetDataItemDetails from "../Widgets/WidgetDataItemDetails";
 import Request from "../request";
 
 const useStyles = makeStyles((theme) => ({
@@ -27,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function PageSensors(props) {
+function PageSensorsOld(props) {
     const classes = useStyles();
     const [currentTabIndex, setCurrentTabIndex] = React.useState(0)
     const [addSensorInterfaceVisible, setAddSensorInterfaceVisible] = React.useState(false)
@@ -175,4 +172,4 @@ function PageSensors(props) {
     );
 }
 
-export default PageSensors;
+export default PageSensorsOld;
