@@ -1,7 +1,7 @@
-package repeater_bin_client
+package cloud
 
 type BinFrameTask struct {
 	SessionId string
-	Client    *RepeaterBinClient
+	Client    *Connection
 	Frame     *BinFrame
 }

@@ -3,6 +3,7 @@ package system
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
+	"github.com/gazercloud/gazernode/system/cloud"
 	"github.com/gazercloud/gazernode/system/last_values"
 	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazernode/system/resources"
@@ -20,7 +21,8 @@ type System struct {
 
 	unitsSystem *units_system.UnitsSystem
 
-	cloud *public_channel.Cloud
+	publicChannels  *public_channel.Cloud
+	cloudConnection *cloud.Connection
 
 	history   *history.History
 	resources *resources.Resources
@@ -41,7 +43,10 @@ func NewSystem() *System {
 	c.items = make([]*common_interfaces.Item, 0)
 	c.itemsByName = make(map[string]*common_interfaces.Item)
 	c.itemsById = make(map[uint64]*common_interfaces.Item)
-	c.cloud = public_channel.NewCloud(&c)
+
+	c.cloudConnection = cloud.NewConnection()
+
+	c.publicChannels = public_channel.NewCloud(&c)
 	c.unitsSystem = units_system.New(&c)
 	c.history = history.NewHistory()
 	c.resources = resources.NewResources()
@@ -55,6 +60,7 @@ func NewSystem() *System {
 
 func (c *System) SetRequester(requester common_interfaces.Requester) {
 	c.requester = requester
+	c.cloudConnection.SetRequester(c.requester)
 }
 
 func (c *System) Start() {
@@ -67,7 +73,8 @@ func (c *System) Start() {
 			realItem.Value = item.Value
 		}
 	}
-	c.cloud.Start()
+	c.cloudConnection.Start()
+	c.publicChannels.Start()
 	c.history.Start()
 	c.unitsSystem.Start()
 
@@ -76,8 +83,9 @@ func (c *System) Start() {
 func (c *System) Stop() {
 	c.stopping = true
 	c.unitsSystem.Stop()
-	c.cloud.Stop()
+	c.publicChannels.Stop()
 	c.history.Stop()
+	c.cloudConnection.Stop()
 	c.SaveConfig()
 	c.saveSessions()
 	last_values.Write(c.items)

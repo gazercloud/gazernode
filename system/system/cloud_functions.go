@@ -1,60 +1,34 @@
 package system
 
-import (
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/system/public_channel"
-)
+import "github.com/gazercloud/gazernode/protocols/nodeinterface"
 
-func (c *System) GetCloudChannelValues(channelId string) ([]common_interfaces.Item, error) {
-	items, err := c.cloud.GetChannelValues(channelId)
-	return items, err
-}
-
-func (c *System) AddCloudChannel(channelName string) error {
-	err := c.cloud.AddChannel("", "", channelName)
+func (c *System) CloudLogin(userName string, password string) error {
+	/*err := c.publicChannels.RemoveChannel(channelId)
 	if err != nil {
 		return err
 	}
 	err = c.SaveConfig()
-	return err
+	return err*/
+	return nil
 }
 
-func (c *System) EditCloudChannel(channelId string, channelName string) error {
-	err := c.cloud.EditChannel(channelId, channelName)
+func (c *System) CloudLogout() error {
+	/*err := c.publicChannels.RemoveChannel(channelId)
 	if err != nil {
 		return err
 	}
 	err = c.SaveConfig()
-	return err
+	return err*/
+	return nil
 }
 
-func (c *System) RemoveCloudChannel(channelId string) error {
-	err := c.cloud.RemoveChannel(channelId)
+func (c *System) CloudState() (nodeinterface.CloudStateResponse, error) {
+	var result nodeinterface.CloudStateResponse
+	/*err := c.publicChannels.RemoveChannel(channelId)
 	if err != nil {
 		return err
 	}
 	err = c.SaveConfig()
-	return err
-}
-
-func (c *System) CloudAddItems(channels []string, items []string) error {
-	err := c.cloud.AddItems(channels, items)
-	if err != nil {
-		return err
-	}
-	err = c.SaveConfig()
-	return err
-}
-
-func (c *System) CloudRemoveItems(channels []string, items []string) error {
-	err := c.cloud.RemoveItems(channels, items)
-	if err != nil {
-		return err
-	}
-	err = c.SaveConfig()
-	return err
-}
-
-func (c *System) GetCloudChannels() ([]public_channel.ChannelInfo, error) {
-	return c.cloud.GetChannels()
+	return result, err*/
+	return result, nil
 }

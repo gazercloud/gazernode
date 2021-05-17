@@ -1,4 +1,4 @@
-package repeater_bin_client
+package cloud
 
 import (
 	"encoding/binary"

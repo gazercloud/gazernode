@@ -64,6 +64,14 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 	case nodeinterface.FuncResourceList:
 		result, err = c.ResourceList(requestText)
 
+		// *** Cloud ***
+	case nodeinterface.FuncCloudLogin:
+		result, err = c.CloudLogin(requestText)
+	case nodeinterface.FuncCloudLogout:
+		result, err = c.CloudLogout(requestText)
+	case nodeinterface.FuncCloudState:
+		result, err = c.CloudState(requestText)
+
 		// *** Public Channel ***
 	case nodeinterface.FuncPublicChannelList:
 		result, err = c.PublicChannelList(requestText)

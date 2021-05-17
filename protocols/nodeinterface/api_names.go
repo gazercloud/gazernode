@@ -26,6 +26,11 @@ const (
 	FuncDataItemHistoryChart = "data_item_history_chart"
 	FuncDataItemRemove       = "data_item_remove"
 
+	// *** Cloud ***
+	FuncCloudLogin  = "cloud_login"
+	FuncCloudLogout = "cloud_logout"
+	FuncCloudState  = "cloud_state"
+
 	// *** Public Channel ***
 	FuncPublicChannelList       = "public_channel_list"
 	FuncPublicChannelAdd        = "public_channel_add"

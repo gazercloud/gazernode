@@ -25,21 +25,23 @@ type PanelNode struct {
 	//panelConnection *uicontrols.Panel
 	panelBottom *uicontrols.Panel
 
-	btnPanelUnits  *uicontrols.Button
-	btnPanelCharts *uicontrols.Button
-	btnPanelCloud  *uicontrols.Button
-	btnPanelMaps   *uicontrols.Button
-	btnPanelUsers  *uicontrols.Button
+	btnPanelUnits          *uicontrols.Button
+	btnPanelCharts         *uicontrols.Button
+	btnPanelCloud          *uicontrols.Button
+	btnPanelPublicChannels *uicontrols.Button
+	btnPanelMaps           *uicontrols.Button
+	btnPanelUsers          *uicontrols.Button
 
 	btnSettings *uicontrols.Button
 
 	panelLeftMenu *uicontrols.Panel
 
-	panelUnits  *PanelUnits
-	panelCloud  *PanelPublicChannels
-	panelCharts *PanelCharts
-	panelMaps   *PanelMaps
-	panelUsers  *PanelUsers
+	panelUnits          *PanelUnits
+	panelCloud          *PanelCloud
+	panelPublicChannels *PanelPublicChannels
+	panelCharts         *PanelCharts
+	panelMaps           *PanelMaps
+	panelUsers          *PanelUsers
 
 	currentButton *uicontrols.Button
 	buttons       []*uicontrols.Button
@@ -118,11 +120,13 @@ func (c *PanelNode) Dispose() {
 	c.btnPanelUnits = nil
 	c.btnPanelCharts = nil
 	c.btnPanelCloud = nil
+	c.btnPanelPublicChannels = nil
 	c.btnPanelUsers = nil
 	c.btnSettings = nil
 
 	c.panelUnits = nil
 	c.panelCloud = nil
+	c.panelPublicChannels = nil
 	c.panelCharts = nil
 
 	c.currentButton = nil
@@ -141,12 +145,14 @@ func (c *PanelNode) FullRefresh() {
 	c.panelCharts.FullRefresh()
 	c.panelMaps.FullRefresh()
 	c.panelCloud.FullRefresh()
+	c.panelPublicChannels.FullRefresh()
 	c.panelUsers.FullRefresh()
 }
 
 func (c *PanelNode) StylizeButton() {
 	c.btnPanelUnits.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_image_blur_on_materialiconsoutlined_48dp_1x_outline_blur_on_black_48dp_png, c.btnPanelUnits.AccentColor()))
-	c.btnPanelCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelCloud.AccentColor()))
+	c.btnPanelCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelPublicChannels.AccentColor()))
+	c.btnPanelPublicChannels.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelPublicChannels.AccentColor()))
 	c.btnPanelCharts.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_editor_stacked_line_chart_materialiconsoutlined_48dp_1x_outline_stacked_line_chart_black_48dp_png, c.btnPanelCharts.AccentColor()))
 	c.btnPanelMaps.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.btnPanelCharts.AccentColor()))
 	c.btnPanelUsers.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_perm_identity_materialiconsoutlined_48dp_1x_outline_perm_identity_black_48dp_png, c.btnPanelCharts.AccentColor()))
@@ -193,6 +199,7 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelUnits = c.panelLeftMenu.AddButtonOnGrid(0, 0, "Units", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(true)
 		c.panelCloud.SetVisible(false)
+		c.panelPublicChannels.SetVisible(false)
 		c.panelCharts.SetVisible(false)
 		c.panelMaps.SetVisible(false)
 		c.panelUsers.SetVisible(false)
@@ -206,6 +213,7 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelCharts = c.panelLeftMenu.AddButtonOnGrid(0, 2, "Charts", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
+		c.panelPublicChannels.SetVisible(false)
 		c.panelCharts.SetVisible(true)
 		c.panelMaps.SetVisible(false)
 		c.panelUsers.SetVisible(false)
@@ -218,6 +226,7 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelMaps = c.panelLeftMenu.AddButtonOnGrid(0, 3, "Maps", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
+		c.panelPublicChannels.SetVisible(false)
 		c.panelCharts.SetVisible(false)
 		c.panelMaps.SetVisible(true)
 		c.panelUsers.SetVisible(false)
@@ -229,9 +238,10 @@ func (c *PanelNode) OnInit() {
 
 	c.panelLeftMenu.AddVSpacerOnGrid(0, 5)
 
-	c.btnPanelCloud = c.panelLeftMenu.AddButtonOnGrid(0, 6, "Public\r\nChannels", func(event *uievents.Event) {
+	c.btnPanelCloud = c.panelLeftMenu.AddButtonOnGrid(0, 6, "Cloud", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(true)
+		c.panelPublicChannels.SetVisible(false)
 		c.panelCharts.SetVisible(false)
 		c.panelMaps.SetVisible(false)
 		c.panelUsers.SetVisible(false)
@@ -241,9 +251,23 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelCloud.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelCloud)
 
-	c.btnPanelUsers = c.panelLeftMenu.AddButtonOnGrid(0, 7, "Users", func(event *uievents.Event) {
+	c.btnPanelPublicChannels = c.panelLeftMenu.AddButtonOnGrid(0, 7, "Public\r\nChannels", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(false)
+		c.panelPublicChannels.SetVisible(true)
+		c.panelCharts.SetVisible(false)
+		c.panelMaps.SetVisible(false)
+		c.panelUsers.SetVisible(false)
+		c.currentButton = c.btnPanelPublicChannels
+		c.StylizeButton()
+	})
+	c.btnPanelPublicChannels.SetMouseCursor(ui.MouseCursorPointer)
+	c.buttons = append(c.buttons, c.btnPanelPublicChannels)
+
+	c.btnPanelUsers = c.panelLeftMenu.AddButtonOnGrid(0, 8, "Users", func(event *uievents.Event) {
+		c.panelUnits.SetVisible(false)
+		c.panelCloud.SetVisible(false)
+		c.panelPublicChannels.SetVisible(false)
 		c.panelCharts.SetVisible(false)
 		c.panelMaps.SetVisible(false)
 		c.panelUsers.SetVisible(true)
@@ -262,12 +286,14 @@ func (c *PanelNode) OnInit() {
 	panelContent.AddWidgetOnGrid(c.panelUnits, 0, 0)
 	c.panelCloud = NewPanelCloud(panelContent, c.client)
 	panelContent.AddWidgetOnGrid(c.panelCloud, 0, 1)
+	c.panelPublicChannels = NewPanelPublicChannels(panelContent, c.client)
+	panelContent.AddWidgetOnGrid(c.panelPublicChannels, 0, 2)
 	c.panelCharts = NewPanelCharts(panelContent, c.client)
-	panelContent.AddWidgetOnGrid(c.panelCharts, 0, 2)
+	panelContent.AddWidgetOnGrid(c.panelCharts, 0, 3)
 	c.panelMaps = NewPanelMaps(panelContent, c.client)
-	panelContent.AddWidgetOnGrid(c.panelMaps, 0, 3)
+	panelContent.AddWidgetOnGrid(c.panelMaps, 0, 4)
 	c.panelUsers = NewPanelUsers(panelContent, c.client)
-	panelContent.AddWidgetOnGrid(c.panelUsers, 0, 4)
+	panelContent.AddWidgetOnGrid(c.panelUsers, 0, 5)
 
 	c.panelMaps.OnActionOpenMap = func(resId string) {
 		c.client.ResGet(resId, func(item *common_interfaces.ResourcesItem, err error) {
@@ -290,12 +316,14 @@ func (c *PanelNode) OnInit() {
 
 	c.panelUnits.SetVisible(false)
 	c.panelCloud.SetVisible(false)
+	c.panelPublicChannels.SetVisible(false)
 	c.panelCharts.SetVisible(false)
 	c.panelMaps.SetVisible(false)
 	c.panelUsers.SetVisible(false)
 
 	c.panelUnits.SetPanelPadding(0)
 	c.panelCloud.SetPanelPadding(0)
+	c.panelPublicChannels.SetPanelPadding(0)
 	c.panelCharts.SetPanelPadding(0)
 	c.panelMaps.SetPanelPadding(0)
 	c.panelUsers.SetPanelPadding(0)
@@ -376,7 +404,7 @@ func (c *PanelNode) OnInit() {
 			return true
 		}
 		if event.Key == glfw.KeyF2 {
-			c.btnPanelCloud.Press()
+			c.btnPanelPublicChannels.Press()
 			return true
 		}
 		return false

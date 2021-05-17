@@ -93,7 +93,7 @@ func (c *System) RemoveItems(itemsNames []string) error {
 	}
 	c.mtx.Unlock()
 
-	c.cloud.RemoveItems(nil, itemsNames)
+	c.publicChannels.RemoveItems(nil, itemsNames)
 
 	err = c.SaveConfig()
 	return err
@@ -121,7 +121,7 @@ func (c *System) RenameItems(oldPrefix string, newPrefix string) {
 	}
 	c.mtx.Unlock()
 
-	c.cloud.RenameItems(oldPrefix, newPrefix)
+	c.publicChannels.RenameItems(oldPrefix, newPrefix)
 }
 
 func (c *System) ReadHistory(name string, dtBegin int64, dtEnd int64) (*history.ReadResult, error) {
@@ -138,8 +138,8 @@ func (c *System) ReadHistory(name string, dtBegin int64, dtEnd int64) (*history.
 
 func (c *System) GetStatistics() (common_interfaces.Statistics, error) {
 	var res common_interfaces.Statistics
-	res.CloudSentBytes = c.cloud.SentBytes()
-	res.CloudReceivedBytes = c.cloud.ReceivedBytes()
+	res.CloudSentBytes = c.publicChannels.SentBytes()
+	res.CloudReceivedBytes = c.publicChannels.ReceivedBytes()
 	res.ApiCalls = c.apiCallsCount
 	return res, nil
 }

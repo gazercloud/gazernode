@@ -24,7 +24,7 @@ func (c *System) SaveConfig() error {
 
 	var conf Config
 	conf.Units = c.unitsSystem.Units()
-	conf.Channels = c.cloud.ChannelsFullInfo()
+	conf.Channels = c.publicChannels.ChannelsFullInfo()
 	conf.Users = make([]common_interfaces.User, 0)
 	for _, u := range c.users {
 		conf.Users = append(conf.Users, *u)
@@ -95,8 +95,8 @@ func (c *System) LoadConfig() error {
 		}
 
 		for _, ch := range conf.Channels {
-			c.cloud.AddChannel(ch.Id, ch.Password, ch.Name)
-			c.cloud.AddItems([]string{ch.Id}, ch.Items)
+			c.publicChannels.AddChannel(ch.Id, ch.Password, ch.Name)
+			c.publicChannels.AddItems([]string{ch.Id}, ch.Items)
 		}
 	}
 

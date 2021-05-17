@@ -52,7 +52,7 @@ type PanelPublicChannels struct {
 	currentChannelId string
 }
 
-func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelPublicChannels {
+func NewPanelPublicChannels(parent uiinterfaces.Widget, client *client.Client) *PanelPublicChannels {
 	var c PanelPublicChannels
 	c.client = client
 	c.InitControl(parent, &c)
