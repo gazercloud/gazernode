@@ -4,12 +4,13 @@ import (
 	"crypto/tls"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/settings"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -19,23 +20,39 @@ type Connection struct {
 	addr string
 	conn net.Conn
 
+	httpClient *http.Client
+
 	started   bool
 	stopping  bool
 	sessionId string
 	userName  string
 	password  string
-	nodeId    string
+	nodeCode  string
 	requester common_interfaces.Requester
 
+	connectionStatus string
+	loginStatus      string
+
 	disconnectedSent bool
+
+	calls map[string]int64
 }
 
 func NewConnection() *Connection {
 	var c Connection
-	c.addr = "db05.gazer.cloud:1077"
-	c.userName = "qwe"
-	c.password = "qwe"
-	c.nodeId = "123"
+	c.addr = ""
+	c.userName = ""
+	c.password = ""
+	c.nodeCode = "1"
+
+	c.calls = make(map[string]int64)
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{},
+	}
+
+	c.httpClient = &http.Client{Transport: tr, Timeout: 1 * time.Second}
+
 	return &c
 }
 
@@ -86,6 +103,7 @@ func (c *Connection) LoadSession() error {
 		if err == nil {
 			logger.Println("CloudConnection LoadSession:", config.Key)
 			c.sessionId = config.Key
+			c.userName = config.UserName
 		} else {
 			logger.Println("CloudConnection LoadSession unmarshal error:", err)
 		}
@@ -98,6 +116,7 @@ func (c *Connection) LoadSession() error {
 func (c *Connection) SaveSession() error {
 	var config SessionConfig
 	config.Key = c.sessionId
+	config.UserName = c.userName
 	bs, err := json.MarshalIndent(config, "", " ")
 	if err == nil {
 		err = ioutil.WriteFile(settings.ServerDataPath()+"/cloud_session.json", bs, 0600)
@@ -106,30 +125,39 @@ func (c *Connection) SaveSession() error {
 }
 
 func (c *Connection) Login(userName string, password string) {
+	logger.Println("CloudConnection login", userName, password)
 	c.mtx.Lock()
 	c.userName = userName
 	c.password = password
 	c.sessionId = ""
 	c.mtx.Unlock()
+	c.openSession()
 }
 
 func (c *Connection) Logout() {
 	logger.Println("CloudConnection logout")
+	c.loginStatus = "logged out"
+
+	var err error
+	type CloseSessionRequest struct {
+		Key string `json:"key"`
+	}
+
+	var frame BinFrame
+	var closeSessionRequest CloseSessionRequest
+	closeSessionRequest.Key = c.sessionId
 
 	// Send LogOut frame to the cloud
-	var err error
-	var frame BinFrame
 	frame.Header.Src = ""
 	frame.Header.Dest = ""
-	frame.Header.Function = "#logout"
+	frame.Header.Function = "session_close"
 	frame.Header.TransactionId = ""
 	frame.Header.SessionId = ""
-	frame.Data = nil
+	frame.Data, err = json.Marshal(closeSessionRequest)
 	c.SendData(&frame)
 
 	// Clear local data
 	c.mtx.Lock()
-	c.userName = ""
 	c.password = ""
 	c.sessionId = ""
 	c.mtx.Unlock()
@@ -138,7 +166,9 @@ func (c *Connection) Logout() {
 	err = c.SaveSession()
 	if err != nil {
 		logger.Println("CloudConnection save session error", err)
+		return
 	}
+	logger.Println("CloudConnection logout ok")
 }
 
 func (c *Connection) SessionId() string {
@@ -152,6 +182,57 @@ func (c *Connection) UserName() string {
 	return c.userName
 }
 
+func (c *Connection) updateCurrentRepeater() {
+	logger.Println("updateCurrentRepeater")
+	c.connectionStatus = "repeater search"
+
+	IPs, err := net.LookupIP("home.gazer.cloud")
+	if err != nil {
+		logger.Println("updateCurrentRepeater error (LookupIP)", err)
+		return
+	}
+	logger.Println("updateCurrentRepeater IPs:", IPs)
+
+	//currentIndex := rand.Int() % len(IPs)
+	//currentIP := IPs[currentIndex].String()
+
+	req, _ := http.NewRequest("GET", "https://home.gazer.cloud/api/request?fn=s-repeater-for-node", nil)
+
+	response, err := c.httpClient.Transport.RoundTrip(req)
+
+	//link := "https://home.gazer.cloud/api/request?fn=s-repeater-for-node"
+	//response, err := c.httpClient.Get(link)
+
+	if err != nil {
+		c.connectionStatus = "repeater search error: " + err.Error()
+		logger.Println("updateCurrentRepeater error (httpClient)", err)
+		return
+	}
+
+	type RepeaterForNodeResponse struct {
+		NodeId string `json:"node_id"`
+		Host   string `json:"host"`
+	}
+
+	content, _ := ioutil.ReadAll(response.Body)
+	_ = response.Body.Close()
+
+	logger.Println("Content:", string(content))
+
+	var resp RepeaterForNodeResponse
+	err = json.Unmarshal(content, &resp)
+	if err != nil {
+		c.connectionStatus = "repeater search error: " + err.Error()
+		logger.Println("updateCurrentRepeater error (Unmarshal)", err)
+		return
+	}
+
+	c.addr = resp.Host + ":1077"
+	c.connectionStatus = "repeater search complete: " + c.addr
+
+	logger.Println("updateCurrentRepeater ok:", resp.Host)
+}
+
 func (c *Connection) thConn() {
 	logger.Println("CloudConnection th begin")
 	const inputBufferSize = 100 * 1024
@@ -163,13 +244,18 @@ func (c *Connection) thConn() {
 			if len(c.addr) > 0 {
 				var err error
 				var conn net.Conn
+				c.connectionStatus = "connecting"
 				conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1}, "tcp", c.addr, &tls.Config{})
 				if err != nil {
 					c.conn = nil
+					c.connectionStatus = "connect error:" + err.Error()
 					logger.Println("CloudConnection th dial error", err)
 					time.Sleep(100 * time.Millisecond)
+					c.addr = ""
 					continue
 				}
+
+				c.connectionStatus = "connected"
 
 				logger.Println("Connection connected", c.addr)
 
@@ -180,12 +266,14 @@ func (c *Connection) thConn() {
 				if c.sessionId == "" {
 					c.openSession()
 				} else {
+					c.loginStatus = "ok"
 					c.regNode()
 				}
 
 			} else {
-				logger.Println("no addr to connect")
-				break
+				c.updateCurrentRepeater()
+				time.Sleep(100 * time.Millisecond)
+				continue
 			}
 		}
 
@@ -270,7 +358,7 @@ func (c *Connection) SendData(data *BinFrame) {
 		data.Header.SessionId = c.sessionId
 		frameBytes, _ := data.Marshal()
 
-		fmt.Println("sending cloud ", data.Header.Function)
+		//fmt.Println("sending cloud ", data.Header.Function)
 
 		sent := 0
 		for sent < len(frameBytes) {
@@ -282,12 +370,18 @@ func (c *Connection) SendData(data *BinFrame) {
 
 		}
 
-		fmt.Println("sent cloud ", frameBytes)
+		//fmt.Println("sent cloud ", frameBytes)
 	}
 	c.mtx.Unlock()
 }
 
 func (c *Connection) openSession() {
+	if c.password == "" {
+		c.loginStatus = "error: no password provided"
+		logger.Println("CloudConnection openSession - no auth data")
+		return
+	}
+
 	var err error
 	type OpenSessionRequest struct {
 		UserName string `json:"user_name"`
@@ -301,12 +395,15 @@ func (c *Connection) openSession() {
 
 	frame.Header.Src = ""
 	frame.Header.Dest = ""
-	frame.Header.Function = "#session_open"
+	frame.Header.Function = "session_open"
 	frame.Header.TransactionId = ""
 	frame.Header.SessionId = ""
 	frame.Data, err = json.Marshal(openSessionRequest)
 
+	c.loginStatus = "processing"
+
 	if err != nil {
+		c.loginStatus = "error: " + err.Error()
 		return
 	}
 	c.SendData(&frame)
@@ -320,11 +417,11 @@ func (c *Connection) regNode() {
 
 	var frame BinFrame
 	var regNodeRequest RegNodeRequest
-	regNodeRequest.NodeId = "123"
+	regNodeRequest.NodeId = c.nodeCode
 
 	frame.Header.Src = ""
 	frame.Header.Dest = ""
-	frame.Header.Function = "#reg_node"
+	frame.Header.Function = "#iam"
 	frame.Header.TransactionId = ""
 	frame.Header.SessionId = ""
 	frame.Data, err = json.Marshal(regNodeRequest)
@@ -339,18 +436,41 @@ func (c *Connection) processData(task BinFrameTask) {
 	var err error
 	logger.Println("processData: ", task.Frame.Data)
 
-	if task.Frame.Header.Function == "#session" {
-		logger.Println("CloudConnection #session data received", task.Frame.Data)
+	if task.Frame != nil {
+		c.mtx.Lock()
+		if value, ok := c.calls[task.Frame.Header.Function]; ok {
+			c.calls[task.Frame.Header.Function] = value + 1
+		} else {
+			c.calls[task.Frame.Header.Function] = 1
+		}
+		c.mtx.Unlock()
+	}
+
+	if task.Frame.Header.Function == "#iam" {
+		logger.Println("#iam response received")
+		return
+	}
+
+	if task.Frame.Header.Function == "session_open" {
+		logger.Println("CloudConnection session_open data received", task.Frame.Data)
 		type SessionInfo struct {
-			Key string `json:"key"`
+			SessionToken string `json:"session_token"`
+			Error        string `json:"error"`
 		}
 		var sessionInfo SessionInfo
 		err = json.Unmarshal(task.Frame.Data, &sessionInfo)
 		if err == nil {
-			logger.Println("CloudConnection #session", sessionInfo.Key)
-			c.sessionId = sessionInfo.Key
-			c.regNode()
-			c.SaveSession()
+			if sessionInfo.Error == "" {
+				logger.Println("CloudConnection session_open", sessionInfo.SessionToken)
+				c.sessionId = sessionInfo.SessionToken
+				c.regNode()
+				c.SaveSession()
+				c.loginStatus = "ok"
+			} else {
+				c.loginStatus = "error: " + sessionInfo.Error
+			}
+		} else {
+			c.loginStatus = "error: " + err.Error()
 		}
 		return
 	}
@@ -391,4 +511,57 @@ func (c *Connection) processData(task BinFrameTask) {
 	frame.Data = bs
 
 	task.Client.SendData(&frame)
+}
+
+func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
+	var resp nodeinterface.CloudStateResponse
+	resp.Connected = c.conn != nil
+	resp.LoggedIn = c.sessionId != ""
+	resp.UserName = c.userName
+	resp.LoginStatus = c.loginStatus
+	resp.Status = c.connectionStatus
+	resp.CurrentRepeater = c.addr
+	resp.NodeId = c.nodeCode
+
+	c.mtx.Lock()
+	resp.Counters = make([]nodeinterface.CloudStateResponseItem, 0)
+	for key, value := range c.calls {
+		resp.Counters = append(resp.Counters, nodeinterface.CloudStateResponseItem{
+			Name:  key,
+			Value: value,
+		})
+	}
+	c.mtx.Unlock()
+
+	return resp, nil
+}
+
+func (c *Connection) Nodes() (nodeinterface.CloudNodesResponse, error) {
+	var resp nodeinterface.CloudNodesResponse
+	return resp, nil
+}
+
+func (c *Connection) AddNode() (nodeinterface.CloudAddNodeResponse, error) {
+	var resp nodeinterface.CloudAddNodeResponse
+	return resp, nil
+}
+
+func (c *Connection) UpdateNode() (nodeinterface.CloudUpdateNodeResponse, error) {
+	var resp nodeinterface.CloudUpdateNodeResponse
+	return resp, nil
+}
+
+func (c *Connection) RemoveNode() (nodeinterface.CloudRemoveNodeResponse, error) {
+	var resp nodeinterface.CloudRemoveNodeResponse
+	return resp, nil
+}
+
+func (c *Connection) GetSettings() (nodeinterface.CloudGetSettingsResponse, error) {
+	var resp nodeinterface.CloudGetSettingsResponse
+	return resp, nil
+}
+
+func (c *Connection) SetSettings() (nodeinterface.CloudSetSettingsResponse, error) {
+	var resp nodeinterface.CloudSetSettingsResponse
+	return resp, nil
 }

@@ -71,6 +71,18 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.CloudLogout(requestText)
 	case nodeinterface.FuncCloudState:
 		result, err = c.CloudState(requestText)
+	case nodeinterface.FuncCloudNodes:
+		result, err = c.CloudNodes(requestText)
+	case nodeinterface.FuncCloudAddNode:
+		result, err = c.CloudAddNode(requestText)
+	case nodeinterface.FuncCloudUpdateNode:
+		result, err = c.CloudState(requestText)
+	case nodeinterface.FuncCloudRemoveNode:
+		result, err = c.CloudState(requestText)
+	case nodeinterface.FuncCloudGetSettings:
+		result, err = c.CloudState(requestText)
+	case nodeinterface.FuncCloudSetSettings:
+		result, err = c.CloudState(requestText)
 
 		// *** Public Channel ***
 	case nodeinterface.FuncPublicChannelList:

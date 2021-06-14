@@ -27,9 +27,15 @@ const (
 	FuncDataItemRemove       = "data_item_remove"
 
 	// *** Cloud ***
-	FuncCloudLogin  = "cloud_login"
-	FuncCloudLogout = "cloud_logout"
-	FuncCloudState  = "cloud_state"
+	FuncCloudLogin       = "cloud_login"
+	FuncCloudLogout      = "cloud_logout"
+	FuncCloudState       = "cloud_state"
+	FuncCloudNodes       = "cloud_nodes"
+	FuncCloudAddNode     = "cloud_add_node"
+	FuncCloudUpdateNode  = "cloud_update_node"
+	FuncCloudRemoveNode  = "cloud_remove_node"
+	FuncCloudGetSettings = "cloud_get_settings"
+	FuncCloudSetSettings = "cloud_set_settings"
 
 	// *** Public Channel ***
 	FuncPublicChannelList       = "public_channel_list"

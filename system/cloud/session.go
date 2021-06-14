@@ -1,5 +1,6 @@
 package cloud
 
 type SessionConfig struct {
-	Key string `json:"key"`
+	UserName string `json:"user_name"`
+	Key      string `json:"key"`
 }
