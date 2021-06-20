@@ -81,7 +81,7 @@ func (c *HttpServer) CloudAddNode(request []byte) (response []byte, err error) {
 		return
 	}
 
-	resp, err = c.system.CloudAddNode()
+	resp, err = c.system.CloudAddNode(req.Name)
 
 	if err != nil {
 		return
@@ -98,7 +98,7 @@ func (c *HttpServer) CloudUpdateNode(request []byte) (response []byte, err error
 		return
 	}
 
-	resp, err = c.system.CloudUpdateNode()
+	resp, err = c.system.CloudUpdateNode(req.NodeId, req.Name)
 
 	if err != nil {
 		return
@@ -115,7 +115,7 @@ func (c *HttpServer) CloudRemoveNode(request []byte) (response []byte, err error
 		return
 	}
 
-	resp, err = c.system.CloudRemoveNode()
+	resp, err = c.system.CloudRemoveNode(req.NodeId)
 
 	if err != nil {
 		return
@@ -132,7 +132,7 @@ func (c *HttpServer) CloudGetSettings(request []byte) (response []byte, err erro
 		return
 	}
 
-	resp, err = c.system.CloudGetSettings()
+	resp, err = c.system.CloudGetSettings(req)
 
 	if err != nil {
 		return
@@ -149,7 +149,7 @@ func (c *HttpServer) CloudSetSettings(request []byte) (response []byte, err erro
 		return
 	}
 
-	resp, err = c.system.CloudSetSettings()
+	resp, err = c.system.CloudSetSettings(req)
 
 	if err != nil {
 		return

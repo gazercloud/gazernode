@@ -32,6 +32,10 @@ func (c *WidgetCloudMain) OnInit() {
 	c.wSettings = NewWidgetCloudSettings(c, c.client)
 	c.AddWidgetOnGrid(c.wSettings, 2, 0)
 	c.UpdateStyle()
+
+	c.wNodes.OnNeedSetCurrent = func(nodeId string) {
+		c.wSettings.SetCurrentNode(nodeId)
+	}
 }
 
 func (c *WidgetCloudMain) Dispose() {

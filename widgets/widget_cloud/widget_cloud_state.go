@@ -27,15 +27,15 @@ func NewWidgetCloudState(parent uiinterfaces.Widget, client *client.Client) *Wid
 func (c *WidgetCloudState) OnInit() {
 	pHeader := c.AddPanelOnGrid(0, 0)
 	pHeader.SetPanelPadding(0)
-	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "State")
+	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Frames from the cloud")
 	txtHeader.SetFontSize(16)
 
 	pContent := c.AddPanelOnGrid(0, 1)
 	pContent.SetPanelPadding(0)
 
 	c.lvItems = pContent.AddListViewOnGrid(0, 0)
-	c.lvItems.AddColumn("Parameter", 200)
-	c.lvItems.AddColumn("Value", 100)
+	c.lvItems.AddColumn("Function", 200)
+	c.lvItems.AddColumn("Count", 100)
 
 	c.UpdateStyle()
 }

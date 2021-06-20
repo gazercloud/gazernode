@@ -73,7 +73,12 @@ func (c *WidgetCloudHeader) SetState(response nodeinterface.CloudStateResponse) 
 		c.btnLogout.SetEnabled(false)
 	}
 
-	c.lblState1.SetText(response.NodeId)
+	c.lblState1.SetText(response.NodeId + " / " + response.IAmStatus)
+	if response.IAmStatus == "ok" {
+		c.lblState1.SetForeColor(settings.GoodColor)
+	} else {
+		c.lblState1.SetForeColor(settings.BadColor)
+	}
 
 	c.lblState2.SetText(response.UserName + " / " + response.LoginStatus)
 	if response.LoginStatus == "ok" {
@@ -87,6 +92,6 @@ func (c *WidgetCloudHeader) SetState(response nodeinterface.CloudStateResponse) 
 		c.lblState3.SetText(response.CurrentRepeater + " / ok")
 	} else {
 		c.lblState3.SetForeColor(settings.BadColor)
-		c.lblState3.SetText(response.CurrentRepeater + " / " + response.Status)
+		c.lblState3.SetText(response.CurrentRepeater + " / " + response.ConnectionStatus)
 	}
 }

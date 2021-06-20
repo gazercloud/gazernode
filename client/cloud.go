@@ -47,7 +47,7 @@ func (c *Client) CloudLogout(f func(error)) {
 
 func (c *Client) CloudState(f func(nodeinterface.CloudStateResponse, error)) {
 	var call Call
-	var req nodeinterface.CloudStateResponse
+	var req nodeinterface.CloudStateRequest
 	call.function = nodeinterface.FuncCloudState
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
@@ -66,7 +66,7 @@ func (c *Client) CloudState(f func(nodeinterface.CloudStateResponse, error)) {
 
 func (c *Client) CloudNodes(f func(nodeinterface.CloudNodesResponse, error)) {
 	var call Call
-	var req nodeinterface.CloudNodesResponse
+	var req nodeinterface.CloudNodesRequest
 	call.function = nodeinterface.FuncCloudNodes
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
@@ -83,9 +83,11 @@ func (c *Client) CloudNodes(f func(nodeinterface.CloudNodesResponse, error)) {
 	go c.thCall(&call)
 }
 
-func (c *Client) CloudAddNode(f func(nodeinterface.CloudAddNodeResponse, error)) {
+func (c *Client) CloudAddNode(name string, f func(nodeinterface.CloudAddNodeResponse, error)) {
 	var call Call
-	var req nodeinterface.CloudAddNodeResponse
+	var req nodeinterface.CloudAddNodeRequest
+	req.Name = name
+
 	call.function = nodeinterface.FuncCloudAddNode
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
@@ -102,9 +104,11 @@ func (c *Client) CloudAddNode(f func(nodeinterface.CloudAddNodeResponse, error))
 	go c.thCall(&call)
 }
 
-func (c *Client) CloudUpdateNode(f func(nodeinterface.CloudUpdateNodeResponse, error)) {
+func (c *Client) CloudUpdateNode(nodeId string, name string, f func(nodeinterface.CloudUpdateNodeResponse, error)) {
 	var call Call
-	var req nodeinterface.CloudUpdateNodeResponse
+	var req nodeinterface.CloudUpdateNodeRequest
+	req.NodeId = nodeId
+	req.Name = name
 	call.function = nodeinterface.FuncCloudUpdateNode
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
@@ -121,9 +125,10 @@ func (c *Client) CloudUpdateNode(f func(nodeinterface.CloudUpdateNodeResponse, e
 	go c.thCall(&call)
 }
 
-func (c *Client) CloudRemoveNode(f func(nodeinterface.CloudRemoveNodeResponse, error)) {
+func (c *Client) CloudRemoveNode(nodeId string, f func(nodeinterface.CloudRemoveNodeResponse, error)) {
 	var call Call
-	var req nodeinterface.CloudRemoveNodeResponse
+	var req nodeinterface.CloudRemoveNodeRequest
+	req.NodeId = nodeId
 	call.function = nodeinterface.FuncCloudRemoveNode
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
@@ -142,7 +147,7 @@ func (c *Client) CloudRemoveNode(f func(nodeinterface.CloudRemoveNodeResponse, e
 
 func (c *Client) CloudGetSettings(f func(nodeinterface.CloudGetSettingsResponse, error)) {
 	var call Call
-	var req nodeinterface.CloudGetSettingsResponse
+	var req nodeinterface.CloudGetSettingsRequest
 	call.function = nodeinterface.FuncCloudGetSettings
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
@@ -159,9 +164,9 @@ func (c *Client) CloudGetSettings(f func(nodeinterface.CloudGetSettingsResponse,
 	go c.thCall(&call)
 }
 
-func (c *Client) CloudSetSettings(f func(nodeinterface.CloudSetSettingsResponse, error)) {
+func (c *Client) CloudSetSettings(req nodeinterface.CloudSetSettingsRequest, f func(nodeinterface.CloudSetSettingsResponse, error)) {
 	var call Call
-	var req nodeinterface.CloudSetSettingsResponse
+	//var req nodeinterface.CloudSetSettingsRequest
 	call.function = nodeinterface.FuncCloudSetSettings
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {

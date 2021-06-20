@@ -4,12 +4,18 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazerui/uicontrols"
+	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 )
 
 type WidgetCloudSettings struct {
 	uicontrols.Panel
 	client *client.Client
+
+	txtNodeId *uicontrols.TextBox
+	btnApply  *uicontrols.Button
+
+	dontUpdateNodeId bool
 }
 
 func NewWidgetCloudSettings(parent uiinterfaces.Widget, client *client.Client) *WidgetCloudSettings {
@@ -30,6 +36,13 @@ func (c *WidgetCloudSettings) OnInit() {
 
 	pContent.AddCheckBoxOnGrid(0, 0, "Enable")
 	pContent.AddCheckBoxOnGrid(0, 1, "Allow Write Item")
+	c.txtNodeId = pContent.AddTextBoxOnGrid(0, 2)
+	c.btnApply = pContent.AddButtonOnGrid(0, 3, "Apply", func(event *uievents.Event) {
+		var req nodeinterface.CloudSetSettingsRequest
+		req.NodeId = c.txtNodeId.Text()
+		c.client.CloudSetSettings(req, func(response nodeinterface.CloudSetSettingsResponse, err error) {
+		})
+	})
 
 	pContent.AddVSpacerOnGrid(0, 10)
 	c.UpdateStyle()
@@ -39,6 +52,11 @@ func (c *WidgetCloudSettings) Dispose() {
 	c.client = nil
 
 	c.Panel.Dispose()
+}
+
+func (c *WidgetCloudSettings) SetCurrentNode(nodeId string) {
+	c.txtNodeId.SetText(nodeId)
+	c.btnApply.Press()
 }
 
 func (c *WidgetCloudSettings) timerUpdate() {
@@ -54,4 +72,12 @@ func (c *WidgetCloudSettings) timerUpdate() {
 }
 
 func (c *WidgetCloudSettings) SetState(response nodeinterface.CloudStateResponse) {
+	if !c.dontUpdateNodeId {
+		if c.txtNodeId.Text() == "" {
+			if response.NodeId != "" {
+				c.txtNodeId.SetText(response.NodeId)
+				c.dontUpdateNodeId = true
+			}
+		}
+	}
 }

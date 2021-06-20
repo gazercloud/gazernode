@@ -21,22 +21,22 @@ func (c *System) CloudNodes() (nodeinterface.CloudNodesResponse, error) {
 	return c.cloudConnection.Nodes()
 }
 
-func (c *System) CloudAddNode() (nodeinterface.CloudAddNodeResponse, error) {
-	return c.cloudConnection.AddNode()
+func (c *System) CloudAddNode(name string) (nodeinterface.CloudAddNodeResponse, error) {
+	return c.cloudConnection.AddNode(name)
 }
 
-func (c *System) CloudUpdateNode() (nodeinterface.CloudUpdateNodeResponse, error) {
-	return c.cloudConnection.UpdateNode()
+func (c *System) CloudUpdateNode(nodeId string, name string) (nodeinterface.CloudUpdateNodeResponse, error) {
+	return c.cloudConnection.UpdateNode(nodeId, name)
 }
 
-func (c *System) CloudRemoveNode() (nodeinterface.CloudRemoveNodeResponse, error) {
-	return c.cloudConnection.RemoveNode()
+func (c *System) CloudRemoveNode(nodeId string) (nodeinterface.CloudRemoveNodeResponse, error) {
+	return c.cloudConnection.RemoveNode(nodeId)
 }
 
-func (c *System) CloudGetSettings() (nodeinterface.CloudGetSettingsResponse, error) {
-	return c.cloudConnection.GetSettings()
+func (c *System) CloudGetSettings(request nodeinterface.CloudGetSettingsRequest) (nodeinterface.CloudGetSettingsResponse, error) {
+	return c.cloudConnection.GetSettings(request)
 }
 
-func (c *System) CloudSetSettings() (nodeinterface.CloudSetSettingsResponse, error) {
-	return c.cloudConnection.SetSettings()
+func (c *System) CloudSetSettings(request nodeinterface.CloudSetSettingsRequest) (nodeinterface.CloudSetSettingsResponse, error) {
+	return c.cloudConnection.SetSettings(request)
 }

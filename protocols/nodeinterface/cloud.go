@@ -23,14 +23,15 @@ type CloudStateResponseItem struct {
 }
 
 type CloudStateResponse struct {
-	UserName        string `json:"user_name"`
-	NodeId          string `json:"node_id"`
-	Connected       bool   `json:"connected"`
-	LoggedIn        bool   `json:"logged_in"`
-	LoginStatus     string `json:"login_status"`
-	Status          string `json:"status"`
-	CurrentRepeater string `json:"current_repeater"`
-	Counters        []CloudStateResponseItem
+	UserName         string `json:"user_name"`
+	NodeId           string `json:"node_id"`
+	Connected        bool   `json:"connected"`
+	LoggedIn         bool   `json:"logged_in"`
+	LoginStatus      string `json:"login_status"`
+	ConnectionStatus string `json:"connection_status"`
+	IAmStatus        string `json:"i_am_status"`
+	CurrentRepeater  string `json:"current_repeater"`
+	Counters         []CloudStateResponseItem
 }
 
 type CloudNodesRequest struct {
@@ -76,7 +77,8 @@ type CloudGetSettingsResponse struct {
 }
 
 type CloudSetSettingsRequest struct {
-	AllowWriteItem bool `json:"allow_write_item"`
+	NodeId         string `json:"node_id"`
+	AllowWriteItem bool   `json:"allow_write_item"`
 }
 
 type CloudSetSettingsResponse struct {
