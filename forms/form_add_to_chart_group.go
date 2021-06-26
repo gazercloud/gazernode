@@ -48,11 +48,11 @@ func NewFormAddToChartGroup(parent uiinterfaces.Widget, client *client.Client, i
 	img.SetMinWidth(64)*/
 	pLeft.AddVSpacerOnGrid(0, 1)
 
-	pRight.AddTextBlockOnGrid(0, 0, "Select cloud channel:")
+	pRight.AddTextBlockOnGrid(0, 0, "Select Chart Group:")
 
 	c.lvChartGroups = pRight.AddListViewOnGrid(0, 1)
 	c.lvChartGroups.AddColumn("Name", 200)
-	c.lvChartGroups.AddColumn("Channel Id", 200)
+	c.lvChartGroups.AddColumn("Chart Group Id", 200)
 	c.lvChartGroups.AddColumn("Result", 100)
 	c.lvChartGroups.OnSelectionChanged = func() {
 		c.currentChartGroups = make([]string, 0)

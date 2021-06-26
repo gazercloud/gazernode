@@ -19,6 +19,7 @@ func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelClou
 	c.InitControl(parent, &c)
 	c.wCloud = widget_cloud.NewWidgetCloud(&c, client)
 	c.AddWidgetOnGrid(c.wCloud, 0, 0)
+
 	return &c
 }
 

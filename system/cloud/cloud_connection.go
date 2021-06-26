@@ -41,7 +41,23 @@ type Connection struct {
 
 	calls map[string]int64
 
+	callPerSecond          float64
+	receivedBytesPerSecond float64
+	sentBytesPerSecond     float64
+
+	callCount     int64
+	receivedBytes int64
+	sentBytes     int64
+
+	lastReceivedBytes int64
+	lastSentBytes     int64
+	lastCallCount     int64
+
+	lastCallCountDT time.Time
+
 	proxyTasks map[string]*ProxyTask
+
+	allowIncomingFunctions map[string]bool
 }
 
 func NewConnection() *Connection {
@@ -50,6 +66,14 @@ func NewConnection() *Connection {
 	c.userName = ""
 	c.password = ""
 	c.nodeId = ""
+
+	c.allowIncomingFunctions = make(map[string]bool)
+	c.allowIncomingFunctions["unit_state_all"] = true
+	c.allowIncomingFunctions["unit_state"] = true
+	c.allowIncomingFunctions["unit_items_values"] = true
+	c.allowIncomingFunctions["data_item_list"] = true
+	c.allowIncomingFunctions["unit_start"] = true
+	c.allowIncomingFunctions["unit_stop"] = true
 
 	c.calls = make(map[string]int64)
 	c.proxyTasks = make(map[string]*ProxyTask)
@@ -334,7 +358,7 @@ func (c *Connection) thConn() {
 			} else {
 				frameData.SessionId = c.sessionId
 				frameData.Client = c
-				c.processData(frameData)
+				c.processData(frameData, int64(frameLen))
 			}
 
 			processed += frameLen
@@ -366,14 +390,13 @@ func (c *Connection) applyDisconnected() {
 	c.mtx.Unlock()
 }
 
-func (c *Connection) SendData(data *BinFrame) {
+func (c *Connection) SendData(data *BinFrame) (frameLen int64) {
 	c.mtx.Lock()
 	conn := c.conn
 	if conn != nil {
 		data.Header.SessionId = c.sessionId
 		frameBytes, _ := data.Marshal()
-
-		//fmt.Println("sending cloud ", data.Header.Function)
+		frameLen += int64(len(frameBytes))
 
 		sent := 0
 		for sent < len(frameBytes) {
@@ -384,10 +407,9 @@ func (c *Connection) SendData(data *BinFrame) {
 			sent += n
 
 		}
-
-		//fmt.Println("sent cloud ", frameBytes)
 	}
 	c.mtx.Unlock()
+	return
 }
 
 func (c *Connection) openSession() {
@@ -454,9 +476,28 @@ func (c *Connection) regNode() {
 	c.SendData(&frame)
 }
 
-func (c *Connection) processData(task BinFrameTask) {
+func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	var err error
-	logger.Println("processData: ", task.Frame.Data)
+
+	if time.Now().Sub(c.lastCallCountDT) > 1*time.Second {
+		now := time.Now()
+		period := now.Sub(c.lastCallCountDT)
+		if c.lastCallCount > 0 {
+			c.callPerSecond = float64(c.callCount-c.lastCallCount) / period.Seconds()
+			c.receivedBytesPerSecond = float64(c.receivedBytes-c.lastReceivedBytes) / period.Seconds()
+			c.sentBytesPerSecond = float64(c.sentBytes-c.lastSentBytes) / period.Seconds()
+		} else {
+			c.callPerSecond = 0
+		}
+
+		c.lastCallCount = c.callCount
+		c.lastReceivedBytes = c.receivedBytes
+		c.lastSentBytes = c.sentBytes
+		c.lastCallCountDT = now
+	}
+
+	c.callCount++
+	c.receivedBytes += inputFrameSize
 
 	if task.Frame != nil {
 		c.mtx.Lock()
@@ -504,44 +545,62 @@ func (c *Connection) processData(task BinFrameTask) {
 		return
 	}
 
-	if task.Frame.Header.Function == "session_open" {
-		logger.Println("CloudConnection session_open data received", task.Frame.Data)
-		type SessionInfo struct {
-			SessionToken string `json:"session_token"`
-			Error        string `json:"error"`
-		}
-		var sessionInfo SessionInfo
-		err = json.Unmarshal(task.Frame.Data, &sessionInfo)
-		if err == nil {
-			if sessionInfo.Error == "" {
-				logger.Println("CloudConnection session_open", sessionInfo.SessionToken)
-				c.sessionId = sessionInfo.SessionToken
-				c.regNode()
-				c.SaveSession()
-				c.loginStatus = "ok"
-			} else {
-				c.loginStatus = "error: " + sessionInfo.Error
+	var allowed bool
+	{
+		var allowedValue bool
+		var allowedFound bool
+		if allowedValue, allowedFound = c.allowIncomingFunctions[task.Frame.Header.Function]; allowedFound {
+			if allowedValue {
+				allowed = true
 			}
-		} else {
-			c.loginStatus = "error: " + err.Error()
 		}
-		return
 	}
 
-	if c.requester == nil {
-		logger.Println("CloudConnection requester is nil")
-		return
-	}
-
-	// Frame for the node
 	var bs []byte
-	bs, err = c.requester.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web")
+	if allowed {
+		if task.Frame.Header.Function == "session_open" {
+			logger.Println("CloudConnection session_open data received", task.Frame.Data)
+			type SessionInfo struct {
+				SessionToken string `json:"session_token"`
+				Error        string `json:"error"`
+			}
+			var sessionInfo SessionInfo
+			err = json.Unmarshal(task.Frame.Data, &sessionInfo)
+			if err == nil {
+				if sessionInfo.Error == "" {
+					logger.Println("CloudConnection session_open", sessionInfo.SessionToken)
+					c.sessionId = sessionInfo.SessionToken
+					c.regNode()
+					c.SaveSession()
+					c.loginStatus = "ok"
+				} else {
+					c.loginStatus = "error: " + sessionInfo.Error
+				}
+			} else {
+				c.loginStatus = "error: " + err.Error()
+			}
+			return
+		}
+
+		if c.requester == nil {
+			logger.Println("CloudConnection requester is nil")
+			return
+		}
+
+		// Frame for the node
+		bs, err = c.requester.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web")
+	} else {
+		logger.Println("NOT ALLOWED FUNCTION:", task.Frame.Header.Function)
+		err = errors.New("access denied")
+	}
+
 	if err != nil {
 		type ErrorStruct struct {
 			Error string `json:"error"`
 		}
 
 		var res ErrorStruct
+		res.Error = err.Error()
 		bs, _ = json.MarshalIndent(res, "", " ")
 
 		var frame BinFrame
@@ -551,7 +610,7 @@ func (c *Connection) processData(task BinFrameTask) {
 		frame.Header.TransactionId = task.Frame.Header.TransactionId
 		frame.Header.SessionId = ""
 		frame.Data = bs
-		task.Client.SendData(&frame)
+		c.sentBytes += task.Client.SendData(&frame)
 		return
 	}
 
@@ -562,7 +621,7 @@ func (c *Connection) processData(task BinFrameTask) {
 	frame.Header.TransactionId = task.Frame.Header.TransactionId
 	frame.Header.SessionId = ""
 	frame.Data = bs
-	task.Client.SendData(&frame)
+	c.sentBytes += task.Client.SendData(&frame)
 }
 
 type ProxyTask struct {
@@ -659,7 +718,7 @@ func (c *Connection) Nodes() (resp nodeinterface.CloudNodesResponse, err error) 
 
 	cloudResp, err := c.Call("s-registered-nodes", nil)
 	if err != nil {
-		logger.Println("!!!!!! s-registered-nodes error", err)
+		logger.Println("Connection::Nodes s-registered-nodes error", err)
 		return
 	}
 
@@ -685,7 +744,6 @@ func (c *Connection) Nodes() (resp nodeinterface.CloudNodesResponse, err error) 
 		})
 	}
 
-	logger.Println("!!!!!! s-registered-nodes", string(cloudResp))
 	return resp, nil
 }
 
@@ -792,10 +850,45 @@ func (c *Connection) GetSettings(request nodeinterface.CloudGetSettingsRequest) 
 }
 
 func (c *Connection) SetSettings(request nodeinterface.CloudSetSettingsRequest) (resp nodeinterface.CloudSetSettingsResponse, err error) {
+	return
+}
+
+func (c *Connection) AccountInfo(request nodeinterface.CloudAccountInfoRequest) (resp nodeinterface.CloudAccountInfoResponse, err error) {
+	cloudResp, err := c.Call("s-account-info", []byte("{}"))
+	if err != nil {
+		logger.Println("s-account-info error", err)
+		return
+	}
+
+	type AccountInfo struct {
+		Email         string `json:"email"`
+		MaxNodesCount int64  `json:"max_nodes_count"`
+	}
+
+	var accountInfoResp AccountInfo
+	err = json.Unmarshal(cloudResp, &accountInfoResp)
+	if err != nil {
+		return
+	}
+
+	resp.Email = accountInfoResp.Email
+	resp.MaxNodesCount = accountInfoResp.MaxNodesCount
+
+	return resp, nil
+}
+
+func (c *Connection) SetCurrentNodeId(request nodeinterface.CloudSetCurrentNodeIdRequest) (resp nodeinterface.CloudSetCurrentNodeIdResponse, err error) {
 	if request.NodeId != c.nodeId {
 		c.nodeId = request.NodeId
 		c.CloseConnection()
 		err = c.SaveSession()
 	}
+	return
+}
+
+func (c *Connection) Stat() (res common_interfaces.StatGazerCloud) {
+	res.CallsPerSecond = c.callPerSecond
+	res.ReceiveSpeed = c.receivedBytesPerSecond
+	res.SendSpeed = c.sentBytesPerSecond
 	return
 }

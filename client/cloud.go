@@ -182,3 +182,42 @@ func (c *Client) CloudSetSettings(req nodeinterface.CloudSetSettingsRequest, f f
 	call.client = c
 	go c.thCall(&call)
 }
+
+func (c *Client) CloudAccountInfo(f func(nodeinterface.CloudAccountInfoResponse, error)) {
+	var call Call
+	var req nodeinterface.CloudAccountInfoRequest
+	call.function = nodeinterface.FuncCloudAccountInfo
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.CloudAccountInfoResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}
+
+func (c *Client) CloudSetCurrentNodeId(nodeId string, f func(nodeinterface.CloudSetCurrentNodeIdResponse, error)) {
+	var call Call
+	var req nodeinterface.CloudSetCurrentNodeIdRequest
+	req.NodeId = nodeId
+	call.function = nodeinterface.FuncCloudSetCurrentNodeId
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.CloudSetCurrentNodeIdResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}

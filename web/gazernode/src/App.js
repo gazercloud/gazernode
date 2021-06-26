@@ -25,6 +25,7 @@ import PageUnit from "./Pages/PageUnit";
 import PageAccount from "./Pages/PageAccount";
 import {createMuiTheme} from "@material-ui/core";
 import PageDataItem from "./Pages/PageDataItem";
+import PageUnitConfig from "./Pages/PageUnitConfig";
 
 const drawerWidth = 240;
 
@@ -206,6 +207,15 @@ function ResponsiveDrawer(props) {
         if (form === "unit") {
             return (
                 <PageUnit
+                    OnNavigate={(addr)=> navigate(addr)}
+                    UnitId={getHashVariable("unitId")}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                />
+            )
+        }
+        if (form === "unit_config") {
+            return (
+                <PageUnitConfig
                     OnNavigate={(addr)=> navigate(addr)}
                     UnitId={getHashVariable("unitId")}
                     OnTitleUpdate={(title) => updateTitle(title)}

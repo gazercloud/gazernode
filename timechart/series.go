@@ -15,6 +15,7 @@ type Series struct {
 	values        []*Value
 	vlines        []vline
 	color         color.Color
+	currentUOM    string
 
 	hoverTime int64
 	hoverX    int
@@ -82,7 +83,7 @@ func (c *Series) Draw(ctx ui.DrawContext, scaleXOffset int, xOffset int, height 
 	r := float64(hScale.displayMax_ - hScale.displayMin_)
 	timePerPixel := int64(r / w)
 
-	c.values = c.dataProvider.GetData("", hScale.displayMin_, hScale.displayMax_, timePerPixel)
+	c.values, c.currentUOM = c.dataProvider.GetData("", hScale.displayMin_, hScale.displayMax_, timePerPixel)
 	c.verticalScale.Height = height - bottomHeaderHeight
 
 	if !c.area.unitedVerticalScale || index == 0 {
@@ -210,7 +211,7 @@ func (c *Series) Draw(ctx ui.DrawContext, scaleXOffset int, xOffset int, height 
 	ctx.SetColor(c.color)
 	ctx.SetFontSize(14)
 	ctx.SetTextAlign(canvas.HAlignLeft, canvas.VAlignTop)
-	ctx.DrawText(xOffset+10, textHeight*index+10, 300, 50, c.id)
+	ctx.DrawText(xOffset+10, textHeight*index+10, 300, 50, c.id+" ("+c.currentUOM+")")
 
 	if len(c.area.timeChart.selections_) > 0 {
 		// Selection statistics

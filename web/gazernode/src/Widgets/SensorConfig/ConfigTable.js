@@ -43,7 +43,7 @@ export default function ConfigTable(props) {
             } else {
                 return {
                     cursor: "pointer",
-                    backgroundColor: "#FFFFFF"
+                    backgroundColor: "#222"
                 }
             }
         }
@@ -87,7 +87,7 @@ export default function ConfigTable(props) {
                     <Table size="small" style={{minWidth: "400px"}}>
                         <TableBody>
                             <TableRow style={{backgroundColor: "#DDDDDD"}}>
-                                {props.Meta.columns.map((item) => (
+                                {props.Meta.children.map((item) => (
                                     <TableCell>
                                         <div>{item.display_name}</div>
                                     </TableCell>
@@ -102,7 +102,7 @@ export default function ConfigTable(props) {
                                         style={btnStyle(dataItemIndex)}
                                         onClick={btnClick.bind(this, dataItemIndex)}
                                     >
-                                        {props.Meta.columns.map((item) => (
+                                        {props.Meta.children.map((item) => (
                                             <TableCell>
                                                 <div>{(item.type !== "table" && item.type !== "object")?dataItem[item.name]:"obj"}</div>
                                             </TableCell>
@@ -119,7 +119,7 @@ export default function ConfigTable(props) {
                             <div>No row selected</div>
                             :
                             <div>
-                            <ConfigObject Meta={props.Meta.columns} Data={getDataOfItem(currentItem)}
+                            <ConfigObject Meta={props.Meta.children} Data={getDataOfItem(currentItem)}
                                           OnChangedValue={
                                               (n, v) => {
                                                   let workCopy = JSON.parse(JSON.stringify(props.Data));

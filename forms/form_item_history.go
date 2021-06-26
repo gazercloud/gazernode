@@ -207,7 +207,7 @@ func (c *FormItemHistory) timeFilterChanged() {
 func (c *FormItemHistory) OnInit() {
 	c.Dialog.OnInit()
 	c.SetTitle("Item history - " + c.itemName)
-	c.Resize(800, 700)
+	c.Resize(1000, 700)
 }
 
 func (c *FormItemHistory) SetWideValue(wideValue bool) {

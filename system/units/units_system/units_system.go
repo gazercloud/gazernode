@@ -10,6 +10,7 @@ import (
 	"github.com/gazercloud/gazernode/system/units/databases/unit_postgreesql"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
+	"github.com/gazercloud/gazernode/system/units/gazer/unit_gazer_cloud"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi_key_value"
 	"github.com/gazercloud/gazernode/system/units/general/unit_hhgttg"
@@ -48,6 +49,7 @@ func init() {
 	unitCategoriesIcons["general"] = resources.R_files_sensors_sensor_general_png
 	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_sensor_serial_port_png
 	unitCategoriesIcons["databases"] = resources.R_files_sensors_sensor_network_png
+	unitCategoriesIcons["gazer"] = resources.R_files_sensors_sensor_network_png
 	unitCategoriesIcons[""] = resources.R_files_sensors_sensor_all_png
 
 	unitCategoriesNames = make(map[string]string)
@@ -57,6 +59,7 @@ func init() {
 	unitCategoriesNames["general"] = "General"
 	unitCategoriesNames["serial_port"] = "Serial Port"
 	unitCategoriesNames["databases"] = "Databases"
+	unitCategoriesNames["gazer"] = "Gazer"
 	unitCategoriesNames[""] = "All"
 }
 
@@ -157,6 +160,11 @@ No description available
 `
 
 	unitType = c.RegisterUnit("databases_postgresql", "databases", "PostgreSQL", unit_postgreesql.New, unit_postgreesql.Image, "PostgreSQL database query execute")
+	unitType.Help = `
+No description available
+`
+
+	unitType = c.RegisterUnit("gazer_cloud", "gazer", "Gazer Cloud", unit_gazer_cloud.New, unit_gazer_cloud.Image, "Gazer Cloud Monitoring")
 	unitType.Help = `
 No description available
 `

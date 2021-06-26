@@ -70,14 +70,15 @@ func (c *PanelCharts) OnInit() {
 	c.lvItems = c.pUnitsList.AddListViewOnGrid(0, 2)
 	c.lvItems.AddColumn("Name", 230)
 	c.lvItems.OnSelectionChanged = func() {
-		c.loadSelected()
+		c.loadSelected(false)
 	}
 
 	c.btnAdd = pButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
 		d := NewFormAddChartGroup(c, c.client, "chart_group")
 		d.ShowDialog()
 		d.OnAccept = func() {
-			c.loadChartGroups(d.Id)
+			c.loadChartGroups(d.Id, true)
+			//c.SetCurrentRes(d.Id, "chart_group")
 		}
 	})
 	c.btnAdd.SetTooltip("Add chart group ...")
@@ -91,7 +92,7 @@ func (c *PanelCharts) OnInit() {
 		dialog := NewDialogEditChartGroupName(c, c.client, item.TempData, item.Value(0))
 		dialog.ShowDialog()
 		dialog.OnAccept = func() {
-			c.loadChartGroups("")
+			c.loadChartGroups("", false)
 		}
 	})
 	c.btnRename.SetTooltip("Rename chart group")
@@ -103,7 +104,7 @@ func (c *PanelCharts) OnInit() {
 		uicontrols.ShowQuestionMessageOKCancel(c, "Remove chart group?", "Confirmation", func() {
 			item := c.lvItems.SelectedItems()[0]
 			c.client.ResRemove(item.TempData, func(err error) {
-				c.loadChartGroups("")
+				c.loadChartGroups("", false)
 			})
 		}, nil)
 	})
@@ -112,7 +113,7 @@ func (c *PanelCharts) OnInit() {
 	pButtons.AddTextBlockOnGrid(3, 0, " | ")
 
 	c.btnRefresh = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
-		c.loadChartGroups("")
+		c.loadChartGroups("", false)
 	})
 	c.btnRefresh.SetTooltip("Refresh")
 
@@ -136,7 +137,7 @@ func (c *PanelCharts) OnInit() {
 	c.btnEdit.SetMinWidth(70)
 	c.btnReject = pChartGroupButtons.AddButtonOnGrid(1, 0, "", func(event *uievents.Event) {
 		c.SetEdit(false)
-		c.loadSelected()
+		c.loadSelected(false)
 		c.updateButtons()
 	})
 	c.btnReject.SetTooltip("Reject changes")
@@ -242,10 +243,14 @@ func (c *PanelCharts) OnInit() {
 	c.itemsPanel = widget_dataitems.NewWidgetDataItems(c, c.client, "Drag the item onto the chart", "To add an area, drag the item onto the timeline")
 	c.splitterEditor.Panel2.AddWidgetOnGrid(c.itemsPanel, 0, 1)
 
-	c.loadChartGroups("")
+	c.itemsPanel.OnAdd = func(id string) {
+		c.timeChart.AddItem(id)
+	}
+
+	c.loadChartGroups("", false)
 	c.SetEdit(false)
 	c.updateButtons()
-	c.loadSelected()
+	c.loadSelected(false)
 }
 
 func (c *PanelCharts) Dispose() {
@@ -268,7 +273,7 @@ func (c *PanelCharts) SelectChartGroup(resId string) {
 		item := c.lvItems.Item(i)
 		if item.TempData == resId {
 			c.lvItems.SelectItem(i)
-			c.loadSelected()
+			c.loadSelected(false)
 			break
 		}
 	}
@@ -276,7 +281,7 @@ func (c *PanelCharts) SelectChartGroup(resId string) {
 
 func (c *PanelCharts) FullRefresh() {
 	if !c.IsEditing() {
-		c.loadChartGroups("")
+		c.loadChartGroups("", true)
 	}
 }
 
@@ -304,7 +309,7 @@ func (c *PanelCharts) Save() []byte {
 	return c.timeChart.Save()
 }
 
-func (c *PanelCharts) loadSelected() {
+func (c *PanelCharts) loadSelected(forEdit bool) {
 	selectedItem := c.lvItems.SelectedItem()
 	if selectedItem != nil {
 		c.txtHeaderChartGroup.SetText(selectedItem.Value(0))
@@ -313,6 +318,9 @@ func (c *PanelCharts) loadSelected() {
 			if err == nil {
 				if c.SetCurrentRes(resId, item.Info.Type) {
 					c.timeChart.Load(item.Content)
+					if forEdit {
+						c.btnEdit.Press()
+					}
 				}
 			}
 		})
@@ -394,7 +402,7 @@ func (c *PanelCharts) GetDataItemValue(path string, control simplemap.IMapContro
 	control.UpdateValue(val)
 }
 
-func (c *PanelCharts) loadChartGroups(selectAfterLoadingId string) {
+func (c *PanelCharts) loadChartGroups(selectAfterLoadingId string, forEdit bool) {
 	c.client.ResList("chart_group", "", 0, 1000000, func(infos common_interfaces.ResourcesInfo, err error) {
 
 		if selectAfterLoadingId == "" {
@@ -415,6 +423,10 @@ func (c *PanelCharts) loadChartGroups(selectAfterLoadingId string) {
 
 		if indexForSelect > -1 {
 			c.lvItems.SelectItem(indexForSelect)
+		}
+
+		if forEdit {
+			c.loadSelected(true)
 		}
 	})
 }

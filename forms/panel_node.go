@@ -151,7 +151,7 @@ func (c *PanelNode) FullRefresh() {
 
 func (c *PanelNode) StylizeButton() {
 	c.btnPanelUnits.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_image_blur_on_materialiconsoutlined_48dp_1x_outline_blur_on_black_48dp_png, c.btnPanelUnits.AccentColor()))
-	c.btnPanelCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelPublicChannels.AccentColor()))
+	c.btnPanelCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_queue_materialiconsoutlined_48dp_1x_outline_cloud_queue_black_48dp_png, c.btnPanelPublicChannels.AccentColor()))
 	c.btnPanelPublicChannels.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.btnPanelPublicChannels.AccentColor()))
 	c.btnPanelCharts.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_editor_stacked_line_chart_materialiconsoutlined_48dp_1x_outline_stacked_line_chart_black_48dp_png, c.btnPanelCharts.AccentColor()))
 	c.btnPanelMaps.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_maps_layers_materialiconsoutlined_48dp_1x_outline_layers_black_48dp_png, c.btnPanelCharts.AccentColor()))
@@ -159,7 +159,7 @@ func (c *PanelNode) StylizeButton() {
 
 	for _, btn := range c.buttons {
 		btn.SetBorders(0, color.White)
-		if btn == c.btnPanelCloud {
+		if btn == c.btnPanelPublicChannels {
 			btn.SetBorderTop(1, c.ForeColor())
 			btn.SetBorderBottom(1, c.ForeColor())
 		} else {
@@ -236,9 +236,7 @@ func (c *PanelNode) OnInit() {
 	c.btnPanelMaps.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelMaps)
 
-	c.panelLeftMenu.AddVSpacerOnGrid(0, 5)
-
-	c.btnPanelCloud = c.panelLeftMenu.AddButtonOnGrid(0, 6, "Cloud", func(event *uievents.Event) {
+	c.btnPanelCloud = c.panelLeftMenu.AddButtonOnGrid(0, 5, "Remote\r\nAccess", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)
 		c.panelCloud.SetVisible(true)
 		c.panelPublicChannels.SetVisible(false)
@@ -250,6 +248,8 @@ func (c *PanelNode) OnInit() {
 	})
 	c.btnPanelCloud.SetMouseCursor(ui.MouseCursorPointer)
 	c.buttons = append(c.buttons, c.btnPanelCloud)
+
+	c.panelLeftMenu.AddVSpacerOnGrid(0, 6)
 
 	c.btnPanelPublicChannels = c.panelLeftMenu.AddButtonOnGrid(0, 7, "Public\r\nChannels", func(event *uievents.Event) {
 		c.panelUnits.SetVisible(false)

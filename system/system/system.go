@@ -100,3 +100,12 @@ func (c *System) RegApiCall() {
 func (c *System) Exec(function string, request []byte, host string) ([]byte, error) {
 	return c.requester.RequestJson(function, request, host)
 }
+
+func (c *System) StatGazerNode() (res common_interfaces.StatGazerNode) {
+	return
+}
+
+func (c *System) StatGazerCloud() (res common_interfaces.StatGazerCloud) {
+	res = c.cloudConnection.Stat()
+	return
+}

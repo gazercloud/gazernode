@@ -7,12 +7,14 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/gazercloud/gazerui/uiresources"
 )
 
 type WidgetCloudHeader struct {
 	uicontrols.Panel
-	client    *client.Client
-	btnLogout *uicontrols.Button
+	client        *client.Client
+	btnLogout     *uicontrols.Button
+	currentNodeId string
 
 	lblState1 *uicontrols.TextBlock
 	lblState2 *uicontrols.TextBlock
@@ -32,26 +34,44 @@ func NewWidgetCloudHeader(parent uiinterfaces.Widget, client *client.Client) *Wi
 func (c *WidgetCloudHeader) OnInit() {
 	pHeader := c.AddPanelOnGrid(0, 0)
 	pHeader.SetPanelPadding(0)
-	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Cloud")
+	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Remote Access")
 	txtHeader.SetFontSize(24)
+	txtHeader.SetForeColor(c.AccentColor())
 	pHeader.AddHSpacerOnGrid(1, 0)
-	c.btnLogout = pHeader.AddButtonOnGrid(2, 0, "Logout", func(event *uievents.Event) {
+
+	pContent := c.AddPanelOnGrid(0, 1)
+	pContent.SetBorderBottom(1, c.InactiveColor())
+
+	pState := pContent.AddPanelOnGrid(0, 0)
+	pState.SetPanelPadding(0)
+	pState.AddTextBlockOnGrid(0, 0, "NodeId:")
+	pState.AddTextBlockOnGrid(0, 1, "UserName:")
+	pState.AddTextBlockOnGrid(0, 2, "Connection:")
+	c.lblState1 = pState.AddTextBlockOnGrid(1, 0, "")
+	c.lblState2 = pState.AddTextBlockOnGrid(1, 1, "")
+	c.lblState3 = pState.AddTextBlockOnGrid(1, 2, "")
+
+	pContent.AddHSpacerOnGrid(1, 0)
+
+	btnOpenInBrowser := pContent.AddButtonOnGrid(2, 0, "Open\r\nin browser", func(event *uievents.Event) {
+		if len(c.currentNodeId) > 0 {
+			client.OpenBrowser("https://" + c.currentNodeId + "-n.gazer.cloud/")
+		} else {
+			uicontrols.ShowErrorMessage(c, "Please set NodeId for the current instance.", "Error")
+		}
+	})
+	btnOpenInBrowser.SetMinWidth(120)
+	btnOpenInBrowser.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, c.AccentColor()))
+
+	c.btnLogout = pContent.AddButtonOnGrid(3, 0, "Logout", func(event *uievents.Event) {
 		c.client.CloudLogout(func(err error) {
 			if c.OnNeedToLoadState != nil {
 				c.OnNeedToLoadState()
 			}
 		})
 	})
-
-	pContent := c.AddPanelOnGrid(0, 1)
-	pContent.SetPanelPadding(0)
-	pContent.AddTextBlockOnGrid(0, 0, "NodeId:")
-	pContent.AddTextBlockOnGrid(0, 1, "UserName:")
-	pContent.AddTextBlockOnGrid(0, 2, "Connection:")
-	c.lblState1 = pContent.AddTextBlockOnGrid(1, 0, "")
-	c.lblState2 = pContent.AddTextBlockOnGrid(1, 1, "")
-	c.lblState3 = pContent.AddTextBlockOnGrid(1, 2, "")
-	pContent.AddHSpacerOnGrid(2, 0)
+	c.btnLogout.SetMinWidth(120)
+	c.btnLogout.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, c.AccentColor()))
 
 	c.UpdateStyle()
 }
@@ -72,6 +92,8 @@ func (c *WidgetCloudHeader) SetState(response nodeinterface.CloudStateResponse) 
 	} else {
 		c.btnLogout.SetEnabled(false)
 	}
+
+	c.currentNodeId = response.NodeId
 
 	c.lblState1.SetText(response.NodeId + " / " + response.IAmStatus)
 	if response.IAmStatus == "ok" {

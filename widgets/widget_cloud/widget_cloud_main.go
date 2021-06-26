@@ -11,7 +11,7 @@ type WidgetCloudMain struct {
 	uicontrols.Panel
 	client *client.Client
 
-	wState    *WidgetCloudState
+	//wState    *WidgetCloudState
 	wNodes    *WidgetCloudNodes
 	wSettings *WidgetCloudSettings
 }
@@ -25,17 +25,13 @@ func NewWidgetCloudMain(parent uiinterfaces.Widget, client *client.Client) *Widg
 }
 
 func (c *WidgetCloudMain) OnInit() {
-	c.wState = NewWidgetCloudState(c, c.client)
-	c.AddWidgetOnGrid(c.wState, 0, 0)
 	c.wNodes = NewWidgetCloudNodes(c, c.client)
-	c.AddWidgetOnGrid(c.wNodes, 1, 0)
+	c.AddWidgetOnGrid(c.wNodes, 0, 0)
 	c.wSettings = NewWidgetCloudSettings(c, c.client)
-	c.AddWidgetOnGrid(c.wSettings, 2, 0)
+	c.AddWidgetOnGrid(c.wSettings, 1, 0)
+	/*c.wState = NewWidgetCloudState(c, c.client)
+	c.AddWidgetOnGrid(c.wState, 2, 0)*/
 	c.UpdateStyle()
-
-	c.wNodes.OnNeedSetCurrent = func(nodeId string) {
-		c.wSettings.SetCurrentNode(nodeId)
-	}
 }
 
 func (c *WidgetCloudMain) Dispose() {
@@ -45,7 +41,7 @@ func (c *WidgetCloudMain) Dispose() {
 }
 
 func (c *WidgetCloudMain) SetState(response nodeinterface.CloudStateResponse) {
-	c.wState.SetState(response)
+	//c.wState.SetState(response)
 	c.wNodes.SetState(response)
 	c.wSettings.SetState(response)
 }

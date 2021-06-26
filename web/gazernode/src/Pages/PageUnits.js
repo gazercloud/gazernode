@@ -68,6 +68,11 @@ function PageUnits(props) {
         props.OnNavigate("#form=unit&unitId="+ idHex)
     }
 
+    const btnClickUnitConfig = (id) => {
+        const idHex = new Buffer(id).toString('hex');
+        props.OnNavigate("#form=unit_config&unitId="+ idHex)
+    }
+
     const handleEnter = (ev, key) => {
         setHoverItem(ev)
     }
@@ -234,10 +239,13 @@ function PageUnits(props) {
                     </Grid>
                 </Grid>
                 <Grid item style={{marginTop: '20px'}}>
-                    <Button variant='outlined' color='primary' style={{minWidth: '100px', margin: '10px'}} disabled={item.status === 'started'}
+                    <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}}
+                            onClick={btnClickUnitConfig.bind(this, item.unit_id, item.unit_name)}
+                    >CONFIG</Button>
+                    <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}} disabled={item.status === 'started'}
                             onClick={requestStartUnit.bind(this, item.unit_id)}
                     >START</Button>
-                    <Button variant='outlined' color='primary' style={{minWidth: '100px', margin: '10px'}} disabled={item.status === 'stopped'}
+                    <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}} disabled={item.status === 'stopped'}
                             onClick={requestStopUnit.bind(this, item.unit_id)}
                     >STOP</Button>
                 </Grid>

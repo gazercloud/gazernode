@@ -27,15 +27,17 @@ const (
 	FuncDataItemRemove       = "data_item_remove"
 
 	// *** Cloud ***
-	FuncCloudLogin       = "cloud_login"
-	FuncCloudLogout      = "cloud_logout"
-	FuncCloudState       = "cloud_state"
-	FuncCloudNodes       = "cloud_nodes"
-	FuncCloudAddNode     = "cloud_add_node"
-	FuncCloudUpdateNode  = "cloud_update_node"
-	FuncCloudRemoveNode  = "cloud_remove_node"
-	FuncCloudGetSettings = "cloud_get_settings"
-	FuncCloudSetSettings = "cloud_set_settings"
+	FuncCloudLogin            = "cloud_login"
+	FuncCloudLogout           = "cloud_logout"
+	FuncCloudState            = "cloud_state"
+	FuncCloudNodes            = "cloud_nodes"
+	FuncCloudAddNode          = "cloud_add_node"
+	FuncCloudUpdateNode       = "cloud_update_node"
+	FuncCloudRemoveNode       = "cloud_remove_node"
+	FuncCloudGetSettings      = "cloud_get_settings"
+	FuncCloudSetSettings      = "cloud_set_settings"
+	FuncCloudAccountInfo      = "cloud_account_info"
+	FuncCloudSetCurrentNodeId = "cloud_set_current_node_id"
 
 	// *** Public Channel ***
 	FuncPublicChannelList       = "public_channel_list"

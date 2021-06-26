@@ -125,6 +125,10 @@ const (
 	ItemNameError     = "error"
 )
 
+func (c *Unit) IDataStorage() common_interfaces.IDataStorage {
+	return c.iDataStorage
+}
+
 func (c *Unit) SetStringService(name string, value string, UOM string) {
 	fullName := c.Name() + "/" + UnitServicePrefix + name
 	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), "")

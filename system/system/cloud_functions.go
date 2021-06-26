@@ -40,3 +40,11 @@ func (c *System) CloudGetSettings(request nodeinterface.CloudGetSettingsRequest)
 func (c *System) CloudSetSettings(request nodeinterface.CloudSetSettingsRequest) (nodeinterface.CloudSetSettingsResponse, error) {
 	return c.cloudConnection.SetSettings(request)
 }
+
+func (c *System) CloudAccountInfo(request nodeinterface.CloudAccountInfoRequest) (nodeinterface.CloudAccountInfoResponse, error) {
+	return c.cloudConnection.AccountInfo(request)
+}
+
+func (c *System) CloudSetCurrentNodeId(request nodeinterface.CloudSetCurrentNodeIdRequest) (nodeinterface.CloudSetCurrentNodeIdResponse, error) {
+	return c.cloudConnection.SetCurrentNodeId(request)
+}

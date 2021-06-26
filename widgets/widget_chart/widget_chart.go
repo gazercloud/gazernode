@@ -84,6 +84,10 @@ func (c *WidgetCharts) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *WidgetCharts) AddItem(id string) {
+	c.AddSeries(id, nil)
+}
+
 func (c *WidgetCharts) SetEdit(editing bool) {
 	c.timeChart.SetEditing(editing)
 }
@@ -219,6 +223,7 @@ type DocumentChartItem struct {
 	idsLoaded     bool
 	idsNeedToLoad bool
 	lastGetDT     time.Time
+	currentUOM    string
 
 	values map[int64]*DocumentChartValues
 
@@ -305,7 +310,7 @@ func (c *DocumentChartItem) GetLoadingDiapasons() []timechart.LoadingDiapason {
 	return result
 }
 
-func (c *DocumentChartItem) GetData(key string, minTime, maxTime int64, groupTimeRange int64) []*timechart.Value {
+func (c *DocumentChartItem) GetData(key string, minTime, maxTime int64, groupTimeRange int64) ([]*timechart.Value, string) {
 
 	groupTimeRange = AlignGroupTimeRange(groupTimeRange)
 
@@ -325,6 +330,10 @@ func (c *DocumentChartItem) GetData(key string, minTime, maxTime int64, groupTim
 	values.loadedRanges = make([]*TimeRange, 0)
 	c.values[groupTimeRange] = values
 	return values.GetData(minTime, maxTime)
+}
+
+func (c *DocumentChartItem) GetUOM() string {
+	return c.currentUOM
 }
 
 type TimeRange struct {
@@ -360,20 +369,27 @@ func (c *DocumentChartValues) Dispose() {
 	c.loadingRanges = nil
 }
 
-func (c *DocumentChartValues) GetData(minTime, maxTime int64) []*timechart.Value {
+func (c *DocumentChartValues) GetData(minTime, maxTime int64) ([]*timechart.Value, string) {
 	c.checkValues(minTime, maxTime)
 	c.lastGetDT = time.Now().UTC()
 
 	result := make([]*timechart.Value, 0, 4000)
 
+	lastValidUOM := ""
+
 	// local Filter by time
 	for _, v := range c.values {
 		if v.DatetimeFirst >= minTime && v.DatetimeLast <= maxTime {
 			result = append(result, v)
+			if lastValidUOM == "" {
+				if v.UOM != "" && v.UOM != "error" {
+					lastValidUOM = v.UOM
+				}
+			}
 		}
 	}
 
-	return result
+	return result, lastValidUOM
 }
 
 func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
@@ -396,6 +412,7 @@ func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
 						CountOfValues: item.CountOfValues,
 						Qualities:     item.Qualities,
 						Loaded:        false,
+						UOM:           item.UOM,
 					}
 				}
 

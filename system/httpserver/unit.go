@@ -158,6 +158,7 @@ func (c *HttpServer) UnitGetConfig(request []byte) (response []byte, err error) 
 	}
 
 	resp.UnitName, resp.UnitConfig, resp.UnitConfigMeta, resp.UnitType, err = c.system.GetConfig(req.UnitId)
+	resp.UnitId = req.UnitId
 	if err != nil {
 		return
 	}

@@ -10,7 +10,6 @@ export default function ConfigSensor(props) {
 
     const [settings, setSettings] = React.useState({})
 
-
     const [confMeta, setConfMeta] = React.useState([
         {
             name: "addr",
@@ -80,8 +79,10 @@ export default function ConfigSensor(props) {
         )
     }
 
+    console.log("ConfigSensor - draw", props.ConfigMeta)
     return (
         <div>
+            <div>CONFIG</div>
             <div>{drawItem(props.ConfigMeta, props.Config)}</div>
             <div>{JSON.stringify(conf)}</div>
         </div>

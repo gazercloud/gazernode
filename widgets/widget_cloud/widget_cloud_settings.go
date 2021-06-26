@@ -12,10 +12,8 @@ type WidgetCloudSettings struct {
 	uicontrols.Panel
 	client *client.Client
 
-	txtNodeId *uicontrols.TextBox
-	btnApply  *uicontrols.Button
-
-	dontUpdateNodeId bool
+	btnApply *uicontrols.Button
+	wState   *WidgetCloudState
 }
 
 func NewWidgetCloudSettings(parent uiinterfaces.Widget, client *client.Client) *WidgetCloudSettings {
@@ -31,20 +29,24 @@ func (c *WidgetCloudSettings) OnInit() {
 	pHeader.SetPanelPadding(0)
 	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Settings")
 	txtHeader.SetFontSize(16)
+	txtHeader.SetForeColor(c.AccentColor())
+	txtHeader.SetFontSize(c.FontSize() * 1.2)
 	pContent := c.AddPanelOnGrid(0, 1)
 	pContent.SetPanelPadding(0)
 
 	pContent.AddCheckBoxOnGrid(0, 0, "Enable")
 	pContent.AddCheckBoxOnGrid(0, 1, "Allow Write Item")
-	c.txtNodeId = pContent.AddTextBoxOnGrid(0, 2)
+
 	c.btnApply = pContent.AddButtonOnGrid(0, 3, "Apply", func(event *uievents.Event) {
 		var req nodeinterface.CloudSetSettingsRequest
-		req.NodeId = c.txtNodeId.Text()
 		c.client.CloudSetSettings(req, func(response nodeinterface.CloudSetSettingsResponse, err error) {
 		})
 	})
 
-	pContent.AddVSpacerOnGrid(0, 10)
+	c.wState = NewWidgetCloudState(c, c.client)
+	c.AddWidgetOnGrid(c.wState, 0, 4)
+
+	//pContent.AddVSpacerOnGrid(0, 10)
 	c.UpdateStyle()
 }
 
@@ -52,11 +54,6 @@ func (c *WidgetCloudSettings) Dispose() {
 	c.client = nil
 
 	c.Panel.Dispose()
-}
-
-func (c *WidgetCloudSettings) SetCurrentNode(nodeId string) {
-	c.txtNodeId.SetText(nodeId)
-	c.btnApply.Press()
 }
 
 func (c *WidgetCloudSettings) timerUpdate() {
@@ -72,12 +69,5 @@ func (c *WidgetCloudSettings) timerUpdate() {
 }
 
 func (c *WidgetCloudSettings) SetState(response nodeinterface.CloudStateResponse) {
-	if !c.dontUpdateNodeId {
-		if c.txtNodeId.Text() == "" {
-			if response.NodeId != "" {
-				c.txtNodeId.SetText(response.NodeId)
-				c.dontUpdateNodeId = true
-			}
-		}
-	}
+	c.wState.SetState(response)
 }

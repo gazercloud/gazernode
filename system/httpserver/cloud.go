@@ -157,3 +157,37 @@ func (c *HttpServer) CloudSetSettings(request []byte) (response []byte, err erro
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
+
+func (c *HttpServer) CloudAccountInfo(request []byte) (response []byte, err error) {
+	var req nodeinterface.CloudAccountInfoRequest
+	var resp nodeinterface.CloudAccountInfoResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp, err = c.system.CloudAccountInfo(req)
+
+	if err != nil {
+		return
+	}
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) CloudSetCurrentNodeId(request []byte) (response []byte, err error) {
+	var req nodeinterface.CloudSetCurrentNodeIdRequest
+	var resp nodeinterface.CloudSetCurrentNodeIdResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp, err = c.system.CloudSetCurrentNodeId(req)
+
+	if err != nil {
+		return
+	}
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}

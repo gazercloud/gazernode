@@ -83,3 +83,18 @@ type CloudSetSettingsRequest struct {
 
 type CloudSetSettingsResponse struct {
 }
+
+type CloudAccountInfoRequest struct {
+}
+
+type CloudAccountInfoResponse struct {
+	Email         string `json:"email"`
+	MaxNodesCount int64  `json:"max_nodes_count"`
+}
+
+type CloudSetCurrentNodeIdRequest struct {
+	NodeId string `json:"node_id"`
+}
+
+type CloudSetCurrentNodeIdResponse struct {
+}

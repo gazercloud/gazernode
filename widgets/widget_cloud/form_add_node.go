@@ -12,15 +12,13 @@ import (
 type FormAddNode struct {
 	uicontrols.Dialog
 	client      *client.Client
-	tp          string
 	txtUnitName *uicontrols.TextBox
 	btnOK       *uicontrols.Button
 }
 
-func NewFormAddNode(parent uiinterfaces.Widget, client *client.Client, tp string) *FormAddNode {
+func NewFormAddNode(parent uiinterfaces.Widget, client *client.Client) *FormAddNode {
 	var c FormAddNode
 	c.client = client
-	c.tp = tp
 	c.InitControl(parent, &c)
 
 	pContent := c.ContentPanel().AddPanelOnGrid(0, 0)

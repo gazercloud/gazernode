@@ -40,10 +40,10 @@ type PanelUnits struct {
 
 	btnRefresh *uicontrols.Button
 
-	btnShowFullScreen  *uicontrols.Button
-	btnAddToCloud      *uicontrols.Button
-	btnRemoveFromCloud *uicontrols.Button
-	btnOpenInBrowser   *uicontrols.Button
+	btnShowFullScreen          *uicontrols.Button
+	btnAddToPublicChannel      *uicontrols.Button
+	btnRemoveFromPublicChannel *uicontrols.Button
+	btnOpenInBrowser           *uicontrols.Button
 
 	currentUnitId   string
 	currentUnitName string
@@ -194,7 +194,7 @@ func (c *PanelUnits) OnInit() {
 
 	pButtons.AddHSpacerOnGrid(5, 0)
 
-	c.btnAddToCloud = pButtonsRight.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
+	c.btnAddToPublicChannel = pButtonsRight.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		allItems := c.AllItems()
 		f := NewFormAddToCloud(c, c.client, items, allItems, nil)
@@ -202,8 +202,8 @@ func (c *PanelUnits) OnInit() {
 		f.OnAccept = func() {
 		}
 	})
-	c.btnAddToCloud.SetTooltip("Add to Gazer-Cloud")
-	c.btnAddToCloud.SetMinWidth(60)
+	c.btnAddToPublicChannel.SetTooltip("Add to the Public Channel")
+	c.btnAddToPublicChannel.SetMinWidth(60)
 
 	c.btnOpenInBrowser = pButtonsRight.AddButtonOnGrid(2, 0, "", func(event *uievents.Event) {
 		channels := make(map[string]string)
@@ -220,18 +220,18 @@ func (c *PanelUnits) OnInit() {
 			client.OpenBrowser(gazer_dictionary.ChannelUrl(channelId))
 		}
 	})
-	c.btnOpenInBrowser.SetTooltip("Open in browser")
+	c.btnOpenInBrowser.SetTooltip("Open In Browser")
 	c.btnOpenInBrowser.SetMinWidth(60)
 
 	pButtonsRight.AddHSpacerOnGrid(3, 0)
 
-	c.btnRemoveFromCloud = pButtonsRight.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
+	c.btnRemoveFromPublicChannel = pButtonsRight.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
 		f := NewFormRemoveFromCloud(c, c.client, c.SelectedItems(), c.AllItems(), nil)
 		f.ShowDialog()
 		f.OnAccept = func() {
 		}
 	})
-	c.btnRemoveFromCloud.SetTooltip("Remove from Gazer-Cloud")
+	c.btnRemoveFromPublicChannel.SetTooltip("Remove From Public Channel")
 
 	c.btnShowFullScreen = pButtonsRight.AddButtonOnGrid(5, 0, "", func(event *uievents.Event) {
 		items := c.SelectedItems()
@@ -251,13 +251,13 @@ func (c *PanelUnits) OnInit() {
 	c.lvItems.SetColumnTextAlign(1, canvas.HAlignRight)
 
 	menuItems := uicontrols.NewPopupMenu(c.lvUnits)
-	menuItems.AddItem("Add to cloud ...", func(event *uievents.Event) {
+	menuItems.AddItem("Add To Public Channel ...", func(event *uievents.Event) {
 		c.addSelectedItemsToCloud()
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.ForeColor()), "")
-	menuItems.AddItem("Remove from cloud ...", func(event *uievents.Event) {
+	menuItems.AddItem("Remove From Public Channel ...", func(event *uievents.Event) {
 		c.removeSelectedItemsFromCloud()
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, c.ForeColor()), "")
-	menuItems.AddItem("Open in browser", func(event *uievents.Event) {
+	menuItems.AddItem("Open Public Channel In Browser", func(event *uievents.Event) {
 		c.openSelectedItemInBrowser()
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialiconsoutlined_48dp_1x_outline_open_in_browser_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Big view ...", func(event *uievents.Event) {
@@ -277,27 +277,21 @@ func (c *PanelUnits) OnInit() {
 		if len(items) == 1 {
 			NewFormItemProperties(c, c.client, items[0]).ShowDialog()
 		}
-	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_image_tune_materialiconsoutlined_48dp_1x_outline_tune_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Write ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
 			NewFormWriteValue(c, c.client, items[0]).ShowDialog()
 		}
-	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_content_save_alt_materialiconsoutlined_48dp_1x_outline_save_alt_black_48dp_png, c.ForeColor()), "")
 	menuItems.AddItem("Remove", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		NewFormRemoveItems(c, c.client, items).ShowDialog()
-	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
-	menuItems.AddItem("Copy full item name", func(event *uievents.Event) {
-		items := c.SelectedItems()
-		if len(items) == 1 {
-			glfw.SetClipboardString(items[0])
-		}
-	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_info_materialiconsoutlined_48dp_1x_outline_info_black_48dp_png, c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_delete_outline_materialicons_48dp_1x_baseline_delete_outline_black_48dp_png, c.ForeColor()), "")
 
 	menuItems.AddItem("Add to chart group ...", func(event *uievents.Event) {
 		c.addSelectedItemsToChartGroup()
-	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.ForeColor()), "")
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_timeline_materialiconsoutlined_48dp_1x_outline_timeline_black_48dp_png, c.ForeColor()), "")
 
 	c.lvItems.SetContextMenu(menuItems)
 	c.lvItems.OnSelectionChanged = func() {
@@ -361,8 +355,8 @@ func (c *PanelUnits) Dispose() {
 	c.btnStop = nil
 
 	c.btnShowFullScreen = nil
-	c.btnAddToCloud = nil
-	c.btnRemoveFromCloud = nil
+	c.btnAddToPublicChannel = nil
+	c.btnRemoveFromPublicChannel = nil
 	c.btnOpenInBrowser = nil
 
 	c.lvItems = nil
@@ -454,8 +448,8 @@ func (c *PanelUnits) UpdateStyle() {
 	c.btnStop.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, activeColor))
 
 	c.btnShowFullScreen.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, activeColor))
-	c.btnAddToCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialicons_48dp_1x_baseline_cloud_upload_black_48dp_png, activeColor))
-	c.btnRemoveFromCloud.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, activeColor))
+	c.btnAddToPublicChannel.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialicons_48dp_1x_baseline_cloud_upload_black_48dp_png, activeColor))
+	c.btnRemoveFromPublicChannel.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, activeColor))
 	c.btnOpenInBrowser.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, activeColor))
 
 	c.btnAdd.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, inactiveColor))
@@ -465,8 +459,8 @@ func (c *PanelUnits) UpdateStyle() {
 	c.btnStop.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, inactiveColor))
 
 	c.btnShowFullScreen.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, inactiveColor))
-	c.btnAddToCloud.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialicons_48dp_1x_baseline_cloud_upload_black_48dp_png, inactiveColor))
-	c.btnRemoveFromCloud.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, inactiveColor))
+	c.btnAddToPublicChannel.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialicons_48dp_1x_baseline_cloud_upload_black_48dp_png, inactiveColor))
+	c.btnRemoveFromPublicChannel.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, inactiveColor))
 	c.btnOpenInBrowser.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, inactiveColor))
 
 	c.btnRefresh.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, activeColor))
@@ -533,9 +527,9 @@ func (c *PanelUnits) updateUnitsButtons() {
 func (c *PanelUnits) updateDataItemsButtons() {
 	itemsSelected := c.lvItems.SelectedItems()
 	if c.lvItems.ItemsCount() > 0 {
-		c.btnAddToCloud.SetEnabled(true)
+		c.btnAddToPublicChannel.SetEnabled(true)
 	} else {
-		c.btnAddToCloud.SetEnabled(false)
+		c.btnAddToPublicChannel.SetEnabled(false)
 	}
 
 	if len(itemsSelected) > 0 {
@@ -556,13 +550,13 @@ func (c *PanelUnits) updateDataItemsButtons() {
 		}
 
 		if itemHasCloud {
-			c.btnRemoveFromCloud.SetEnabled(true)
+			c.btnRemoveFromPublicChannel.SetEnabled(true)
 		} else {
-			c.btnRemoveFromCloud.SetEnabled(false)
+			c.btnRemoveFromPublicChannel.SetEnabled(false)
 		}
 	} else {
 		c.btnShowFullScreen.SetEnabled(false)
-		c.btnRemoveFromCloud.SetEnabled(false)
+		c.btnRemoveFromPublicChannel.SetEnabled(false)
 	}
 }
 

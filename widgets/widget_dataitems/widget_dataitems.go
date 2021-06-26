@@ -20,6 +20,8 @@ type WidgetDataItems struct {
 	timer        *uievents.FormTimer
 	text1        string
 	text2        string
+
+	OnAdd func(id string)
 }
 
 func NewWidgetDataItems(parent uiinterfaces.Widget, client *client.Client, text1 string, text2 string) *WidgetDataItems {
@@ -39,7 +41,19 @@ func (c *WidgetDataItems) OnInit() {
 		c.LoadItems()
 	})
 	c.btnRefresh.SetTooltip("Refresh")
-	panelToolbox.AddHSpacerOnGrid(1, 0)
+
+	btnAdd := panelToolbox.AddButtonOnGrid(1, 0, "", func(event *uievents.Event) {
+		if c.selectedItem != "" {
+			if c.OnAdd != nil {
+				c.OnAdd(c.selectedItem)
+			}
+		}
+	})
+
+	btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, c.AccentColor()))
+	btnAdd.SetTooltip("Add selected item to the chart group")
+	panelToolbox.AddHSpacerOnGrid(2, 0)
+
 	c.tvItems = c.AddTreeViewOnGrid(0, 1)
 	c.tvItems.AddColumn("Value", 70)
 	c.tvItems.AddColumn("UOM", 70)
@@ -61,12 +75,15 @@ func (c *WidgetDataItems) OnInit() {
 	c.timer = c.Window().NewTimer(500, func() {
 		nodes := c.tvItems.VisibleNodes()
 		for _, node := range nodes {
-			c.tvItems.SetNodeValue(node, 1, c.client.GetItemValue(node.UserData.(string)).Value)
-			c.tvItems.SetNodeValue(node, 2, c.client.GetItemValue(node.UserData.(string)).UOM)
+			value := c.client.GetItemValue(node.UserData.(string)).Value
+			uom := c.client.GetItemValue(node.UserData.(string)).UOM
+			c.tvItems.SetNodeValue(node, 1, value)
+			c.tvItems.SetNodeValue(node, 2, uom)
 			c.tvItems.SetNodeValue(node, 3, time.Unix(0, c.client.GetItemValue(node.UserData.(string)).DT*1000).Format("15:04:05"))
 		}
 	})
 	c.timer.StartTimer()
+
 }
 
 func (c *WidgetDataItems) Dispose() {

@@ -56,6 +56,7 @@ func NewPanelPublicChannels(parent uiinterfaces.Widget, client *client.Client) *
 	var c PanelPublicChannels
 	c.client = client
 	c.InitControl(parent, &c)
+	c.SetMinWidth(800)
 
 	return &c
 }

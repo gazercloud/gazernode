@@ -11,6 +11,7 @@ type Value struct {
 	CountOfValues int
 	Qualities     []int64
 	Loaded        bool
+	UOM           string
 }
 
 func (c *Value) hasGoodQuality() bool {

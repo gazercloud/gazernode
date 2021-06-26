@@ -144,6 +144,11 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 		if r.UOM != "error" {
 			valueAsString := strings.Trim(r.Value, " \r\n\t")
 			valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
+
+			if r.UOM != "" {
+				currentValueRange.UOM = r.UOM
+			}
+
 			if err == nil {
 				validValue = true
 

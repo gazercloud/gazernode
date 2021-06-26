@@ -13,4 +13,7 @@ type IDataStorage interface {
 	RemoveItemsOfUnit(unitName string) error
 
 	Exec(function string, request []byte, host string) ([]byte, error)
+
+	StatGazerNode() StatGazerNode
+	StatGazerCloud() StatGazerCloud
 }

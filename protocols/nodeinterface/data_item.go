@@ -55,8 +55,9 @@ type DataItemHistoryChartResponseItem struct {
 	AvgValue      float64 `json:"va"`
 	CountOfValues int     `json:"c"`
 	Qualities     []int64
-	HasGood       bool `json:"has_good"`
-	HasBad        bool `json:"has_bad"`
+	HasGood       bool   `json:"has_good"`
+	HasBad        bool   `json:"has_bad"`
+	UOM           string `json:"uom"`
 }
 
 type DataItemHistoryChartResponse struct {

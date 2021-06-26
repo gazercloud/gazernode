@@ -29,6 +29,8 @@ func (c *WidgetCloudState) OnInit() {
 	pHeader.SetPanelPadding(0)
 	txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Frames from the cloud")
 	txtHeader.SetFontSize(16)
+	txtHeader.SetForeColor(c.AccentColor())
+	txtHeader.SetFontSize(c.FontSize() * 1.2)
 
 	pContent := c.AddPanelOnGrid(0, 1)
 	pContent.SetPanelPadding(0)
