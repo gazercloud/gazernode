@@ -330,7 +330,8 @@ func (c *PanelNode) OnInit() {
 
 	// Bottom
 	c.panelBottom = c.AddPanelOnGrid(0, 1)
-	c.panelBottom.SetBorderTop(1, c.ForeColor())
+	_, topBorderColor, _, _ := c.BorderColors()
+	c.panelBottom.SetBorderTop(1, topBorderColor)
 	c.panelBottom.SetMaxHeight(50)
 	//c.panelBottom.SetBackColor(color.RGBA{R: 240, G: 240, B: 240, A: 255})
 	c.panelBottom.SetPanelPadding(0)

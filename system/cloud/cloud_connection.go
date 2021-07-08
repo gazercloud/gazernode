@@ -545,6 +545,30 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		return
 	}
 
+	if task.Frame.Header.Function == "session_open" {
+		logger.Println("CloudConnection session_open data received", task.Frame.Data)
+		type SessionInfo struct {
+			SessionToken string `json:"session_token"`
+			Error        string `json:"error"`
+		}
+		var sessionInfo SessionInfo
+		err = json.Unmarshal(task.Frame.Data, &sessionInfo)
+		if err == nil {
+			if sessionInfo.Error == "" {
+				logger.Println("CloudConnection session_open", sessionInfo.SessionToken)
+				c.sessionId = sessionInfo.SessionToken
+				c.regNode()
+				c.SaveSession()
+				c.loginStatus = "ok"
+			} else {
+				c.loginStatus = "error: " + sessionInfo.Error
+			}
+		} else {
+			c.loginStatus = "error: " + err.Error()
+		}
+		return
+	}
+
 	var allowed bool
 	{
 		var allowedValue bool
@@ -558,30 +582,6 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 
 	var bs []byte
 	if allowed {
-		if task.Frame.Header.Function == "session_open" {
-			logger.Println("CloudConnection session_open data received", task.Frame.Data)
-			type SessionInfo struct {
-				SessionToken string `json:"session_token"`
-				Error        string `json:"error"`
-			}
-			var sessionInfo SessionInfo
-			err = json.Unmarshal(task.Frame.Data, &sessionInfo)
-			if err == nil {
-				if sessionInfo.Error == "" {
-					logger.Println("CloudConnection session_open", sessionInfo.SessionToken)
-					c.sessionId = sessionInfo.SessionToken
-					c.regNode()
-					c.SaveSession()
-					c.loginStatus = "ok"
-				} else {
-					c.loginStatus = "error: " + sessionInfo.Error
-				}
-			} else {
-				c.loginStatus = "error: " + err.Error()
-			}
-			return
-		}
-
 		if c.requester == nil {
 			logger.Println("CloudConnection requester is nil")
 			return

@@ -1,9 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import Request from "../request";
 import Button from "@material-ui/core/Button";
+import {LineChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Legend} from 'recharts';
+import {Tooltip} from "@material-ui/core";
+import WidgetItemHistory from "../Widgets/WidgetItemHistory";
+import WidgetTimeChart from "../Widgets/WidgetTimeChart/WidgetTimeChart";
 
 function PageDataItem(props) {
     const [dataItemState, setDataItemState] = React.useState([])
+    const [dataItemHistory, setDataItemHistory] = React.useState([])
 
     const btnStyle = (key) => {
         if (currentItem === key) {
@@ -74,11 +79,17 @@ function PageDataItem(props) {
         setFirstRendering(false)
     }
 
+    const getDataItemName = () => {
+        if (props.DataItemName === undefined || props.DataItemName === "")
+            return ""
+        return new Buffer(props.DataItemName, 'hex').toString();
+    }
+
     useEffect(() => {
-        const dataItemName = new Buffer(props.DataItemName, 'hex').toString();
+        const dataItemName = getDataItemName();
         const timer = setInterval(() => {
             requestDataItem(dataItemName)
-        }, 500);
+        }, 1000);
         return () => clearInterval(timer);
     });
 
@@ -189,6 +200,9 @@ function PageDataItem(props) {
                 backgroundColor: '#222222',
             }}>
                 {displayItem(dataItemState)}
+            </div>
+            <div>
+                <WidgetItemHistory DataItemName={getDataItemName()} />
             </div>
         </div>
     );

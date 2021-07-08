@@ -7,6 +7,15 @@ import Grid from "@material-ui/core/Grid";
 import Request from "../request";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import {Tooltip} from "@material-ui/core";
+import Zoom from "@material-ui/core/Zoom";
+import IconButton from "@material-ui/core/IconButton";
+import EditIcon from "@material-ui/icons/Edit";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions";
 
 function PageUnit(props) {
     const [unitValues, setUnitValues] = React.useState([])
@@ -75,9 +84,31 @@ function PageUnit(props) {
             });
     }
 
-    const requestUnitState = (unitName) => {
+    const requestRemoveUnit = (unitId) => {
         let req = {
-            id: unitName
+            ids: [unitId]
+        }
+        Request('unit_remove', req)
+            .then((res) => {
+                if (res.status === 200) {
+                    res.json().then(
+                        (result) => {
+                            props.OnNavigate("#form=units")
+                        }
+                    );
+                } else {
+                    res.json().then(
+                        (result) => {
+                            //setErrorMessage(result.error)
+                        }
+                    );
+                }
+            });
+    }
+
+    const requestUnitState = (unitId) => {
+        let req = {
+            id: unitId
         }
         Request('unit_state', req)
             .then((res) => {
@@ -111,10 +142,13 @@ function PageUnit(props) {
         return dataItemName
     }
 
+    const getUnitId = () => {
+        return new Buffer(props.UnitId, 'hex').toString();
+    }
+
     const [firstRendering, setFirstRendering] = useState(true)
     if (firstRendering) {
-        const unitId = new Buffer(props.UnitId, 'hex').toString();
-        requestUnitState(unitId)
+        requestUnitState(getUnitId())
         setFirstRendering(false)
     }
 
@@ -249,10 +283,57 @@ function PageUnit(props) {
         }
     }
 
+    const btnClickUnitConfig = () => {
+        const idHex = new Buffer(getUnitId()).toString('hex');
+        props.OnNavigate("#form=unit_config&unitId=" + idHex)
+    }
+
+    const [dialogRemoveUnitVisible, setDialogRemoveUnitVisible] = React.useState(false)
+    const dialogRemoveUnit = () => {
+        return (
+            <Dialog open={dialogRemoveUnitVisible} onClose={() => {
+                setDialogRemoveUnitVisible(false)
+            }
+            } aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Remove unit</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Unit name: {unitName}
+                    </DialogContentText>
+                    <DialogContent>
+                        Remove unit?
+                    </DialogContent>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>{ setDialogRemoveUnitVisible(false) }} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={()=> {
+                        requestRemoveUnit(getUnitId())
+                    }} color="primary">
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        )
+    }
+
+    const btnClickUnitRemove = () => {
+        setDialogRemoveUnitVisible(true)
+    }
+
     return (
         <div>
-            <Button variant='outlined' color='primary' onClick={()=>{props.OnNavigate('#form=units')}}>
+            <Button style={{marginRight: "20px"}} variant='outlined' color='primary' onClick={()=>{props.OnNavigate('#form=units')}}>
                 Back to the Units
+            </Button>
+
+            <Button style={{marginRight: "20px"}} variant='outlined' color='primary' onClick={btnClickUnitConfig.bind(this)}>
+                Edit unit
+            </Button>
+
+            <Button variant='outlined' color='primary' onClick={btnClickUnitRemove.bind(this)}>
+                Remove unit
             </Button>
 
             <div style={{marginTop: '40px'}}>
@@ -270,6 +351,7 @@ function PageUnit(props) {
                     </List>
                 </Grid>
             </Grid>
+            {dialogRemoveUnit()}
         </div>
     );
 }

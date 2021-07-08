@@ -5,6 +5,13 @@ import Request from "../request";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import BlurOnIcon from "@material-ui/icons/BlurOn";
+import {Fab, Tooltip} from "@material-ui/core";
+import Zoom from "@material-ui/core/Zoom";
+import IconButton from "@material-ui/core/IconButton";
+import EditIcon from '@material-ui/icons/Edit';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import PauseIcon from '@material-ui/icons/Pause';
+import AddIcon from '@material-ui/icons/Add';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -70,7 +77,7 @@ function PageUnits(props) {
 
     const btnClickUnitConfig = (id) => {
         const idHex = new Buffer(id).toString('hex');
-        props.OnNavigate("#form=unit_config&unitId="+ idHex)
+        props.OnNavigate("#form=unit_config&unitId=" + idHex)
     }
 
     const handleEnter = (ev, key) => {
@@ -211,6 +218,28 @@ function PageUnits(props) {
         )
     }
 
+    const unitStatus = (item) => {
+        if (item.status === 'started') {
+            return (
+                <div style={{color: "#080"}}>
+                    started
+                </div>
+            );
+        }
+
+        if (item.status === 'stopped') {
+            return (
+                <div style={{color: "#777"}}>
+                    stopped
+                </div>
+            )
+        }
+
+        return (
+            <div style={{color: "#555"}}>-</div>
+        )
+    }
+
     const displayItem = (item) => {
         return (
             <Grid container direction='column'>
@@ -238,23 +267,48 @@ function PageUnits(props) {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid item style={{marginTop: '20px'}}>
-                    <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}}
-                            onClick={btnClickUnitConfig.bind(this, item.unit_id, item.unit_name)}
-                    >CONFIG</Button>
-                    <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}} disabled={item.status === 'started'}
-                            onClick={requestStartUnit.bind(this, item.unit_id)}
-                    >START</Button>
-                    <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}} disabled={item.status === 'stopped'}
-                            onClick={requestStopUnit.bind(this, item.unit_id)}
-                    >STOP</Button>
+                <Grid item style={{marginTop: '35px', backgroundColor: "#181818", borderRadius: "10px"}}>
+                    <Grid container={true} direction="row" alignItems="center">
+                        <Grid item>
+                            <Tooltip title="Edit unit" TransitionComponent={Zoom}>
+                                <IconButton variant='outlined' color='primary' style={{margin: '0px', opacity: "50%"}}>
+                                    <EditIcon fontSize="default" onClick={btnClickUnitConfig.bind(this, item.unit_id, item.unit_name)} />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item style={{flexGrow: 1}}>
+                            {unitStatus(item)}
+                        </Grid>
+                        <Grid item>
+                            <Tooltip title="Start" TransitionComponent={Zoom}>
+                                <IconButton variant='outlined' color='secondary' style={{margin: '0px', opacity: "50%"}} disabled={item.status === 'started'}>
+                                    <PlayArrowIcon fontSize="default" onClick={requestStartUnit.bind(this, item.unit_id)} />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item>
+                            <Tooltip title="Stop" TransitionComponent={Zoom}>
+                                <IconButton variant='outlined' color='primary' style={{margin: '0px', opacity: "50%"}} disabled={item.status === 'stopped'}>
+                                    <PauseIcon fontSize="default" onClick={requestStopUnit.bind(this, item.unit_id)} />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+
                 </Grid>
             </Grid>
         )
     }
 
+    const onClickAddUnit = () => {
+        props.OnNavigate("#form=unit_add")
+    }
+
     return (
         <div>
+            <Tooltip title="Add unit" TransitionComponent={Zoom}>
+                <Button variant="outlined" color="primary" startIcon={<AddIcon fontSize="large"></AddIcon>} onClick={onClickAddUnit} style={{margin: "10px", opacity: "80%"}}>Add unit</Button>
+            </Tooltip>
             <Grid container direction="column">
                 <Grid item>
                     <Grid container direction="row">

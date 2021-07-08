@@ -16,6 +16,7 @@ function PageUnitConfig(props) {
     const [unitConfigMeta, setUnitConfigMeta] = React.useState([])
     const [unitId, setUnitId] = React.useState("")
     const [unitName, setUnitName] = React.useState("")
+    const [errorMessage, setErrorMessage] = React.useState("")
 
     const btnStyle = (key) => {
         if (currentItem === key) {
@@ -68,7 +69,33 @@ function PageUnitConfig(props) {
                 } else {
                     res.json().then(
                         (result) => {
-                            //setErrorMessage(result.error)
+                            setErrorMessage(result.error)
+                        }
+                    );
+                }
+            });
+    }
+
+    const requestSensorConfigMeta = (unitType) => {
+        let req = {
+            type: unitType
+        }
+        Request('unit_type_config_meta', req)
+            .then((res) => {
+                if (res.status === 200) {
+                    res.json().then(
+                        (result) => {
+                            setUnitId("")
+                            setUnitName("")
+
+                            let meta = JSON.parse(result.config_meta)
+                            setUnitConfigMeta(meta)
+                        }
+                    );
+                } else {
+                    res.json().then(
+                        (result) => {
+                            setErrorMessage(result.error)
                         }
                     );
                 }
@@ -78,65 +105,122 @@ function PageUnitConfig(props) {
     const requestSaveConfig = () => {
         let configAsString = JSON.stringify(unitConfig)
 
-        let req = {
-            id: unitId,
-            name: unitName,
-            config: configAsString
+        if (unitId !== "") {
+            let req = {
+                id: unitId,
+                name: unitName,
+                config: configAsString
+            }
+            Request('unit_set_config', req)
+                .then((res) => {
+                    if (res.status === 200) {
+                        res.json().then(
+                            (result) => {
+                                window.history.back()
+                            }
+                        );
+                    } else {
+                        res.json().then(
+                            (result) => {
+                                setErrorMessage(result.error)
+                            }
+                        );
+                    }
+                });
+        } else {
+            const unitType = new Buffer(props.UnitType, 'hex').toString();
+            let req = {
+                type: unitType,
+                name: unitName,
+                config: configAsString
+            }
+            Request('unit_add', req)
+                .then((res) => {
+                    if (res.status === 200) {
+                        res.json().then(
+                            (result) => {
+                                props.OnNavigate("#form=units")
+                            }
+                        );
+                    } else {
+                        res.json().then(
+                            (result) => {
+                                setErrorMessage(result.error)
+                            }
+                        );
+                    }
+                });
         }
-        Request('unit_set_config', req)
-            .then((res) => {
-                if (res.status === 200) {
-                    res.json().then(
-                        (result) => {
-                        }
-                    );
-                } else {
-                    res.json().then(
-                        (result) => {
-                            //setErrorMessage(result.error)
-                        }
-                    );
-                }
-            });
     }
 
     const [firstRendering, setFirstRendering] = useState(true)
     if (firstRendering) {
-        const unitId = new Buffer(props.UnitId, 'hex').toString();
-        requestSensorConfig(unitId)
+        if (props.UnitId === undefined || props.UnitId === "") {
+            const unitType = new Buffer(props.UnitType, 'hex').toString();
+            requestSensorConfigMeta(unitType)
+        } else {
+            const unitId = new Buffer(props.UnitId, 'hex').toString();
+            requestSensorConfig(unitId)
+        }
         setFirstRendering(false)
     }
 
     useEffect(() => {
-        const unitId = new Buffer(props.UnitId, 'hex').toString();
+        //const unitId = new Buffer(props.UnitId, 'hex').toString();
         const timer = setInterval(() => {
         }, 500);
         return () => clearInterval(timer);
     });
 
-    return (
-        <div>
-            <div>Name: {unitName} : {unitId}</div>
-            <Button variant='outlined' color='primary' onClick={()=>{props.OnNavigate('#form=units')}}>
-                Back to the Units
-            </Button>
+    const displayErrorMessage = () => {
+        return (
+            <div style={{color: "#F00", fontSize: "14pt"}}>{errorMessage}</div>
+        )
+    }
 
-            <Grid container alignItems="center" spacing={1}>
-                <Grid item style={{minWidth: "100px"}}>Name:</Grid>
-                <Grid item>
-                    <TextField value={unitName} onChange={(ev)=>{
-                        setUnitName(ev.target.value)
-                    }}/>
+    return (
+        <Grid container direction="column">
+            <Grid item>
+                <Button variant='outlined' color='primary' onClick={()=>{props.OnNavigate('#form=units')}}>
+                    Back to the Units
+                </Button>
+            </Grid>
+            <Grid item>
+                <Grid container alignItems="center" spacing={1} style={{marginTop: "20px"}}>
+                    <Grid item style={{minWidth: "100px", color: "#555"}}>Id:</Grid>
+                    <Grid item style={{color: "#555"}}>
+                        {unitId}
+                    </Grid>
+                </Grid>
+            </Grid>
+            <Grid item>
+                <Grid container alignItems="center" spacing={1} style={{marginBottom: "20px"}}>
+                    <Grid item style={{minWidth: "100px"}}>Name:</Grid>
+                    <Grid item>
+                        <TextField
+                            value={unitName}
+                            placeholder={"Name of the unit"}
+                            onChange={(ev)=>{
+                                setUnitName(ev.target.value)
+                            }}/>
+                    </Grid>
                 </Grid>
             </Grid>
 
-            <ConfigSensor ConfigMeta={unitConfigMeta} Config={unitConfig} OnConfigChanged={(v) => setUnitConfig(v)}/>
+            <Grid item>
+                <ConfigSensor ConfigMeta={unitConfigMeta} Config={unitConfig} OnConfigChanged={(v) => setUnitConfig(v)}/>
+            </Grid>
 
-            <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}}
-                    onClick={requestSaveConfig.bind(this)}
-            >SAVE</Button>
+            <Grid item>
+                <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}}
+                        onClick={requestSaveConfig.bind(this)}
+                >SAVE</Button>
+            </Grid>
+            <Grid>
+                {displayErrorMessage()}
+            </Grid>
 
-        </div>
+        </Grid>
     );
 }
 

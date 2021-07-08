@@ -83,9 +83,11 @@ func (c *UnitSerialPortKeyValue) InternalUnitStart() error {
 	}
 
 	var config Config
+	conf := c.GetConfig()
+	logger.Println("SerialPort Config: ", conf)
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)
 	if err != nil {
-		logger.Println("ERROR[UnitPing]:", err)
+		logger.Println("ERROR[UnitSerialPortKeyValue]:", err)
 		err = errors.New("config error")
 		c.SetString("status", err.Error(), "error")
 		return err

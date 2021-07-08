@@ -1,10 +1,10 @@
-export default function time_chart_new(elId) {
+export default function NewTimeChart(el) {
     let tc = {
-        elementId_: elId,
+        //elementId_: elId,
         horScale: {},
         verticalScalesWidth: 0,
         draw: function () {
-            let cnv = document.getElementById(elId)
+            let cnv = el
             let ctx = cnv.getContext('2d')
             ctx.clearRect(0, 0, cnv.width, cnv.height)
 
@@ -17,6 +17,7 @@ export default function time_chart_new(elId) {
             this.updateHorScale()
 
             this.horScale.width = cnv.width - this.verticalScalesWidth
+            ctx.strokeStyle = "#444"
             ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             let offsetY = 0
             this.areas.forEach((el) => {
@@ -28,7 +29,7 @@ export default function time_chart_new(elId) {
                 ctx.restore()
             })
 
-            ctx.fillRect(this.mousePosX, this.mousePosY, 10, 10)
+            //ctx.fillRect(this.mousePosX, this.mousePosY, 10, 10)
 
             ctx.save()
             ctx.translate(this.verticalScalesWidth, cnv.height - this.horScale.height)
@@ -36,6 +37,10 @@ export default function time_chart_new(elId) {
             this.horScale.draw(ctx)
             ctx.restore()
 
+        },
+        setHorScale: function (min, max) {
+            this.horScale.displayMin = min
+            this.horScale.displayMax = max
         },
         areas: [],
         name: "",
@@ -45,22 +50,30 @@ export default function time_chart_new(elId) {
             this.areas.push(area)
             return area
         },
+        updateHeight: function () {
+            let cnv = el
+            cnv.height = tc.areas.length * 200 + tc.horScale.height
+
+        },
         updateHorScale: function () {
+            return
             let min = Number.MAX_VALUE
             let max = Number.MIN_SAFE_INTEGER
 
             this.areas.forEach((elArea) => {
                 elArea.series.forEach((elSer) => {
                     elSer.data.forEach((elData) => {
-                        if (elData[0] < min) {
-                            min = elData[0]
+                        if (elData.tf < min) {
+                            min = elData.tf
                         }
-                        if (elData[0] > max) {
-                            max = elData[0]
+                        if (elData.tf > max) {
+                            max = elData.tf
                         }
                     })
                 })
             })
+
+            //console.log("HOR:", min, max)
 
             let horScaleMargin = (max - min) / 20
             this.horScale.displayMin = min - horScaleMargin
@@ -96,49 +109,20 @@ export default function time_chart_new(elId) {
 
     }
 
-    let canvas = document.getElementById(elId)
+    let canvas = el
     canvas.obj = tc
-    canvas.addEventListener('mousemove', tc.mouseMove, false);
+    /*canvas.addEventListener('mousemove', tc.mouseMove, false);
     canvas.addEventListener('mousedown', tc.mouseDown, false);
     canvas.addEventListener('mouseup', tc.mouseUp, false);
     canvas.addEventListener('mouseout', tc.mouseUp, false);
-    canvas.addEventListener('dblclick', tc.mouseDoubleClick, false);
+    canvas.addEventListener('dblclick', tc.mouseDoubleClick, false);*/
 
     tc.horScale = time_chart_new_horizontal_scale(tc)
 
-    let a1 = tc.addArea("area1")
-    a1.addSeries("ser 01 01")
+    tc.updateHeight()
+    /*let a1 = tc.addArea("area1")
+    a1.addSeries("ser 01 01")*/
 
-    let a2 = tc.addArea("area2")
-    a2.addSeries("ser 02 01")
-
-    let a3 = tc.addArea("area3")
-    a3.addSeries("ser 03 01")
-    {
-        let ser1 = a3.addSeries("ser 03 02")
-        ser1.data = [[1599143745000000, 0],
-            [1599143746000000, 100],
-            [1599143747000000, 30],
-            [1599143748000000, 40],
-            [1599143749000000, 80],
-            [1599143750000000, 10]]
-        ser1.color = "red"
-    }
-
-    {
-        let ser1 = a3.addSeries("ser 03 03")
-        ser1.data = [[1599143746000000, 1100],
-            [1599143747000000, 1133],
-            [1599143748000000, 1130],
-            [1599143749000000, 1140],
-            [1599143750000000, 1180],
-            [1599143751000000, 1110]]
-        ser1.color = "green"
-    }
-
-    let cnv = document.getElementById(tc.elementId_)
-    cnv.height = tc.areas.length * 200 + tc.horScale.height
-    cnv.width = 1200
 
     return tc
 }
@@ -203,7 +187,7 @@ function time_chart_new_series(area) {
     let newSeries = {
         area_: area,
         name: "",
-        color: "blue",
+        color: "#00A0E3",
         data: [[1599143744000000, 0],
             [1599143745000000, 100],
             [1599143746000000, 30],
@@ -241,7 +225,12 @@ function time_chart_new_series(area) {
             ctx.translate(this.area_.tc_.verticalScalesWidth, 0)
             ctx.beginPath()
             this.data.forEach((el) => {
-                ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el[0]), this.verticalScale.getPointOnY(el[1]))
+                if (el.has_good) {
+                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vf))
+                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vd))
+                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vu))
+                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vl))
+                }
             })
             ctx.stroke()
             ctx.restore()
@@ -250,10 +239,10 @@ function time_chart_new_series(area) {
             let min = 10000000000000
             let max = -10000000000000
             this.data.forEach((el) => {
-                if (el[1] < min)
-                    min = el[1]
-                if (el[1] > max)
-                    max = el[1]
+                if (el.vd < min)
+                    min = el.vd
+                if (el.vu > max)
+                    max = el.vu
             })
             let verScaleMargin = (max - min) / 20
             this.verticalScale.displayMin = min - verScaleMargin
@@ -309,14 +298,14 @@ function time_chart_new_vertical_scale(ser) {
 
             // Некрасивый шаг
             let step = diapason / countOfPoints
-            console.log("Step", step)
+            //console.log("Step", step)
 
             // Порядок
             let log = Math.ceil(Math.log10(step))
-            console.log(log)
+            //console.log(log)
             // Красивый шаг = степень 10-ки
             let step10 = Math.pow(10, log)
-            console.log(step10)
+            //console.log(step10)
 
             // деление на 2 - это тоже красиво
             while (diapason/(step10/2) < countOfPoints) {
@@ -326,7 +315,7 @@ function time_chart_new_vertical_scale(ser) {
             // Определяем новый минимум
             let newMin = min - (min % step10)
 
-            console.log(newMin)
+            //console.log(newMin)
 
             let scale = []
             // Генерируем точки

@@ -227,6 +227,7 @@ func (c *WidgetCloudNodes) loadNodes() {
 
 	c.client.CloudAccountInfo(func(response nodeinterface.CloudAccountInfoResponse, err error) {
 		if err != nil {
+			c.accountLoading = false
 			return
 		}
 		if c.lblAccountInfoEmail == nil || c.lblAccountInfoMaxNodesCount == nil {

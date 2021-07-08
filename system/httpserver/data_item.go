@@ -182,6 +182,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 			}
 			if !foundGood {
 				currentValueRange.Qualities = append(currentValueRange.Qualities, 192)
+				currentValueRange.HasGood = true
 			}
 		} else {
 			foundBad := false
@@ -192,6 +193,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 			}
 			if !foundBad {
 				currentValueRange.Qualities = append(currentValueRange.Qualities, 0)
+				currentValueRange.HasBad = true
 			}
 		}
 
