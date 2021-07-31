@@ -12,6 +12,7 @@
     "@testing-library/user-event": "^12.8.3",
     "chart.js": "^2.9.4",
     "http-proxy-middleware": "^1.2.0",
+    "jszip": "^3.6.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.3",
@@ -42,5 +43,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "notistack": "^1.0.9"
   }
 }

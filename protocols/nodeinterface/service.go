@@ -25,5 +25,8 @@ type ServiceApiRequest struct {
 }
 
 type ServiceApiResponse struct {
+	Product            string   `json:"product"`
+	Version            string   `json:"version"`
+	BuildTime          string   `json:"build_time"`
 	SupportedFunctions []string `json:"supported_functions"`
 }

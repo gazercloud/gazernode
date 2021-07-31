@@ -8,26 +8,28 @@ export default function NewTimeChart(el) {
             let ctx = cnv.getContext('2d')
             ctx.clearRect(0, 0, cnv.width, cnv.height)
 
-            this.verticalScalesWidth = 0
-            this.areas.forEach((el) => {
-                if (el.verticalScaleWidth() > this.verticalScalesWidth)
-                    this.verticalScalesWidth = el.verticalScaleWidth()
-                el.updateVScales()
-            })
-            this.updateHorScale()
+            if (this.areas !== undefined && this.areas !== null) {
+                this.verticalScalesWidth = 0
+                this.areas.forEach((el) => {
+                    if (el.verticalScaleWidth() > this.verticalScalesWidth)
+                        this.verticalScalesWidth = el.verticalScaleWidth()
+                    el.updateVScales()
+                })
+                this.updateHorScale()
 
-            this.horScale.width = cnv.width - this.verticalScalesWidth
-            ctx.strokeStyle = "#444"
-            ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-            let offsetY = 0
-            this.areas.forEach((el) => {
-                ctx.save()
-                ctx.translate(0, offsetY)
-                ctx.color = "black"
-                el.draw(ctx)
-                offsetY += el.height
-                ctx.restore()
-            })
+                this.horScale.width = cnv.width - this.verticalScalesWidth
+                ctx.strokeStyle = "#444"
+                ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+                let offsetY = 0
+                this.areas.forEach((el) => {
+                    ctx.save()
+                    ctx.translate(0, offsetY)
+                    ctx.color = "black"
+                    el.draw(ctx)
+                    offsetY += el.height
+                    ctx.restore()
+                })
+            }
 
             //ctx.fillRect(this.mousePosX, this.mousePosY, 10, 10)
 
@@ -145,12 +147,20 @@ function time_chart_new_area(tc) {
         oneVerticalScale: true,
         height: 200,
         addSeries: function (name) {
+            if (this.series === undefined || this.series === null) {
+                return
+            }
+
             let ser = time_chart_new_series(this)
             ser.name = name
             this.series.push(ser)
             return ser
         },
         verticalScaleWidth: function () {
+            if (this.series === undefined || this.series === null) {
+                return 100
+            }
+
             if (this.oneVerticalScale)
                 return 100
             let verticalScalesWidth = 0
@@ -160,6 +170,10 @@ function time_chart_new_area(tc) {
             return verticalScalesWidth
         },
         updateVScales: function() {
+            if (this.series === undefined || this.series === null) {
+                return
+            }
+
             if (this.oneVerticalScale) {
                 let min = 1000000001
                 let max = -1000000001
@@ -202,13 +216,17 @@ function time_chart_new_series(area) {
             let offsetX = 0
             let indexOfSeries = 0
 
-            if (!this.area_.oneVerticalScale) {
-                this.area_.series.forEach((el) => {
-                    if (el === this) {
-                        offsetX = indexOfSeries * 100
+            if (this.area_ !== undefined && this.area_ !== null) {
+                if (!this.area_.oneVerticalScale) {
+                    if (this.area_.series !== undefined && this.area_.series !== null) {
+                        this.area_.series.forEach((el) => {
+                            if (el === this) {
+                                offsetX = indexOfSeries * 100
+                            }
+                            indexOfSeries++
+                        })
                     }
-                    indexOfSeries++
-                })
+                }
             }
 
             ctx.translate(offsetX, 0)
@@ -224,18 +242,21 @@ function time_chart_new_series(area) {
             ctx.strokeStyle = this.color
             ctx.translate(this.area_.tc_.verticalScalesWidth, 0)
             ctx.beginPath()
-            this.data.forEach((el) => {
-                if (el.has_good) {
-                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vf))
-                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vd))
-                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vu))
-                    ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vl))
-                }
-            })
+            if (this.data !== undefined && this.data !== null) {
+                this.data.forEach((el) => {
+                    if (el.has_good) {
+                        ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vf))
+                        ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vd))
+                        ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vu))
+                        ctx.lineTo(this.area_.tc_.horScale.getPointOnX(el.tf), this.verticalScale.getPointOnY(el.vl))
+                    }
+                })
+            }
             ctx.stroke()
             ctx.restore()
         },
         updateVScale: function() {
+
             let min = 10000000000000
             let max = -10000000000000
             this.data.forEach((el) => {

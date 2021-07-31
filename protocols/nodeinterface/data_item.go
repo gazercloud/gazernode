@@ -43,6 +43,7 @@ type DataItemHistoryChartRequest struct {
 	DTBegin        int64  `json:"dt_begin"`
 	DTEnd          int64  `json:"dt_end"`
 	GroupTimeRange int64  `json:"group_time_range"`
+	OutFormat      string `json:"out_format"`
 }
 
 type DataItemHistoryChartResponseItem struct {

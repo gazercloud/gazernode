@@ -27,6 +27,16 @@ import {createMuiTheme} from "@material-ui/core";
 import PageDataItem from "./Pages/PageDataItem";
 import PageUnitConfig from "./Pages/PageUnitConfig";
 import PageAddUnit from "./Pages/PageAddUnit";
+import PagePublicChannels from "./Pages/PagePublicChannels";
+import PagePublicChannel from "./Pages/PagePublicChannel";
+import { SnackbarProvider, useSnackbar } from 'notistack';
+import PageRemoteAccess from "./Pages/PageRemoteAccess";
+import CloudUploadOutlinedIcon from '@material-ui/icons/CloudUploadOutlined';
+import CloudOutlinedIcon from '@material-ui/icons/CloudOutlined';
+import PeopleIcon from '@material-ui/icons/People';
+import PersonIcon from '@material-ui/icons/Person';
+import PageUsers from "./Pages/PageUsers";
+import PageUser from "./Pages/PageUser";
 
 const drawerWidth = 240;
 
@@ -117,7 +127,7 @@ function getWindow() {
 }
 
 function ResponsiveDrawer(props) {
-    const { window } = props;
+    const {window} = props;
     const classes = useStyles();
     //const theme = useTheme();
     const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -133,8 +143,10 @@ function ResponsiveDrawer(props) {
     }
 
     const updateTitle = (t) => {
+        t = "Gazer Node - " + t
         if (title !== t) {
             setTitle(t)
+            document.title = t
         }
     }
 
@@ -154,9 +166,10 @@ function ResponsiveDrawer(props) {
 
     const drawer = (
         <div>
-            <Grid container className={classes.toolbar} direction="row" alignItems="center" alignContent="center" >
+            <Grid container className={classes.toolbar} direction="row" alignItems="center" alignContent="center">
 
-                <Grid container direction="row" alignItems="flex-start" alignContent="flex-start" style={{margin: "15px"}}>
+                <Grid container direction="row" alignItems="flex-start" alignContent="flex-start"
+                      style={{margin: "15px"}}>
                     <Grid item><a href="/"><img src="/mainicon32.png" style={{width: "48px"}}/></a></Grid>
                     <Grid item>
                         <Typography style={{marginLeft: "8px", marginBottom: "0px", fontSize: "14pt"}}>
@@ -169,25 +182,58 @@ function ResponsiveDrawer(props) {
                 </Grid>
 
             </Grid>
-            <Divider />
+            <Divider/>
             <List>
-                <ListItem button key="units" component="a" onClick={() => {navigate("#form=units")}}>
-                    <ListItemIcon><BlurOnIcon style={{color:"#2278B5"}}/></ListItemIcon>
-                    <ListItemText primary={"Units"} />
+                <ListItem button key="units" component="a" onClick={() => {
+                    navigate("#form=units")
+                }}>
+                    <ListItemIcon><BlurOnIcon style={{color: "#2278B5"}}/></ListItemIcon>
+                    <ListItemText primary={"Units"}/>
                 </ListItem>
             </List>
-            <Divider />
+            <Divider/>
             <List>
-                <ListItem button key="account" component="a" onClick={() => {navigate("#form=account")}}>
-                    <ListItemIcon><InfoOutlinedIcon style={{color:"#2278B5"}}/></ListItemIcon>
-                    <ListItemText primary={"Account"} />
+                <ListItem button key="public_channels" component="a" onClick={() => {
+                    navigate("#form=public_channels")
+                }}>
+                    <ListItemIcon><CloudUploadOutlinedIcon style={{color: "#2278B5"}}/></ListItemIcon>
+                    <ListItemText primary={"Public Channels"}/>
                 </ListItem>
             </List>
-            <Divider />
+            <Divider/>
             <List>
-                <ListItem button key="about" component="a" onClick={() => {navigate("#form=about")}}>
-                    <ListItemIcon><InfoOutlinedIcon style={{color:"#2278B5"}}/></ListItemIcon>
-                    <ListItemText primary={"About"} />
+                <ListItem button key="remote_access" component="a" onClick={() => {
+                    navigate("#form=remote_access")
+                }}>
+                    <ListItemIcon><CloudOutlinedIcon style={{color: "#2278B5"}}/></ListItemIcon>
+                    <ListItemText primary={"Remote Access"}/>
+                </ListItem>
+            </List>
+            <Divider/>
+            <List>
+                <ListItem button key="users" component="a" onClick={() => {
+                    navigate("#form=users")
+                }}>
+                    <ListItemIcon><PeopleIcon style={{color: "#2278B5"}}/></ListItemIcon>
+                    <ListItemText primary={"Users"}/>
+                </ListItem>
+            </List>
+            <Divider/>
+            <List>
+                <ListItem button key="account" component="a" onClick={() => {
+                    navigate("#form=account")
+                }}>
+                    <ListItemIcon><PersonIcon style={{color: "#2278B5"}}/></ListItemIcon>
+                    <ListItemText primary={"Account"}/>
+                </ListItem>
+            </List>
+            <Divider/>
+            <List>
+                <ListItem button key="about" component="a" onClick={() => {
+                    navigate("#form=about")
+                }}>
+                    <ListItemIcon><InfoOutlinedIcon style={{color: "#2278B5"}}/></ListItemIcon>
+                    <ListItemText primary={"About"}/>
                 </ListItem>
             </List>
         </div>
@@ -199,8 +245,10 @@ function ResponsiveDrawer(props) {
         if (form === "units") {
             return (
                 <PageUnits
-                    onAddSensor={() => {navigate("#form=sensor_add")}}
-                    OnNavigate={(addr)=> navigate(addr)}
+                    onAddSensor={() => {
+                        navigate("#form=sensor_add")
+                    }}
+                    OnNavigate={(addr) => navigate(addr)}
                     OnTitleUpdate={(title) => updateTitle(title)}
                 />
             )
@@ -208,8 +256,53 @@ function ResponsiveDrawer(props) {
         if (form === "unit") {
             return (
                 <PageUnit
-                    OnNavigate={(addr)=> navigate(addr)}
+                    OnNavigate={(addr) => navigate(addr)}
                     UnitId={getHashVariable("unitId")}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                />
+            )
+        }
+        if (form === "public_channels") {
+            return (
+                <PagePublicChannels
+                    onAddSensor={() => {
+                        navigate("#form=sensor_add")
+                    }}
+                    OnNavigate={(addr) => navigate(addr)}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                />
+            )
+        }
+        if (form === "public_channel") {
+            return (
+                <PagePublicChannel
+                    OnNavigate={(addr) => navigate(addr)}
+                    ChannelId={getHashVariable("channelId")}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                />
+            )
+        }
+        if (form === "users") {
+            return (
+                <PageUsers
+                    OnNavigate={(addr) => navigate(addr)}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                />
+            )
+        }
+        if (form === "user") {
+            return (
+                <PageUser
+                    OnNavigate={(addr) => navigate(addr)}
+                    UserName={getHashVariable("user")}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                />
+            )
+        }
+        if (form === "remote_access") {
+            return (
+                <PageRemoteAccess
+                    OnNavigate={(addr) => navigate(addr)}
                     OnTitleUpdate={(title) => updateTitle(title)}
                 />
             )
@@ -217,7 +310,7 @@ function ResponsiveDrawer(props) {
         if (form === "unit_config") {
             return (
                 <PageUnitConfig
-                    OnNavigate={(addr)=> navigate(addr)}
+                    OnNavigate={(addr) => navigate(addr)}
                     UnitId={getHashVariable("unitId")}
                     UnitType={getHashVariable("unitType")}
                     OnTitleUpdate={(title) => updateTitle(title)}
@@ -227,7 +320,7 @@ function ResponsiveDrawer(props) {
         if (form === "unit_add") {
             return (
                 <PageAddUnit
-                    OnNavigate={(addr)=> navigate(addr)}
+                    OnNavigate={(addr) => navigate(addr)}
                     UnitId={getHashVariable("unitId")}
                     OnTitleUpdate={(title) => updateTitle(title)}
                 />
@@ -236,7 +329,7 @@ function ResponsiveDrawer(props) {
         if (form === "data_item") {
             return (
                 <PageDataItem
-                    OnNavigate={(addr)=> navigate(addr)}
+                    OnNavigate={(addr) => navigate(addr)}
                     DataItemName={getHashVariable("dataItemName")}
                     OnTitleUpdate={(title) => updateTitle(title)}
                 />
@@ -244,45 +337,29 @@ function ResponsiveDrawer(props) {
         }
         if (form === "sensor_add") {
             return (
-                <PageSensorAdd onComplete={() => {navigate("#form=sensors")}} />
+                <PageSensorAdd onComplete={() => {
+                    navigate("#form=sensors")
+                }}/>
             )
         }
-        /*if (form === "data_items") {
-            return (
-                <PageDataItems />
-            )
-        }
-        if (form === "maps") {
-            return (
-                <PageMaps />
-            )
-        }
-        if (form === "charts") {
-            return (
-                <PageCharts />
-            )
-        }
-
-        if (form === "users") {
-            return (
-                <PageUsers />
-            )
-        }
-
-        if (form === "admin") {
-            return (
-                <PageAdmin />
-            )
-        }*/
-
         if (form === "account") {
             return (
-                <PageAccount OnNeedUpdate={()=>{ forceUpdate() }} />
+                <PageAccount
+                    OnNavigate={(addr) => navigate(addr)}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                    OnNeedUpdate={() => {
+                    forceUpdate()
+                }}/>
             )
         }
         if (form === "about") {
             return (
-                <PageAbout OnNeedUpdate={()=>{ forceUpdate() }} />
+                <PageAbout
+                    OnNavigate={(addr) => navigate(addr)}
+                    OnTitleUpdate={(title) => updateTitle(title)}
+                    OnNeedUpdate={() => {
+                    forceUpdate()
+                }}/>
             )
         }
 
@@ -307,12 +384,11 @@ function ResponsiveDrawer(props) {
         }
     });
 
-    if (getCookie("session_token") === undefined)
-    {
+    if (getCookie("session_token") === undefined) {
         return (
             <MuiThemeProvider theme={th}>
                 <div className={classes.root}>
-                    <SignIn OnNeedUpdate={ () => {
+                    <SignIn OnNeedUpdate={() => {
                         forceUpdate();
                     }}/>
                 </div>
@@ -322,60 +398,62 @@ function ResponsiveDrawer(props) {
 
     return (
         <MuiThemeProvider theme={th}>
-            <div className={classes.root} key='gazer-main'>
-                <CssBaseline />
-                <AppBar position="fixed" className={classes.appBar} style={{backgroundColor: '#1E1E1E'}}>
-                    <Toolbar>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            edge="start"
-                            onClick={handleDrawerToggle}
-                            className={classes.menuButton}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" noWrap>
-                            {title}
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
-                <nav className={classes.drawer} aria-label="mailbox folders">
-                    {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                    <Hidden smUp implementation="css">
-                        <Drawer
-                            container={container}
-                            variant="temporary"
-                            anchor={'left'}
-                            open={mobileOpen}
-                            onClose={handleDrawerToggle}
-                            classes={{
-                                paper: classes.drawerPaper,
-                            }}
-                            ModalProps={{
-                                keepMounted: true, // Better open performance on mobile.
-                            }}
-                        >
-                            {drawer}
-                        </Drawer>
-                    </Hidden>
-                    <Hidden xsDown implementation="css">
-                        <Drawer
-                            classes={{
-                                paper: classes.drawerPaper,
-                            }}
-                            variant="permanent"
-                            open
-                        >
-                            {drawer}
-                        </Drawer>
-                    </Hidden>
-                </nav>
-                <main className={classes.content}>
-                    <div className={classes.toolbar} />
-                    {renderForm()}
-                </main>
-            </div>
+            <SnackbarProvider maxSnack={3}>
+                <div className={classes.root} key='gazer-main'>
+                    <CssBaseline/>
+                    <AppBar position="fixed" className={classes.appBar} style={{backgroundColor: '#1E1E1E'}}>
+                        <Toolbar>
+                            <IconButton
+                                color="inherit"
+                                aria-label="open drawer"
+                                edge="start"
+                                onClick={handleDrawerToggle}
+                                className={classes.menuButton}
+                            >
+                                <MenuIcon/>
+                            </IconButton>
+                            <Typography variant="h6" noWrap>
+                                {title}
+                            </Typography>
+                        </Toolbar>
+                    </AppBar>
+                    <nav className={classes.drawer} aria-label="mailbox folders">
+                        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+                        <Hidden smUp implementation="css">
+                            <Drawer
+                                container={container}
+                                variant="temporary"
+                                anchor={'left'}
+                                open={mobileOpen}
+                                onClose={handleDrawerToggle}
+                                classes={{
+                                    paper: classes.drawerPaper,
+                                }}
+                                ModalProps={{
+                                    keepMounted: true, // Better open performance on mobile.
+                                }}
+                            >
+                                {drawer}
+                            </Drawer>
+                        </Hidden>
+                        <Hidden xsDown implementation="css">
+                            <Drawer
+                                classes={{
+                                    paper: classes.drawerPaper,
+                                }}
+                                variant="permanent"
+                                open
+                            >
+                                {drawer}
+                            </Drawer>
+                        </Hidden>
+                    </nav>
+                    <main className={classes.content}>
+                        <div className={classes.toolbar}/>
+                        {renderForm()}
+                    </main>
+                </div>
+            </SnackbarProvider>
         </MuiThemeProvider>
     );
 }

@@ -1,20 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import Paper from "@material-ui/core/Paper";
-import WidgetDataItems from "./WidgetDataItems";
-import WidgetDataItemDetails from "./WidgetDataItemDetails";
-import Grid from "@material-ui/core/Grid";
-import WidgetSensorInfo from "./WidgetSensorInfo";
-import Request from "../request";
-import {CartesianGrid, Legend, Line, LineChart, XAxis, YAxis} from "recharts";
+import Request, {RequestFailed} from "../request";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import Button from "@material-ui/core/Button";
 import WidgetTimeChart from "./WidgetTimeChart/WidgetTimeChart";
+import JSZip from "jszip";
+import {LinearProgress} from "@material-ui/core";
 
 export default function WidgetItemHistory(props) {
     const [dataItemHistory, setDataItemHistory] = React.useState([])
     const [timeRangeLast, setTimeRangeLast] = React.useState(5)
     const [lastUpdateTime, setLastUpdateTime] = React.useState(0)
-    const [requesting, setRequesting] = React.useState(false)
+    const [stateLoading, setStateLoading] = React.useState(false)
     const [renderCounter, setRenderCounter] = React.useState(0)
 
     const [firstRendering, setFirstRendering] = useState(true)
@@ -35,7 +31,7 @@ export default function WidgetItemHistory(props) {
             groupTimeRange = 1
         }
 
-        console.log("groupTimeRange", groupTimeRange)
+        //console.log("groupTimeRange", groupTimeRange)
 
         if (groupTimeRange >= 100000 && groupTimeRange < 200000) {
             groupTimeRange = 100000 // By 0.2 sec
@@ -117,16 +113,15 @@ export default function WidgetItemHistory(props) {
             groupTimeRange = 24 * 60 * 60 * 1000000 // By day
         }
 
-        console.log("groupTimeRange FINAL:", groupTimeRange)
+        //console.log("groupTimeRange FINAL:", groupTimeRange)
 
         return groupTimeRange
     }
 
     const requestDataItemHistory = (dataItemName) => {
-        if (requesting) {
+        if (stateLoading) {
             return
         }
-        setRequesting(true)
 
         /*let w = width() // width
         let r = timeRangeLast * 60.0 * 1000000.0
@@ -138,9 +133,9 @@ export default function WidgetItemHistory(props) {
         }
 
         if (((new Date().getTime()) - lastUpdateTime) <= updateTimeout) {
-            setRequesting(false)
             return
         }
+
 
         //console.log("timePerPixel", timePerPixel)
 
@@ -155,30 +150,49 @@ export default function WidgetItemHistory(props) {
             name: dataItemName,
             dt_begin: minmax.min,
             dt_end: minmax.max,
-            group_time_range: minmax.groupTimeRange
+            group_time_range: minmax.groupTimeRange,
+            out_format: "zip"
         }
+
+        setStateLoading(true)
+
         Request('data_item_history_chart', req)
             .then((res) => {
                 if (res.status === 200) {
                     res.json().then(
                         (result) => {
                             setLastUpdateTime(new Date().getTime())
-                            let items = [];
-                            items = result.items
-                            let newData = items
-                            setDataItemHistory(newData)
-                            setRequesting(false)
+                            const byteCharacters = atob(result.data);
+                            console.log("HISTORY 1:", byteCharacters.length)
+                            let new_zip = new JSZip();
+                            new_zip.loadAsync(byteCharacters)
+                                .then(function (zip) {
+                                    console.log("HISTORY 2:")
+                                    zip.file("data").async("string").then((v) => {
+                                        let obj = JSON.parse(v)
+                                        console.log("HISTORY 3:", obj)
+
+                                        let items = [];
+                                        items = obj.items
+                                        let newData = items
+                                        setDataItemHistory(newData)
+
+                                    });
+                                });
                         }
                     );
-                } else {
-                    res.json().then(
-                        (result) => {
-                            setRequesting(false)
-                            //setErrorMessage(result.error)
-                        }
-                    );
+
+                    setStateLoading(false)
+                    return
                 }
-            });
+
+                setStateLoading(false)
+                RequestFailed()
+
+            }).catch(res => {
+            setStateLoading(false)
+            RequestFailed()
+        });
     }
 
     const width = () => {
@@ -192,7 +206,7 @@ export default function WidgetItemHistory(props) {
         let w = width() // width
         let r = timeRangeLast * 60.0 * 1000000.0
         let timePerPixel = r / w
-        console.log("timePerPixel", timePerPixel)
+        //console.log("timePerPixel", timePerPixel)
 
         let groupTimeRange = alignGroupTimeRange(timePerPixel)
 
@@ -211,7 +225,7 @@ export default function WidgetItemHistory(props) {
     }
 
     const setLastRange = (g, v) => {
-        setRequesting(false)
+        setStateLoading(false)
         setTimeRangeLast(g)
         setLastUpdateTime(0)
         setDataItemHistory([])
@@ -263,7 +277,7 @@ export default function WidgetItemHistory(props) {
                 </div>
             </div>
             <div style={{marginTop: "10px"}}>{renderChart()}</div>
-            <div>{requesting ? <div>Requesting</div> : <div>...</div>}</div>
+            <div>{stateLoading ? <div><LinearProgress /></div> : <div><LinearProgress value={0} variant="determinate" /></div>}</div>
         </div>
     );
 

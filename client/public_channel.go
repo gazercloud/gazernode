@@ -148,3 +148,43 @@ func (c *Client) CloudRemoveItems(channels []string, items []string, f func(erro
 	call.client = c
 	go c.thCall(&call)
 }
+
+func (c *Client) StartPublicChannels(ids []string, f func(error)) {
+	var call Call
+	var req nodeinterface.PublicChannelStartRequest
+	req.Ids = ids
+	call.function = nodeinterface.FuncPublicChannelStart
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.PublicChannelStartResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}
+
+func (c *Client) StopPublicChannels(ids []string, f func(error)) {
+	var call Call
+	var req nodeinterface.PublicChannelStopRequest
+	req.Ids = ids
+	call.function = nodeinterface.FuncPublicChannelStop
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.PublicChannelStopResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}

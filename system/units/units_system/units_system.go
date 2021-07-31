@@ -16,6 +16,7 @@ import (
 	"github.com/gazercloud/gazernode/system/units/general/unit_hhgttg"
 	"github.com/gazercloud/gazernode/system/units/general/unit_manual"
 	"github.com/gazercloud/gazernode/system/units/general/unit_signal_generator"
+	"github.com/gazercloud/gazernode/system/units/network/unit_http_json_requester"
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
 	"github.com/gazercloud/gazernode/system/units/network/unit_tcp_connect"
 	unit_tcp_telnet_control "github.com/gazercloud/gazernode/system/units/network/unit_tcp_control"
@@ -88,6 +89,10 @@ Timeout - Timeout in milliseconds to wait for each reply.
 Period - The period between sensor activities
 
 The result time is written to the data item "Time"
+`
+
+	unitType = c.RegisterUnit("network_http_json_requester", "network", "JSON Requester", unit_http_json_requester.New, unit_http_json_requester.Image, "")
+	unitType.Help = `
 `
 
 	unitType = c.RegisterUnit("network_tcp_telnet_control", "network", "TCP Telnet Control", unit_tcp_telnet_control.New, unit_tcp_telnet_control.Image, "")

@@ -55,5 +55,19 @@ type PublicChannelItemsStateRequest struct {
 }
 
 type PublicChannelItemsStateResponse struct {
-	UnitValues []common_interfaces.Item `json:"unit_values"`
+	UnitValues []common_interfaces.Item `json:"items"`
+}
+
+type PublicChannelStartRequest struct {
+	Ids []string `json:"ids"`
+}
+
+type PublicChannelStartResponse struct {
+}
+
+type PublicChannelStopRequest struct {
+	Ids []string `json:"ids"`
+}
+
+type PublicChannelStopResponse struct {
 }

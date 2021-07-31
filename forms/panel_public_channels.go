@@ -48,7 +48,6 @@ type PanelPublicChannels struct {
 
 	lvItems          *uicontrols.ListView
 	timer            *uievents.FormTimer
-	unitId           string
 	currentChannelId string
 }
 
@@ -112,12 +111,24 @@ func (c *PanelPublicChannels) OnInit() {
 
 	pButtons.AddTextBlockOnGrid(3, 0, " | ")
 
-	c.btnRefresh = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
+	c.btnStart = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
+		c.startChannel()
+	})
+	c.btnStart.SetTooltip("Start selected public channels")
+
+	c.btnStop = pButtons.AddButtonOnGrid(5, 0, "", func(event *uievents.Event) {
+		c.stopChannel()
+	})
+	c.btnStop.SetTooltip("Stop selected public channels")
+
+	pButtons.AddTextBlockOnGrid(6, 0, " | ")
+
+	c.btnRefresh = pButtons.AddButtonOnGrid(7, 0, "", func(event *uievents.Event) {
 		c.loadChannels()
 	})
 	c.btnRefresh.SetTooltip("Refresh")
 
-	pButtons.AddHSpacerOnGrid(5, 0)
+	pButtons.AddHSpacerOnGrid(8, 0)
 	/*
 		c.btnStart = pButtons.AddButtonOnGrid(4, 0, "", func(event *uievents.Event) {
 			unitId := c.lvChannels.SelectedItem().TempData
@@ -134,8 +145,9 @@ func (c *PanelPublicChannels) OnInit() {
 	//pButtons.AddHSpacerOnGrid(5, 0)
 
 	c.lvChannels = pUnitsList.AddListViewOnGrid(0, 2)
-	c.lvChannels.AddColumn("Name", 200)
+	c.lvChannels.AddColumn("Name", 140)
 	c.lvChannels.AddColumn("Id", 100)
+	c.lvChannels.AddColumn("Status", 100)
 	c.lvChannels.OnSelectionChanged = c.loadSelected
 
 	menu := uicontrols.NewPopupMenu(c.lvChannels)
@@ -293,6 +305,24 @@ func (c *PanelPublicChannels) FullRefresh() {
 	c.loadChannels()
 }
 
+func (c *PanelPublicChannels) startChannel() {
+	ids := make([]string, 0)
+	for _, selectedItem := range c.lvChannels.SelectedItems() {
+		id := selectedItem.TempData
+		ids = append(ids, id)
+	}
+	c.client.StartPublicChannels(ids, nil)
+}
+
+func (c *PanelPublicChannels) stopChannel() {
+	ids := make([]string, 0)
+	for _, selectedItem := range c.lvChannels.SelectedItems() {
+		id := selectedItem.TempData
+		ids = append(ids, id)
+	}
+	c.client.StopPublicChannels(ids, nil)
+}
+
 func (c *PanelPublicChannels) UpdateStyle() {
 	c.Panel.UpdateStyle()
 
@@ -302,8 +332,8 @@ func (c *PanelPublicChannels) UpdateStyle() {
 	c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, activeColor))
 	c.btnEdit.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, activeColor))
 	c.btnRemove.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, activeColor))
-	//c.btnStart.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", c.ForeColor()))
-	//c.btnStop.SetImage(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", c.ForeColor()))
+	c.btnStart.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialicons_48dp_1x_baseline_play_arrow_black_48dp_png, activeColor))
+	c.btnStop.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, activeColor))
 
 	c.btnOpenInBrowser.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, activeColor))
 	c.btnCopyLink.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_content_copy_materialicons_48dp_1x_baseline_content_copy_black_48dp_png, activeColor))
@@ -314,8 +344,8 @@ func (c *PanelPublicChannels) UpdateStyle() {
 	c.btnAdd.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, inactiveColor))
 	c.btnEdit.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, inactiveColor))
 	c.btnRemove.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, inactiveColor))
-	//c.btnStart.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_play_arrow_black_48dp.png", c.InactiveColor()))
-	//c.btnStop.SetImageDisabled(uiresources.ResImageAdjusted("icons/material/av/drawable-hdpi/ic_pause_black_48dp.png", c.InactiveColor()))
+	c.btnStart.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialicons_48dp_1x_baseline_play_arrow_black_48dp_png, inactiveColor))
+	c.btnStop.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_pause_materialiconsoutlined_48dp_1x_outline_pause_black_48dp_png, inactiveColor))
 
 	c.btnOpenInBrowser.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialicons_48dp_1x_baseline_open_in_browser_black_48dp_png, inactiveColor))
 	c.btnCopyLink.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_content_copy_materialicons_48dp_1x_baseline_content_copy_black_48dp_png, inactiveColor))
@@ -348,10 +378,17 @@ func (c *PanelPublicChannels) loadChannels() {
 		if c.lvChannels == nil {
 			return
 		}
-		c.lvChannels.RemoveItems()
-		for _, s := range channels {
-			lvItem := c.lvChannels.AddItem(s.Name)
+		if len(channels) != c.lvChannels.ItemsCount() {
+			c.lvChannels.RemoveItems()
+			for _, s := range channels {
+				c.lvChannels.AddItem(s.Name)
+			}
+		}
+		for index, s := range channels {
+			lvItem := c.lvChannels.Item(index)
+			lvItem.SetValue(0, s.Name)
 			lvItem.SetValue(1, s.Id)
+			lvItem.SetValue(2, s.Status)
 			lvItem.TempData = s.Id
 			lvItem.SetUserData("channelName", s.Name)
 		}
@@ -395,13 +432,13 @@ func (c *PanelPublicChannels) timerUpdate() {
 			c.btnEdit.SetEnabled(false)
 			c.btnRemove.SetEnabled(false)
 		}
-		/*c.btnStart.SetEnabled(true)
-		c.btnStop.SetEnabled(true)*/
+		c.btnStart.SetEnabled(true)
+		c.btnStop.SetEnabled(true)
 	} else {
 		c.btnEdit.SetEnabled(false)
 		c.btnRemove.SetEnabled(false)
-		/*c.btnStart.SetEnabled(false)
-		c.btnStop.SetEnabled(false)*/
+		c.btnStart.SetEnabled(false)
+		c.btnStop.SetEnabled(false)
 	}
 
 	itemsSelected := c.lvItems.SelectedItems()
@@ -427,6 +464,8 @@ func (c *PanelPublicChannels) timerUpdate() {
 		c.btnShowFullScreen.SetEnabled(false)
 		c.btnRemoveFromCloud.SetEnabled(false)
 	}
+
+	c.loadChannels()
 
 	if len(c.currentChannelId) > 0 {
 		c.client.GetCloudChannelValues(c.currentChannelId, func(items []common_interfaces.Item, err error) {

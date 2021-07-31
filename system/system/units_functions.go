@@ -276,7 +276,7 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 			}
 		}
 	}
-	if entity == "data-items" {
+	if entity == "data-item" {
 		result.KeyColumn = "name"
 		result.AddColumn("name", "Data Item Name")
 		c.mtx.Lock()

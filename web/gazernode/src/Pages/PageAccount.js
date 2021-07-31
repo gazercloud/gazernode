@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Button} from "@material-ui/core";
 import Request from "../request";
 
@@ -10,6 +10,13 @@ function getCookie(name) {
 }
 
 export default function PageAccount(props) {
+
+    const [firstRendering, setFirstRendering] = useState(true)
+    if (firstRendering) {
+        props.OnTitleUpdate("Account")
+        setFirstRendering(false)
+    }
+
     return (
         <div>
             <Button onClick={() => {

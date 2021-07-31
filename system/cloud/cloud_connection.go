@@ -75,6 +75,23 @@ func NewConnection() *Connection {
 	c.allowIncomingFunctions["unit_start"] = true
 	c.allowIncomingFunctions["unit_stop"] = true
 
+	c.allowIncomingFunctions["public_channel_list"] = true
+	c.allowIncomingFunctions["public_channel_add"] = true
+	c.allowIncomingFunctions["public_channel_set_name"] = true
+	c.allowIncomingFunctions["public_channel_remove"] = true
+	c.allowIncomingFunctions["public_channel_item_add"] = true
+	c.allowIncomingFunctions["public_channel_item_remove"] = true
+	c.allowIncomingFunctions["public_channel_item_state"] = true
+	c.allowIncomingFunctions["public_channel_start"] = true
+	c.allowIncomingFunctions["public_channel_stop"] = true
+
+	c.allowIncomingFunctions["data_item_list"] = true
+	c.allowIncomingFunctions["data_item_list_all"] = true
+	c.allowIncomingFunctions["data_item_write"] = true
+	c.allowIncomingFunctions["data_item_history"] = true
+	c.allowIncomingFunctions["data_item_history_chart"] = true
+	c.allowIncomingFunctions["data_item_remove"] = true
+
 	c.calls = make(map[string]int64)
 	c.proxyTasks = make(map[string]*ProxyTask)
 
@@ -578,6 +595,8 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 				allowed = true
 			}
 		}
+
+		allowed = true
 	}
 
 	var bs []byte
@@ -589,6 +608,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 
 		// Frame for the node
 		bs, err = c.requester.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web")
+		//logger.Println("CloudConnection REQUEST", task.Frame.Header.Function, "resLen:", len(bs))
 	} else {
 		logger.Println("NOT ALLOWED FUNCTION:", task.Frame.Header.Function)
 		err = errors.New("access denied")

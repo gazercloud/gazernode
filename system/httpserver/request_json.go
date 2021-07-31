@@ -49,6 +49,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.ServiceLookup(requestText)
 	case nodeinterface.FuncServiceStatistics:
 		result, err = c.ServiceStatistics(requestText)
+	case nodeinterface.FuncServiceApi:
+		result, err = c.ServiceApi(requestText)
 
 		// *** Resource ***
 	case nodeinterface.FuncResourceAdd:
@@ -103,6 +105,10 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.PublicChannelItemRemove(requestText)
 	case nodeinterface.FuncPublicChannelItemsState:
 		result, err = c.PublicChannelItemsState(requestText)
+	case nodeinterface.FuncPublicChannelStart:
+		result, err = c.PublicChannelStart(requestText)
+	case nodeinterface.FuncPublicChannelStop:
+		result, err = c.PublicChannelStop(requestText)
 
 		// *** Data Item ***
 	case nodeinterface.FuncDataItemList:

@@ -9,7 +9,7 @@ type UnitAddRequest struct {
 }
 
 type UnitAddResponse struct {
-	UnitId string `json:"unit_id"`
+	UnitId string `json:"id"`
 }
 
 type UnitRemoveRequest struct {
@@ -24,8 +24,8 @@ type UnitStateRequest struct {
 }
 
 type UnitStateResponse struct {
-	UnitId   string `json:"unit_id"`
-	UnitName string `json:"unit_name"`
+	UnitId   string `json:"id"`
+	UnitName string `json:"name"`
 	Status   string `json:"status"`
 	MainItem string `json:"main_item"`
 	Value    string `json:"value"`
@@ -40,8 +40,8 @@ type UnitStateAllResponse struct {
 }
 
 type UnitStateAllResponseItem struct {
-	UnitId   string `json:"unit_id"`
-	UnitName string `json:"unit_name"`
+	UnitId   string `json:"id"`
+	UnitName string `json:"name"`
 	Status   string `json:"status"`
 	MainItem string `json:"main_item"`
 	Value    string `json:"value"`
@@ -49,7 +49,7 @@ type UnitStateAllResponseItem struct {
 }
 
 type UnitItemsValuesRequest struct {
-	UnitName string `json:"unit_name"`
+	UnitName string `json:"name"`
 }
 
 type UnitItemsValuesResponse struct {

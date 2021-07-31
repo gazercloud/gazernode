@@ -18,3 +18,7 @@ export default async function Request(func, data = {}) {
         body: formData // body data type must match "Content-Type" header
     }); // parses JSON response into native JavaScript objects
 }
+
+export function RequestFailed() {
+    console.log("RequestFailed")
+}

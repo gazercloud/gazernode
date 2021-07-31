@@ -126,6 +126,10 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 		function = r.FormValue("fn")
 	}
 
+	if requestJson == "" {
+		requestJson = "{}"
+	}
+
 	//if strings.Contains(function, "session") {
 	//logger.Println("function", function, "request", requestJson)
 	//}

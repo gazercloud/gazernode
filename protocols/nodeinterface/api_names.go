@@ -47,6 +47,8 @@ const (
 	FuncPublicChannelItemAdd    = "public_channel_item_add"
 	FuncPublicChannelItemRemove = "public_channel_item_remove"
 	FuncPublicChannelItemsState = "public_channel_item_state"
+	FuncPublicChannelStart      = "public_channel_start"
+	FuncPublicChannelStop       = "public_channel_stop"
 
 	// *** Service ***
 	FuncServiceLookup     = "service_lookup"

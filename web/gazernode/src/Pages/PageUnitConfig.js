@@ -4,48 +4,42 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import MemoryIcon from '@material-ui/icons/Memory';
 import Grid from "@material-ui/core/Grid";
-import Request from "../request";
+import Request, {RequestFailed} from "../request";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ConfigSensor from "../Widgets/SensorConfig/ConfigSensor";
 import TextField from "@material-ui/core/TextField";
+import {Tooltip} from "@material-ui/core";
+import Zoom from "@material-ui/core/Zoom";
+import IconButton from "@material-ui/core/IconButton";
+import ArrowBackIosOutlinedIcon from "@material-ui/icons/ArrowBackIosOutlined";
+import Divider from "@material-ui/core/Divider";
+import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
+import SaveIcon from '@material-ui/icons/Save';
+import WidgetError from "../Widgets/WidgetError";
 
 function PageUnitConfig(props) {
-    const [unitValues, setUnitValues] = React.useState([])
     const [unitConfig, setUnitConfig] = React.useState({})
     const [unitConfigMeta, setUnitConfigMeta] = React.useState([])
     const [unitId, setUnitId] = React.useState("")
     const [unitName, setUnitName] = React.useState("")
-    const [errorMessage, setErrorMessage] = React.useState("")
 
-    const btnStyle = (key) => {
-        if (currentItem === key) {
-            return {
-                borderBottom: '1px solid #333333',
-                cursor: "pointer",
-                backgroundColor: "#222222",
-            }
-        } else {
-            if (hoverItem === key) {
-                return {
-                    borderBottom: '1px solid #333333',
-                    cursor: "pointer",
-                    backgroundColor: "#222222"
-                }
-            } else {
-                return {
-                    borderBottom: '1px solid #333333',
-                    cursor: "pointer",
-                    backgroundColor: "#1E1E1E"
-                }
-            }
-        }
-    }
+    const [configLoading, setConfigLoading] = React.useState(false)
+    const [configLoaded, setConfigLoaded] = React.useState(false)
 
-    const [currentItem, setCurrentItem] = useState("")
-    const [hoverItem, setHoverItem] = useState("")
+    const [configMetaLoading, setConfigMetaLoading] = React.useState(false)
+    const [configMetaLoaded, setConfigMetaLoaded] = React.useState(false)
+
+
+    const [messageError, setMessageError] = React.useState("")
 
     const requestSensorConfig = (unitId) => {
+        if (configLoading || configLoaded) {
+            return
+        }
+
+        setConfigLoading(true)
+
         let req = {
             id: unitId
         }
@@ -64,19 +58,38 @@ function PageUnitConfig(props) {
                             setUnitConfig(conf)
 
                             console.log("UnitConfig", result)
+                            setConfigLoaded(true)
+                            setConfigLoading(false)
+                            setConfigMetaLoaded(true)
+                            setMessageError("")
                         }
                     );
                 } else {
+                    if (res.status !== 500) {
+                        throw "123"
+                    }
+
                     res.json().then(
                         (result) => {
-                            setErrorMessage(result.error)
+                            setMessageError(result.error)
+                            setConfigLoading(false)
+                            RequestFailed()
                         }
                     );
                 }
-            });
+            }).catch(res => {
+            setMessageError(res.message)
+            RequestFailed()
+            setConfigLoading(false)
+        });
     }
 
     const requestSensorConfigMeta = (unitType) => {
+        if (configMetaLoading || configMetaLoaded) {
+            return
+        }
+        setConfigMetaLoading(true)
+
         let req = {
             type: unitType
         }
@@ -89,17 +102,28 @@ function PageUnitConfig(props) {
                             setUnitName("")
 
                             let meta = JSON.parse(result.config_meta)
+
                             setUnitConfigMeta(meta)
+                            setUnitConfig({})
+                            setConfigLoaded(true)
+                            setConfigMetaLoaded(true)
+                            setConfigMetaLoading(false)
                         }
                     );
                 } else {
                     res.json().then(
                         (result) => {
-                            setErrorMessage(result.error)
+                            setMessageError(result.error)
+                            setConfigMetaLoading(false)
+                            RequestFailed()
                         }
                     );
                 }
-            });
+            }).catch(res => {
+            setMessageError(res.message)
+            RequestFailed()
+            setConfigMetaLoading(false)
+        });
     }
 
     const requestSaveConfig = () => {
@@ -122,7 +146,7 @@ function PageUnitConfig(props) {
                     } else {
                         res.json().then(
                             (result) => {
-                                setErrorMessage(result.error)
+                                setMessageError(result.error)
                             }
                         );
                     }
@@ -145,7 +169,7 @@ function PageUnitConfig(props) {
                     } else {
                         res.json().then(
                             (result) => {
-                                setErrorMessage(result.error)
+                                setMessageError(result.error)
                             }
                         );
                     }
@@ -168,22 +192,44 @@ function PageUnitConfig(props) {
     useEffect(() => {
         //const unitId = new Buffer(props.UnitId, 'hex').toString();
         const timer = setInterval(() => {
-        }, 500);
+            if (props.UnitId === undefined || props.UnitId === "") {
+                const unitType = new Buffer(props.UnitType, 'hex').toString();
+                requestSensorConfigMeta(unitType)
+            } else {
+                const unitId = new Buffer(props.UnitId, 'hex').toString();
+                requestSensorConfig(unitId)
+            }
+        }, 1000);
         return () => clearInterval(timer);
     });
 
     const displayErrorMessage = () => {
         return (
-            <div style={{color: "#F00", fontSize: "14pt"}}>{errorMessage}</div>
+            <div style={{color: "#F00", fontSize: "14pt"}}>{messageError}</div>
         )
     }
 
     return (
         <Grid container direction="column">
             <Grid item>
-                <Button variant='outlined' color='primary' onClick={()=>{props.OnNavigate('#form=units')}}>
-                    Back to the Units
-                </Button>
+                <Grid container alignItems="center" style={{backgroundColor: "#222", borderRadius: "10px", padding: "5px"}}>
+                    <Tooltip title="Back" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
+                        <IconButton onClick={()=>{
+                            window.history.back()
+                        }} variant="outlined" color="primary">
+                            <ArrowBackIosOutlinedIcon fontSize="large"  style={{borderBottom: "0px solid #00A0E3"}}/>
+                        </IconButton>
+                    </Tooltip>
+
+                    <Divider orientation="vertical" flexItem style={{marginLeft: "20px", marginRight: "20px"}} />
+
+                    <Tooltip title="Edit" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
+                        <IconButton onClick={requestSaveConfig.bind(this)} variant="outlined" color="primary" disabled={!configLoaded || !configMetaLoaded}>
+                            <SaveIcon fontSize="large"  style={{borderBottom: "0px solid #00A0E3"}}/>
+                        </IconButton>
+                    </Tooltip>
+                </Grid>
+
             </Grid>
             <Grid item>
                 <Grid container alignItems="center" spacing={1} style={{marginTop: "20px"}}>
@@ -198,6 +244,7 @@ function PageUnitConfig(props) {
                     <Grid item style={{minWidth: "100px"}}>Name:</Grid>
                     <Grid item>
                         <TextField
+                            disabled={!configLoaded || !configMetaLoaded}
                             value={unitName}
                             placeholder={"Name of the unit"}
                             onChange={(ev)=>{
@@ -211,14 +258,13 @@ function PageUnitConfig(props) {
                 <ConfigSensor ConfigMeta={unitConfigMeta} Config={unitConfig} OnConfigChanged={(v) => setUnitConfig(v)}/>
             </Grid>
 
-            <Grid item>
-                <Button variant='outlined' color='primary' style={{minWidth: '70px', margin: '5px'}}
-                        onClick={requestSaveConfig.bind(this)}
-                >SAVE</Button>
-            </Grid>
             <Grid>
                 {displayErrorMessage()}
             </Grid>
+
+            <div>
+                <WidgetError Message={messageError} />
+            </div>
 
         </Grid>
     );

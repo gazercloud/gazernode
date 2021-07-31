@@ -29,6 +29,8 @@ export default function PageSensorAdd(props) {
     const [sensorName, setSensorName] = React.useState("")
     const [sensorConfig, setSensorConfig] = React.useState("")
 
+    const [messageError, setMessageError] = React.useState("")
+
     const handleNext = () => {
         if (activeStep < 2)
             setActiveStep(activeStep + 1);

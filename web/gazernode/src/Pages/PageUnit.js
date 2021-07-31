@@ -4,7 +4,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import MemoryIcon from '@material-ui/icons/Memory';
 import Grid from "@material-ui/core/Grid";
-import Request from "../request";
+import Request, {RequestFailed} from "../request";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import {Tooltip} from "@material-ui/core";
@@ -16,11 +16,19 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogActions from "@material-ui/core/DialogActions";
+import ArrowBackIosOutlinedIcon from "@material-ui/icons/ArrowBackIosOutlined";
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
+import Divider from "@material-ui/core/Divider";
+import WidgetError from "../Widgets/WidgetError";
 
 function PageUnit(props) {
     const [unitValues, setUnitValues] = React.useState([])
     const [unitState, setUnitState] = React.useState([])
     const [unitName, setUnitName] = React.useState("")
+
+    const [messageError, setMessageError] = React.useState("")
+    const [stateLoading, setStateLoading] = React.useState(false)
 
     const btnStyle = (key) => {
         if (currentItem === key) {
@@ -64,7 +72,7 @@ function PageUnit(props) {
 
     const requestUnitItems = (unitName) => {
         let req = {
-            unit_name: unitName
+            name: unitName
         }
         Request('unit_items_values', req)
             .then((res) => {
@@ -72,16 +80,21 @@ function PageUnit(props) {
                     res.json().then(
                         (result) => {
                             setUnitValues(result)
+                            setMessageError("")
                         }
                     );
                 } else {
                     res.json().then(
                         (result) => {
-                            //setErrorMessage(result.error)
+                            setMessageError(result.error)
                         }
                     );
+                    RequestFailed()
                 }
-            });
+            }).catch(res => {
+            setMessageError(res.message)
+            RequestFailed()
+        });
     }
 
     const requestRemoveUnit = (unitId) => {
@@ -107,6 +120,11 @@ function PageUnit(props) {
     }
 
     const requestUnitState = (unitId) => {
+        if (stateLoading)
+            return
+
+        setStateLoading(true)
+
         let req = {
             id: unitId
         }
@@ -116,19 +134,36 @@ function PageUnit(props) {
                     res.json().then(
                         (result) => {
                             setUnitState(result)
-                            setUnitName(result.unit_name)
-                            props.OnTitleUpdate("Gazer - Unit " + result.unit_name)
-                            requestUnitItems(result.unit_name)
+                            setUnitName(result.name)
+                            props.OnTitleUpdate("Unit " + result.name)
+                            requestUnitItems(result.name)
+                            setStateLoading(false)
                         }
                     );
-                } else {
+                    return
+                }
+
+                if (res.status === 500) {
                     res.json().then(
                         (result) => {
-                            //setErrorMessage(result.error)
+                            setMessageError(result.error)
+                            setStateLoading(false)
                         }
                     );
+                    RequestFailed()
+                    setStateLoading(false)
+                    return
                 }
-            });
+
+                setMessageError("Error: " + res.status + " " + res.statusText)
+                RequestFailed()
+                setStateLoading(false)
+
+            }).catch(res => {
+            setMessageError(res.message)
+            setStateLoading(false)
+            RequestFailed()
+        });
     }
 
     const isServiceDataItemName = (dataItemName) => {
@@ -148,6 +183,7 @@ function PageUnit(props) {
 
     const [firstRendering, setFirstRendering] = useState(true)
     if (firstRendering) {
+        props.OnTitleUpdate("Unit ... loading")
         requestUnitState(getUnitId())
         setFirstRendering(false)
     }
@@ -253,7 +289,7 @@ function PageUnit(props) {
     let status = "unknown"
 
     if (unitState !== undefined) {
-        name = unitState.unit_name
+        name = unitState.name
         status = unitState.status
     }
 
@@ -324,17 +360,29 @@ function PageUnit(props) {
 
     return (
         <div>
-            <Button style={{marginRight: "20px"}} variant='outlined' color='primary' onClick={()=>{props.OnNavigate('#form=units')}}>
-                Back to the Units
-            </Button>
+            <Grid container alignItems="center" style={{backgroundColor: "#222", borderRadius: "10px", padding: "5px"}}>
+                <Tooltip title="Back" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
+                    <IconButton onClick={()=>{
+                        window.history.back()
+                    }} variant="outlined" color="primary">
+                        <ArrowBackIosOutlinedIcon fontSize="large"  style={{borderBottom: "0px solid #00A0E3"}}/>
+                    </IconButton>
+                </Tooltip>
 
-            <Button style={{marginRight: "20px"}} variant='outlined' color='primary' onClick={btnClickUnitConfig.bind(this)}>
-                Edit unit
-            </Button>
+                <Divider orientation="vertical" flexItem style={{marginLeft: "20px", marginRight: "20px"}} />
 
-            <Button variant='outlined' color='primary' onClick={btnClickUnitRemove.bind(this)}>
-                Remove unit
-            </Button>
+                <Tooltip title="Edit" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
+                    <IconButton onClick={btnClickUnitConfig.bind(this)} variant="outlined" color="primary">
+                        <EditOutlinedIcon fontSize="large"  style={{borderBottom: "0px solid #00A0E3"}}/>
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Remove unit" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
+                    <IconButton onClick={btnClickUnitRemove.bind(this)} variant="outlined" color="primary">
+                        <DeleteOutlinedIcon fontSize="large"/>
+                    </IconButton>
+                </Tooltip>
+            </Grid>
 
             <div style={{marginTop: '40px'}}>
                 <Typography style={{fontSize: '10pt'}}>Unit</Typography>
@@ -352,6 +400,9 @@ function PageUnit(props) {
                 </Grid>
             </Grid>
             {dialogRemoveUnit()}
+            <div>
+                <WidgetError Message={messageError} />
+            </div>
         </div>
     );
 }

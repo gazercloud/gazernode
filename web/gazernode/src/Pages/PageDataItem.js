@@ -1,54 +1,27 @@
 import React, {useEffect, useState} from 'react';
-import Request from "../request";
-import Button from "@material-ui/core/Button";
-import {LineChart, Line, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Legend} from 'recharts';
-import {Tooltip} from "@material-ui/core";
+import Request, {RequestFailed} from "../request";
 import WidgetItemHistory from "../Widgets/WidgetItemHistory";
-import WidgetTimeChart from "../Widgets/WidgetTimeChart/WidgetTimeChart";
+import DialogAddItemPublicChannel from "../Dialogs/DialogAddItemPublicChannel";
+import {Tooltip} from "@material-ui/core";
+import Zoom from "@material-ui/core/Zoom";
+import IconButton from "@material-ui/core/IconButton";
+import ArrowBackIosOutlinedIcon from '@material-ui/icons/ArrowBackIosOutlined';
+import Grid from "@material-ui/core/Grid";
+import Divider from "@material-ui/core/Divider";
+import {useSnackbar} from "notistack";
+import WidgetError from "../Widgets/WidgetError";
 
-function PageDataItem(props) {
+export default function PageDataItem(props) {
     const [dataItemState, setDataItemState] = React.useState([])
-    const [dataItemHistory, setDataItemHistory] = React.useState([])
-
-    const btnStyle = (key) => {
-        if (currentItem === key) {
-            return {
-                borderBottom: '1px solid #333333',
-                cursor: "pointer",
-                backgroundColor: "#222222",
-            }
-        } else {
-            if (hoverItem === key) {
-                return {
-                    borderBottom: '1px solid #333333',
-                    cursor: "pointer",
-                    backgroundColor: "#222222"
-                }
-            } else {
-                return {
-                    borderBottom: '1px solid #333333',
-                    cursor: "pointer",
-                    backgroundColor: "#1E1E1E"
-                }
-            }
-        }
-    }
-
-    const [currentItem, setCurrentItem] = useState("")
-    const [hoverItem, setHoverItem] = useState("")
-
-    const btnClick = (ev, name) => {
-    }
-
-    const handleEnter = (ev, key) => {
-        setHoverItem(ev)
-    }
-
-    const handleLeave = (ev, key) => {
-        setHoverItem("")
-    }
+    const [messageError, setMessageError] = React.useState("")
+    const [stateLoading, setStateLoading] = React.useState(false)
 
     const requestDataItem = (dataItemName) => {
+        if (stateLoading)
+            return
+
+        setStateLoading(true)
+
         let req = {
             items: [dataItemName]
         }
@@ -60,22 +33,41 @@ function PageDataItem(props) {
                             if (result.items.length > 0) {
                                 setDataItemState(result.items[0])
                             }
+                            setMessageError("")
+                            setStateLoading(false)
                         }
                     );
-                } else {
+                    return
+                }
+
+                if (res.status === 500) {
                     res.json().then(
                         (result) => {
-                            //setErrorMessage(result.error)
+                            setMessageError(result.error)
+                            setStateLoading(false)
                         }
                     );
+                    RequestFailed()
+                    setStateLoading(false)
+                    return
                 }
-            });
+
+                setMessageError("Error: " + res.status + " " + res.statusText)
+                RequestFailed()
+                setStateLoading(false)
+
+            }).catch(res => {
+            setMessageError(res.message)
+            setStateLoading(false)
+            RequestFailed()
+        });
     }
 
     const [firstRendering, setFirstRendering] = useState(true)
     if (firstRendering) {
         const dataItemName = new Buffer(props.DataItemName, 'hex').toString();
         requestDataItem(dataItemName)
+        props.OnTitleUpdate("Data Item [" + dataItemName + "]")
         setFirstRendering(false)
     }
 
@@ -161,7 +153,7 @@ function PageDataItem(props) {
         )
     }
 
-    const displayItemName = (item, mainItem) => {
+    const displayItemName = (item) => {
         return (
                 <div style={{fontSize: '20pt'}}>{item.name}</div>
         )
@@ -176,36 +168,56 @@ function PageDataItem(props) {
         )
     }
 
-    if (dataItemState === undefined || dataItemState.value === undefined) {
+    const displayItems = () => {
+
+        if (dataItemState === undefined || dataItemState.value === undefined) {
+            return (
+                <div>
+                    loading ...
+                </div>
+            )
+        }
+
         return (
             <div>
-                loading ...
+                <div style={{
+                    padding: '20px',
+                    borderRadius: '10px',
+                    marginTop: '10px',
+                    marginBottom: '10px',
+                    backgroundColor: '#222222',
+                }}>
+                    {displayItem(dataItemState)}
+                </div>
+                <div>
+                    <WidgetItemHistory DataItemName={getDataItemName()}/>
+                </div>
             </div>
+
         )
     }
 
+    const { enqueueSnackbar } = useSnackbar();
+
     return (
         <div>
-            <Button variant='outlined' color='primary' style={{minWidth: '100px', marginBottom: '20px'}}
-                    onClick={()=>{
+            <Grid container alignItems="center" style={{backgroundColor: "#222", borderRadius: "10px", padding: "5px"}}>
+                <Tooltip title="Back" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
+                    <IconButton onClick={()=>{
                         window.history.back()
-                    }}
-            >
-                Back
-            </Button>
-            <div style={{
-                padding: '20px',
-                borderRadius: '10px',
-                margin: '10px',
-                backgroundColor: '#222222',
-            }}>
-                {displayItem(dataItemState)}
-            </div>
+                    }} variant="outlined" color="primary"><ArrowBackIosOutlinedIcon fontSize="large"/></IconButton>
+                </Tooltip>
+                <Divider orientation="vertical" flexItem style={{marginLeft: "20px", marginRight: "20px"}} />
+                <DialogAddItemPublicChannel ItemName={getDataItemName()} OnSuccess={(channel)=>{
+                    enqueueSnackbar("Item added to channel" + channel, {variant: 'success'});
+                }}/>
+            </Grid>
+
+            {displayItems()}
+
             <div>
-                <WidgetItemHistory DataItemName={getDataItemName()} />
+                <WidgetError Message={messageError} />
             </div>
         </div>
     );
 }
-
-export default PageDataItem;

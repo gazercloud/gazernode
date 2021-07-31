@@ -95,7 +95,7 @@ func (c *System) LoadConfig() error {
 		}
 
 		for _, ch := range conf.Channels {
-			c.publicChannels.AddChannel(ch.Id, ch.Password, ch.Name)
+			c.publicChannels.AddChannel(ch.Id, ch.Password, ch.Name, ch.NeedToStartAfterLoad)
 			c.publicChannels.AddItems([]string{ch.Id}, ch.Items)
 		}
 	}

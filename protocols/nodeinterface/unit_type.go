@@ -40,7 +40,6 @@ type UnitTypeConfigMetaRequest struct {
 }
 
 type UnitTypeConfigMetaResponse struct {
-	UnitId         string `json:"id"`
-	UnitName       string `json:"name"`
-	UnitConfigMeta string `json:"config_meta"`
+	UnitType           string `json:"type"`
+	UnitTypeConfigMeta string `json:"config_meta"`
 }

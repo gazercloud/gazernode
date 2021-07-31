@@ -116,3 +116,37 @@ func (c *HttpServer) PublicChannelItemsState(request []byte) (response []byte, e
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
+
+func (c *HttpServer) PublicChannelStart(request []byte) (response []byte, err error) {
+	var req nodeinterface.PublicChannelStartRequest
+	var resp nodeinterface.PublicChannelStartResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.StartPublicChannels(req.Ids)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) PublicChannelStop(request []byte) (response []byte, err error) {
+	var req nodeinterface.PublicChannelStopRequest
+	var resp nodeinterface.PublicChannelStopResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.StopPublicChannels(req.Ids)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}

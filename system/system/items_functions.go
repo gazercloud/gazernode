@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
+	"github.com/gazercloud/gazernode/product/productinfo"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"strings"
 	"time"
@@ -146,6 +147,9 @@ func (c *System) GetStatistics() (common_interfaces.Statistics, error) {
 
 func (c *System) GetApi() (nodeinterface.ServiceApiResponse, error) {
 	var res nodeinterface.ServiceApiResponse
+	res.Product = productinfo.Name()
+	res.Version = productinfo.Version()
+	res.BuildTime = productinfo.BuildTime()
 
 	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitTypeList)
 	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUnitTypeCategories)

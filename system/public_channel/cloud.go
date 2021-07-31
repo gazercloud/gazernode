@@ -3,6 +3,7 @@ package public_channel
 import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/logger"
 	"sync"
 )
 
@@ -20,9 +21,13 @@ func NewCloud(iDataStorage common_interfaces.IDataStorage) *Cloud {
 }
 
 func (c *Cloud) Start() {
+	logger.Println("Starting channels!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 	c.mtx.Lock()
 	for _, ch := range c.channels {
-		ch.Start()
+		if ch.needToStart {
+			logger.Println("Starting channel", ch.name)
+			ch.Start()
+		}
 	}
 	c.mtx.Unlock()
 }
@@ -30,7 +35,7 @@ func (c *Cloud) Start() {
 func (c *Cloud) Stop() {
 	c.mtx.Lock()
 	for _, ch := range c.channels {
-		ch.Stop()
+		ch.Stop(false)
 	}
 	c.mtx.Unlock()
 }
@@ -70,6 +75,7 @@ func (c *Cloud) ChannelsFullInfo() []ChannelFullInfo {
 		item.Name = ch.name
 		item.Password = ch.password
 		item.Items = ch.items
+		item.NeedToStartAfterLoad = ch.needToStart
 		channels = append(channels, item)
 	}
 
@@ -84,6 +90,7 @@ func (c *Cloud) GetChannels() ([]ChannelInfo, error) {
 		var item ChannelInfo
 		item.Id = ch.channelId
 		item.Name = ch.name
+		item.Status = ch.Status()
 		channels = append(channels, item)
 	}
 
@@ -91,15 +98,26 @@ func (c *Cloud) GetChannels() ([]ChannelInfo, error) {
 	return channels, nil
 }
 
-func (c *Cloud) AddChannel(channelId string, password string, name string) error {
-	ch := NewChannel(c.iDataStorage, channelId, password, name)
+func (c *Cloud) AddChannel(channelId string, password string, name string, needToStart bool) error {
+	if len(name) < 1 {
+		return errors.New("wrong name")
+	}
+
+	ch := NewChannel(c.iDataStorage, channelId, password, name, needToStart)
 	c.mtx.Lock()
 	c.channels = append(c.channels, ch)
 	c.mtx.Unlock()
+	if needToStart {
+		ch.Start()
+	}
 	return nil
 }
 
 func (c *Cloud) EditChannel(channelId string, name string) error {
+	if len(name) < 1 {
+		return errors.New("wrong name")
+	}
+
 	c.mtx.Lock()
 	for _, ch := range c.channels {
 		if ch.channelId == channelId {
@@ -115,7 +133,7 @@ func (c *Cloud) RemoveChannel(channelId string) error {
 	c.mtx.Lock()
 	for i, ch := range c.channels {
 		if ch.channelId == channelId {
-			ch.Stop()
+			ch.Stop(true)
 			c.channels = append(c.channels[:i], c.channels[i+1:]...)
 			break
 		}
@@ -253,4 +271,30 @@ func (c *Cloud) RenameItems(oldPrefix string, newPrefix string) {
 		ch.RenameItems(oldPrefix, newPrefix)
 	}
 	c.mtx.Unlock()
+}
+
+func (c *Cloud) StartChannels(ids []string) (err error) {
+	for _, channelId := range ids {
+		c.mtx.Lock()
+		for _, ch := range c.channels {
+			if ch.channelId == channelId {
+				ch.Start()
+			}
+		}
+		c.mtx.Unlock()
+	}
+	return
+}
+
+func (c *Cloud) StopChannels(ids []string) (err error) {
+	for _, channelId := range ids {
+		c.mtx.Lock()
+		for _, ch := range c.channels {
+			if ch.channelId == channelId {
+				ch.Stop(true)
+			}
+		}
+		c.mtx.Unlock()
+	}
+	return
 }

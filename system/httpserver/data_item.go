@@ -1,10 +1,14 @@
 package httpserver
 
 import (
+	"archive/zip"
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -199,6 +203,35 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 
 	}
 	resp.Items = resultItems
-	response, err = json.MarshalIndent(resp, "", " ")
+
+	response, err = json.Marshal(resp)
+
+	if req.OutFormat == "zip" {
+		buf := new(bytes.Buffer)
+		zipWriter := zip.NewWriter(buf)
+
+		// Add some files to the archive.
+		var zipFile io.Writer
+		zipFile, err = zipWriter.Create("data")
+		if err == nil {
+			_, err = zipFile.Write([]byte(response))
+		}
+
+		// Make sure to check the error on Close.
+		err = zipWriter.Close()
+		type ZipOut struct {
+			Data string `json:"data"`
+		}
+
+		sEnc := base64.StdEncoding.EncodeToString([]byte(buf.Bytes()))
+
+		var zipData ZipOut
+		zipData.Data = sEnc
+		response, err = json.Marshal(zipData)
+	}
+
+	/*logger.Println("DataItemHistoryChart REQUEST dt(sec):", (req.DTEnd - req.DTBegin) / 1000000, "range:", req.GroupTimeRange,
+	"itemsCount:", len(respItems.Items), "resCount", len(resultItems), "bytes:", len(response))*/
+
 	return
 }

@@ -4,7 +4,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import MemoryIcon from '@material-ui/icons/Memory';
 import Grid from "@material-ui/core/Grid";
-import Request from "../request";
+import Request, {RequestFailed} from "../request";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ConfigSensor from "../Widgets/SensorConfig/ConfigSensor";
@@ -16,10 +16,13 @@ import IconButton from "@material-ui/core/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
+import ArrowBackIosOutlinedIcon from "@material-ui/icons/ArrowBackIosOutlined";
 
 function PageAddUnit(props) {
     const [filter, setFilter] = React.useState("")
     const [unitTypes, setUnitTypes] = React.useState("")
+
+    const [messageError, setMessageError] = React.useState("")
 
     const btnStyle = (key) => {
         let borderTop = '0px solid #333333'
@@ -77,6 +80,7 @@ function PageAddUnit(props) {
                     res.json().then(
                         (result) => {
                             setUnitTypes(result)
+                            setMessageError("")
                         }
                     );
                 } else {
@@ -86,7 +90,10 @@ function PageAddUnit(props) {
                         }
                     );
                 }
-            });
+            }).catch(res => {
+            setMessageError(res.message)
+            RequestFailed()
+        });
     }
 
     const [firstRendering, setFirstRendering] = useState(true)
@@ -159,14 +166,18 @@ function PageAddUnit(props) {
         )
     }
 
-
-
     return (
         <Grid container direction="column">
             <Grid item>
-                <Button variant='outlined' color='primary' onClick={()=>{props.OnNavigate('#form=units')}}>
-                    Back to the Units
-                </Button>
+                <Grid container alignItems="center" style={{backgroundColor: "#222", borderRadius: "10px", padding: "5px"}}>
+                    <Tooltip title="Back" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
+                        <IconButton onClick={()=>{
+                            window.history.back()
+                        }} variant="outlined" color="primary">
+                            <ArrowBackIosOutlinedIcon fontSize="large"  style={{borderBottom: "0px solid #00A0E3"}}/>
+                        </IconButton>
+                    </Tooltip>
+                </Grid>
             </Grid>
             <Grid item>
                 <Grid container direction="column">

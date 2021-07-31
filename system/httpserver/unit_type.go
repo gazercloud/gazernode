@@ -8,6 +8,10 @@ import (
 func (c *HttpServer) UnitTypeList(request []byte) (response []byte, err error) {
 	var req nodeinterface.UnitTypeListRequest
 	var resp nodeinterface.UnitTypeListResponse
+	req.Offset = 0
+	req.Category = ""
+	req.Filter = ""
+	req.MaxCount = 1000
 	err = json.Unmarshal(request, &req)
 	if err != nil {
 		return
@@ -41,7 +45,7 @@ func (c *HttpServer) UnitTypeConfigMeta(request []byte) (response []byte, err er
 		return
 	}
 
-	resp.UnitName, resp.UnitConfigMeta, err = c.system.GetConfigByType(req.UnitType)
+	resp.UnitType, resp.UnitTypeConfigMeta, err = c.system.GetConfigByType(req.UnitType)
 	if err != nil {
 		return
 	}

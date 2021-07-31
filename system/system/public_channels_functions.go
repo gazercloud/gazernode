@@ -11,7 +11,7 @@ func (c *System) GetCloudChannelValues(channelId string) ([]common_interfaces.It
 }
 
 func (c *System) AddCloudChannel(channelName string) error {
-	err := c.publicChannels.AddChannel("", "", channelName)
+	err := c.publicChannels.AddChannel("", "", channelName, true)
 	if err != nil {
 		return err
 	}
@@ -57,4 +57,22 @@ func (c *System) CloudRemoveItems(channels []string, items []string) error {
 
 func (c *System) GetCloudChannels() ([]public_channel.ChannelInfo, error) {
 	return c.publicChannels.GetChannels()
+}
+
+func (c *System) StartPublicChannels(ids []string) (err error) {
+	err = c.publicChannels.StartChannels(ids)
+	if err != nil {
+		return
+	}
+	err = c.SaveConfig()
+	return
+}
+
+func (c *System) StopPublicChannels(ids []string) (err error) {
+	err = c.publicChannels.StopChannels(ids)
+	if err != nil {
+		return
+	}
+	err = c.SaveConfig()
+	return
 }

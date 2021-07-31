@@ -25,6 +25,8 @@ type Channel struct {
 	password  string
 	name      string
 
+	needToStart bool
+
 	items         []string
 	itemsToRemove []string
 
@@ -43,12 +45,13 @@ type Channel struct {
 	mtx sync.Mutex
 }
 
-func NewChannel(iDataStorage common_interfaces.IDataStorage, channelId string, password string, name string) *Channel {
+func NewChannel(iDataStorage common_interfaces.IDataStorage, channelId string, password string, name string, needToStart bool) *Channel {
 	var c Channel
 	c.channelId = channelId
 	c.iDataStorage = iDataStorage
 	c.password = password
 	c.name = name
+	c.needToStart = needToStart
 	c.items = make([]string, 0)
 	c.itemsToRemove = make([]string, 0)
 	c.chProcessingData = make(chan bin_client.BinFrameTask)
@@ -65,8 +68,6 @@ func NewChannel(iDataStorage common_interfaces.IDataStorage, channelId string, p
 	c.started = false
 	c.stopping = false
 
-	c.Start()
-
 	return &c
 }
 
@@ -76,13 +77,18 @@ func (c *Channel) Start() {
 	}
 	c.started = true
 	c.stopping = false
+	c.needToStart = true
 	go c.thWorker()
 	go c.thIncomingTraffic()
 }
 
-func (c *Channel) Stop() {
+func (c *Channel) Stop(saveAsBeginState bool) {
 	if !c.started {
 		return
+	}
+
+	if saveAsBeginState {
+		c.needToStart = false
 	}
 
 	c.stopping = true
@@ -92,6 +98,7 @@ func (c *Channel) Stop() {
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
+	c.started = false
 }
 
 func (c *Channel) Stat() *utilities.Statistics {
@@ -217,15 +224,17 @@ type Item struct {
 }
 
 type ChannelFullInfo struct {
-	Id       string   `json:"id"`
-	Password string   `json:"password"`
-	Name     string   `json:"name"`
-	Items    []string `json:"items"`
+	Id                   string   `json:"id"`
+	Password             string   `json:"password"`
+	Name                 string   `json:"name"`
+	Items                []string `json:"items"`
+	NeedToStartAfterLoad bool     `json:"need_to_start_after_load"`
 }
 
 type ChannelInfo struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
 }
 
 func (c *Channel) thWorker() {
@@ -521,4 +530,11 @@ func (c *Channel) RenameItems(oldPrefix string, newPrefix string) {
 	c.addItems(itemsToAdd)
 
 	c.mtx.Unlock()
+}
+
+func (c *Channel) Status() string {
+	if c.started {
+		return "started"
+	}
+	return "stopped"
 }

@@ -64,7 +64,7 @@ func (c *Client) GetUnitConfigByType(unitType string, f func(string, string, err
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
 		if f != nil {
-			f(resp.UnitName, resp.UnitConfigMeta, err)
+			f(resp.UnitType, resp.UnitTypeConfigMeta, err)
 		}
 	}
 	call.client = c
