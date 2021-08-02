@@ -27,7 +27,7 @@ func InitHostId() {
 }
 
 func LoadHostId() error {
-	hostIdString, err := ioutil.ReadFile(paths.ProgramDataFolder() + "/gazer/host_id.json")
+	hostIdString, err := ioutil.ReadFile(paths.ProgramDataFolder1() + "/gazer/host_id.json")
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func MakeHostId() error {
 	var bs []byte
 	bs, err = json.Marshal(hostId)
 	if err == nil {
-		err = ioutil.WriteFile(paths.ProgramDataFolder()+"/gazer/host_id.json", bs, 0666)
+		err = ioutil.WriteFile(paths.ProgramDataFolder1()+"/gazer/host_id.json", bs, 0666)
 		if err != nil {
 			return err
 		}
