@@ -95,7 +95,7 @@ func (c *UnitNetwork) Tick() {
 					logger.Println(errParamRxPackets)
 				}
 
-				c.SetString("errParamRxPackets", errParamRxPackets.Error(), "q")
+				//c.SetString("errParamRxPackets", errParamRxPackets.Error(), "q")
 
 				rxBytesStr, errParamRxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_bytes")
 				if errParamRxBytes == nil {
@@ -104,7 +104,7 @@ func (c *UnitNetwork) Tick() {
 					logger.Println(errParamRxBytes)
 				}
 
-				c.SetString("errParamRxBytes", errParamRxBytes.Error(), "q")
+				//c.SetString("errParamRxBytes", errParamRxBytes.Error(), "q")
 
 				txPacketsStr, errParamTxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_packets")
 				if errParamTxPackets == nil {
@@ -113,7 +113,7 @@ func (c *UnitNetwork) Tick() {
 					logger.Println(errParamTxPackets)
 				}
 
-				c.SetString("errParamTxPackets", errParamTxPackets.Error(), "q")
+				//c.SetString("errParamTxPackets", errParamTxPackets.Error(), "q")
 
 				txBytesStr, errParamTxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_bytes")
 				if errParamTxBytes == nil {
@@ -122,7 +122,7 @@ func (c *UnitNetwork) Tick() {
 					logger.Println(errParamTxBytes)
 				}
 
-				c.SetString("errParamTxBytes", errParamTxBytes.Error(), "q")
+				//c.SetString("errParamTxBytes", errParamTxBytes.Error(), "q")
 
 				totalIn := uint64(rxPackets)
 				totalInBytes := uint64(rxBytes)
