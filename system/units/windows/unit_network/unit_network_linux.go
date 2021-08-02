@@ -2,6 +2,7 @@ package unit_network
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"io/ioutil"
@@ -89,21 +90,29 @@ func (c *UnitNetwork) Tick() {
 				rxPacketsStr, errParamRxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_packets")
 				if errParamRxPackets == nil {
 					rxPackets, errParamRxPackets = strconv.ParseInt(string(rxPacketsStr), 10, 64)
+				} else {
+					logger.Println(errParamRxPackets)
 				}
 
 				rxBytesStr, errParamRxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_bytes")
 				if errParamRxBytes == nil {
 					rxBytes, errParamRxBytes = strconv.ParseInt(string(rxBytesStr), 10, 64)
+				} else {
+					logger.Println(errParamRxBytes)
 				}
 
 				txPacketsStr, errParamTxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_packets")
 				if errParamTxPackets == nil {
 					txPackets, errParamTxPackets = strconv.ParseInt(string(txPacketsStr), 10, 64)
+				} else {
+					logger.Println(errParamTxPackets)
 				}
 
 				txBytesStr, errParamTxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_bytes")
 				if errParamTxBytes == nil {
 					txBytes, errParamTxBytes = strconv.ParseInt(string(txBytesStr), 10, 64)
+				} else {
+					logger.Println(errParamTxBytes)
 				}
 
 				totalIn := uint64(rxPackets)
