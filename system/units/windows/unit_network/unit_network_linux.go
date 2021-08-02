@@ -81,10 +81,10 @@ func (c *UnitNetwork) Tick() {
 		interfaces, err = net.Interfaces()
 		if err == nil {
 			for _, ni := range interfaces {
-				rxPackets := 0
-				rxBytes := 0
-				txPackets := 0
-				txBytes := 0
+				rxPackets := int64(0)
+				rxBytes := int64(0)
+				txPackets := int64(0)
+				txBytes := int64(0)
 
 				rxPacketsStr, errParamRxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_packets")
 				if errParamRxPackets == nil {
