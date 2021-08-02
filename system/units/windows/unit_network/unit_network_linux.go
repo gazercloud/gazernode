@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -89,7 +90,7 @@ func (c *UnitNetwork) Tick() {
 
 				rxPacketsStr, errParamRxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_packets")
 				if errParamRxPackets == nil {
-					rxPackets, errParamRxPackets = strconv.ParseInt(string(rxPacketsStr), 10, 64)
+					rxPackets, errParamRxPackets = strconv.ParseInt(strings.ReplaceAll(string(rxPacketsStr), "\n", ""), 10, 64)
 				} else {
 					logger.Println(errParamRxPackets)
 				}
@@ -98,7 +99,7 @@ func (c *UnitNetwork) Tick() {
 
 				rxBytesStr, errParamRxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_bytes")
 				if errParamRxBytes == nil {
-					rxBytes, errParamRxBytes = strconv.ParseInt(string(rxBytesStr), 10, 64)
+					rxBytes, errParamRxBytes = strconv.ParseInt(strings.ReplaceAll(string(rxBytesStr), "\n", ""), 10, 64)
 				} else {
 					logger.Println(errParamRxBytes)
 				}
@@ -107,7 +108,7 @@ func (c *UnitNetwork) Tick() {
 
 				txPacketsStr, errParamTxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_packets")
 				if errParamTxPackets == nil {
-					txPackets, errParamTxPackets = strconv.ParseInt(string(txPacketsStr), 10, 64)
+					txPackets, errParamTxPackets = strconv.ParseInt(strings.ReplaceAll(string(txPacketsStr), "\n", ""), 10, 64)
 				} else {
 					logger.Println(errParamTxPackets)
 				}
@@ -116,7 +117,7 @@ func (c *UnitNetwork) Tick() {
 
 				txBytesStr, errParamTxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_bytes")
 				if errParamTxBytes == nil {
-					txBytes, errParamTxBytes = strconv.ParseInt(string(txBytesStr), 10, 64)
+					txBytes, errParamTxBytes = strconv.ParseInt(strings.ReplaceAll(string(txBytesStr), "\n", ""), 10, 64)
 				} else {
 					logger.Println(errParamTxBytes)
 				}
