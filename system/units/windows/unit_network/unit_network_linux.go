@@ -88,22 +88,22 @@ func (c *UnitNetwork) Tick() {
 
 				rxPacketsStr, errParamRxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_packets")
 				if errParamRxPackets == nil {
-					rxPackets, errParamRxPackets = strconv.ParseInt(rxPacketsStr, 10, 64)
+					rxPackets, errParamRxPackets = strconv.ParseInt(string(rxPacketsStr), 10, 64)
 				}
 
 				rxBytesStr, errParamRxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/rx_bytes")
 				if errParamRxBytes == nil {
-					rxBytes, errParamRxBytes = strconv.ParseInt(rxBytesStr, 10, 64)
+					rxBytes, errParamRxBytes = strconv.ParseInt(string(rxBytesStr), 10, 64)
 				}
 
 				txPacketsStr, errParamTxPackets := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_packets")
 				if errParamTxPackets == nil {
-					txPackets, errParamTxPackets = strconv.ParseInt(txPacketsStr, 10, 64)
+					txPackets, errParamTxPackets = strconv.ParseInt(string(txPacketsStr), 10, 64)
 				}
 
 				txBytesStr, errParamTxBytes := ioutil.ReadFile("/sys/class/net/" + ni.Name + "/statistics/tx_bytes")
 				if errParamTxBytes == nil {
-					txBytes, errParamTxBytes = strconv.ParseInt(txBytesStr, 10, 64)
+					txBytes, errParamTxBytes = strconv.ParseInt(string(txBytesStr), 10, 64)
 				}
 
 				totalIn := uint64(rxPackets)
