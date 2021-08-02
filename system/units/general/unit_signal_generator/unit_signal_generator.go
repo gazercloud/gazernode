@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"math"
+	"math/rand"
 	"time"
 )
 
@@ -110,16 +111,40 @@ func (c *UnitSignalGenerator) Tick() {
 
 		tMS := time.Now().UTC().UnixNano() / 1000000
 
+		itemNames := make([]string, 0)
+		itemNamesMap := make(map[string]bool)
 		for _, item := range items {
-			if item.SignalPeriod > 0 {
-				tItem := tMS % int64(item.SignalPeriod*1000)
-				itemProgress := float64(tItem) / (item.SignalPeriod * 1000)
-				value := math.Sin(itemProgress * 2 * math.Pi)
-				delta := item.SignalMax - item.SignalMin
-				value = (value+1)/2*delta + item.SignalMin
-
-				c.SetFloat64(item.Name, value, "", 3)
+			if _, alreadyAdded := itemNamesMap[item.Name]; !alreadyAdded {
+				itemNamesMap[item.Name] = true
+				itemNames = append(itemNames, item.Name)
 			}
+		}
+
+		for _, itemName := range itemNames {
+			value := 0.0
+			for _, item := range items {
+				if item.Name == itemName && item.SignalPeriod > 0 {
+					tItem := tMS % int64(item.SignalPeriod*1000)
+					itemProgress := float64(tItem) / (item.SignalPeriod * 1000)
+					if item.SignalType == "sin" {
+						value += c.genSin(item.SignalMin, item.SignalMax, itemProgress)
+					}
+					if item.SignalType == "sinsin" {
+						value += c.genSinSin(item.SignalMin, item.SignalMax, itemProgress)
+					}
+					if item.SignalType == "tan" {
+						value += c.genTg(item.SignalMin, item.SignalMax, itemProgress)
+					}
+					if item.SignalType == "meander" {
+						value += c.genMeander(item.SignalMin, item.SignalMax, itemProgress)
+					}
+					if item.SignalType == "noise" {
+						value += c.genNoise(item.SignalMin, item.SignalMax, itemProgress)
+					}
+
+				}
+			}
+			c.SetFloat64(itemName, value, "", 3)
 		}
 
 	}
@@ -130,4 +155,43 @@ func (c *UnitSignalGenerator) Tick() {
 
 	c.SetString(ItemNameStatus, "", "stopped")
 	c.Started = false
+}
+
+func (c *UnitSignalGenerator) genSin(min float64, max float64, progress01 float64) float64 {
+	value := math.Sin(progress01 * 2 * math.Pi)
+	delta := max - min
+	value = (value+1)/2*delta + min
+	return value
+}
+
+func (c *UnitSignalGenerator) genSinSin(min float64, max float64, progress01 float64) float64 {
+	prSmall := float64(int(math.Round(progress01*100))%20) / 20.0
+	value := math.Sin(progress01 * 2 * math.Pi)
+	value += math.Sin(prSmall * 2 * math.Pi)
+	delta := max - min
+	value = (value+1)/2*delta + min
+	return value
+}
+
+func (c *UnitSignalGenerator) genTg(min float64, max float64, progress01 float64) float64 {
+	value := math.Tan(progress01 * 2 * math.Pi)
+	delta := max - min
+	value = (value+1)/2*delta + min
+	return value
+}
+
+func (c *UnitSignalGenerator) genMeander(min float64, max float64, progress01 float64) float64 {
+	value := 0.0
+	if progress01 >= 0.5 {
+		value = 1
+	}
+	delta := max - min
+	value = value*delta + min
+	return value
+}
+
+func (c *UnitSignalGenerator) genNoise(min float64, max float64, progress01 float64) float64 {
+	delta := max - min
+	value := rand.Float64()*delta + min
+	return value
 }
