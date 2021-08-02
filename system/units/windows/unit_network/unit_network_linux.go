@@ -113,7 +113,7 @@ func (c *UnitNetwork) Tick() {
 
 				nowTime := time.Now()
 
-				if table.OperStatus == 1 {
+				if true {
 					if cs, ok := lastCounters[ni.Index]; ok {
 						seconds := nowTime.Sub(cs.DT).Seconds()
 						if seconds > 0.001 {
