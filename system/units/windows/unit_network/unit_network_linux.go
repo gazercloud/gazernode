@@ -4,7 +4,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"ioutil"
+	"io/ioutil"
 	"net"
 	"strconv"
 	"time"
