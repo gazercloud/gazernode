@@ -48,8 +48,8 @@ func (c *UnitStorage) InternalUnitStart() error {
 		return err
 	}
 
-	c.drive = config.Path
-	if c.fileName == "" {
+	c.disk = config.Path
+	if c.disk == "" {
 		err = errors.New("wrong path")
 		c.SetString("UsedPercents", err.Error(), "error")
 		return err
