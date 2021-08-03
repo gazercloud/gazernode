@@ -64,7 +64,10 @@ func (c *UnitStorage) InternalUnitStart() error {
 	c.SetString("Total", "", "")
 	c.SetString("Free", "", "")
 	c.SetString("Used", "", "")
-	c.SetString("Utilization", "", "")
+	c.SetString("TotalBlocks", "", "")
+	c.SetString("FreeBlocks", "", "")
+	c.SetString("UsedBlocks", "", "")
+	c.SetString("UsedPercents", "", "")
 
 	go c.Tick()
 	return nil
@@ -109,17 +112,19 @@ func (c *UnitStorage) Tick() {
 
 		if err != nil {
 			c.SetString("Total", "", "error")
-			//c.SetString(disk+"/Available", "", "error")
 			c.SetString("Free", "", "error")
 			c.SetString("Used", "", "error")
 			c.SetString("Utilization", "", "error")
 			c.SetString("UsedPercents", err.Error(), "error")
 		} else {
 			c.SetUInt64("Total", total/1024/1024, "MB")
-			//c.SetUInt64(disk+"/Available", avail / 1024 / 1024, "MB")
 			c.SetUInt64("Free", free/1024/1024, "MB")
 			c.SetUInt64("Used", (total-free)/1024/1024, "MB")
 			c.SetFloat64("Utilization", 100*float64(total-free)/float64(total), "%", 1)
+
+			c.SetUInt64("TotalBlocks", stat.Blocks, "")
+			c.SetUInt64("FreeBlocks", stat.Bfree, "")
+			c.SetUInt64("UsedBlocks", stat.Blocks-stat.Bfree, "")
 
 			TotalSpace += total
 			UsedSpace += total - free
