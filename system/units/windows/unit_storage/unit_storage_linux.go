@@ -73,13 +73,12 @@ func (c *UnitStorage) Tick() {
 
 		for _, disk := range drives {
 			diskName := strings.ReplaceAll(disk, "/", "_")
-			var free, total, avail uint64
+			var free, total uint64
 
 			var stat unix.Statfs_t
 			err = unix.Statfs(disk, &stat)
 			free = uint64(stat.Bsize) * stat.Bfree
 			total = uint64(stat.Bsize) * stat.Blocks
-			avail = uint64(stat.Bsize) * stat.Bfree
 
 			if err != nil {
 				c.SetString(diskName+"/Total", "", "error")
