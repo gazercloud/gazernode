@@ -82,7 +82,7 @@ func (c *UnitStorage) GetConfigMeta() string {
 
 func (c *UnitStorage) Tick() {
 	var err error
-	dtOperationTime := time.Now().UTC()
+	dtOperationTime := time.Time{}
 
 	c.Started = true
 	for !c.Stopping {
