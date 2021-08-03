@@ -37,11 +37,12 @@ func (c *UnitStorage) InternalUnitStart() error {
 	c.SetMainItem("UsedPercents")
 
 	for _, disk := range drives {
-		c.SetString(disk+"/Total", "", "")
+		diskName := strings.ReplaceAll(disk, "/", "_")
+		c.SetString(diskName+"/Total", "", "")
 		//c.SetString(disk+"/Available", "", "")
-		c.SetString(disk+"/Free", "", "")
-		c.SetString(disk+"/Used", "", "")
-		c.SetString(disk+"/Utilization", "", "")
+		c.SetString(diskName+"/Free", "", "")
+		c.SetString(diskName+"/Used", "", "")
+		c.SetString(diskName+"/Utilization", "", "")
 	}
 
 	go c.Tick()
