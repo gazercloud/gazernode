@@ -30,8 +30,7 @@ func New() common_interfaces.IUnit {
 
 func (c *UnitStorage) InternalUnitStart() error {
 	var err error
-	c.SetString("UsedPercents", "", "")
-	c.SetMainItem("UsedPercents")
+	c.SetMainItem("SpaceUsedPercents")
 
 	type Config struct {
 		Path   string  `json:"path"`
@@ -42,14 +41,14 @@ func (c *UnitStorage) InternalUnitStart() error {
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)
 	if err != nil {
 		err = errors.New("config error")
-		c.SetString("UsedPercents", err.Error(), "error")
+		c.SetString("Status", err.Error(), "error")
 		return err
 	}
 
 	c.disk = config.Path
 	if c.disk == "" {
 		err = errors.New("wrong path")
-		c.SetString("UsedPercents", err.Error(), "error")
+		c.SetString("Status", err.Error(), "error")
 		return err
 	}
 
