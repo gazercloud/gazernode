@@ -75,7 +75,7 @@ func (c *UnitStorage) InternalUnitStart() error {
 	c.SetString("BlocksUsedPercents", "", "")
 	c.SetString("INodesUsedPercents", "", "")
 
-	c.SetString("Status", "", "error")
+	c.SetString("Status", "", "")
 
 	go c.Tick()
 	return nil
