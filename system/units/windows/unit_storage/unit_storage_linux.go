@@ -7,7 +7,6 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"golang.org/x/sys/unix"
-	"strconv"
 	"time"
 )
 
@@ -57,17 +56,27 @@ func (c *UnitStorage) InternalUnitStart() error {
 	c.periodMs = int(config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
-		c.SetString("UsedPercents", err.Error(), "error")
+		c.SetString("Status", err.Error(), "error")
 		return err
 	}
 
-	c.SetString("Total", "", "")
-	c.SetString("Free", "", "")
-	c.SetString("Used", "", "")
-	c.SetString("TotalBlocks", "", "")
-	c.SetString("FreeBlocks", "", "")
-	c.SetString("UsedBlocks", "", "")
-	c.SetString("UsedPercents", "", "")
+	c.SetString("SpaceTotal", "", "")
+	c.SetString("SpaceFree", "", "")
+	c.SetString("SpaceUsed", "", "")
+
+	c.SetString("BlocksTotal", "", "")
+	c.SetString("BlocksFree", "", "")
+	c.SetString("BlocksUsed", "", "")
+
+	c.SetString("INodesTotal", "", "")
+	c.SetString("INodesFree", "", "")
+	c.SetString("INodesUsed", "", "")
+
+	c.SetString("SpaceUsedPercents", "", "")
+	c.SetString("BlocksUsedPercents", "", "")
+	c.SetString("INodesUsedPercents", "", "")
+
+	c.SetString("Status", "", "error")
 
 	go c.Tick()
 	return nil
@@ -111,26 +120,42 @@ func (c *UnitStorage) Tick() {
 		total = uint64(stat.Bsize) * stat.Blocks
 
 		if err != nil {
-			c.SetString("Total", "", "error")
-			c.SetString("Free", "", "error")
-			c.SetString("Used", "", "error")
-			c.SetString("Utilization", "", "error")
-			c.SetString("UsedPercents", err.Error(), "error")
+			c.SetString("Status", err.Error(), "error")
+
+			c.SetString("SpaceTotal", "", "error")
+			c.SetString("SpaceFree", "", "error")
+			c.SetString("SpaceUsed", "", "error")
+
+			c.SetString("BlocksTotal", "", "error")
+			c.SetString("BlocksFree", "", "error")
+			c.SetString("BlocksUsed", "", "error")
+
+			c.SetString("INodesTotal", "", "error")
+			c.SetString("INodesFree", "", "error")
+			c.SetString("INodesUsed", "", "error")
+
+			c.SetString("SpaceUsedPercents", "", "error")
+			c.SetString("BlocksUsedPercents", "", "error")
+			c.SetString("INodesUsedPercents", "", "error")
+
 		} else {
-			c.SetUInt64("Total", total/1024/1024, "MB")
-			c.SetUInt64("Free", free/1024/1024, "MB")
-			c.SetUInt64("Used", (total-free)/1024/1024, "MB")
-			c.SetFloat64("Utilization", 100*float64(total-free)/float64(total), "%", 1)
+			c.SetString("Status", "", "error")
 
-			c.SetUInt64("TotalBlocks", stat.Blocks, "")
-			c.SetUInt64("FreeBlocks", stat.Bfree, "")
-			c.SetUInt64("UsedBlocks", stat.Blocks-stat.Bfree, "")
+			c.SetUInt64("SpaceTotal", total/1024/1024, "MB")
+			c.SetUInt64("SpaceFree", free/1024/1024, "MB")
+			c.SetUInt64("SpaceUsed", (total-free)/1024/1024, "MB")
 
-			TotalSpace += total
-			UsedSpace += total - free
-			summaryUtilization := strconv.FormatFloat(100*float64(UsedSpace)/float64(TotalSpace), 'f', 1, 64)
-			summary := summaryUtilization
-			c.SetString("UsedPercents", summary, "%")
+			c.SetUInt64("BlocksTotal", stat.Blocks, "")
+			c.SetUInt64("BlocksFree", stat.Bfree, "")
+			c.SetUInt64("BlocksUsed", stat.Blocks-stat.Bfree, "")
+
+			c.SetUInt64("INodesTotal", stat.Files, "")
+			c.SetUInt64("INodesFree", stat.Ffree, "")
+			c.SetUInt64("INodesUsed", stat.Files-stat.Ffree, "")
+
+			c.SetFloat64("SpaceUsedPercents", 100*float64(total-free)/float64(total), "%", 1)
+			c.SetFloat64("BlocksUsedPercents", 100*float64(stat.Blocks-stat.Bfree)/float64(stat.Blocks), "%", 1)
+			c.SetFloat64("INodesUsedPercents", 100*float64(stat.Files-stat.Ffree)/float64(stat.Files), "%", 1)
 		}
 
 		//summaryTotal := strconv.FormatFloat(float64(TotalSpace) / 1024 / 1024 / 1024 / 1024, 'f', 1, 64)
