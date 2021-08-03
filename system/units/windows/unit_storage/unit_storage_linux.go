@@ -78,7 +78,7 @@ func (c *UnitStorage) InternalUnitStop() {
 
 func (c *UnitStorage) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
-	meta.Add("path", "Path", "/", "string", "", "", "")
+	meta.Add("path", "Mount Path", "/", "string", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
 	return meta.Marshal()
 }
