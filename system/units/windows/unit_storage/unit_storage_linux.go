@@ -72,7 +72,7 @@ func (c *UnitStorage) Tick() {
 		var UsedSpace uint64
 
 		for _, disk := range drives {
-			diskName := strings.ReplaceAll("/", "_")
+			diskName := strings.ReplaceAll(disk, "/", "_")
 			var free, total, avail uint64
 
 			var stat unix.Statfs_t
