@@ -135,7 +135,7 @@ func (c *UnitStorage) Tick() {
 			c.SetString("INodesUsedPercents", "", "error")
 
 		} else {
-			c.SetString("Status", "", "error")
+			c.SetString("Status", "", "")
 
 			c.SetUInt64("SpaceTotal", total/1024/1024, "MB")
 			c.SetUInt64("SpaceFree", free/1024/1024, "MB")
