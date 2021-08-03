@@ -7,8 +7,6 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"golang.org/x/sys/unix"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -62,11 +60,10 @@ func (c *UnitStorage) InternalUnitStart() error {
 		return err
 	}
 
-	diskName := strings.ReplaceAll(c.disk, "/", "_")
-	c.SetString(diskName+"/Total", "", "")
-	c.SetString(diskName+"/Free", "", "")
-	c.SetString(diskName+"/Used", "", "")
-	c.SetString(diskName+"/Utilization", "", "")
+	c.SetString("Total", "", "")
+	c.SetString("Free", "", "")
+	c.SetString("Used", "", "")
+	c.SetString("Utilization", "", "")
 
 	go c.Tick()
 	return nil
@@ -84,19 +81,24 @@ func (c *UnitStorage) GetConfigMeta() string {
 
 func (c *UnitStorage) Tick() {
 	var err error
+	dtOperationTime := time.Now().UTC()
+
 	c.Started = true
 	for !c.Stopping {
-		for i := 0; i < 10; i++ {
-			if c.Stopping {
+		for {
+			if c.Stopping || time.Now().Sub(dtOperationTime) > time.Duration(c.periodMs)*time.Millisecond {
 				break
 			}
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 		}
+		if c.Stopping {
+			break
+		}
+		dtOperationTime = time.Now().UTC()
 
 		var TotalSpace uint64
 		var UsedSpace uint64
 
-		diskName := strings.ReplaceAll(c.disk, "/", "_")
 		var free, total uint64
 
 		var stat unix.Statfs_t
@@ -105,29 +107,28 @@ func (c *UnitStorage) Tick() {
 		total = uint64(stat.Bsize) * stat.Blocks
 
 		if err != nil {
-			c.SetString(diskName+"/Total", "", "error")
+			c.SetString("Total", "", "error")
 			//c.SetString(disk+"/Available", "", "error")
-			c.SetString(diskName+"/Free", "", "error")
-			c.SetString(diskName+"/Used", "", "error")
-			c.SetString(diskName+"/Utilization", "", "error")
+			c.SetString("Free", "", "error")
+			c.SetString("Used", "", "error")
+			c.SetString("Utilization", "", "error")
+			c.SetString("UsedPercents", err.Error(), "error")
 		} else {
-			c.SetUInt64(diskName+"/Total", total/1024/1024, "MB")
+			c.SetUInt64("Total", total/1024/1024, "MB")
 			//c.SetUInt64(disk+"/Available", avail / 1024 / 1024, "MB")
-			c.SetUInt64(diskName+"/Free", free/1024/1024, "MB")
-			c.SetUInt64(diskName+"/Used", (total-free)/1024/1024, "MB")
-			c.SetFloat64(diskName+"/Utilization", 100*float64(total-free)/float64(total), "%", 1)
+			c.SetUInt64("Free", free/1024/1024, "MB")
+			c.SetUInt64("Used", (total-free)/1024/1024, "MB")
+			c.SetFloat64("Utilization", 100*float64(total-free)/float64(total), "%", 1)
 
 			TotalSpace += total
 			UsedSpace += total - free
+			summaryUtilization := strconv.FormatFloat(100*float64(UsedSpace)/float64(TotalSpace), 'f', 1, 64)
+			summary := summaryUtilization
+			c.SetString("UsedPercents", summary, "%")
 		}
 
 		//summaryTotal := strconv.FormatFloat(float64(TotalSpace) / 1024 / 1024 / 1024 / 1024, 'f', 1, 64)
 		//summaryUsed := strconv.FormatFloat(float64(UsedSpace) / 1024 / 1024 / 1024 / 1024, 'f', 1, 64)
-		summaryUtilization := strconv.FormatFloat(100*float64(UsedSpace)/float64(TotalSpace), 'f', 1, 64)
-
-		summary := summaryUtilization
-
-		c.SetString("UsedPercents", summary, "%")
 	}
 
 	c.Started = false
