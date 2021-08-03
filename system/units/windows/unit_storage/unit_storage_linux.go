@@ -29,6 +29,7 @@ func New() common_interfaces.IUnit {
 }
 
 func (c *UnitStorage) InternalUnitStart() error {
+	var err error
 	c.SetString("UsedPercents", "", "")
 	c.SetMainItem("UsedPercents")
 
