@@ -109,9 +109,6 @@ func (c *UnitStorage) Tick() {
 		}
 		dtOperationTime = time.Now().UTC()
 
-		var TotalSpace uint64
-		var UsedSpace uint64
-
 		var free, total uint64
 
 		var stat unix.Statfs_t
