@@ -68,18 +68,18 @@ func (c *UnitStorage) Tick() {
 
 		drives := c.drives()
 
-		var TotalSpace int64
-		var UsedSpace int64
+		var TotalSpace uint64
+		var UsedSpace uint64
 
 		for _, disk := range drives {
 			diskName := strings.ReplaceAll("/", "_")
-			var free, total, avail int64
+			var free, total, avail uint64
 
 			var stat unix.Statfs_t
 			err = unix.Statfs(disk, &stat)
-			free = stat.Bsize * stat.Bfree
-			total = stat.Bsize * stat.Blocks
-			avail = stat.Bsize * stat.Bfree
+			free = uint64(stat.Bsize) * stat.Bfree
+			total = uint64(stat.Bsize) * stat.Blocks
+			avail = uint64(stat.Bsize) * stat.Bfree
 
 			if err != nil {
 				c.SetString(diskName+"/Total", "", "error")
@@ -88,10 +88,10 @@ func (c *UnitStorage) Tick() {
 				c.SetString(diskName+"/Used", "", "error")
 				c.SetString(diskName+"/Utilization", "", "error")
 			} else {
-				c.SetInt64(diskName+"/Total", total/1024/1024, "MB")
+				c.SetUInt64(diskName+"/Total", total/1024/1024, "MB")
 				//c.SetUInt64(disk+"/Available", avail / 1024 / 1024, "MB")
-				c.SetInt64(diskName+"/Free", free/1024/1024, "MB")
-				c.SetInt64(diskName+"/Used", (total-free)/1024/1024, "MB")
+				c.SetUInt64(diskName+"/Free", free/1024/1024, "MB")
+				c.SetUInt64(diskName+"/Used", (total-free)/1024/1024, "MB")
 				c.SetFloat64(diskName+"/Utilization", 100*float64(total-free)/float64(total), "%", 1)
 
 				TotalSpace += total
