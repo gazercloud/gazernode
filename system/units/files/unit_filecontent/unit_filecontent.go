@@ -14,13 +14,14 @@ import (
 
 type UnitFileContent struct {
 	units_common.Unit
-	fileName string
-	periodMs int
-	trim     bool
-	parse    bool
-	scale    float64
-	offset   float64
-	uom      string
+	fileName  string
+	periodMs  int
+	trim      bool
+	parse     bool
+	scale     float64
+	offset    float64
+	uom       string
+	precision int
 }
 
 func New() common_interfaces.IUnit {
@@ -47,6 +48,7 @@ func (c *UnitFileContent) GetConfigMeta() string {
 	meta.Add("scale", "Scale", "1", "num", "-999999999", "99999999", "6")
 	meta.Add("offset", "Offset", "0", "num", "-999999999", "99999999", "6")
 	meta.Add("uom", "UOM", "", "string", "", "", "")
+	meta.Add("precision", "Precision", "3", "num", "0", "99", "")
 	return meta.Marshal()
 }
 
@@ -63,6 +65,7 @@ func (c *UnitFileContent) InternalUnitStart() error {
 		Scale      float64 `json:"scale"`
 		Offset     float64 `json:"offset"`
 		UOM        string  `json:"uom"`
+		Precision  float64 `json:"precision"`
 	}
 
 	var config Config
@@ -83,6 +86,13 @@ func (c *UnitFileContent) InternalUnitStart() error {
 	c.periodMs = int(config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
+		c.SetString(ItemNameContent, err.Error(), "error")
+		return err
+	}
+
+	c.precision = int(config.Precision)
+	if c.precision < 0 || c.precision > 100 {
+		err = errors.New("wrong precision")
 		c.SetString(ItemNameContent, err.Error(), "error")
 		return err
 	}
@@ -132,7 +142,7 @@ func (c *UnitFileContent) Tick() {
 			contentFloat, err = strconv.ParseFloat(contentStr, 64)
 			if err == nil {
 				contentFloat = contentFloat*c.scale + c.offset
-				contentStr = strconv.FormatFloat(contentFloat, 'f', 3, 64)
+				contentStr = strconv.FormatFloat(contentFloat, 'f', c.precision, 64)
 				if strings.Index(contentStr, ".") >= 0 {
 					contentStr = strings.TrimRight(contentStr, "0")
 				}
