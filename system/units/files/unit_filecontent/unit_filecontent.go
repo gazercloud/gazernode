@@ -60,7 +60,7 @@ func (c *UnitFileContent) InternalUnitStart() error {
 		FileName   string  `json:"file_name"`
 		Period     float64 `json:"period"`
 		Trim       bool    `json:"trim"`
-		ParseFloat bool    `json:"parse_float"`
+		ParseFloat bool    `json:"parse"`
 		Scale      float64 `json:"scale"`
 		Offset     float64 `json:"offset"`
 		UOM        string  `json:"uom"`
