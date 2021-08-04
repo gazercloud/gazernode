@@ -3,7 +3,6 @@ package unit_filecontent
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
@@ -133,7 +132,10 @@ func (c *UnitFileContent) Tick() {
 			contentFloat, err = strconv.ParseFloat(contentStr, 64)
 			if err == nil {
 				contentFloat = contentFloat*c.scale + c.offset
-				contentStr = fmt.Sprint(contentFloat)
+				contentStr = strconv.FormatFloat(contentFloat, 'f', 3, 64)
+				if strings.Index(contentStr, ".") >= 0 {
+					contentStr = strings.TrimRight(contentStr, "0")
+				}
 			}
 		}
 
