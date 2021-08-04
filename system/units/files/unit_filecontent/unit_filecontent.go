@@ -45,9 +45,9 @@ func (c *UnitFileContent) GetConfigMeta() string {
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
 	meta.Add("trim", "Trim", "true", "bool", "", "", "")
 	meta.Add("parse", "Parse", "true", "bool", "", "", "")
-	meta.Add("scale", "Scale", "1", "num", "0", "99999999", "")
-	meta.Add("offset", "Offset", "0", "num", "0", "99999999", "")
-	meta.Add("uom", "UOM", "0", "string", "", "", "")
+	meta.Add("scale", "Scale", "1", "num", "-999999999", "99999999", "")
+	meta.Add("offset", "Offset", "0", "num", "-999999999", "99999999", "")
+	meta.Add("uom", "UOM", "", "string", "", "", "")
 	return meta.Marshal()
 }
 
@@ -63,6 +63,7 @@ func (c *UnitFileContent) InternalUnitStart() error {
 		ParseFloat bool    `json:"parse_float"`
 		Scale      float64 `json:"scale"`
 		Offset     float64 `json:"offset"`
+		UOM        string  `json:"uom"`
 	}
 
 	var config Config
@@ -91,6 +92,7 @@ func (c *UnitFileContent) InternalUnitStart() error {
 	c.parse = config.ParseFloat
 	c.scale = config.Scale
 	c.offset = config.Offset
+	c.uom = config.UOM
 
 	go c.Tick()
 	return nil
