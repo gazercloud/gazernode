@@ -3,10 +3,13 @@ package unit_filecontent
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"io/ioutil"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -14,6 +17,11 @@ type UnitFileContent struct {
 	units_common.Unit
 	fileName string
 	periodMs int
+	trim     bool
+	parse    bool
+	scale    float64
+	offset   float64
+	uom      string
 }
 
 func New() common_interfaces.IUnit {
@@ -35,6 +43,11 @@ func (c *UnitFileContent) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("file_name", "File Name", "file.txt", "string", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	meta.Add("trim", "Trim", "true", "bool", "", "", "")
+	meta.Add("parse", "Parse", "true", "bool", "", "", "")
+	meta.Add("scale", "Scale", "1", "num", "0", "99999999", "")
+	meta.Add("offset", "Offset", "0", "num", "0", "99999999", "")
+	meta.Add("uom", "UOM", "0", "string", "", "", "")
 	return meta.Marshal()
 }
 
@@ -44,8 +57,12 @@ func (c *UnitFileContent) InternalUnitStart() error {
 	c.SetMainItem(ItemNameContent)
 
 	type Config struct {
-		FileName string  `json:"file_name"`
-		Period   float64 `json:"period"`
+		FileName   string  `json:"file_name"`
+		Period     float64 `json:"period"`
+		Trim       bool    `json:"trim"`
+		ParseFloat bool    `json:"parse_float"`
+		Scale      float64 `json:"scale"`
+		Offset     float64 `json:"offset"`
 	}
 
 	var config Config
@@ -69,6 +86,11 @@ func (c *UnitFileContent) InternalUnitStart() error {
 		c.SetString(ItemNameContent, err.Error(), "error")
 		return err
 	}
+
+	c.trim = config.Trim
+	c.parse = config.ParseFloat
+	c.scale = config.Scale
+	c.offset = config.Offset
 
 	go c.Tick()
 	return nil
@@ -98,9 +120,23 @@ func (c *UnitFileContent) Tick() {
 			err = errors.New("too much data")
 			content = content[:1024]
 		}
+		contentStr := string(content)
+		if c.trim {
+			contentStr = strings.Trim(contentStr, " \n\r\t")
+		}
+
+		var contentFloat float64
+
+		if c.parse {
+			contentFloat, err = strconv.ParseFloat(contentStr, 64)
+			if err == nil {
+				contentFloat = contentFloat*c.scale + c.offset
+				contentStr = fmt.Sprint(contentFloat)
+			}
+		}
 
 		if err == nil {
-			c.SetString(ItemNameContent, string(content), "")
+			c.SetString(ItemNameContent, contentStr, c.uom)
 			c.SetError("")
 		} else {
 			c.SetString(ItemNameContent, string(content), "error")
