@@ -41,7 +41,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_general_sig_generator_png
+	Image = resources.R_files_sensors_sensor_all_png
 }
 
 func (c *UnitSignalGenerator) GetConfigMeta() string {

@@ -23,7 +23,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_general_hhgttg_png
+	Image = resources.R_files_sensors_sensor_all_png
 }
 
 func (c *UnitHHGTTG) GetConfigMeta() string {

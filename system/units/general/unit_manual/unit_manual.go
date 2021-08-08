@@ -37,7 +37,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_general_manual_png
+	Image = resources.R_files_sensors_category_general_png
 }
 
 func (c *UnitManual) GetConfigMeta() string {

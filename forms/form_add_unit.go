@@ -115,7 +115,7 @@ func (c *FormAddUnit) UpdateStyle() {
 }
 
 func (c *FormAddUnit) addCategory(index int, cat nodeinterface.UnitTypeCategoriesResponseItem, code string) {
-	btn := c.pCategories.AddButtonOnGrid(0, index, " "+cat.DisplayName+" ", func(event *uievents.Event) {
+	btn := c.pCategories.AddButtonOnGrid(0, index, "   "+cat.DisplayName+" ", func(event *uievents.Event) {
 		t, ok := event.Sender.(*uicontrols.Button).UserData("key").(string)
 		if ok {
 			c.currentCategory = t

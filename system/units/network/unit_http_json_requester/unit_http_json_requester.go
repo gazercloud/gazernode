@@ -35,7 +35,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_network_tcp_connect_png
+	Image = resources.R_files_sensors_sensor_all_png
 }
 
 func (c *UnitHttpJsonRequester) GetConfigMeta() string {

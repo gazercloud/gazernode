@@ -35,7 +35,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_file_size_png
+	Image = resources.R_files_sensors_category_database_png
 }
 
 func (c *UnitPostgreSQL) GetConfigMeta() string {

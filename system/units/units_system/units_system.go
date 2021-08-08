@@ -44,22 +44,23 @@ var unitCategoriesNames map[string]string
 
 func init() {
 	unitCategoriesIcons = make(map[string][]byte)
-	unitCategoriesIcons["network"] = resources.R_files_sensors_sensor_network_png
-	unitCategoriesIcons["windows"] = resources.R_files_sensors_sensor_os_png
-	unitCategoriesIcons["file"] = resources.R_files_sensors_sensor_files_png
-	unitCategoriesIcons["general"] = resources.R_files_sensors_sensor_general_png
-	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_sensor_serial_port_png
-	unitCategoriesIcons["databases"] = resources.R_files_sensors_sensor_network_png
-	unitCategoriesIcons["gazer"] = resources.R_files_sensors_sensor_network_png
+	unitCategoriesIcons["network"] = resources.R_files_sensors_category_network_png
+	unitCategoriesIcons["computer"] = resources.R_files_sensors_category_computer_png
+	unitCategoriesIcons["file"] = resources.R_files_sensors_category_file_png
+	unitCategoriesIcons["general"] = resources.R_files_sensors_category_general_png
+
+	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_category_serial_port_png
+	unitCategoriesIcons["database"] = resources.R_files_sensors_category_database_png
+	unitCategoriesIcons["gazer"] = resources.R_files_sensors_category_gazer_png
 	unitCategoriesIcons[""] = resources.R_files_sensors_sensor_all_png
 
 	unitCategoriesNames = make(map[string]string)
 	unitCategoriesNames["network"] = "Network"
-	unitCategoriesNames["windows"] = "Windows"
-	unitCategoriesNames["file"] = "Files"
+	unitCategoriesNames["computer"] = "Computer"
+	unitCategoriesNames["file"] = "File"
 	unitCategoriesNames["general"] = "General"
 	unitCategoriesNames["serial_port"] = "Serial Port"
-	unitCategoriesNames["databases"] = "Databases"
+	unitCategoriesNames["database"] = "Database"
 	unitCategoriesNames["gazer"] = "Gazer"
 	unitCategoriesNames[""] = "All"
 }
@@ -102,23 +103,23 @@ No description available
 	//unitType = c.RegisterUnit("network_http_json_items_server", "network", "HTTP Json Items Server", unit_http_json_items_server.New, unit_http_json_items_server.Image, "")
 	//unitType = c.RegisterUnit("network_http_json_units_server", "network", "HTTP Json Units Server", unit_http_json_units_server.New, unit_http_json_units_server.Image, "")
 
-	unitType = c.RegisterUnit("windows_memory", "windows", "OS Memory", unit_system_memory.New, unit_system_memory.Image, "")
+	unitType = c.RegisterUnit("computer_memory", "computer", "Memory", unit_system_memory.New, unit_system_memory.Image, "")
 	unitType.Help = `
 No description available
 `
-	unitType = c.RegisterUnit("windows_process", "windows", "OS Process", unit_process.New, unit_process.Image, "")
+	unitType = c.RegisterUnit("computer_process", "computer", "Process", unit_process.New, unit_process.Image, "")
 	unitType.Help = `
 The sensor periodically gets information about the process and writes it to the corresponding data items.
 `
-	unitType = c.RegisterUnit("windows_storage", "windows", "OS Storage", unit_storage.New, unit_storage.Image, "")
+	unitType = c.RegisterUnit("computer_storage", "computer", "Storage", unit_storage.New, unit_storage.Image, "")
 	unitType.Help = `
 No description available
 `
-	unitType = c.RegisterUnit("windows_network", "windows", "OS Network", unit_network.New, unit_network.Image, "")
+	unitType = c.RegisterUnit("computer_network", "computer", "Network", unit_network.New, unit_network.Image, "")
 	unitType.Help = `
 No description available
 `
-	unitType = c.RegisterUnit("windows_network_interface", "windows", "OS Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
+	unitType = c.RegisterUnit("computer_network_interface", "computer", "Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
 	unitType.Help = `
 No description available
 `
@@ -164,7 +165,7 @@ No description available
 No description available
 `
 
-	unitType = c.RegisterUnit("databases_postgresql", "databases", "PostgreSQL", unit_postgreesql.New, unit_postgreesql.Image, "PostgreSQL database query execute")
+	unitType = c.RegisterUnit("database_postgresql", "database", "PostgreSQL", unit_postgreesql.New, unit_postgreesql.Image, "PostgreSQL database query execute")
 	unitType.Help = `
 No description available
 `
