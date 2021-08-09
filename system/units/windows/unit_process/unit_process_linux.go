@@ -195,7 +195,7 @@ func (c *UnitSystemProcess) Tick() {
 		pStat, err := proc.Stat()
 		if err == nil {
 			tNow := time.Now()
-			dur := tNow.Sub(lastCpuTime)
+			dur := tNow.Sub(lastCpuTime).Seconds()
 			cpuTime := pStat.CPUTime()
 
 			if lastCpuValid {
