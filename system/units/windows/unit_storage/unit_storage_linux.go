@@ -20,7 +20,7 @@ type UnitStorage struct {
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_windows_ram_png
+	Image = resources.R_files_sensors_category_network_png
 }
 
 func New() common_interfaces.IUnit {
