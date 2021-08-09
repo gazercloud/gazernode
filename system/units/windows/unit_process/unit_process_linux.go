@@ -99,11 +99,11 @@ func (c *UnitSystemProcess) Tick() {
 
 	dtOperationTime := time.Now().UTC()
 
-	processId := int32(-1)
+	//processId := int32(-1)
 
-	lastKernelTimeMs := int64(0)
-	lastUserTimeMs := int64(0)
-	lastReadProcessTimes := time.Now().UTC()
+	//lastKernelTimeMs := int64(0)
+	//lastUserTimeMs := int64(0)
+	//lastReadProcessTimes := time.Now().UTC()
 
 	for !c.Stopping {
 		for {
