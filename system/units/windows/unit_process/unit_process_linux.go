@@ -159,8 +159,11 @@ func (c *UnitSystemProcess) Tick() {
 
 					comm, err := p.Comm()
 					if err == nil {
-						c.SetString("cmd", p.Comm(), "")
-						c.SetString("exe", p.Executable(), "")
+						c.SetString("cmd", comm, "")
+					}
+					exe, err := p.Executable()
+					if err == nil {
+						c.SetString("exe", exe, "")
 					}
 
 					logger.Println("pr 555 ok ------ ", processId)
