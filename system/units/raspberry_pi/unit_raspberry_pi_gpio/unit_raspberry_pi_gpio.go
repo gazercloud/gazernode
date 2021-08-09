@@ -79,8 +79,10 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 	}
 
 	pin10 := rpio.Pin(10)
-	pin10.PullUp()
-	pin10.Input()
+	//pin10.PullUp()
+	//pin10.Input()
+	pin10.Output()
+	pin10.High()
 
 	for !c.Stopping {
 		for {
