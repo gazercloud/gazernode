@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/prometheus/procfs"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -23,12 +24,13 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 		Period      float64 `json:"period"`
 	}
 
-	c.SetMainItem("Main/Working Set Size")
+	c.SetMainItem("ResidentMemory")
 
 	{
-		// Common
-		c.SetString("Common/Name", "", "")
-		c.SetString("Common/ProcessID", "", "")
+		c.SetString("ResidentMemory", "", "stopped")
+		c.SetString("VirtualMemory", "", "stopped")
+		c.SetString("CPUTime", "", "stopped")
+		c.SetString("FileDescriptors", "", "stopped")
 	}
 
 	var config Config
@@ -99,7 +101,8 @@ func (c *UnitSystemProcess) Tick() {
 
 	dtOperationTime := time.Now().UTC()
 
-	//processId := int32(-1)
+	processId := int(-1)
+	var proc procfs.Proc
 
 	//lastKernelTimeMs := int64(0)
 	//lastUserTimeMs := int64(0)
@@ -116,37 +119,76 @@ func (c *UnitSystemProcess) Tick() {
 			break
 		}
 
-		//var ru syscall.Rusage
+		if processId == -1 {
+			var err error
 
-		proc, err := procfs.Self()
+			matchId := false
+			matchName := false
+
+			allProcesses, err := procfs.AllProcs()
+			if err != nil {
+				time.Sleep(100 * time.Millisecond)
+				continue
+			}
+
+			for _, p := range allProcesses {
+				if c.processIdActive {
+					if c.processId == p.PID {
+						matchId = true
+					}
+				} else {
+					matchId = true
+				}
+
+				if c.processNameActive {
+					if comm, err := p.Comm(); err == nil && strings.Contains(comm, c.processName) {
+						matchName = true
+					}
+				} else {
+					matchName = true
+				}
+
+				if matchId && matchName {
+					processId = p.PID
+					proc = p
+				}
+			}
+		}
+
+		if processId == -1 {
+			time.Sleep(100 * time.Millisecond)
+			continue
+		}
+
+		pStat, err := proc.Stat()
+		pStat.CSTime
 		if err == nil {
-			pStat, err := proc.Stat()
-			if err == nil {
-				c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "", 0)
-				c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "", 3)
-				c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "", 0)
-			} else {
-				c.SetString("ResidentMemory", "", "error")
-				c.SetString("CPUTime", "", "error")
-				c.SetString("VirtualMemory", "", "error")
-			}
+			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "", 0)
+			c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "", 3)
+			c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "", 0)
+		} else {
+			c.SetString("ResidentMemory", "", "error")
+			c.SetString("CPUTime", "", "error")
+			c.SetString("VirtualMemory", "", "error")
+			processId = -1
+		}
 
-			fdInfo, err := proc.FileDescriptorsInfo()
-			if err == nil {
-				c.SetInt("FileDescriptors", fdInfo.Len(), "")
-			} else {
-				c.SetString("FileDescriptors", "", "error")
-			}
+		fdInfo, err := proc.FileDescriptorsInfo()
+		if err == nil {
+			c.SetInt("FileDescriptors", fdInfo.Len(), "")
+		} else {
+			c.SetString("FileDescriptors", "", "error")
+			processId = -1
 		}
 
 		dtOperationTime = time.Now().UTC()
 	}
 
 	{
-		// Common
-		c.SetString("Common/Name", "", "stopped")
-		c.SetString("Common/ProcessID", "", "stopped")
-
+		c.SetString("ResidentMemory", "", "stopped")
+		c.SetString("VirtualMemory", "", "stopped")
+		c.SetString("CPUTime", "", "stopped")
+		c.SetString("FileDescriptors", "", "stopped")
 	}
 
 	logger.Println("UNIT <Process Windows> stopped:", c.Id())
