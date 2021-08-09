@@ -134,7 +134,7 @@ func (c *UnitSystemProcess) Tick() {
 
 			fdInfo, err := proc.FileDescriptorsInfo()
 			if err == nil {
-				c.SetInt("FileDescriptors", fdInfo.Len())
+				c.SetInt("FileDescriptors", fdInfo.Len(), "")
 			} else {
 				c.SetString("FileDescriptors", "", "error")
 			}
