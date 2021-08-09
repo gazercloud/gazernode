@@ -138,6 +138,9 @@ func (c *UnitSystemProcess) Tick() {
 			c.SetInt64("Nsignals", int64(ru.Nsignals), "")
 			c.SetInt64("Nvcsw", int64(ru.Nvcsw), "")
 			c.SetInt64("Nivcsw", int64(ru.Nivcsw), "")
+			c.SetString("Status", "ok", "")
+		} else {
+			c.SetString("Status", err.Error(), "")
 		}
 
 		dtOperationTime = time.Now().UTC()
