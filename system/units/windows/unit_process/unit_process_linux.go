@@ -133,7 +133,7 @@ func (c *UnitSystemProcess) Tick() {
 
 			for _, p := range allProcesses {
 				if c.processIdActive {
-					if c.processId == p.PID {
+					if int(c.processId) == p.PID {
 						matchId = true
 					}
 				} else {
