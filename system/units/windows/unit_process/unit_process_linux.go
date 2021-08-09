@@ -220,6 +220,7 @@ func (c *UnitSystemProcess) Tick() {
 			c.SetString("Status", err.Error(), "error")
 			c.SetString("Command", "", "error")
 			c.SetString("Executable", "", "error")
+			lastCpuValid = false
 			processId = -1
 		}
 
@@ -229,6 +230,7 @@ func (c *UnitSystemProcess) Tick() {
 		} else {
 			c.SetString("FileDescriptors", "", "error")
 			processId = -1
+			lastCpuValid = false
 		}
 
 		dtOperationTime = time.Now().UTC()
