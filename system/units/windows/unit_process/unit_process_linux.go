@@ -108,6 +108,10 @@ func (c *UnitSystemProcess) Tick() {
 	//lastUserTimeMs := int64(0)
 	//lastReadProcessTimes := time.Now().UTC()
 
+	lastCpuValid := false
+	lastCpuValue := float64(0)
+	lastCpuTime := time.Now()
+
 	for !c.Stopping {
 		for {
 			if c.Stopping || time.Now().Sub(dtOperationTime) > time.Duration(c.periodMs)*time.Millisecond {
@@ -159,12 +163,13 @@ func (c *UnitSystemProcess) Tick() {
 
 					comm, err := p.Comm()
 					if err == nil {
-						c.SetString("cmd", comm, "")
+						c.SetString("Command", comm, "")
 					}
 					exe, err := p.Executable()
 					if err == nil {
-						c.SetString("exe", exe, "")
+						c.SetString("Executable", exe, "")
 					}
+					c.SetFloat64("PID", float64(p.PID), "", 0)
 
 					logger.Println("pr 555 ok ------ ", processId)
 				}
@@ -188,20 +193,34 @@ func (c *UnitSystemProcess) Tick() {
 		}
 
 		pStat, err := proc.Stat()
-		//pStat.CSTime
 		if err == nil {
-			logger.Println("pr 6 ok", processId)
-			c.SetFloat64("PID", float64(pStat.PID), "", 0)
+			tNow := time.Now()
+			dur := tNow.Sub(lastCpuTime)
+			cpuTime := pStat.CPUTime()
+
+			if lastCpuValid {
+				value := cpuTime - lastCpuValue
+				if dur > 0.0000001 {
+					usage := value / dur
+					c.SetFloat64("CPU", usage, "", 2)
+				}
+			}
+
+			lastCpuTime = tNow
+			lastCpuValue = cpuTime
+			lastCpuValid = true
+
 			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "", 0)
-			c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "", 3)
 			c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "", 0)
-			c.SetString("Status", "", "error")
+			c.SetString("Status", "", "")
 		} else {
 			c.SetString("ResidentMemory", "", "error")
 			c.SetString("CPUTime", "", "error")
 			c.SetString("VirtualMemory", "", "error")
+			c.SetString("Status", err.Error(), "error")
+			c.SetString("Command", "", "error")
+			c.SetString("Executable", "", "error")
 			processId = -1
-			c.SetString("Status", "E:"+err.Error(), "error")
 		}
 
 		fdInfo, err := proc.FileDescriptorsInfo()
@@ -222,6 +241,8 @@ func (c *UnitSystemProcess) Tick() {
 		c.SetString("CPUTime", "", "stopped")
 		c.SetString("FileDescriptors", "", "stopped")
 		c.SetString("Status", "", "stopped")
+		c.SetString("Command", "", "stopped")
+		c.SetString("Executable", "", "stopped")
 	}
 
 	logger.Println("UNIT <Process Windows> stopped:", c.Id())
