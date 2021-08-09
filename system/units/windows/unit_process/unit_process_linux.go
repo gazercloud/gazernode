@@ -122,7 +122,7 @@ func (c *UnitSystemProcess) Tick() {
 
 		err = syscall.Getrusage(0, &ru)
 
-		if err != nil {
+		if err == nil {
 			// Common
 			c.SetInt64("Maxrss", int64(ru.Maxrss), "")
 			c.SetInt64("Ixrss", int64(ru.Ixrss), "")
