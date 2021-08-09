@@ -156,6 +156,13 @@ func (c *UnitSystemProcess) Tick() {
 				if matchId && matchName {
 					processId = p.PID
 					proc = p
+
+					comm, err := p.Comm()
+					if err == nil {
+						c.SetString("cmd", p.Comm(), "")
+						c.SetString("exe", p.Executable(), "")
+					}
+
 					logger.Println("pr 555 ok ------ ", processId)
 				}
 			}
@@ -167,6 +174,8 @@ func (c *UnitSystemProcess) Tick() {
 			{
 				c.SetString("Status", "no process found", "error")
 				c.SetString("PID", "", "error")
+				c.SetString("cmd", "", "error")
+				c.SetString("exe", "", "error")
 				c.SetString("ResidentMemory", "", "error")
 				c.SetString("VirtualMemory", "", "error")
 				c.SetString("CPUTime", "", "error")
