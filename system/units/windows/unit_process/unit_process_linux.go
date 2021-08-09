@@ -13,7 +13,7 @@ import (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_windows_proc_png
+	Image = resources.R_files_sensors_category_network_png
 }
 
 func (c *UnitSystemProcess) InternalUnitStart() error {
