@@ -205,7 +205,7 @@ func (c *UnitSystemProcess) Tick() {
 
 			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "bytes", 0)
 			c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "bytes", 0)
-			c.SetString("Status", "", pStat.State)
+			c.SetString("Status", pStat.State, "")
 		} else {
 			c.SetString("ResidentMemory", "", "error")
 			c.SetString("CPUTime", "", "error")
