@@ -161,7 +161,7 @@ func (c *UnitSystemProcess) Tick() {
 		}
 
 		pStat, err := proc.Stat()
-		pStat.CSTime
+		//pStat.CSTime
 		if err == nil {
 			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "", 0)
 			c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "", 3)
