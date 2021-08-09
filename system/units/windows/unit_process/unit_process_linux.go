@@ -202,7 +202,7 @@ func (c *UnitSystemProcess) Tick() {
 				value := cpuTime - lastCpuValue
 				if dur > 0.0000001 {
 					usage := value / dur
-					c.SetFloat64("CPU", usage, "", 2)
+					c.SetFloat64("CPU", usage*100, "%", 2)
 				}
 			}
 
