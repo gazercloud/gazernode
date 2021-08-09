@@ -162,7 +162,7 @@ func (c *UnitSystemProcess) Tick() {
 		}
 
 		if processId == -1 {
-			logger.Println("pr 5", comm)
+			logger.Println("pr 5 pr = -1")
 			time.Sleep(100 * time.Millisecond)
 			{
 				c.SetString("Status", "no process found", "error")
