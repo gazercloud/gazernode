@@ -118,6 +118,8 @@ func (c *UnitSystemProcess) Tick() {
 
 		var ru syscall.Rusage
 
+		var err error
+
 		err = syscall.Getrusage(0, &ru)
 
 		if err != nil {
