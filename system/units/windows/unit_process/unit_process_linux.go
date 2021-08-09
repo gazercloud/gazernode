@@ -181,7 +181,7 @@ func (c *UnitSystemProcess) Tick() {
 			c.SetString("CPUTime", "", "error")
 			c.SetString("VirtualMemory", "", "error")
 			processId = -1
-			c.SetString("Status", err.Error(), "error")
+			c.SetString("Status", "E:"+err.Error(), "error")
 		}
 
 		fdInfo, err := proc.FileDescriptorsInfo()
