@@ -123,9 +123,9 @@ func (c *UnitSystemProcess) Tick() {
 		if err == nil {
 			pStat, err := proc.Stat()
 			if err == nil {
-				c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "")
-				c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "")
-				c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "")
+				c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "", 0)
+				c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "", 3)
+				c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "", 0)
 			} else {
 				c.SetString("ResidentMemory", "", "error")
 				c.SetString("CPUTime", "", "error")
