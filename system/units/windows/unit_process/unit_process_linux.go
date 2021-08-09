@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/resources"
+	"github.com/prometheus/procfs"
 	"strconv"
 	"syscall"
 	"time"
@@ -118,29 +119,25 @@ func (c *UnitSystemProcess) Tick() {
 
 		var ru syscall.Rusage
 
-		var err error
-
-		err = syscall.Getrusage(0, &ru)
-
+		proc, err := procfs.Self()
 		if err == nil {
-			// Common
-			c.SetInt64("Maxrss", int64(ru.Maxrss), "")
-			c.SetInt64("Ixrss", int64(ru.Ixrss), "")
-			c.SetInt64("Idrss", int64(ru.Idrss), "")
-			c.SetInt64("Isrss", int64(ru.Isrss), "")
-			c.SetInt64("Minflt", int64(ru.Minflt), "")
-			c.SetInt64("Majflt", int64(ru.Majflt), "")
-			c.SetInt64("Nswap", int64(ru.Nswap), "")
-			c.SetInt64("Inblock", int64(ru.Inblock), "")
-			c.SetInt64("Oublock", int64(ru.Oublock), "")
-			c.SetInt64("Msgsnd", int64(ru.Msgsnd), "")
-			c.SetInt64("Msgrcv", int64(ru.Msgrcv), "")
-			c.SetInt64("Nsignals", int64(ru.Nsignals), "")
-			c.SetInt64("Nvcsw", int64(ru.Nvcsw), "")
-			c.SetInt64("Nivcsw", int64(ru.Nivcsw), "")
-			c.SetString("Status", "ok", "")
-		} else {
-			c.SetString("Status", err.Error(), "")
+			pStat, err := proc.Stat()
+			if err == nil {
+				c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "")
+				c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "")
+				c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "")
+			} else {
+				c.SetString("ResidentMemory", "", "error")
+				c.SetString("CPUTime", "", "error")
+				c.SetString("VirtualMemory", "", "error")
+			}
+
+			fdInfo, err := proc.FileDescriptorsInfo()
+			if err == nil {
+				c.SetInt("FileDescriptors", fdInfo.Len())
+			} else {
+				c.SetString("FileDescriptors", "", "error")
+			}
 		}
 
 		dtOperationTime = time.Now().UTC()
