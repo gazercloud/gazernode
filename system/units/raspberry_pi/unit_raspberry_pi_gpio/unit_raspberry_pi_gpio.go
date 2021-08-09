@@ -70,6 +70,18 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
 func (c *UnitRaspberryPiGPIO) Tick() {
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
+
+	err := rpio.Open()
+	if err != nil {
+		c.SetString(ItemNameResult, err.Error(), "error")
+		c.Started = false
+		return
+	}
+
+	pin10 := rpio.Pin(10)
+	pin10.PullUp()
+	pin10.Input()
+
 	for !c.Stopping {
 		for {
 			if c.Stopping || time.Now().Sub(dtOperationTime) > time.Duration(c.periodMs)*time.Millisecond {
@@ -82,14 +94,6 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 		}
 		dtOperationTime = time.Now().UTC()
 
-		err := rpio.Open()
-		if err != nil {
-			c.SetString(ItemNameResult, err.Error(), "error")
-			continue
-		}
-
-		pin10 := rpio.Pin(10)
-		pin10.Input()
 		state := pin10.Read()
 
 		value := 0
@@ -98,16 +102,14 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			value = 1
 		}
 
-		pin10.PullUp()
-
 		c.SetInt(ItemNameResult, value, "")
 
-		err = rpio.Close()
 		if err != nil {
 			c.SetString(ItemNameResult, err.Error(), "error")
 			continue
 		}
 	}
 	c.SetString(ItemNameResult, "", "stopped")
+	err = rpio.Close()
 	c.Started = false
 }
