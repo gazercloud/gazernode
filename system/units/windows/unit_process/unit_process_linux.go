@@ -120,6 +120,8 @@ func (c *UnitSystemProcess) Tick() {
 		}
 
 		if processId == -1 {
+			logger.Println("pr 1")
+
 			var err error
 
 			matchId := false
@@ -128,8 +130,10 @@ func (c *UnitSystemProcess) Tick() {
 			allProcesses, err := procfs.AllProcs()
 			if err != nil {
 				time.Sleep(100 * time.Millisecond)
+				logger.Println("pr 2 err", err.Error())
 				continue
 			}
+			logger.Println("pr 3", len(allProcesses))
 
 			for _, p := range allProcesses {
 				if c.processIdActive {
@@ -143,6 +147,7 @@ func (c *UnitSystemProcess) Tick() {
 				if c.processNameActive {
 					if comm, err := p.Comm(); err == nil && strings.Contains(comm, c.processName) {
 						matchName = true
+						logger.Println("pr 4", comm)
 					}
 				} else {
 					matchName = true
@@ -151,11 +156,13 @@ func (c *UnitSystemProcess) Tick() {
 				if matchId && matchName {
 					processId = p.PID
 					proc = p
+					logger.Println("pr 555 ok ------ ", processId)
 				}
 			}
 		}
 
 		if processId == -1 {
+			logger.Println("pr 5", comm)
 			time.Sleep(100 * time.Millisecond)
 			{
 				c.SetString("Status", "no process found", "error")
@@ -171,6 +178,7 @@ func (c *UnitSystemProcess) Tick() {
 		pStat, err := proc.Stat()
 		//pStat.CSTime
 		if err == nil {
+			logger.Println("pr 6 ok", processId)
 			c.SetFloat64("PID", float64(pStat.PID), "", 0)
 			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "", 0)
 			c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "", 3)
