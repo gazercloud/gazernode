@@ -7,7 +7,6 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/prometheus/procfs"
 	"strconv"
-	"syscall"
 	"time"
 )
 
@@ -117,7 +116,7 @@ func (c *UnitSystemProcess) Tick() {
 			break
 		}
 
-		var ru syscall.Rusage
+		//var ru syscall.Rusage
 
 		proc, err := procfs.Self()
 		if err == nil {
