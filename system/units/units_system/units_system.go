@@ -20,6 +20,7 @@ import (
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
 	"github.com/gazercloud/gazernode/system/units/network/unit_tcp_connect"
 	unit_tcp_telnet_control "github.com/gazercloud/gazernode/system/units/network/unit_tcp_control"
+	"github.com/gazercloud/gazernode/system/units/raspberry_pi/unit_raspberry_pi_gpio"
 	unit_serial_port_key_value "github.com/gazercloud/gazernode/system/units/serial_port/serial_port_key_value"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_network"
@@ -50,6 +51,7 @@ func init() {
 	unitCategoriesIcons["general"] = resources.R_files_sensors_category_general_png
 
 	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_category_serial_port_png
+	unitCategoriesIcons["raspberry_pi"] = resources.R_files_sensors_category_serial_port_png
 	unitCategoriesIcons["database"] = resources.R_files_sensors_category_database_png
 	unitCategoriesIcons["gazer"] = resources.R_files_sensors_category_gazer_png
 	unitCategoriesIcons[""] = resources.R_files_sensors_sensor_all_png
@@ -60,6 +62,7 @@ func init() {
 	unitCategoriesNames["file"] = "File"
 	unitCategoriesNames["general"] = "General"
 	unitCategoriesNames["serial_port"] = "Serial Port"
+	unitCategoriesNames["raspberry_pi"] = "RaspberryPI"
 	unitCategoriesNames["database"] = "Database"
 	unitCategoriesNames["gazer"] = "Gazer"
 	unitCategoriesNames[""] = "All"
@@ -161,6 +164,11 @@ No description available
 `
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
+	unitType.Help = `
+No description available
+`
+
+	unitType = c.RegisterUnit("raspberry_pi_gpio", "raspberry_pi", "Raspberry PI GPIO", unit_raspberry_pi_gpio.New, unit_raspberry_pi_gpio.Image, "RaspberryPI GPIO")
 	unitType.Help = `
 No description available
 `

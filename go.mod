@@ -26,6 +26,7 @@ require (
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20210209000435-a757b9cbd472
 	github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f5e9
+	github.com/stianeikeland/go-rpio/v4 v4.4.0 // indirect
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da
 	go.bug.st/serial v1.1.2
