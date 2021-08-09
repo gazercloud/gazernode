@@ -104,10 +104,6 @@ func (c *UnitSystemProcess) Tick() {
 	processId := int(-1)
 	var proc procfs.Proc
 
-	//lastKernelTimeMs := int64(0)
-	//lastUserTimeMs := int64(0)
-	//lastReadProcessTimes := time.Now().UTC()
-
 	lastCpuValid := false
 	lastCpuValue := float64(0)
 	lastCpuTime := time.Now()
@@ -124,7 +120,6 @@ func (c *UnitSystemProcess) Tick() {
 		}
 
 		if processId == -1 {
-			logger.Println("pr 1")
 
 			var err error
 
@@ -134,7 +129,6 @@ func (c *UnitSystemProcess) Tick() {
 				logger.Println("pr 2 err", err.Error())
 				continue
 			}
-			logger.Println("pr 3", len(allProcesses), c.processIdActive, c.processNameActive)
 
 			for _, p := range allProcesses {
 				matchId := false
@@ -151,7 +145,6 @@ func (c *UnitSystemProcess) Tick() {
 				if c.processNameActive {
 					if comm, err := p.Comm(); err == nil && strings.Contains(comm, c.processName) {
 						matchName = true
-						logger.Println("pr 4", comm)
 					}
 				} else {
 					matchName = true
@@ -170,20 +163,17 @@ func (c *UnitSystemProcess) Tick() {
 						c.SetString("Executable", exe, "")
 					}
 					c.SetFloat64("PID", float64(p.PID), "", 0)
-
-					logger.Println("pr 555 ok ------ ", processId)
 				}
 			}
 		}
 
 		if processId == -1 {
-			logger.Println("pr 5 pr = -1")
 			time.Sleep(100 * time.Millisecond)
 			{
 				c.SetString("Status", "no process found", "error")
 				c.SetString("PID", "", "error")
-				c.SetString("cmd", "", "error")
-				c.SetString("exe", "", "error")
+				c.SetString("Command", "", "error")
+				c.SetString("Executable", "", "error")
 				c.SetString("ResidentMemory", "", "error")
 				c.SetString("VirtualMemory", "", "error")
 				c.SetString("CPUTime", "", "error")
