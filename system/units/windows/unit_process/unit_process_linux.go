@@ -157,6 +157,12 @@ func (c *UnitSystemProcess) Tick() {
 
 		if processId == -1 {
 			time.Sleep(100 * time.Millisecond)
+			{
+				c.SetString("ResidentMemory", "", "error")
+				c.SetString("VirtualMemory", "", "error")
+				c.SetString("CPUTime", "", "error")
+				c.SetString("FileDescriptors", "", "error")
+			}
 			continue
 		}
 
