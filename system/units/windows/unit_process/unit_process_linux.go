@@ -27,10 +27,14 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 	c.SetMainItem("ResidentMemory")
 
 	{
-		c.SetString("ResidentMemory", "", "stopped")
-		c.SetString("VirtualMemory", "", "stopped")
-		c.SetString("CPUTime", "", "stopped")
-		c.SetString("FileDescriptors", "", "stopped")
+		c.SetString("PID", "", "")
+		c.SetString("ResidentMemory", "", "")
+		c.SetString("VirtualMemory", "", "")
+		c.SetString("CPU", "", "")
+		c.SetString("FileDescriptors", "", "")
+		c.SetString("Status", "", "")
+		c.SetString("Command", "", "")
+		c.SetString("Executable", "", "")
 	}
 
 	var config Config
@@ -38,7 +42,7 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 	if err != nil {
 		logger.Println("ERROR[UnitSystemProcess]:", err)
 		err = errors.New("config error")
-		c.SetString("Common/ProcessID", err.Error(), "error")
+		c.SetString("Status", err.Error(), "error")
 		return err
 	}
 
@@ -77,14 +81,14 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 
 	if !c.processIdActive && !c.processNameActive {
 		err = errors.New("wrong filter")
-		c.SetString("Common/ProcessID", err.Error(), "error")
+		c.SetString("Status", err.Error(), "error")
 		return err
 	}
 
 	c.periodMs = int(config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
-		c.SetString("Common/ProcessID", err.Error(), "error")
+		c.SetString("Status", err.Error(), "error")
 		return err
 	}
 
@@ -126,7 +130,6 @@ func (c *UnitSystemProcess) Tick() {
 			allProcesses, err := procfs.AllProcs()
 			if err != nil {
 				time.Sleep(100 * time.Millisecond)
-				logger.Println("pr 2 err", err.Error())
 				continue
 			}
 
@@ -176,7 +179,7 @@ func (c *UnitSystemProcess) Tick() {
 				c.SetString("Executable", "", "error")
 				c.SetString("ResidentMemory", "", "error")
 				c.SetString("VirtualMemory", "", "error")
-				c.SetString("CPUTime", "", "error")
+				c.SetString("CPU", "", "error")
 				c.SetString("FileDescriptors", "", "error")
 			}
 			continue
@@ -230,7 +233,7 @@ func (c *UnitSystemProcess) Tick() {
 		c.SetString("PID", "", "stopped")
 		c.SetString("ResidentMemory", "", "stopped")
 		c.SetString("VirtualMemory", "", "stopped")
-		c.SetString("CPUTime", "", "stopped")
+		c.SetString("CPU", "", "stopped")
 		c.SetString("FileDescriptors", "", "stopped")
 		c.SetString("Status", "", "stopped")
 		c.SetString("Command", "", "stopped")
