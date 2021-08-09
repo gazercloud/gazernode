@@ -124,9 +124,6 @@ func (c *UnitSystemProcess) Tick() {
 
 			var err error
 
-			matchId := false
-			matchName := false
-
 			allProcesses, err := procfs.AllProcs()
 			if err != nil {
 				time.Sleep(100 * time.Millisecond)
@@ -136,6 +133,9 @@ func (c *UnitSystemProcess) Tick() {
 			logger.Println("pr 3", len(allProcesses), c.processIdActive, c.processNameActive)
 
 			for _, p := range allProcesses {
+				matchId := false
+				matchName := false
+
 				if c.processIdActive {
 					if int(c.processId) == p.PID {
 						matchId = true
