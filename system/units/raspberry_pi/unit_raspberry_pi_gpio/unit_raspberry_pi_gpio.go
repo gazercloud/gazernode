@@ -98,6 +98,8 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			value = 1
 		}
 
+		pin10.PullUp()
+
 		c.SetInt(ItemNameResult, value, "")
 
 		err = rpio.Close()
