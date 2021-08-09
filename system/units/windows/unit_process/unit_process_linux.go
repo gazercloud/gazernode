@@ -231,5 +231,18 @@ func (c *UnitSystemProcess) Tick() {
 func GetProcesses() []ProcessInfo {
 	result := make([]ProcessInfo, 0)
 
+	allProcesses, err := procfs.AllProcs()
+	if err != nil {
+		return
+	}
+
+	for _, p := range allProcesses {
+		var proc ProcessInfo
+		proc.Id = p.PID
+		proc.Name, _ = p.Comm()
+		proc.Info, _ = p.Executable()
+		result = append(result, proc)
+	}
+
 	return result
 }
