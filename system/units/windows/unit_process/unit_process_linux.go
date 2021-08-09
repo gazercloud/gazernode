@@ -133,7 +133,7 @@ func (c *UnitSystemProcess) Tick() {
 				logger.Println("pr 2 err", err.Error())
 				continue
 			}
-			logger.Println("pr 3", len(allProcesses))
+			logger.Println("pr 3", len(allProcesses), c.processIdActive, c.processNameActive)
 
 			for _, p := range allProcesses {
 				if c.processIdActive {
