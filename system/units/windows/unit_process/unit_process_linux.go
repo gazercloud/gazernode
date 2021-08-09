@@ -153,3 +153,9 @@ func (c *UnitSystemProcess) Tick() {
 	logger.Println("UNIT <Process Windows> stopped:", c.Id())
 	c.Started = false
 }
+
+func GetProcesses() []ProcessInfo {
+	result := make([]ProcessInfo, 0)
+
+	return result
+}
