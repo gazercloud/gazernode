@@ -158,6 +158,8 @@ func (c *UnitSystemProcess) Tick() {
 		if processId == -1 {
 			time.Sleep(100 * time.Millisecond)
 			{
+				c.SetString("Status", "no process found", "error")
+				c.SetString("PID", "", "error")
 				c.SetString("ResidentMemory", "", "error")
 				c.SetString("VirtualMemory", "", "error")
 				c.SetString("CPUTime", "", "error")
@@ -169,14 +171,17 @@ func (c *UnitSystemProcess) Tick() {
 		pStat, err := proc.Stat()
 		//pStat.CSTime
 		if err == nil {
+			c.SetFloat64("PID", float64(pStat.PID), "", 0)
 			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "", 0)
 			c.SetFloat64("CPUTime", float64(pStat.CPUTime()), "", 3)
 			c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "", 0)
+			c.SetString("Status", "", "error")
 		} else {
 			c.SetString("ResidentMemory", "", "error")
 			c.SetString("CPUTime", "", "error")
 			c.SetString("VirtualMemory", "", "error")
 			processId = -1
+			c.SetString("Status", err.Error(), "error")
 		}
 
 		fdInfo, err := proc.FileDescriptorsInfo()
@@ -191,10 +196,12 @@ func (c *UnitSystemProcess) Tick() {
 	}
 
 	{
+		c.SetString("PID", "", "stopped")
 		c.SetString("ResidentMemory", "", "stopped")
 		c.SetString("VirtualMemory", "", "stopped")
 		c.SetString("CPUTime", "", "stopped")
 		c.SetString("FileDescriptors", "", "stopped")
+		c.SetString("Status", "", "stopped")
 	}
 
 	logger.Println("UNIT <Process Windows> stopped:", c.Id())
