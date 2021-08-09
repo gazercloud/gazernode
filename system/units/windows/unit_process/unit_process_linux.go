@@ -233,7 +233,7 @@ func GetProcesses() []ProcessInfo {
 
 	allProcesses, err := procfs.AllProcs()
 	if err != nil {
-		return
+		return result
 	}
 
 	for _, p := range allProcesses {
