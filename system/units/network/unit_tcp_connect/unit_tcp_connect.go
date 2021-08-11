@@ -32,7 +32,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_all_png
+	Image = resources.R_files_sensors_unit_network_tcp_connect_png
 }
 
 func (c *UnitTcpConnect) GetConfigMeta() string {

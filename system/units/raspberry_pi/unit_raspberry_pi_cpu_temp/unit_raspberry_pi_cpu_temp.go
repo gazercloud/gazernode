@@ -1,74 +1,64 @@
-package unit_filesize
+package unit_raspberry_pi_cpu_temp
 
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"os"
+	"io/ioutil"
+	"strconv"
+	"strings"
 	"time"
 )
 
-type UnitFileSize struct {
+type UnitRaspberryPiGPIO struct {
 	units_common.Unit
-	fileName string
 	periodMs int
 }
 
 func New() common_interfaces.IUnit {
-	var c UnitFileSize
+	var c UnitRaspberryPiGPIO
 	return &c
 }
 
 const (
-	ItemNameSize   = "FileSize"
 	ItemNameResult = "Result"
 )
 
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_unit_file_file_size_png
+	Image = resources.R_files_sensors_unit_raspberry_pi_cpu_temrature_png
 }
 
-func (c *UnitFileSize) GetConfigMeta() string {
+func (c *UnitRaspberryPiGPIO) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
-	meta.Add("file_name", "File Name", "file.txt", "string", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
 	return meta.Marshal()
 }
 
-func (c *UnitFileSize) InternalUnitStart() error {
+func (c *UnitRaspberryPiGPIO) InternalUnitStart() error {
 	var err error
-	c.SetString(ItemNameSize, "", "")
-	c.SetMainItem(ItemNameSize)
+	c.SetString(ItemNameResult, "", "")
+	c.SetMainItem(ItemNameResult)
 
 	type Config struct {
-		FileName string  `json:"file_name"`
-		Period   float64 `json:"period"`
+		Period float64 `json:"period"`
 	}
 
 	var config Config
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)
 	if err != nil {
 		err = errors.New("config error")
-		c.SetString(ItemNameSize, err.Error(), "error")
-		return err
-	}
-
-	c.fileName = config.FileName
-	if c.fileName == "" {
-		err = errors.New("wrong file")
-		c.SetString(ItemNameSize, err.Error(), "error")
+		c.SetString(ItemNameResult, err.Error(), "error")
 		return err
 	}
 
 	c.periodMs = int(config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
-		c.SetString(ItemNameSize, err.Error(), "error")
+		c.SetString(ItemNameResult, err.Error(), "error")
 		return err
 	}
 
@@ -76,12 +66,13 @@ func (c *UnitFileSize) InternalUnitStart() error {
 	return nil
 }
 
-func (c *UnitFileSize) InternalUnitStop() {
+func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
 }
 
-func (c *UnitFileSize) Tick() {
+func (c *UnitRaspberryPiGPIO) Tick() {
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
+
 	for !c.Stopping {
 		for {
 			if c.Stopping || time.Now().Sub(dtOperationTime) > time.Duration(c.periodMs)*time.Millisecond {
@@ -94,15 +85,21 @@ func (c *UnitFileSize) Tick() {
 		}
 		dtOperationTime = time.Now().UTC()
 
-		stat, err := os.Stat(c.fileName)
+		bs, err := ioutil.ReadFile("/sys/class/thermal/thermal_zone0/temp")
+
 		if err == nil {
-			c.SetString(ItemNameSize, fmt.Sprint(stat.Size()), "bytes")
-			c.SetError("")
-		} else {
-			c.SetString(ItemNameSize, "", "")
-			c.SetError(err.Error())
+			valueAsString := strings.TrimSpace(string(bs))
+			valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
+			if err == nil {
+				c.SetFloat64(ItemNameResult, valueAsFloat, "°C", 1)
+			}
+		}
+
+		if err != nil {
+			c.SetString(ItemNameResult, err.Error(), "error")
+			continue
 		}
 	}
-	c.SetString(ItemNameSize, "", "stopped")
+	c.SetString(ItemNameResult, "", "stopped")
 	c.Started = false
 }

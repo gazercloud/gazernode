@@ -45,7 +45,7 @@ func New() common_interfaces.IUnit {
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_category_serial_port_png
+	Image = resources.R_files_sensors_unit_serial_port_serial_port_key_value_png
 }
 
 func (c *UnitSerialPortKeyValue) GetConfigMeta() string {

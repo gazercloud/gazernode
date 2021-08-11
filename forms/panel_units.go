@@ -494,6 +494,9 @@ func (c *PanelUnits) AllItems() []string {
 
 func (c *PanelUnits) loadUnits() {
 	c.client.ListOfUnits(func(infos []nodeinterface.UnitListResponseItem, err error) {
+		if c.lvItems == nil {
+			return
+		}
 		c.lvUnits.RemoveItems()
 		for _, s := range infos {
 			sens := s

@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/resources"
+	"github.com/gazercloud/gazernode/system/units/databases/unit_mysql"
 	"github.com/gazercloud/gazernode/system/units/databases/unit_postgreesql"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
@@ -18,8 +19,10 @@ import (
 	"github.com/gazercloud/gazernode/system/units/general/unit_signal_generator"
 	"github.com/gazercloud/gazernode/system/units/network/unit_http_json_requester"
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
+	"github.com/gazercloud/gazernode/system/units/network/unit_ssl"
 	"github.com/gazercloud/gazernode/system/units/network/unit_tcp_connect"
 	unit_tcp_telnet_control "github.com/gazercloud/gazernode/system/units/network/unit_tcp_control"
+	"github.com/gazercloud/gazernode/system/units/raspberry_pi/unit_raspberry_pi_cpu_temp"
 	"github.com/gazercloud/gazernode/system/units/raspberry_pi/unit_raspberry_pi_gpio"
 	unit_serial_port_key_value "github.com/gazercloud/gazernode/system/units/serial_port/serial_port_key_value"
 	"github.com/gazercloud/gazernode/system/units/units_common"
@@ -51,10 +54,10 @@ func init() {
 	unitCategoriesIcons["general"] = resources.R_files_sensors_category_general_png
 
 	unitCategoriesIcons["serial_port"] = resources.R_files_sensors_category_serial_port_png
-	unitCategoriesIcons["raspberry_pi"] = resources.R_files_sensors_category_serial_port_png
+	unitCategoriesIcons["raspberry_pi"] = resources.R_files_sensors_category_raspberry_pi_png
 	unitCategoriesIcons["database"] = resources.R_files_sensors_category_database_png
 	unitCategoriesIcons["gazer"] = resources.R_files_sensors_category_gazer_png
-	unitCategoriesIcons[""] = resources.R_files_sensors_sensor_all_png
+	unitCategoriesIcons[""] = resources.R_files_sensors_category_all_png
 
 	unitCategoriesNames = make(map[string]string)
 	unitCategoriesNames["network"] = "Network"
@@ -103,6 +106,11 @@ The result time is written to the data item "Time"
 	unitType.Help = `
 No description available
 `
+
+	unitType = c.RegisterUnit("network_ssl", "network", "SSL", unit_ssl.New, unit_ssl.Image, "")
+	unitType.Help = `
+`
+
 	//unitType = c.RegisterUnit("network_http_json_items_server", "network", "HTTP Json Items Server", unit_http_json_items_server.New, unit_http_json_items_server.Image, "")
 	//unitType = c.RegisterUnit("network_http_json_units_server", "network", "HTTP Json Units Server", unit_http_json_units_server.New, unit_http_json_units_server.Image, "")
 
@@ -173,7 +181,17 @@ No description available
 No description available
 `
 
+	unitType = c.RegisterUnit("raspberry_pi_cpu_temp", "raspberry_pi", "Raspberry PI CPU temperature", unit_raspberry_pi_cpu_temp.New, unit_raspberry_pi_cpu_temp.Image, "RaspberryPI CPU Temperature")
+	unitType.Help = `
+No description available
+`
+
 	unitType = c.RegisterUnit("database_postgresql", "database", "PostgreSQL", unit_postgreesql.New, unit_postgreesql.Image, "PostgreSQL database query execute")
+	unitType.Help = `
+No description available
+`
+
+	unitType = c.RegisterUnit("database_mysql", "database", "MySQL", unit_mysql.New, unit_mysql.Image, "MySQL database query execute")
 	unitType.Help = `
 No description available
 `

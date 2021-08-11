@@ -27,7 +27,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_all_png
+	Image = resources.R_files_sensors_unit_raspberry_pi_gpio_png
 }
 
 func (c *UnitRaspberryPiGPIO) GetConfigMeta() string {

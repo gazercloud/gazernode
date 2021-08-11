@@ -37,7 +37,7 @@ func NewServiceDialog(parent uiinterfaces.Widget, cl *client.Client) *ServiceDia
 
 	pRight := pContent.AddPanelOnGrid(1, 0)
 	pRight.AddTextBlockOnGrid(0, 0, "Gazer version "+productinfo.Version())
-	pRight.AddTextBlockOnGrid(0, 1, "Copyright (c) Poluianov Ivan, 2020-2021")
+	pRight.AddTextBlockOnGrid(0, 1, "Copyright (c) Ivan Poluyanov, 2020-2021")
 	txtEMail := pRight.AddTextBlockOnGrid(0, 2, "eMail: "+eMailAddress)
 	txtEMail.OnClick = func(ev *uievents.Event) {
 		client.OpenBrowser("mailto:" + eMailAddress)
@@ -45,11 +45,13 @@ func NewServiceDialog(parent uiinterfaces.Widget, cl *client.Client) *ServiceDia
 	txtEMail.SetMouseCursor(ui.MouseCursorPointer)
 	pRight.AddHSpacerOnGrid(1, 0)
 
-	pRight.AddButtonOnGrid(0, 3, "Open gazer.cloud", func(event *uievents.Event) {
+	pRight.AddTextBlockOnGrid(0, 3, "Design by Daria Apalkova")
+
+	pRight.AddButtonOnGrid(0, 4, "Open gazer.cloud", func(event *uievents.Event) {
 		client.OpenBrowser("https://gazer.cloud/?ref=menu_settings")
 	})
 
-	pRight.AddButtonOnGrid(0, 4, "Statistics", func(event *uievents.Event) {
+	pRight.AddButtonOnGrid(0, 5, "Statistics", func(event *uievents.Event) {
 		formStatistics := NewFormStatistics(&c, c.client)
 		formStatistics.ShowDialog()
 	})

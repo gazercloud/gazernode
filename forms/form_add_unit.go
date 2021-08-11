@@ -165,25 +165,28 @@ func (c *FormAddUnit) updateCategoriesButtons() {
 				if t == c.currentCategory {
 					btn.SetForeColor(uistyles.DefaultBackColor)
 					btn.SetBackColor(c.ForeColor())
+					if cat.Image != nil {
+						btn.SetImage(uiresources.ImageFromBinAdjusted(cat.Image, uistyles.DefaultBackColor))
+					}
 				} else {
 					btn.SetForeColor(nil)
 					btn.SetBackColor(nil)
+					if cat.Image != nil {
+						btn.SetImage(uiresources.ImageFromBinAdjusted(cat.Image, btn.AccentColor()))
+					}
 				}
 
 				btn.SetMouseCursor(ui.MouseCursorPointer)
 
-				if cat.Image == nil {
-					//btn.SetImage(uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", btn.ForeColor()))
-				} else {
-					btn.SetImage(uiresources.ImageFromBinAdjusted(cat.Image, btn.ForeColor()))
-				}
 			}
 		}
 	}
 }
 
 func (c *FormAddUnit) updateUnits() {
-	c.client.UnitTypes(c.currentCategory, c.txtUnitFilter.Text(), c.offset, 9, func(unitTypes nodeinterface.UnitTypeListResponse, err error) {
+	countOnPage := 7
+
+	c.client.UnitTypes(c.currentCategory, c.txtUnitFilter.Text(), c.offset, countOnPage, func(unitTypes nodeinterface.UnitTypeListResponse, err error) {
 		c.pUnits.RemoveAllWidgets()
 
 		c.txtStat.SetText(fmt.Sprintf("shown %d units out of %d", len(unitTypes.Types), unitTypes.InFilterCount))
@@ -194,7 +197,7 @@ func (c *FormAddUnit) updateUnits() {
 			c.countOfFound = 0
 			for _, unitType := range unitTypes.Types {
 				c.countOfFound++
-				btn := c.pUnits.AddButtonOnGrid(x, y, " "+unitType.DisplayName, func(event *uievents.Event) {
+				btn := c.pUnits.AddButtonOnGrid(x, y, "  "+unitType.DisplayName, func(event *uievents.Event) {
 					obj, ok := event.Sender.(*uicontrols.Button).UserData("object").(nodeinterface.UnitTypeListResponseItem)
 					if ok {
 						f := NewFormUnitEdit(c, c.client, "", obj.Type)
@@ -207,11 +210,11 @@ func (c *FormAddUnit) updateUnits() {
 						}
 					}
 				})
-				btn.SetImageSize(32, 32)
-				btn.SetImage(uiresources.ImageFromBinAdjusted(unitType.Image, c.ForeColor()))
-				btn.SetMinHeight(40)
-				btn.SetMaxHeight(40)
-				//btn.SetMaxWidth(120)
+				btn.SetImageSize(48, 48)
+				btn.SetImage(uiresources.ImageFromBinAdjusted(unitType.Image, c.AccentColor()))
+				btn.SetMinHeight(56)
+				btn.SetMaxHeight(56)
+				btn.SetMinWidth(390)
 				btn.SetUserData("unitType", unitType.Type)
 				btn.SetUserData("object", unitType)
 				btn.SetTextImageVerticalOrientation(false)
@@ -224,10 +227,10 @@ func (c *FormAddUnit) updateUnits() {
 				}
 
 			}
-			c.pUnits.AddVSpacerOnGrid(0, 9)
-			pNavButtons := c.pUnits.AddPanelOnGrid(0, 10)
+			c.pUnits.AddVSpacerOnGrid(0, countOnPage)
+			pNavButtons := c.pUnits.AddPanelOnGrid(0, countOnPage+1)
 			btnNavLeft := pNavButtons.AddButtonOnGrid(0, 0, "<", func(event *uievents.Event) {
-				c.offset -= 9
+				c.offset -= countOnPage
 				if c.offset < 0 {
 					c.offset = 0
 				}
@@ -236,11 +239,11 @@ func (c *FormAddUnit) updateUnits() {
 			if c.offset == 0 {
 				btnNavLeft.SetEnabled(false)
 			}
-			maxOffset := unitTypes.InFilterCount / 9
-			maxOffset *= 9
+			maxOffset := unitTypes.InFilterCount / countOnPage
+			maxOffset *= countOnPage
 
 			btnNavRight := pNavButtons.AddButtonOnGrid(1, 0, ">", func(event *uievents.Event) {
-				c.offset += 9
+				c.offset += countOnPage
 				if c.offset > maxOffset {
 					c.offset = maxOffset
 				}

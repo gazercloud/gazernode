@@ -33,7 +33,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_sensor_all_png
+	Image = resources.R_files_sensors_unit_general_console_png
 }
 
 func (c *UnitGeneralCGI) GetConfigMeta() string {
