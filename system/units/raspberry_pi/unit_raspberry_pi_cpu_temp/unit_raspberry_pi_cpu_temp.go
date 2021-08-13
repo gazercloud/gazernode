@@ -23,7 +23,7 @@ func New() common_interfaces.IUnit {
 }
 
 const (
-	ItemNameResult = "Result"
+	ItemNameResult = "Temperature"
 )
 
 var Image []byte
