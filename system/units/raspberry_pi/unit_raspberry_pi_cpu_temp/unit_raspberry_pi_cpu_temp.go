@@ -12,13 +12,13 @@ import (
 	"time"
 )
 
-type UnitRaspberryPiGPIO struct {
+type UnitRaspberryPiCPUTemp struct {
 	units_common.Unit
 	periodMs int
 }
 
 func New() common_interfaces.IUnit {
-	var c UnitRaspberryPiGPIO
+	var c UnitRaspberryPiCPUTemp
 	return &c
 }
 
@@ -32,13 +32,13 @@ func init() {
 	Image = resources.R_files_sensors_unit_raspberry_pi_cpu_temrature_png
 }
 
-func (c *UnitRaspberryPiGPIO) GetConfigMeta() string {
+func (c *UnitRaspberryPiCPUTemp) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
 	return meta.Marshal()
 }
 
-func (c *UnitRaspberryPiGPIO) InternalUnitStart() error {
+func (c *UnitRaspberryPiCPUTemp) InternalUnitStart() error {
 	var err error
 	c.SetString(ItemNameResult, "", "")
 	c.SetMainItem(ItemNameResult)
@@ -66,10 +66,10 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStart() error {
 	return nil
 }
 
-func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
+func (c *UnitRaspberryPiCPUTemp) InternalUnitStop() {
 }
 
-func (c *UnitRaspberryPiGPIO) Tick() {
+func (c *UnitRaspberryPiCPUTemp) Tick() {
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
 
@@ -91,7 +91,7 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			valueAsString := strings.TrimSpace(string(bs))
 			valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
 			if err == nil {
-				c.SetFloat64(ItemNameResult, valueAsFloat, "°C", 1)
+				c.SetFloat64(ItemNameResult, valueAsFloat/1000.0, "°C", 1)
 			}
 		}
 
