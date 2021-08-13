@@ -35,7 +35,7 @@ const (
 var Image []byte
 
 func init() {
-	Image = resources.R_files_sensors_category_database_png
+	Image = resources.R_files_sensors_unit_database_mysql_png
 }
 
 func (c *UnitMySQL) GetConfigMeta() string {
