@@ -4,19 +4,17 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"io/ioutil"
-	"net/http"
+	"net"
 	"strings"
 	"time"
 )
 
 type UnitSSL struct {
 	units_common.Unit
-	addr              string
+	domain            string
 	timeoutMs         int
 	periodMs          int
 	receivedVariables map[string]string
@@ -29,7 +27,8 @@ func New() common_interfaces.IUnit {
 }
 
 const (
-	ItemNameStatus = "Status"
+	ItemNameDaysLeft = "DaysLeft"
+	ItemNameStatus   = "Status"
 )
 
 var Image []byte
@@ -40,7 +39,7 @@ func init() {
 
 func (c *UnitSSL) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
-	meta.Add("addr", "Address", "localhost:445", "string", "", "", "")
+	meta.Add("domain", "Address", "localhost:445", "string", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
 	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
 	return meta.Marshal()
@@ -50,10 +49,12 @@ func (c *UnitSSL) InternalUnitStart() error {
 	var err error
 
 	type Config struct {
-		Addr    string  `json:"addr"`
+		Domain  string  `json:"domain"`
 		Timeout float64 `json:"timeout"`
 		Period  float64 `json:"period"`
 	}
+
+	c.SetString(ItemNameDaysLeft, "", "")
 
 	var config Config
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)
@@ -63,9 +64,9 @@ func (c *UnitSSL) InternalUnitStart() error {
 		return err
 	}
 
-	c.addr = config.Addr
-	if c.addr == "" {
-		err = errors.New("wrong address")
+	c.domain = config.Domain
+	if c.domain == "" {
+		err = errors.New("wrong domain")
 		c.SetString(ItemNameStatus, err.Error(), "error")
 		return err
 	}
@@ -107,7 +108,7 @@ func (c *UnitSSL) InternalUnitStart() error {
 
 	c.receivedVariables = make(map[string]string)
 
-	c.SetMainItem(ItemNameStatus)
+	c.SetMainItem(ItemNameDaysLeft)
 
 	c.SetString(ItemNameStatus, "", "")
 	go c.Tick()
@@ -135,54 +136,38 @@ func (c *UnitSSL) Tick() {
 		}
 		dtLastTime = time.Now().UTC()
 
-		var resp string
-		resp, err = c.HttpCall(c.addr)
-		if err == nil {
-
-			var unm map[string]interface{}
-			err = json.Unmarshal([]byte(resp), &unm)
-			if err == nil {
-				for key, value := range unm {
-					valueAsString := fmt.Sprint(value)
-					c.SetString(key, valueAsString, "")
-					c.receivedVariables[key] = valueAsString
-				}
-				c.SetString(ItemNameStatus, "ok", "")
-			} else {
+		{
+			var conn *tls.Conn
+			conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1}, "tcp", c.domain+":443", &tls.Config{})
+			if err != nil {
 				c.SetString(ItemNameStatus, err.Error(), "error")
-			}
+				c.SetString(ItemNameDaysLeft, "", "error")
+			} else {
+				if conn.ConnectionState().PeerCertificates != nil {
+					for _, cert := range conn.ConnectionState().PeerCertificates {
 
-		} else {
-			c.SetString(ItemNameStatus, err.Error(), "error")
+						found := false
+
+						for _, domainName := range cert.DNSNames {
+							if strings.Contains(domainName, c.domain) {
+								found = true
+							}
+						}
+
+						if found {
+							c.SetFloat64(ItemNameDaysLeft, cert.NotAfter.Sub(time.Now()).Hours()/24, "days", 3)
+						}
+					}
+
+					c.SetString(ItemNameStatus, "ok", "")
+				}
+				conn.Close()
+			}
 		}
 	}
 
-	for vName, _ := range c.receivedVariables {
-		c.SetString(vName, "", "stopped")
-	}
-
 	c.SetString(ItemNameStatus, "", "stopped")
+	c.SetString(ItemNameDaysLeft, "", "stopped")
+
 	c.Started = false
-}
-
-func (c *UnitSSL) HttpCall(url string) (responseString string, err error) {
-	var client *http.Client
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{},
-	}
-	client = &http.Client{Transport: tr}
-	client.Timeout = 1 * time.Second
-
-	var response *http.Response
-	response, err = client.Get(url)
-	if err == nil {
-		content, _ := ioutil.ReadAll(response.Body)
-		responseString = strings.TrimSpace(string(content))
-
-		response.Body.Close()
-	}
-
-	client.CloseIdleConnections()
-
-	return responseString, err
 }
