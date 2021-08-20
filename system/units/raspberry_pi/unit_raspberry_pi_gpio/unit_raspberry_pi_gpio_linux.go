@@ -70,19 +70,6 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
 
-	err := rpio.Open()
-	if err != nil {
-		c.SetString(ItemNameResult, err.Error(), "error")
-		c.Started = false
-		return
-	}
-
-	pin10 := rpio.Pin(10)
-	//pin10.PullUp()
-	//pin10.Input()
-	pin10.Output()
-	pin10.High()
-
 	for !c.Stopping {
 		for {
 			if c.Stopping || time.Now().Sub(dtOperationTime) > time.Duration(c.periodMs)*time.Millisecond {
@@ -94,23 +81,7 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			break
 		}
 		dtOperationTime = time.Now().UTC()
-
-		state := pin10.Read()
-
-		value := 0
-
-		if state == rpio.High {
-			value = 1
-		}
-
-		c.SetInt(ItemNameResult, value, "")
-
-		if err != nil {
-			c.SetString(ItemNameResult, err.Error(), "error")
-			continue
-		}
 	}
 	c.SetString(ItemNameResult, "", "stopped")
-	err = rpio.Close()
 	c.Started = false
 }
