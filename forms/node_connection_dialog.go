@@ -10,21 +10,23 @@ import (
 )
 
 type NodeConnectionInfo struct {
-	Address  string
-	UserName string
-	Password string
+	Transport string
+	Address   string
+	UserName  string
+	Password  string
 }
 
 type NodeConnectionDialog struct {
 	uicontrols.Dialog
-	client      *client.Client
-	Id          string
-	tp          string
-	first       bool
-	txtAddress  *uicontrols.TextBox
-	txtUserName *uicontrols.TextBox
-	txtPassword *uicontrols.TextBox
-	btnOK       *uicontrols.Button
+	client       *client.Client
+	Id           string
+	tp           string
+	first        bool
+	txtTransport *uicontrols.TextBox
+	txtAddress   *uicontrols.TextBox
+	txtUserName  *uicontrols.TextBox
+	txtPassword  *uicontrols.TextBox
+	btnOK        *uicontrols.Button
 
 	Connection NodeConnectionInfo
 }
@@ -37,7 +39,7 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client, 
 
 	if c.client == nil || c.client.SessionToken() == "" {
 		c.SetTitle("Connection to node")
-		c.Resize(400, 200)
+		c.Resize(400, 300)
 
 		pContent := c.ContentPanel().AddPanelOnGrid(0, 0)
 		pLeft := pContent.AddPanelOnGrid(0, 0)
@@ -52,20 +54,28 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client, 
 
 		pLeft.AddVSpacerOnGrid(0, 1)
 
-		pRight.AddTextBlockOnGrid(0, 0, "Address:")
-		c.txtAddress = pRight.AddTextBoxOnGrid(1, 0)
+		pRight.AddTextBlockOnGrid(0, 0, "Transport:")
+		c.txtTransport = pRight.AddTextBoxOnGrid(1, 0)
+		c.txtTransport.SetText("local")
+		c.txtTransport.SetTabIndex(1)
+
+		pRight.AddTextBlockOnGrid(0, 1, "Address:")
+		c.txtAddress = pRight.AddTextBoxOnGrid(1, 1)
 		c.txtAddress.SetText("localhost")
 		c.txtAddress.SetTabIndex(1)
 
-		pRight.AddTextBlockOnGrid(0, 1, "User name:")
-		c.txtUserName = pRight.AddTextBoxOnGrid(1, 1)
+		pRight.AddTextBlockOnGrid(0, 2, "User name:")
+		c.txtUserName = pRight.AddTextBoxOnGrid(1, 2)
 		c.txtUserName.SetTabIndex(2)
-		pRight.AddTextBlockOnGrid(0, 2, "Password:")
-		c.txtPassword = pRight.AddTextBoxOnGrid(1, 2)
+
+		pRight.AddTextBlockOnGrid(0, 3, "Password:")
+		c.txtPassword = pRight.AddTextBoxOnGrid(1, 3)
 		c.txtPassword.SetTabIndex(3)
 		c.txtPassword.SetIsPassword(true)
 
 		if c.client != nil {
+			c.txtTransport.SetText(c.client.Transport())
+			c.txtTransport.SetEnabled(false)
 			c.txtAddress.SetText(c.client.Address())
 			c.txtAddress.SetEnabled(false)
 		} else {
@@ -82,6 +92,7 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, client *client.Client, 
 		c.btnOK.SetTabIndex(4)
 		c.TryAccept = func() bool {
 			c.btnOK.SetEnabled(false)
+			c.Connection.Transport = c.txtTransport.Text()
 			c.Connection.Address = c.txtAddress.Text()
 			c.Connection.UserName = c.txtUserName.Text()
 			c.Connection.Password = c.txtPassword.Text()

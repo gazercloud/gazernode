@@ -148,6 +148,13 @@ func (c *UnitPing) Tick() {
 			break
 		}
 
+		if !utilities.IsRoot() && runtime.GOOS == "linux" {
+			c.SetString(ItemNameTime, "no root", "error")
+			c.SetError("ping.NewPinger: " + "no root")
+			dtLastPingTime = time.Now().UTC()
+			continue
+		}
+
 		var timeoutMSec int32 = int32(c.timeoutMs)
 		var frameSize int32 = int32(c.frameSize)
 

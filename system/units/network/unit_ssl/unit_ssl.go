@@ -29,6 +29,9 @@ func New() common_interfaces.IUnit {
 const (
 	ItemNameDaysLeft = "DaysLeft"
 	ItemNameStatus   = "Status"
+	ItemNameTime     = "Time"
+	ItemNameIP       = "IP"
+	ItemNameDomain   = "Domain"
 )
 
 var Image []byte
@@ -39,8 +42,8 @@ func init() {
 
 func (c *UnitSSL) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
-	meta.Add("domain", "Address", "localhost:445", "string", "", "", "")
-	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	meta.Add("domain", "Domain", "example.com", "string", "", "", "")
+	meta.Add("period", "Period, ms", "10000", "num", "0", "999999", "")
 	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
 	return meta.Marshal()
 }
@@ -111,6 +114,11 @@ func (c *UnitSSL) InternalUnitStart() error {
 	c.SetMainItem(ItemNameDaysLeft)
 
 	c.SetString(ItemNameStatus, "", "")
+
+	c.SetString(ItemNameTime, "", "")
+	c.SetString(ItemNameDomain, "", "")
+	c.SetString(ItemNameIP, "", "")
+
 	go c.Tick()
 	return nil
 }
@@ -120,6 +128,8 @@ func (c *UnitSSL) InternalUnitStop() {
 
 func (c *UnitSSL) Tick() {
 	var err error
+	var lastIP string
+
 	c.Started = true
 	dtLastTime := time.Now().UTC()
 
@@ -136,11 +146,22 @@ func (c *UnitSSL) Tick() {
 		}
 		dtLastTime = time.Now().UTC()
 
-		{
+		var resolvedAddr *net.IPAddr
+		resolvedAddr, err = net.ResolveIPAddr("", c.domain)
+		if err == nil {
+			ip := resolvedAddr.IP.String()
+			if ip != lastIP {
+				lastIP = ip
+				c.SetString(ItemNameIP, ip, "-")
+			}
+
+			timeBegin := time.Now()
+
 			var conn *tls.Conn
 			conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1}, "tcp", c.domain+":443", &tls.Config{})
 			if err != nil {
 				c.SetString(ItemNameStatus, err.Error(), "error")
+				c.SetString(ItemNameDaysLeft, "", "error")
 				c.SetString(ItemNameDaysLeft, "", "error")
 			} else {
 				if conn.ConnectionState().PeerCertificates != nil {
@@ -163,8 +184,20 @@ func (c *UnitSSL) Tick() {
 				}
 				conn.Close()
 			}
+
+			timeEnd := time.Now()
+			duration := timeEnd.Sub(timeBegin)
+			c.SetInt(ItemNameTime, int(duration.Milliseconds()), "ms")
+
+		} else {
+			c.SetString(ItemNameStatus, err.Error(), "")
+			c.SetString(ItemNameIP, "", "error")
 		}
 	}
+
+	c.SetString(ItemNameTime, "", "stopped")
+	c.SetString(ItemNameDomain, "", "stopped")
+	c.SetString(ItemNameIP, "", "stopped")
 
 	c.SetString(ItemNameStatus, "", "stopped")
 	c.SetString(ItemNameDaysLeft, "", "stopped")

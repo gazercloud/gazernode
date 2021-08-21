@@ -13,6 +13,7 @@ import (
 )
 
 type Item struct {
+	ss               *settings.Settings
 	id               uint64
 	historyDepthDays int
 	data             []*common_interfaces.ItemValue
@@ -21,8 +22,9 @@ type Item struct {
 	flushFinished    bool
 }
 
-func NewItem(id uint64) *Item {
+func NewItem(id uint64, ss *settings.Settings) *Item {
 	var c Item
+	c.ss = ss
 	c.id = id
 	c.historyDepthDays = 7
 	c.data = make([]*common_interfaces.ItemValue, 0)
@@ -51,7 +53,7 @@ func (c *Item) Read(dtBegin int64, dtEnd int64) *ReadResult {
 }
 
 func (c *Item) historyPath() string {
-	return settings.ServerDataPath() + "/history"
+	return c.ss.ServerDataPath() + "/history"
 }
 
 func (c *Item) readFiles(begin int64, end int64) []*common_interfaces.ItemValue {

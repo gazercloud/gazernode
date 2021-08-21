@@ -51,6 +51,10 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.ServiceStatistics(requestText)
 	case nodeinterface.FuncServiceApi:
 		result, err = c.ServiceApi(requestText)
+	case nodeinterface.FuncServiceSetNodeName:
+		result, err = c.ServiceSetNodeName(requestText)
+	case nodeinterface.FuncServiceNodeName:
+		result, err = c.ServiceNodeName(requestText)
 
 		// *** Resource ***
 	case nodeinterface.FuncResourceAdd:

@@ -75,3 +75,44 @@ func (c *Client) ServiceApi(f func(nodeinterface.ServiceApiResponse, error)) {
 	call.client = c
 	go c.thCall(&call)
 }
+
+func (c *Client) ServiceSetNodeName(nodeName string, f func(nodeinterface.ServiceSetNodeNameResponse, error)) {
+	var call Call
+
+	var req nodeinterface.ServiceSetNodeNameRequest
+	req.Name = nodeName
+	call.function = nodeinterface.FuncServiceSetNodeName
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.ServiceSetNodeNameResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}
+
+func (c *Client) ServiceNodeName(f func(nodeinterface.ServiceNodeNameResponse, error)) {
+	var call Call
+
+	var req nodeinterface.ServiceNodeNameRequest
+	call.function = nodeinterface.FuncServiceNodeName
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.ServiceNodeNameResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}

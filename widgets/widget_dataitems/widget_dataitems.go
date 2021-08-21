@@ -73,17 +73,18 @@ func (c *WidgetDataItems) OnInit() {
 	c.AddTextBlockOnGrid(0, 3, c.text2)
 
 	c.timer = c.Window().NewTimer(500, func() {
-		nodes := c.tvItems.VisibleNodes()
-		for _, node := range nodes {
-			value := c.client.GetItemValue(node.UserData.(string)).Value
-			uom := c.client.GetItemValue(node.UserData.(string)).UOM
-			c.tvItems.SetNodeValue(node, 1, value)
-			c.tvItems.SetNodeValue(node, 2, uom)
-			c.tvItems.SetNodeValue(node, 3, time.Unix(0, c.client.GetItemValue(node.UserData.(string)).DT*1000).Format("15:04:05"))
+		if c.IsVisibleRec() {
+			nodes := c.tvItems.VisibleNodes()
+			for _, node := range nodes {
+				value := c.client.GetItemValue(node.UserData.(string)).Value
+				uom := c.client.GetItemValue(node.UserData.(string)).UOM
+				c.tvItems.SetNodeValue(node, 1, value)
+				c.tvItems.SetNodeValue(node, 2, uom)
+				c.tvItems.SetNodeValue(node, 3, time.Unix(0, c.client.GetItemValue(node.UserData.(string)).DT*1000).Format("15:04:05"))
+			}
 		}
 	})
 	c.timer.StartTimer()
-
 }
 
 func (c *WidgetDataItems) Dispose() {

@@ -138,7 +138,7 @@ func (c *PanelUsers) OnInit() {
 	c.lvSessions.AddColumn("Date/Time", 200)
 	c.lvSessions.AddColumn("SessionToken", 500)
 
-	c.timer = c.Window().NewTimer(500, c.timerUpdate)
+	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
 
 	c.loadUsers()
@@ -231,7 +231,7 @@ func (c *PanelUsers) timerUpdate() {
 		return
 	}
 
-	if !c.IsVisible() {
+	if !c.IsVisibleRec() {
 		return
 	}
 

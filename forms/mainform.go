@@ -119,6 +119,7 @@ func (c *MainForm) AddNode(first bool) {
 	dialog.OnAccept = func() {
 		// Add to preferences
 		var conn local_user_storage.NodeConnection
+		conn.Transport = dialog.Connection.Transport
 		conn.Address = dialog.Connection.Address
 		conn.UserName = dialog.Connection.UserName
 		conn.SessionToken = ""
@@ -126,7 +127,7 @@ func (c *MainForm) AddNode(first bool) {
 		connIndex := local_user_storage.Instance().ConnectionCount() - 1
 
 		// Add connection tab
-		cl := client.New(c, dialog.Connection.Address, dialog.Connection.UserName, dialog.Connection.Password)
+		cl := client.New(c, dialog.Connection.Address, dialog.Connection.UserName, dialog.Connection.Password, dialog.Connection.Transport)
 		c.addNodeTab(cl, connIndex)
 	}
 	dialog.ShowDialog()
@@ -171,7 +172,7 @@ func (c *MainForm) loadNodes() {
 			} else {
 				conn := c.loadingConnections[c.currentConnectionLoadingIndex]
 				txtProgress.SetText(txtProgress.Text() + "loading node " + conn.String() + " (" + fmt.Sprint(c.currentConnectionLoadingIndex) + " / " + fmt.Sprint(len(c.loadingConnections)) + ")\r\n")
-				cl := client.NewWithSessionToken(c, conn.Address, conn.UserName, conn.SessionToken)
+				cl := client.NewWithSessionToken(c, conn.Address, conn.UserName, conn.SessionToken, conn.Transport)
 				c.addNodeTab(cl, c.currentConnectionLoadingIndex)
 				c.currentConnectionLoadingIndex++
 			}

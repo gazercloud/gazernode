@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/gazercloud/gazernode/application"
 	"github.com/gazercloud/gazernode/forms"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/utilities/paths"
@@ -12,7 +13,7 @@ func RunDesktop() {
 	logger.Init(paths.HomeFolder() + "/gazer/log_ui")
 
 	if *runServerFlagPtr {
-		start()
+		start(application.ServerDataPathArgument)
 	}
 
 	ui.InitUISystem()

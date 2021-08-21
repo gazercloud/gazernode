@@ -30,3 +30,17 @@ type ServiceApiResponse struct {
 	BuildTime          string   `json:"build_time"`
 	SupportedFunctions []string `json:"supported_functions"`
 }
+
+type ServiceSetNodeNameRequest struct {
+	Name string `json:"name"`
+}
+
+type ServiceSetNodeNameResponse struct {
+}
+
+type ServiceNodeNameRequest struct {
+}
+
+type ServiceNodeNameResponse struct {
+	Name string `json:"name"`
+}

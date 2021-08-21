@@ -8,7 +8,6 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
-	"github.com/gazercloud/gazernode/settings"
 	"io/ioutil"
 	"math/rand"
 	"sort"
@@ -118,7 +117,7 @@ func (c *System) OpenSession(name string, password string, host string) (nodeint
 func (c *System) saveSessions() {
 	bs, err := json.MarshalIndent(c.sessions, "", " ")
 	if err == nil {
-		err = ioutil.WriteFile(settings.ServerDataPath()+"/sessions.json", bs, 0666)
+		err = ioutil.WriteFile(c.ss.ServerDataPath()+"/sessions.json", bs, 0666)
 		if err != nil {
 			logger.Println("saveSessions error", err)
 		}
@@ -129,7 +128,7 @@ func (c *System) saveSessions() {
 
 func (c *System) loadSessions() {
 	logger.Println("System loadSessions begin")
-	configString, err := ioutil.ReadFile(settings.ServerDataPath() + "/sessions.json")
+	configString, err := ioutil.ReadFile(c.ss.ServerDataPath() + "/sessions.json")
 	if err == nil {
 		err = json.Unmarshal(configString, &c.sessions)
 		if err != nil {

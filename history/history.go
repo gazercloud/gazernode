@@ -3,11 +3,13 @@ package history
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/settings"
 	"sync"
 	"time"
 )
 
 type History struct {
+	ss             *settings.Settings
 	items          map[uint64]*Item
 	mtx            sync.Mutex
 	flushPeriodSec int
@@ -15,8 +17,9 @@ type History struct {
 	stopping       bool
 }
 
-func NewHistory() *History {
+func NewHistory(ss *settings.Settings) *History {
 	var c History
+	c.ss = ss
 	c.items = make(map[uint64]*Item)
 	c.flushPeriodSec = 10
 	return &c
@@ -118,7 +121,7 @@ func (c *History) Write(id uint64, value common_interfaces.ItemValue) {
 	c.mtx.Lock()
 	item, ok = c.items[id]
 	if !ok {
-		item = NewItem(id)
+		item = NewItem(id, c.ss)
 		c.items[id] = item
 	}
 	c.mtx.Unlock()

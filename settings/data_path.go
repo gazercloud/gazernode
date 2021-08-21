@@ -7,9 +7,17 @@ import (
 	"strings"
 )
 
-var serverDataPath = "~/gazer_node"
+type Settings struct {
+	serverDataPath string
+}
 
-func SetServerDataPath(path string) {
+func NewSettings() *Settings {
+	var c Settings
+	c.serverDataPath = "~/gazer_node"
+	return &c
+}
+
+func (c *Settings) SetServerDataPath(path string) {
 
 	usr, _ := user.Current()
 	dir := usr.HomeDir
@@ -20,10 +28,10 @@ func SetServerDataPath(path string) {
 		path = filepath.Join(dir, path[2:])
 	}
 
-	serverDataPath = path
-	fmt.Println("Server Path:", serverDataPath)
+	c.serverDataPath = path
+	fmt.Println("Server Path:", c.serverDataPath)
 }
 
-func ServerDataPath() string {
-	return serverDataPath
+func (c *Settings) ServerDataPath() string {
+	return c.serverDataPath
 }

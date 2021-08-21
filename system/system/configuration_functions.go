@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"io/ioutil"
 )
 
 type Config struct {
+	Name       string                                `json:"name"`
 	Users      []common_interfaces.User              `json:"users"`
 	Units      []units_common.UnitInfo               `json:"units"`
 	Channels   []public_channel.ChannelFullInfo      `json:"channels"`
@@ -23,6 +23,7 @@ func (c *System) SaveConfig() error {
 	defer c.mtx.Unlock()
 
 	var conf Config
+	conf.Name = c.nodeName
 	conf.Units = c.unitsSystem.Units()
 	conf.Channels = c.publicChannels.ChannelsFullInfo()
 	conf.Users = make([]common_interfaces.User, 0)
@@ -45,7 +46,7 @@ func (c *System) SaveConfig() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(settings.ServerDataPath()+"/config.json", configBytes, 0666)
+	err = ioutil.WriteFile(c.ss.ServerDataPath()+"/config.json", configBytes, 0666)
 	if err != nil {
 		return err
 	}
@@ -54,13 +55,15 @@ func (c *System) SaveConfig() error {
 }
 
 func (c *System) LoadConfig() error {
-	configString, err := ioutil.ReadFile(settings.ServerDataPath() + "/config.json")
+	configString, err := ioutil.ReadFile(c.ss.ServerDataPath() + "/config.json")
 	if err == nil {
 		var conf Config
 		err = json.Unmarshal([]byte(configString), &conf)
 		if err != nil {
 			return err
 		}
+
+		c.nodeName = conf.Name
 
 		c.users = make([]*common_interfaces.User, 0)
 		for _, u := range conf.Users {

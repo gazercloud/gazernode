@@ -2,6 +2,7 @@ package app
 
 import (
 	"flag"
+	"github.com/gazercloud/gazernode/application"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/httpserver"
@@ -13,10 +14,13 @@ var httpServer *httpserver.HttpServer
 var sys *system.System
 var runServerFlagPtr = flag.Bool("server", false, "Run server")
 
-func start() {
+func start(dataPath string) {
 	hostid.InitHostId()
 
-	sys = system.NewSystem()
+	ss := settings.NewSettings()
+	ss.SetServerDataPath(dataPath)
+
+	sys = system.NewSystem(ss)
 	httpServer = httpserver.NewHttpServer(sys)
 	sys.SetRequester(httpServer)
 	sys.Start()
@@ -33,9 +37,9 @@ func stop() {
 }
 
 func RunAsService() error {
-	logger.Init(settings.ServerDataPath() + "/log_service")
+	logger.Init(application.ServerDataPathArgument + "/log_service")
 	logger.Println("Started as Service")
-	start()
+	start(application.ServerDataPathArgument)
 	return nil
 }
 

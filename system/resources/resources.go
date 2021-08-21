@@ -15,15 +15,17 @@ import (
 
 type Resources struct {
 	mtx sync.Mutex
+	ss  *settings.Settings
 }
 
-func NewResources() *Resources {
+func NewResources(ss *settings.Settings) *Resources {
 	var c Resources
+	c.ss = ss
 	return &c
 }
 
 func (c *Resources) dir() string {
-	return settings.ServerDataPath() + "/res"
+	return c.ss.ServerDataPath() + "/res"
 }
 
 func (c *Resources) fileName(name string) string {

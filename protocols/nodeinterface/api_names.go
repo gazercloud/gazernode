@@ -51,9 +51,11 @@ const (
 	FuncPublicChannelStop       = "public_channel_stop"
 
 	// *** Service ***
-	FuncServiceLookup     = "service_lookup"
-	FuncServiceStatistics = "service_statistics"
-	FuncServiceApi        = "service_api"
+	FuncServiceLookup      = "service_lookup"
+	FuncServiceStatistics  = "service_statistics"
+	FuncServiceApi         = "service_api"
+	FuncServiceSetNodeName = "service_set_node_name"
+	FuncServiceNodeName    = "service_node_name"
 
 	// *** Resource ***
 	FuncResourceAdd    = "resource_add"

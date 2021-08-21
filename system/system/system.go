@@ -3,8 +3,8 @@ package system
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
+	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/cloud"
-	"github.com/gazercloud/gazernode/system/last_values"
 	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazernode/system/resources"
 	"github.com/gazercloud/gazernode/system/units/units_system"
@@ -12,6 +12,9 @@ import (
 )
 
 type System struct {
+	nodeName string
+	ss       *settings.Settings
+
 	items       []*common_interfaces.Item
 	itemsByName map[string]*common_interfaces.Item
 	itemsById   map[uint64]*common_interfaces.Item
@@ -38,18 +41,19 @@ type System struct {
 	mtx sync.Mutex
 }
 
-func NewSystem() *System {
+func NewSystem(ss *settings.Settings) *System {
 	var c System
+	c.ss = ss
 	c.items = make([]*common_interfaces.Item, 0)
 	c.itemsByName = make(map[string]*common_interfaces.Item)
 	c.itemsById = make(map[uint64]*common_interfaces.Item)
 
-	c.cloudConnection = cloud.NewConnection()
+	c.cloudConnection = cloud.NewConnection(c.ss)
 
 	c.publicChannels = public_channel.NewCloud(&c)
 	c.unitsSystem = units_system.New(&c)
-	c.history = history.NewHistory()
-	c.resources = resources.NewResources()
+	c.history = history.NewHistory(c.ss)
+	c.resources = resources.NewResources(c.ss)
 
 	c.users = make([]*common_interfaces.User, 0)
 	c.userByName = make(map[string]*common_interfaces.User)
@@ -67,7 +71,7 @@ func (c *System) Start() {
 	c.LoadConfig()
 	c.loadSessions()
 
-	items := last_values.Read()
+	items := c.ReadLastValues()
 	for _, item := range items {
 		if realItem, ok := c.itemsByName[item.Name]; ok {
 			realItem.Value = item.Value
@@ -88,7 +92,7 @@ func (c *System) Stop() {
 	c.cloudConnection.Stop()
 	c.SaveConfig()
 	c.saveSessions()
-	last_values.Write(c.items)
+	c.WriteLastValues(c.items)
 }
 
 func (c *System) RegApiCall() {

@@ -37,7 +37,7 @@ func NewWidgetCharts(parent uiinterfaces.Widget, client *client.Client) *WidgetC
 }
 
 func (c *WidgetCharts) OnInit() {
-	c.timer = c.Window().NewTimer(500, c.timerUpdate)
+	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
 
 	c.timeFilter = widget_time_filter.NewTimeFilterWidget(c)
@@ -361,6 +361,8 @@ type DocumentChartValues struct {
 
 	loadedRanges  []*TimeRange
 	loadingRanges []*LoadingTask
+
+	lastGetHistoryTime time.Time
 }
 
 func (c *DocumentChartValues) Dispose() {
@@ -427,6 +429,7 @@ func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
 		for index, rng := range c.loadingRanges {
 			if task.timeFrom == rng.timeFrom && task.timeTo == rng.timeTo {
 				c.loadingRanges = append(c.loadingRanges[:index], c.loadingRanges[index+1:]...)
+				//logger.Println("Task removed", task.timeFrom, task.timeTo)
 				break
 			}
 		}
@@ -436,6 +439,10 @@ func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
 }
 
 func (c *DocumentChartValues) checkValues(timeFrom, timeTo int64) {
+	if time.Now().Sub(c.lastGetHistoryTime) < 500*time.Millisecond {
+		return
+	}
+	c.lastGetHistoryTime = time.Now()
 
 	// Full requested range already loaded
 	for _, rng := range c.loadedRanges {
@@ -482,10 +489,17 @@ func (c *DocumentChartValues) checkValues(timeFrom, timeTo int64) {
 
 	for _, r := range needToLoad {
 		// Already loading
+
+		alreadyLoading := false
 		for _, rng := range c.loadingRanges {
 			if r.timeFrom == rng.timeFrom && r.timeTo == rng.timeTo {
-				return
+				alreadyLoading = true
 			}
+		}
+
+		if alreadyLoading {
+			//logger.Println("DocumentChartValues skip", r.timeFrom, r.timeTo)
+			continue
 		}
 
 		// Make task for loading
@@ -495,6 +509,8 @@ func (c *DocumentChartValues) checkValues(timeFrom, timeTo int64) {
 			task.timeTo = r.timeTo
 			c.loadingRanges = append(c.loadingRanges, &task)
 			c.requestHistory(&task)
+
+			//logger.Println("DocumentChartValues", task.timeFrom, task.timeTo)
 		}
 	}
 }

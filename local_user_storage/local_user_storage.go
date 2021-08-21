@@ -11,6 +11,7 @@ import (
 )
 
 type NodeConnection struct {
+	Transport    string `json:"transport"`
 	Address      string `json:"address"`
 	UserName     string `json:"user_name"`
 	SessionToken string `json:"password"`

@@ -16,6 +16,7 @@ import (
 	"golang.org/x/image/colornames"
 	"image"
 	"image/color"
+	"time"
 )
 
 type PanelNode struct {
@@ -51,6 +52,7 @@ type PanelNode struct {
 	controlBeforeFullScreenValue uiinterfaces.Widget
 
 	lblStatistics *uicontrols.TextBlock
+	lblNodeName   *uicontrols.TextBlock
 	lblAd         *uicontrols.TextBlock
 
 	connectionIndex int
@@ -61,6 +63,10 @@ type PanelNode struct {
 	imgConnectionError image.Image
 
 	imgBottomStatus *uicontrols.ImageBox
+
+	lastNodeName             string
+	updateNodeNameLastTime   time.Time
+	updateStatisticsLastTime time.Time
 }
 
 func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionIndex int) *PanelNode {
@@ -71,6 +77,7 @@ func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionI
 
 	c.client.OnSessionOpen = func() {
 		var conn local_user_storage.NodeConnection
+		conn.Transport = c.client.Transport()
 		conn.UserName = c.client.UserName()
 		conn.Address = c.client.Address()
 		conn.SessionToken = c.client.SessionToken()
@@ -92,6 +99,7 @@ func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionI
 
 	c.client.OnSessionClose = func() {
 		var conn local_user_storage.NodeConnection
+		conn.Transport = c.client.Transport()
 		conn.UserName = c.client.UserName()
 		conn.Address = c.client.Address()
 		conn.SessionToken = c.client.SessionToken()
@@ -386,6 +394,20 @@ func (c *PanelNode) OnInit() {
 	c.lblStatistics.SetUnderline(true)
 	c.lblStatistics.SetMinHeight(24)
 
+	c.lblNodeName = c.panelBottom.AddTextBlockOnGrid(3, 0, "---")
+	c.lblNodeName.SetMinHeight(24)
+	c.lblNodeName.OnClick = func(ev *uievents.Event) {
+		dialog := NewNodeNameDialog(c, c.client, c.lastNodeName)
+		dialog.OnAccept = func() {
+			c.updateNodeName()
+		}
+		dialog.ShowDialog()
+	}
+	c.lblNodeName.SetMinWidth(200)
+	c.lblNodeName.SetMouseCursor(ui.MouseCursorPointer)
+	c.lblNodeName.SetUnderline(true)
+	c.lblNodeName.SetBackColor(settings.GoodColor)
+
 	c.panelBottom.AddHSpacerOnGrid(5, 0)
 	c.lblAd = c.panelBottom.AddTextBlockOnGrid(6, 0, "")
 	c.lblAd.SetForeColor(settings.GoodColor)
@@ -428,6 +450,18 @@ func (c *PanelNode) timerUpdate() {
 	if c.client == nil {
 		return
 	}
+
+	if time.Now().Sub(c.updateStatisticsLastTime) > 1*time.Second {
+		c.updateStatistics()
+	}
+
+	if time.Now().Sub(c.updateNodeNameLastTime) > 10*time.Second {
+		c.updateNodeName()
+	}
+}
+
+func (c *PanelNode) updateStatistics() {
+	c.updateStatisticsLastTime = time.Now()
 	c.client.GetStatistics(func(statistics common_interfaces.Statistics, err error) {
 		if c.lblStatistics != nil {
 			if err == nil {
@@ -452,6 +486,14 @@ func (c *PanelNode) timerUpdate() {
 		}
 	})
 	c.lblAd.SetText(Substr(adFromSite.Text, 0, 64))
+}
+
+func (c *PanelNode) updateNodeName() {
+	c.updateNodeNameLastTime = time.Now()
+	c.client.ServiceNodeName(func(response nodeinterface.ServiceNodeNameResponse, err error) {
+		c.lastNodeName = response.Name
+		c.lblNodeName.SetText("[" + response.Name + "]")
+	})
 }
 
 func (c *PanelNode) ShowFullScreenValue(show bool, itemId string) {

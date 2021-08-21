@@ -247,7 +247,7 @@ func (c *PanelPublicChannels) OnInit() {
 	c.lvItems.AddColumn("UOM", 60)
 	c.lvItems.AddColumn("Time", 80)
 	c.lvItems.SetColumnTextAlign(1, canvas.HAlignRight)
-	c.timer = c.Window().NewTimer(500, c.timerUpdate)
+	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
 
 	c.loadChannels()
@@ -420,7 +420,7 @@ func (c *PanelPublicChannels) createCloudChannelIfItDoesntExists() {
 }
 
 func (c *PanelPublicChannels) timerUpdate() {
-	if !c.IsVisible() {
+	if !c.IsVisibleRec() {
 		return
 	}
 

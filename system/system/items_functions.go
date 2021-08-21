@@ -200,3 +200,12 @@ func (c *System) GetApi() (nodeinterface.ServiceApiResponse, error) {
 	res.SupportedFunctions = append(res.SupportedFunctions, nodeinterface.FuncUserRemove)
 	return res, nil
 }
+
+func (c *System) SetNodeName(name string) error {
+	c.nodeName = name
+	return c.SaveConfig()
+}
+
+func (c *System) NodeName() string {
+	return c.nodeName
+}

@@ -20,6 +20,7 @@ import (
 
 type Connection struct {
 	mtx  sync.Mutex
+	ss   *settings.Settings
 	addr string
 	conn net.Conn
 
@@ -60,8 +61,9 @@ type Connection struct {
 	allowIncomingFunctions map[string]bool
 }
 
-func NewConnection() *Connection {
+func NewConnection(ss *settings.Settings) *Connection {
 	var c Connection
+	c.ss = ss
 	c.addr = ""
 	c.userName = ""
 	c.password = ""
@@ -150,7 +152,7 @@ func (c *Connection) Stop() {
 }
 
 func (c *Connection) LoadSession() error {
-	configString, err := ioutil.ReadFile(settings.ServerDataPath() + "/cloud_session.json")
+	configString, err := ioutil.ReadFile(c.ss.ServerDataPath() + "/cloud_session.json")
 	if err == nil {
 		var config SessionConfig
 		err = json.Unmarshal(configString, &config)
@@ -175,7 +177,7 @@ func (c *Connection) SaveSession() error {
 	config.NodeId = c.nodeId
 	bs, err := json.MarshalIndent(config, "", " ")
 	if err == nil {
-		err = ioutil.WriteFile(settings.ServerDataPath()+"/cloud_session.json", bs, 0600)
+		err = ioutil.WriteFile(c.ss.ServerDataPath()+"/cloud_session.json", bs, 0600)
 	}
 	return err
 }

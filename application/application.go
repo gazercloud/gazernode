@@ -3,7 +3,6 @@ package application
 import (
 	"flag"
 	"fmt"
-	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/kardianos/osext"
 	"github.com/kardianos/service"
@@ -36,6 +35,8 @@ func init() {
 	SetAppPath()
 }
 
+var ServerDataPathArgument string
+
 func TryService() bool {
 	setupFlagPtr := flag.Bool("setup", false, "Install to /usr/local/bin")
 	serviceFlagPtr := flag.Bool("service", false, "Run as service")
@@ -47,7 +48,7 @@ func TryService() bool {
 
 	flag.Parse()
 
-	settings.SetServerDataPath(*serverPath)
+	ServerDataPathArgument = *serverPath
 
 	if *setupFlagPtr {
 		setupPosix()

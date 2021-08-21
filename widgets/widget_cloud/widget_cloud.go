@@ -63,7 +63,7 @@ func (c *WidgetCloud) Dispose() {
 }
 
 func (c *WidgetCloud) timerUpdate() {
-	if !c.IsVisible() {
+	if !c.IsVisibleRec() {
 		return
 	}
 

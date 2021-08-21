@@ -52,3 +52,32 @@ func (c *HttpServer) ServiceApi(request []byte) (response []byte, err error) {
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
+
+func (c *HttpServer) ServiceSetNodeName(request []byte) (response []byte, err error) {
+	var req nodeinterface.ServiceSetNodeNameRequest
+	var resp nodeinterface.ServiceSetNodeNameResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.SetNodeName(req.Name)
+	if err != nil {
+		return
+	}
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) ServiceNodeName(request []byte) (response []byte, err error) {
+	var req nodeinterface.ServiceNodeNameRequest
+	var resp nodeinterface.ServiceNodeNameResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp.Name = c.system.NodeName()
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
