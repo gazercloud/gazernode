@@ -12,10 +12,10 @@ type FormRemoveUnits struct {
 	client      *client.Client
 	txtUnitName *uicontrols.TextBox
 	lvUnits     *uicontrols.ListView
-	units       []*nodeinterface.UnitListResponseItem
+	units       []*nodeinterface.UnitStateAllResponseItem
 }
 
-func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units []*nodeinterface.UnitListResponseItem) *FormRemoveUnits {
+func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units []*nodeinterface.UnitStateAllResponseItem) *FormRemoveUnits {
 	var c FormRemoveUnits
 	c.client = client
 	c.units = units
@@ -42,7 +42,7 @@ func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units
 	c.lvUnits.AddColumn("Type", 200)
 
 	for _, unit := range c.units {
-		item := c.lvUnits.AddItem(unit.Name)
+		item := c.lvUnits.AddItem(unit.UnitName)
 		item.SetValue(1, unit.Type)
 	}
 
@@ -55,7 +55,7 @@ func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units
 	c.TryAccept = func() bool {
 		unitIDs := make([]string, 0)
 		for _, sInfo := range c.units {
-			unitIDs = append(unitIDs, sInfo.Id)
+			unitIDs = append(unitIDs, sInfo.UnitId)
 		}
 
 		c.client.RemoveUnit(unitIDs, func(err error) {

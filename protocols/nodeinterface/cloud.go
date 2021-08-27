@@ -72,13 +72,17 @@ type CloudRemoveNodeResponse struct {
 type CloudGetSettingsRequest struct {
 }
 
+type CloudGetSettingsResponseItem struct {
+	Function string `json:"function"`
+	Allow    bool   `json:"allow"`
+}
+
 type CloudGetSettingsResponse struct {
-	AllowWriteItem bool `json:"allow_write_item"`
+	Items []*CloudGetSettingsResponseItem `json:"items"`
 }
 
 type CloudSetSettingsRequest struct {
-	NodeId         string `json:"node_id"`
-	AllowWriteItem bool   `json:"allow_write_item"`
+	Items []*CloudGetSettingsResponseItem `json:"items"`
 }
 
 type CloudSetSettingsResponse struct {

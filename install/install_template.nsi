@@ -15,7 +15,7 @@ Caption "Install ${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "${PRODUCT_NAME}_${PRODUCT_VERSION}.exe"
 ShowInstDetails show
 
-InstallDir "$PROGRAMFILES64\gazer_node"
+InstallDir "$PROGRAMFILES64\gazernode"
 
 ;Page directory
 ;Page instfiles
@@ -42,12 +42,12 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_LANGUAGE "English"
   
 Section
-	SetOutPath "$PROGRAMFILES64\gazer_node"
+	SetOutPath "$PROGRAMFILES64\gazernode"
 
-	ExecWait '"$INSTDIR\gazer_node.exe" -stop'
-	ExecWait '"$INSTDIR\gazer_node.exe" -uninstall'
+	ExecWait '"$INSTDIR\gazernode.exe" -stop'
+	ExecWait '"$INSTDIR\gazernode.exe" -uninstall'
 
-	File "..\bin\gazer_node.exe"
+	File "..\bin\gazernode.exe"
 	
 	WriteUninstaller $INSTDIR\uninstaller.exe
 	
@@ -55,7 +55,7 @@ Section
 	WriteRegStr HKLM "${ARP}" "UninstallString" "$\"$INSTDIR\uninstaller.exe$\""
 	WriteRegStr HKLM "${ARP}" "Publisher" "Gazer.Cloud"
 	WriteRegStr HKLM "${ARP}" "DisplayVersion" "${PRODUCT_VERSION}"
-	WriteRegStr HKLM "${ARP}" "DisplayIcon" "$INSTDIR\gazer_node.exe"
+	WriteRegStr HKLM "${ARP}" "DisplayIcon" "$INSTDIR\gazernode.exe"
 	
 	
 	${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
@@ -63,21 +63,21 @@ Section
 	WriteRegDWORD HKLM "${ARP}" "EstimatedSize" "$0"
 	
 	
-	CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\gazer_node.exe" ""
+	CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\gazernode.exe" ""
 	CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
 	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\uninstaller.lnk" "$INSTDIR\uninstaller.exe" "" "$INSTDIR\uninstaller.exe" 0
-	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\gazer_node.exe" "" "$INSTDIR\gazer_node.exe" 0
+	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\gazernode.exe" "" "$INSTDIR\gazernode.exe" 0
 
-	ExecWait '"$INSTDIR\gazer_node.exe" -install'
-	ExecWait '"$INSTDIR\gazer_node.exe" -start'
+	ExecWait '"$INSTDIR\gazernode.exe" -install'
+	ExecWait '"$INSTDIR\gazernode.exe" -start'
 SectionEnd
 
 Section Uninstall
-	ExecWait '"$INSTDIR\gazer_node.exe" -stop'
-	ExecWait '"$INSTDIR\gazer_node.exe" -uninstall'
+	ExecWait '"$INSTDIR\gazernode.exe" -stop'
+	ExecWait '"$INSTDIR\gazernode.exe" -uninstall'
 
 	Delete $INSTDIR\uninstaller.exe
-	Delete $INSTDIR\gazer_node.exe
+	Delete $INSTDIR\gazernode.exe
 	
 	Delete "$DESKTOP\${PRODUCT_NAME}.lnk"
 	Delete "$SMPROGRAMS\${PRODUCT_NAME}\*.*"
@@ -89,5 +89,5 @@ Section Uninstall
 SectionEnd
 
 Function LaunchLink
-  ExecShell "" "$INSTDIR\gazer_node.exe"
+  ExecShell "" "$INSTDIR\gazernode.exe"
 FunctionEnd

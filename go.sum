@@ -43,6 +43,8 @@ github.com/jackc/pgx v3.6.2+incompatible h1:2zP5OD7kiyR3xzRYMhOcXVvkDZsImVXfj+yI
 github.com/jackc/pgx v3.6.2+incompatible/go.mod h1:0ZGrqGqkRlliWnWB4zKnWtjbSWbGkVEFm4TeybAXq+I=
 github.com/josephspurrier/goversioninfo v1.2.0 h1:tpLHXAxLHKHg/dCU2AAYx08A4m+v9/CWg6+WUvTF4uQ=
 github.com/josephspurrier/goversioninfo v1.2.0/go.mod h1:AGP2a+Y/OVJZ+s6XM4IwFUpkETwvn0orYurY8qpw1+0=
+github.com/jteeuwen/go-bindata v3.0.7+incompatible h1:91Uy4d9SYVr1kyTJ15wJsog+esAZZl7JmEfTkwmhJts=
+github.com/jteeuwen/go-bindata v3.0.7+incompatible/go.mod h1:JVvhzYOiGBnFSYRyV00iY8q7/0PThjIYav1p9h5dmKs=
 github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 h1:iQTw/8FWTuc7uiaSepXwyf3o52HaUYcV+Tu66S3F5GA=
 github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
 github.com/kardianos/service v1.2.0 h1:bGuZ/epo3vrt8IPC7mnKQolqFeYJb7Cs8Rk4PSOBB/g=

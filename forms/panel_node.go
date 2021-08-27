@@ -67,6 +67,8 @@ type PanelNode struct {
 	lastNodeName             string
 	updateNodeNameLastTime   time.Time
 	updateStatisticsLastTime time.Time
+
+	OnNodeNameUpdated func(nodeName string)
 }
 
 func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionIndex int) *PanelNode {
@@ -394,7 +396,9 @@ func (c *PanelNode) OnInit() {
 	c.lblStatistics.SetUnderline(true)
 	c.lblStatistics.SetMinHeight(24)
 
-	c.lblNodeName = c.panelBottom.AddTextBlockOnGrid(3, 0, "---")
+	c.panelBottom.AddHSpacerOnGrid(3, 0)
+
+	c.lblNodeName = c.panelBottom.AddTextBlockOnGrid(4, 0, "---")
 	c.lblNodeName.SetMinHeight(24)
 	c.lblNodeName.OnClick = func(ev *uievents.Event) {
 		dialog := NewNodeNameDialog(c, c.client, c.lastNodeName)
@@ -406,7 +410,7 @@ func (c *PanelNode) OnInit() {
 	c.lblNodeName.SetMinWidth(200)
 	c.lblNodeName.SetMouseCursor(ui.MouseCursorPointer)
 	c.lblNodeName.SetUnderline(true)
-	c.lblNodeName.SetBackColor(settings.GoodColor)
+	c.lblNodeName.SetFontSize(20)
 
 	c.panelBottom.AddHSpacerOnGrid(5, 0)
 	c.lblAd = c.panelBottom.AddTextBlockOnGrid(6, 0, "")
@@ -492,7 +496,18 @@ func (c *PanelNode) updateNodeName() {
 	c.updateNodeNameLastTime = time.Now()
 	c.client.ServiceNodeName(func(response nodeinterface.ServiceNodeNameResponse, err error) {
 		c.lastNodeName = response.Name
-		c.lblNodeName.SetText("[" + response.Name + "]")
+		name := response.Name
+		nameForHeader := response.Name
+		if response.Name == "" {
+			name = "[no name]"
+			nameForHeader = c.client.Address()
+		}
+		if c.lblNodeName.Text() != name {
+			c.lblNodeName.SetText(name)
+			if c.OnNodeNameUpdated != nil {
+				c.OnNodeNameUpdated(nameForHeader)
+			}
+		}
 	})
 }
 

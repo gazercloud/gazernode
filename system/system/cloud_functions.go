@@ -33,8 +33,15 @@ func (c *System) CloudRemoveNode(nodeId string) (nodeinterface.CloudRemoveNodeRe
 	return c.cloudConnection.RemoveNode(nodeId)
 }
 
-func (c *System) CloudGetSettings(request nodeinterface.CloudGetSettingsRequest) (nodeinterface.CloudGetSettingsResponse, error) {
-	return c.cloudConnection.GetSettings(request)
+func (c *System) CloudGetSettings(request nodeinterface.CloudGetSettingsRequest) (resp nodeinterface.CloudGetSettingsResponse, err error) {
+	resp.Items = make([]*nodeinterface.CloudGetSettingsResponseItem, 0)
+	for _, function := range nodeinterface.ApiFunctions() {
+		resp.Items = append(resp.Items, &nodeinterface.CloudGetSettingsResponseItem{
+			Function: function,
+			Allow:    false,
+		})
+	}
+	return
 }
 
 func (c *System) CloudSetSettings(request nodeinterface.CloudSetSettingsRequest) (nodeinterface.CloudSetSettingsResponse, error) {

@@ -50,6 +50,7 @@ func (c *WidgetCloud) OnInit() {
 	c.timer.StartTimer()
 
 	c.UpdateStyle()
+	c.updateVisibility()
 }
 
 func (c *WidgetCloud) Dispose() {

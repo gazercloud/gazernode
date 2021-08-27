@@ -130,15 +130,13 @@ func (c *PanelUnits) OnInit() {
 	c.lvUnits.OnSelectionChanged = func() {
 		selectedItem := c.lvUnits.SelectedItem()
 		if selectedItem != nil {
-			unitId := selectedItem.UserData("id").(string)
-			unitName := selectedItem.UserData("name").(string)
-			unitState, ok := selectedItem.UserData("state").(nodeinterface.UnitStateAllResponseItem)
+			unitState, ok := selectedItem.UserData("unit_state").(*nodeinterface.UnitStateAllResponseItem)
 			if ok {
 				//if unitState != nil {
 				c.currentMainItem = unitState.MainItem
 				//}
 			}
-			c.SetCurrentUnit(unitId, unitName, c.currentMainItem)
+			c.SetCurrentUnit(unitState.UnitId, unitState.UnitName, c.currentMainItem)
 			c.timerUpdate()
 		} else {
 			c.SetCurrentUnit("", "", "")
@@ -385,20 +383,24 @@ func (c *PanelUnits) addUnit() {
 
 func (c *PanelUnits) editUnit() {
 	if len(c.lvUnits.SelectedItems()) == 1 {
-		unitId := c.lvUnits.SelectedItem().UserData("id").(string)
-		f := NewFormUnitEdit(c, c.client, unitId, "")
-		f.ShowDialog()
-		f.OnAccept = func() {
-			c.loadUnits()
+		unitState, ok := c.lvUnits.SelectedItem().UserData("unit_state").(*nodeinterface.UnitStateAllResponseItem)
+		if ok {
+			f := NewFormUnitEdit(c, c.client, unitState.UnitId, "")
+			f.ShowDialog()
+			f.OnAccept = func() {
+				c.loadUnits()
+			}
 		}
 	}
 }
 
 func (c *PanelUnits) removeUnit() {
-	units := make([]*nodeinterface.UnitListResponseItem, 0)
+	units := make([]*nodeinterface.UnitStateAllResponseItem, 0)
 	for _, selectedItem := range c.lvUnits.SelectedItems() {
-		unitInfo := selectedItem.UserData("info").(*nodeinterface.UnitListResponseItem)
-		units = append(units, unitInfo)
+		unitState, ok := selectedItem.UserData("unit_state").(*nodeinterface.UnitStateAllResponseItem)
+		if ok {
+			units = append(units, unitState)
+		}
 	}
 
 	f := NewFormRemoveUnits(c, c.client, units)
@@ -411,8 +413,10 @@ func (c *PanelUnits) removeUnit() {
 func (c *PanelUnits) startUnit() {
 	ids := make([]string, 0)
 	for _, selectedItem := range c.lvUnits.SelectedItems() {
-		unitId := selectedItem.UserData("id").(string)
-		ids = append(ids, unitId)
+		unitState, ok := selectedItem.UserData("unit_state").(*nodeinterface.UnitStateAllResponseItem)
+		if ok {
+			ids = append(ids, unitState.UnitId)
+		}
 	}
 	c.client.StartUnits(ids, nil)
 }
@@ -420,18 +424,22 @@ func (c *PanelUnits) startUnit() {
 func (c *PanelUnits) stopUnit() {
 	ids := make([]string, 0)
 	for _, selectedItem := range c.lvUnits.SelectedItems() {
-		unitId := selectedItem.UserData("id").(string)
-		ids = append(ids, unitId)
+		unitState, ok := selectedItem.UserData("unit_state").(*nodeinterface.UnitStateAllResponseItem)
+		if ok {
+			ids = append(ids, unitState.UnitId)
+		}
 	}
 	c.client.StopUnits(ids, nil)
 }
 
 func (c *PanelUnits) viewLog() {
 	for _, selectedItem := range c.lvUnits.SelectedItems() {
-		sens := selectedItem.UserData("info").(*nodeinterface.UnitListResponseItem)
-		f := NewFormItemHistory(c, c.client, sens.Name+"/.service/log")
-		f.SetWideValue(true)
-		f.ShowDialog()
+		sens, ok := selectedItem.UserData("unit_state").(*nodeinterface.UnitStateAllResponseItem)
+		if ok {
+			f := NewFormItemHistory(c, c.client, sens.UnitName+"/.service/log")
+			f.SetWideValue(true)
+			f.ShowDialog()
+		}
 		break
 	}
 }
@@ -494,6 +502,7 @@ func (c *PanelUnits) AllItems() []string {
 }
 
 func (c *PanelUnits) loadUnits() {
+	return
 	c.client.ListOfUnits(func(infos []nodeinterface.UnitListResponseItem, err error) {
 		if c.lvItems == nil {
 			return
@@ -579,8 +588,9 @@ func (c *PanelUnits) updateUnitsState() {
 
 		if c.lvUnits.ItemsCount() != len(response.Items) {
 			c.lvUnits.RemoveItems()
-			for _, item := range response.Items {
-				c.lvUnits.AddItem(item.UnitName)
+			for i, item := range response.Items {
+				lvItem := c.lvUnits.AddItem(item.UnitName)
+				lvItem.SetUserData("unit_state", &response.Items[i])
 			}
 		}
 
@@ -592,7 +602,7 @@ func (c *PanelUnits) updateUnitsState() {
 					value = strings.ReplaceAll(p.Sprint(intValue), ",", " ")
 				}
 			}
-
+			c.lvUnits.Item(i).SetValue(1, item.TypeName)
 			c.lvUnits.Item(i).SetValue(2, value+" "+item.UOM)
 			c.lvUnits.Item(i).SetUserData("state", item)
 

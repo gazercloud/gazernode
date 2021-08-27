@@ -371,6 +371,8 @@ func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface.UnitStateRespon
 		unitState.Status = ""
 		unitState.UnitName = unit.Name()
 		unitState.MainItem = unit.Name() + "/" + unit.MainItem()
+		unitState.Type = unit.Type()
+		unitState.TypeName = c.UnitTypeForDisplayByType(unit.Type())
 		if unit.IsStarted() {
 			unitState.Status = "started"
 		} else {
@@ -391,6 +393,8 @@ func (c *UnitsSystem) GetUnitStateAll() (nodeinterface.UnitStateAllResponse, err
 		unitState.Status = ""
 		unitState.UnitId = unit.Id()
 		unitState.UnitName = unit.Name()
+		unitState.Type = unit.Type()
+		unitState.TypeName = c.UnitTypeForDisplayByType(unit.Type())
 		unitState.MainItem = unit.Name() + "/" + unit.MainItem()
 		if unit.IsStarted() {
 			unitState.Status = "started"

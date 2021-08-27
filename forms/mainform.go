@@ -145,6 +145,9 @@ func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 	page.SetText("  " + cl.Address() + "  ")
 	panelNode := NewPanelNode(page, cl, index)
 	page.AddWidgetOnGrid(panelNode, 0, 0)
+	panelNode.OnNodeNameUpdated = func(nodeName string) {
+		page.SetText(nodeName)
+	}
 	c.nodeWidgets = append(c.nodeWidgets, panelNode)
 	c.tabNodes.SetCurrentPage(len(c.nodeWidgets) - 1)
 }

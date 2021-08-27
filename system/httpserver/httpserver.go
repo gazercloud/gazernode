@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/system"
+	"github.com/gazercloud/gazernode/web"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net"
@@ -246,7 +247,52 @@ func (c *HttpServer) contentTypeByExt(ext string) string {
 }
 
 func (c *HttpServer) processFile(w http.ResponseWriter, r *http.Request) {
-	c.file(w, r, r.URL.Path)
+	c.processFileLocal(w, r)
+	//c.file(w, r, r.URL.Path)
+}
+
+func (c *HttpServer) processFileLocal(w http.ResponseWriter, r *http.Request) {
+	var err error
+	var fileContent []byte
+	var writtenBytes int
+
+	urlPath := r.URL.Path
+	//realIP := getRealAddr(r)
+
+	//logger.Println("Real IP: ", realIP)
+	//logger.Println("HttpServer processFile: ", r.URL.String())
+
+	if urlPath == "/" || urlPath == "" {
+		urlPath = "/index.html"
+	}
+
+	var filePath string
+
+	filePath = "gazernode/build" + urlPath
+
+	logger.Println("[HttpServer]", "getting file: ", urlPath, "filePath:", filePath)
+
+	res, err := web.Asset(filePath)
+	if err == nil {
+		_, _ = w.Write(res)
+	} else {
+		logger.Println("[HttpServer]", "[error]", "getting file: ", urlPath, err)
+		w.WriteHeader(404)
+	}
+
+	if err == nil {
+		w.Header().Set("Content-Type", c.contentTypeByExt(filepath.Ext(filePath)))
+		writtenBytes, err = w.Write(fileContent)
+		if err != nil {
+			logger.Println("[HttpServer]", "[error]", "sendError w.Write error:", err)
+		}
+		if writtenBytes != len(fileContent) {
+			logger.Println("[HttpServer]", "[error]", "sendError w.Write data size mismatch. (", writtenBytes, " / ", len(fileContent))
+		}
+	} else {
+		logger.Println("[HttpServer]", "[error]", "HttpServer processFile error: ", err)
+		w.WriteHeader(404)
+	}
 }
 
 func (c *HttpServer) file(w http.ResponseWriter, r *http.Request, urlPath string) {

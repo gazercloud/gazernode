@@ -26,6 +26,8 @@ type UnitStateRequest struct {
 type UnitStateResponse struct {
 	UnitId   string `json:"id"`
 	UnitName string `json:"name"`
+	Type     string `json:"type"`
+	TypeName string `json:"type_name"`
 	Status   string `json:"status"`
 	MainItem string `json:"main_item"`
 	Value    string `json:"value"`
@@ -42,6 +44,8 @@ type UnitStateAllResponse struct {
 type UnitStateAllResponseItem struct {
 	UnitId   string `json:"id"`
 	UnitName string `json:"name"`
+	Type     string `json:"type"`
+	TypeName string `json:"type_name"`
 	Status   string `json:"status"`
 	MainItem string `json:"main_item"`
 	Value    string `json:"value"`
