@@ -164,6 +164,25 @@ func (c *Client) CloudGetSettings(f func(nodeinterface.CloudGetSettingsResponse,
 	go c.thCall(&call)
 }
 
+func (c *Client) CloudGetSettingsProfiles(f func(nodeinterface.CloudGetSettingsProfilesResponse, error)) {
+	var call Call
+	var req nodeinterface.CloudGetSettingsProfilesRequest
+	call.function = nodeinterface.FuncCloudGetSettingsProfiles
+	call.request, _ = json.Marshal(req)
+	call.onResponse = func(call *Call) {
+		err := call.err
+		var resp nodeinterface.CloudGetSettingsProfilesResponse
+		if err == nil {
+			err = json.Unmarshal([]byte(call.response), &resp)
+		}
+		if f != nil {
+			f(resp, err)
+		}
+	}
+	call.client = c
+	go c.thCall(&call)
+}
+
 func (c *Client) CloudSetSettings(req nodeinterface.CloudSetSettingsRequest, f func(nodeinterface.CloudSetSettingsResponse, error)) {
 	var call Call
 	//var req nodeinterface.CloudSetSettingsRequest

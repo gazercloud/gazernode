@@ -40,7 +40,8 @@ type Connection struct {
 
 	disconnectedSent bool
 
-	calls map[string]int64
+	callsSuccess   map[string]int64
+	callsUnSuccess map[string]int64
 
 	callPerSecond          float64
 	receivedBytesPerSecond float64
@@ -70,31 +71,13 @@ func NewConnection(ss *settings.Settings) *Connection {
 	c.nodeId = ""
 
 	c.allowIncomingFunctions = make(map[string]bool)
-	c.allowIncomingFunctions["unit_state_all"] = true
-	c.allowIncomingFunctions["unit_state"] = true
-	c.allowIncomingFunctions["unit_items_values"] = true
-	c.allowIncomingFunctions["data_item_list"] = true
-	c.allowIncomingFunctions["unit_start"] = true
-	c.allowIncomingFunctions["unit_stop"] = true
 
-	c.allowIncomingFunctions["public_channel_list"] = true
-	c.allowIncomingFunctions["public_channel_add"] = true
-	c.allowIncomingFunctions["public_channel_set_name"] = true
-	c.allowIncomingFunctions["public_channel_remove"] = true
-	c.allowIncomingFunctions["public_channel_item_add"] = true
-	c.allowIncomingFunctions["public_channel_item_remove"] = true
-	c.allowIncomingFunctions["public_channel_item_state"] = true
-	c.allowIncomingFunctions["public_channel_start"] = true
-	c.allowIncomingFunctions["public_channel_stop"] = true
+	for _, f := range nodeinterface.ApiFunctions() {
+		c.allowIncomingFunctions[f] = false
+	}
 
-	c.allowIncomingFunctions["data_item_list"] = true
-	c.allowIncomingFunctions["data_item_list_all"] = true
-	c.allowIncomingFunctions["data_item_write"] = true
-	c.allowIncomingFunctions["data_item_history"] = true
-	c.allowIncomingFunctions["data_item_history_chart"] = true
-	c.allowIncomingFunctions["data_item_remove"] = true
-
-	c.calls = make(map[string]int64)
+	c.callsSuccess = make(map[string]int64)
+	c.callsUnSuccess = make(map[string]int64)
 	c.proxyTasks = make(map[string]*ProxyTask)
 
 	tr := &http.Transport{
@@ -161,6 +144,9 @@ func (c *Connection) LoadSession() error {
 			c.sessionId = config.Key
 			c.userName = config.UserName
 			c.nodeId = config.NodeId
+			for _, f := range config.AllowIncomingFunctions {
+				c.allowIncomingFunctions[f] = true
+			}
 		} else {
 			logger.Println("CloudConnection LoadSession unmarshal error:", err)
 		}
@@ -175,6 +161,12 @@ func (c *Connection) SaveSession() error {
 	config.Key = c.sessionId
 	config.UserName = c.userName
 	config.NodeId = c.nodeId
+	config.AllowIncomingFunctions = make([]string, 0)
+	for key, value := range c.allowIncomingFunctions {
+		if value {
+			config.AllowIncomingFunctions = append(config.AllowIncomingFunctions, key)
+		}
+	}
 	bs, err := json.MarshalIndent(config, "", " ")
 	if err == nil {
 		err = ioutil.WriteFile(c.ss.ServerDataPath()+"/cloud_session.json", bs, 0600)
@@ -518,16 +510,6 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	c.callCount++
 	c.receivedBytes += inputFrameSize
 
-	if task.Frame != nil {
-		c.mtx.Lock()
-		if value, ok := c.calls[task.Frame.Header.Function]; ok {
-			c.calls[task.Frame.Header.Function] = value + 1
-		} else {
-			c.calls[task.Frame.Header.Function] = 1
-		}
-		c.mtx.Unlock()
-	}
-
 	responseFromNodeReceived := false
 	c.mtx.Lock()
 	if tr, ok := c.proxyTasks[task.Frame.Header.TransactionId]; ok {
@@ -597,8 +579,6 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 				allowed = true
 			}
 		}
-
-		allowed = true
 	}
 
 	var bs []byte
@@ -611,7 +591,10 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		// Frame for the node
 		bs, err = c.requester.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web")
 		//logger.Println("CloudConnection REQUEST", task.Frame.Header.Function, "resLen:", len(bs))
+
+		c.addSuccessCallStat(task.Frame.Header.Function)
 	} else {
+		c.addUnSuccessCallStat(task.Frame.Header.Function)
 		logger.Println("NOT ALLOWED FUNCTION:", task.Frame.Header.Function)
 		err = errors.New("access denied")
 	}
@@ -644,6 +627,26 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	frame.Header.SessionId = ""
 	frame.Data = bs
 	c.sentBytes += task.Client.SendData(&frame)
+}
+
+func (c *Connection) addSuccessCallStat(f string) {
+	c.mtx.Lock()
+	if value, ok := c.callsSuccess[f]; ok {
+		c.callsSuccess[f] = value + 1
+	} else {
+		c.callsSuccess[f] = 1
+	}
+	c.mtx.Unlock()
+}
+
+func (c *Connection) addUnSuccessCallStat(f string) {
+	c.mtx.Lock()
+	if value, ok := c.callsUnSuccess[f]; ok {
+		c.callsUnSuccess[f] = value + 1
+	} else {
+		c.callsUnSuccess[f] = 1
+	}
+	c.mtx.Unlock()
 }
 
 type ProxyTask struct {
@@ -724,9 +727,16 @@ func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
 
 	c.mtx.Lock()
 	resp.Counters = make([]nodeinterface.CloudStateResponseItem, 0)
-	for key, value := range c.calls {
+	for key, value := range c.callsSuccess {
+
+		allow, ok := c.allowIncomingFunctions[key]
+		if !ok {
+			allow = false
+		}
+
 		resp.Counters = append(resp.Counters, nodeinterface.CloudStateResponseItem{
 			Name:  key,
+			Allow: allow,
 			Value: value,
 		})
 	}
@@ -868,10 +878,41 @@ func (c *Connection) RemoveNode(nodeId string) (resp nodeinterface.CloudRemoveNo
 
 func (c *Connection) GetSettings(request nodeinterface.CloudGetSettingsRequest) (nodeinterface.CloudGetSettingsResponse, error) {
 	var resp nodeinterface.CloudGetSettingsResponse
+	resp.Items = make([]*nodeinterface.CloudGetSettingsResponseItem, 0)
+	for _, function := range nodeinterface.ApiFunctions() {
+		v, ok := c.allowIncomingFunctions[function]
+		if !ok {
+			v = false
+		}
+
+		resp.Items = append(resp.Items, &nodeinterface.CloudGetSettingsResponseItem{
+			Function: function,
+			Allow:    v,
+		})
+	}
+	return resp, nil
+}
+
+func (c *Connection) GetSettingsProfiles(request nodeinterface.CloudGetSettingsProfilesRequest) (nodeinterface.CloudGetSettingsProfilesResponse, error) {
+	var resp nodeinterface.CloudGetSettingsProfilesResponse
+	resp.Items = make([]*nodeinterface.CloudGetSettingsProfilesResponseItem, 0)
+	for _, role := range nodeinterface.ApiRoles() {
+		resp.Items = append(resp.Items, &nodeinterface.CloudGetSettingsProfilesResponseItem{
+			Code:      role.Code,
+			Name:      role.Name,
+			Functions: role.Functions,
+		})
+	}
 	return resp, nil
 }
 
 func (c *Connection) SetSettings(request nodeinterface.CloudSetSettingsRequest) (resp nodeinterface.CloudSetSettingsResponse, err error) {
+	for _, item := range request.Items {
+		if _, ok := c.allowIncomingFunctions[item.Function]; ok {
+			c.allowIncomingFunctions[item.Function] = item.Allow
+		}
+	}
+	err = c.SaveSession()
 	return
 }
 

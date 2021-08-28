@@ -141,6 +141,23 @@ func (c *HttpServer) CloudGetSettings(request []byte) (response []byte, err erro
 	return
 }
 
+func (c *HttpServer) CloudGetSettingsProfiles(request []byte) (response []byte, err error) {
+	var req nodeinterface.CloudGetSettingsProfilesRequest
+	var resp nodeinterface.CloudGetSettingsProfilesResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp, err = c.system.CloudGetSettingsProfiles(req)
+
+	if err != nil {
+		return
+	}
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
 func (c *HttpServer) CloudSetSettings(request []byte) (response []byte, err error) {
 	var req nodeinterface.CloudSetSettingsRequest
 	var resp nodeinterface.CloudSetSettingsResponse

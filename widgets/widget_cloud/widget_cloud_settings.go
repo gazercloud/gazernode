@@ -1,6 +1,7 @@
 package widget_cloud
 
 import (
+	"fmt"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -11,16 +12,9 @@ import (
 
 type WidgetCloudSettings struct {
 	uicontrols.Panel
-	client *client.Client
-
-	btnAllow   *uicontrols.Button
-	btnDeny    *uicontrols.Button
-	btnRefresh *uicontrols.Button
-
-	lvItems *uicontrols.ListView
-
-	btnApply *uicontrols.Button
-	//wState   *WidgetCloudState
+	client          *client.Client
+	btnEditSettings *uicontrols.Button
+	lvItems         *uicontrols.ListView
 }
 
 func NewWidgetCloudSettings(parent uiinterfaces.Widget, client *client.Client) *WidgetCloudSettings {
@@ -44,33 +38,18 @@ func (c *WidgetCloudSettings) OnInit() {
 	pButtons := pContent.AddPanelOnGrid(0, 0)
 	pButtons.SetPanelPadding(0)
 
-	c.btnAllow = pButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
+	c.btnEditSettings = pButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
+		dialog := NewDialogRemoteAccessSettings(c, c.client)
+		dialog.ShowDialog()
 	})
-	c.btnAllow.SetTooltip("Allow")
-
-	c.btnDeny = pButtons.AddButtonOnGrid(1, 0, "", func(event *uievents.Event) {
-	})
-	c.btnDeny.SetTooltip("Deny")
-
-	c.btnRefresh = pButtons.AddButtonOnGrid(2, 0, "", func(event *uievents.Event) {
-		c.loadFunctions()
-	})
-	c.btnRefresh.SetTooltip("Refresh")
+	c.btnEditSettings.SetTooltip("Edit settings")
 
 	pButtons.AddHSpacerOnGrid(10, 0)
 
 	c.lvItems = pContent.AddListViewOnGrid(0, 1)
 	c.lvItems.AddColumn("Function", 200)
-	c.lvItems.AddColumn("Enabled", 50)
-
-	pBottom := pContent.AddPanelOnGrid(0, 2)
-
-	pBottom.AddHSpacerOnGrid(0, 0)
-	c.btnApply = pBottom.AddButtonOnGrid(1, 0, "Apply", func(event *uievents.Event) {
-		var req nodeinterface.CloudSetSettingsRequest
-		c.client.CloudSetSettings(req, func(response nodeinterface.CloudSetSettingsResponse, err error) {
-		})
-	})
+	c.lvItems.AddColumn("Enabled", 100)
+	c.lvItems.AddColumn("Counter", 100)
 
 	c.UpdateStyle()
 }
@@ -94,7 +73,27 @@ func (c *WidgetCloudSettings) timerUpdate() {
 }
 
 func (c *WidgetCloudSettings) SetState(response nodeinterface.CloudStateResponse) {
-	//c.wState.SetState(response)
+
+	for _, item := range response.Counters {
+		found := false
+
+		for i := 0; i < c.lvItems.ItemsCount(); i++ {
+			if c.lvItems.Item(i).Value(0) == item.Name {
+				c.lvItems.Item(i).SetValue(1, fmt.Sprint(item.Allow))
+				c.lvItems.Item(i).SetValue(2, fmt.Sprint(item.Value))
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			lvItem := c.lvItems.AddItem(item.Name)
+			lvItem.SetValue(1, fmt.Sprint(item.Allow))
+			lvItem.SetValue(2, fmt.Sprint(item.Value))
+		}
+
+	}
+
 }
 
 func (c *WidgetCloudSettings) UpdateStyle() {
@@ -103,20 +102,18 @@ func (c *WidgetCloudSettings) UpdateStyle() {
 	activeColor := c.AccentColor()
 	inactiveColor := c.InactiveColor()
 
-	c.btnAllow.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, activeColor))
-	c.btnDeny.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, activeColor))
-	c.btnRefresh.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, activeColor))
+	c.btnEditSettings.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, activeColor))
 
-	c.btnAllow.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialicons_48dp_1x_baseline_add_black_48dp_png, inactiveColor))
-	c.btnDeny.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialicons_48dp_1x_baseline_create_black_48dp_png, inactiveColor))
-	c.btnRefresh.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialicons_48dp_1x_baseline_clear_black_48dp_png, inactiveColor))
+	c.btnEditSettings.SetImageDisabled(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, inactiveColor))
 }
 
 func (c *WidgetCloudSettings) loadFunctions() {
 	c.client.CloudGetSettings(func(response nodeinterface.CloudGetSettingsResponse, err error) {
-		c.lvItems.RemoveItems()
-		for _, item := range response.Items {
-			c.lvItems.AddItem(item.Function)
+		if err == nil {
+			c.lvItems.RemoveItems()
+			for _, item := range response.Items {
+				c.lvItems.AddItem(item.Function)
+			}
 		}
 	})
 }

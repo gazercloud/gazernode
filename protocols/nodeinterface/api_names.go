@@ -27,17 +27,18 @@ const (
 	FuncDataItemRemove       = "data_item_remove"
 
 	// *** Cloud ***
-	FuncCloudLogin            = "cloud_login"
-	FuncCloudLogout           = "cloud_logout"
-	FuncCloudState            = "cloud_state"
-	FuncCloudNodes            = "cloud_nodes"
-	FuncCloudAddNode          = "cloud_add_node"
-	FuncCloudUpdateNode       = "cloud_update_node"
-	FuncCloudRemoveNode       = "cloud_remove_node"
-	FuncCloudGetSettings      = "cloud_get_settings"
-	FuncCloudSetSettings      = "cloud_set_settings"
-	FuncCloudAccountInfo      = "cloud_account_info"
-	FuncCloudSetCurrentNodeId = "cloud_set_current_node_id"
+	FuncCloudLogin               = "cloud_login"
+	FuncCloudLogout              = "cloud_logout"
+	FuncCloudState               = "cloud_state"
+	FuncCloudNodes               = "cloud_nodes"
+	FuncCloudAddNode             = "cloud_add_node"
+	FuncCloudUpdateNode          = "cloud_update_node"
+	FuncCloudRemoveNode          = "cloud_remove_node"
+	FuncCloudGetSettings         = "cloud_get_settings"
+	FuncCloudSetSettings         = "cloud_set_settings"
+	FuncCloudAccountInfo         = "cloud_account_info"
+	FuncCloudSetCurrentNodeId    = "cloud_set_current_node_id"
+	FuncCloudGetSettingsProfiles = "cloud_get_settings_profiles"
 
 	// *** Public Channel ***
 	FuncPublicChannelList       = "public_channel_list"
@@ -86,6 +87,7 @@ func ApiFunctions() []string {
 	res = append(res, FuncUnitAdd)
 	res = append(res, FuncUnitRemove)
 	res = append(res, FuncUnitState)
+	res = append(res, FuncUnitStateAll)
 	res = append(res, FuncUnitItemsValues)
 	res = append(res, FuncUnitList)
 	res = append(res, FuncUnitStart)
@@ -111,6 +113,7 @@ func ApiFunctions() []string {
 	res = append(res, FuncCloudSetSettings)
 	res = append(res, FuncCloudAccountInfo)
 	res = append(res, FuncCloudSetCurrentNodeId)
+	res = append(res, FuncCloudGetSettingsProfiles)
 
 	res = append(res, FuncPublicChannelList)
 	res = append(res, FuncPublicChannelAdd)
@@ -119,9 +122,12 @@ func ApiFunctions() []string {
 	res = append(res, FuncPublicChannelItemAdd)
 	res = append(res, FuncPublicChannelItemRemove)
 	res = append(res, FuncPublicChannelItemsState)
+	res = append(res, FuncPublicChannelStart)
+	res = append(res, FuncPublicChannelStop)
 
 	res = append(res, FuncServiceLookup)
 	res = append(res, FuncServiceStatistics)
+	res = append(res, FuncServiceApi)
 	res = append(res, FuncServiceSetNodeName)
 	res = append(res, FuncServiceNodeName)
 
@@ -198,6 +204,7 @@ func ApiRoles() []ApiRole {
 			FuncUnitTypeCategories,
 			FuncUnitTypeConfigMeta,
 			FuncUnitState,
+			FuncUnitStateAll,
 			FuncUnitItemsValues,
 			FuncUnitList,
 			FuncDataItemList,

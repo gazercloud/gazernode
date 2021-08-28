@@ -93,6 +93,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.CloudAccountInfo(requestText)
 	case nodeinterface.FuncCloudSetCurrentNodeId:
 		result, err = c.CloudSetCurrentNodeId(requestText)
+	case nodeinterface.FuncCloudGetSettingsProfiles:
+		result, err = c.CloudGetSettingsProfiles(requestText)
 
 		// *** Public Channel ***
 	case nodeinterface.FuncPublicChannelList:

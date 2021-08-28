@@ -19,6 +19,7 @@ type CloudStateRequest struct {
 
 type CloudStateResponseItem struct {
 	Name  string `json:"name"`
+	Allow bool   `json:"allow"`
 	Value int64  `json:"value"`
 }
 
@@ -101,4 +102,17 @@ type CloudSetCurrentNodeIdRequest struct {
 }
 
 type CloudSetCurrentNodeIdResponse struct {
+}
+
+type CloudGetSettingsProfilesRequest struct {
+}
+
+type CloudGetSettingsProfilesResponseItem struct {
+	Code      string   `json:"code"`
+	Name      string   `json:"name"`
+	Functions []string `json:"functions"`
+}
+
+type CloudGetSettingsProfilesResponse struct {
+	Items []*CloudGetSettingsProfilesResponseItem `json:"items"`
 }
