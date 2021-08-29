@@ -614,6 +614,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		frame.Header.Function = task.Frame.Header.Function
 		frame.Header.TransactionId = task.Frame.Header.TransactionId
 		frame.Header.SessionId = ""
+		frame.Header.Error = err.Error()
 		frame.Data = bs
 		c.sentBytes += task.Client.SendData(&frame)
 		return
@@ -625,6 +626,9 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	frame.Header.Function = task.Frame.Header.Function
 	frame.Header.TransactionId = task.Frame.Header.TransactionId
 	frame.Header.SessionId = ""
+	if err != nil {
+		frame.Header.Error = err.Error()
+	}
 	frame.Data = bs
 	c.sentBytes += task.Client.SendData(&frame)
 }
