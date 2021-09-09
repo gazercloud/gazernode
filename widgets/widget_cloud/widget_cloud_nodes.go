@@ -17,6 +17,7 @@ type WidgetCloudNodes struct {
 	timer          *uievents.FormTimer
 	accountLoading bool
 	accountLoaded  bool
+	lastSessionKey string
 
 	btnAdd        *uicontrols.Button
 	btnRename     *uicontrols.Button
@@ -31,6 +32,8 @@ type WidgetCloudNodes struct {
 	lblAccountInfoMaxNodesCount *uicontrols.TextBlock
 
 	menuNodes *uicontrols.PopupMenu
+
+	OnNeedToConnect func(nodeId string, sessionKey string)
 }
 
 func NewWidgetCloudNodes(parent uiinterfaces.Widget, client *client.Client) *WidgetCloudNodes {
@@ -103,6 +106,9 @@ func (c *WidgetCloudNodes) OnInit() {
 	}, uiresources.R_icons_material4_png_maps_pin_drop_materialiconsoutlined_48dp_1x_outline_pin_drop_black_48dp_png, "")
 	c.menuNodes.AddItemWithUiResImage("Refresh", func(event *uievents.Event) {
 		c.refresh()
+	}, uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, "")
+	c.menuNodes.AddItemWithUiResImage("Connect ...", func(event *uievents.Event) {
+		c.connect()
 	}, uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, "")
 	c.lvItems.SetContextMenu(c.menuNodes)
 
@@ -184,6 +190,16 @@ func (c *WidgetCloudNodes) refresh() {
 	c.loadNodes()
 }
 
+func (c *WidgetCloudNodes) connect() {
+	if len(c.lvItems.SelectedItems()) != 1 {
+		return
+	}
+	item := c.lvItems.SelectedItems()[0]
+	if c.OnNeedToConnect != nil {
+		c.OnNeedToConnect(item.TempData, c.lastSessionKey)
+	}
+}
+
 func (c *WidgetCloudNodes) UpdateStyle() {
 	c.Panel.UpdateStyle()
 
@@ -205,6 +221,8 @@ func (c *WidgetCloudNodes) UpdateStyle() {
 }
 
 func (c *WidgetCloudNodes) SetState(response nodeinterface.CloudStateResponse) {
+	c.lastSessionKey = response.SessionKey
+
 	for i := 0; i < c.lvItems.ItemsCount(); i++ {
 		if c.lvItems.Item(i).Value(0) == response.NodeId {
 			c.lvItems.Item(i).SetForeColorForRow(settings.GoodColor)

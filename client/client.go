@@ -33,6 +33,8 @@ type Client struct {
 	watcher       *ItemsWatcher
 	transportType TransportType
 
+	repeater string
+
 	address      string
 	userName     string
 	password     string
@@ -199,37 +201,46 @@ func (c *Client) thCall(call *Call) {
 	}
 
 	if c.transportType == TransportTypeCloudHttps {
-		response, err := c.Post("https://rep02.gazer.cloud/api/request", writer.FormDataContentType(), &body, "https://"+addr+"-n.gazer.cloud")
 
-		if err != nil {
-			call.err = errors.New("no connection to " + c.address)
-			logger.Println(err)
-		} else {
-			if call.function == "session_open" {
-				logger.Println("!!!!!!!!!!!!!!!!REMOTE CLIENT:", "response ok")
-			}
-			var content []byte
-			content, err = ioutil.ReadAll(response.Body)
-			if err == nil {
-				call.response = strings.TrimSpace(string(content))
-				AddStatReceived(len(call.response))
-				response.Body.Close()
+		if len(c.repeater) == 0 {
+			c.updateRepeater()
+		}
+
+		if len(c.repeater) > 0 {
+			response, err := c.Post("https://"+c.repeater+"/api/request", writer.FormDataContentType(), &body, "https://"+addr+"-n.gazer.cloud")
+
+			if err != nil {
+				call.err = errors.New("no connection to " + c.address)
+				logger.Println(err)
 			} else {
-				call.err = err
-			}
+				if call.function == "session_open" {
+					logger.Println("!!!!!!!!!!!!!!!!REMOTE CLIENT:", "response ok")
+				}
+				var content []byte
+				content, err = ioutil.ReadAll(response.Body)
+				if err == nil {
+					call.response = strings.TrimSpace(string(content))
+					AddStatReceived(len(call.response))
+					response.Body.Close()
+				} else {
+					call.err = err
+				}
 
-			type ErrorContainer struct {
-				Error string `json:"error"`
-			}
-			var errCont ErrorContainer
-			json.Unmarshal([]byte(call.response), &errCont)
-			if len(errCont.Error) > 0 {
-				call.err = errors.New(errCont.Error)
-			}
+				type ErrorContainer struct {
+					Error string `json:"error"`
+				}
+				var errCont ErrorContainer
+				json.Unmarshal([]byte(call.response), &errCont)
+				if len(errCont.Error) > 0 {
+					call.err = errors.New(errCont.Error)
+				}
 
-			if call.function == "session_open" {
-				logger.Println("!!!!!!!!!!!!!!!!REMOTE CLIENT:", "response ok", call.response)
+				if call.function == "session_open" {
+					logger.Println("!!!!!!!!!!!!!!!!REMOTE CLIENT:", "response ok", call.response)
+				}
 			}
+		} else {
+			call.err = errors.New("waiting for the route to the node")
 		}
 	}
 	//logger.Println("!!!!!!!!!!!!!!!!REMOTE CLIENT:", "post", c.sessionToken)
@@ -240,6 +251,48 @@ func (c *Client) thCall(call *Call) {
 	call.client.mtx.Lock()
 	call.client.received = append(call.client.received, call)
 	call.client.mtx.Unlock()
+}
+
+func (c *Client) updateRepeater() {
+
+	type SWhereNodeRequest struct {
+		NodeId string `json:"node_id"`
+	}
+	var sWhereNodeRequest SWhereNodeRequest
+	sWhereNodeRequest.NodeId = c.address
+	request, _ := json.Marshal(sWhereNodeRequest)
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	{
+		fw, _ := writer.CreateFormField("fn")
+		fw.Write([]byte("s-where-node"))
+	}
+	{
+		fw, _ := writer.CreateFormField("rj")
+		fw.Write(request)
+
+	}
+	writer.Close()
+
+	response, err := c.Post("https://home.gazer.cloud/api/request", writer.FormDataContentType(), &body, "https://home.gazer.cloud")
+
+	if err == nil {
+		type SWhereNodeResponse struct {
+			NodeId string `json:"node_id"`
+			Host   string `json:"host"`
+		}
+		var sWhereNodeResponse SWhereNodeResponse
+
+		var content []byte
+		content, err = ioutil.ReadAll(response.Body)
+		if err == nil {
+			json.Unmarshal(content, &sWhereNodeResponse)
+			response.Body.Close()
+		}
+		c.repeater = sWhereNodeResponse.Host
+	}
+
 }
 
 func (c *Client) Post(url, contentType string, body io.Reader, host string) (resp *http.Response, err error) {

@@ -728,6 +728,7 @@ func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
 	resp.IAmStatus = c.iamStatus
 	resp.CurrentRepeater = c.addr
 	resp.NodeId = c.nodeId
+	resp.SessionKey = c.sessionId
 
 	c.mtx.Lock()
 	resp.Counters = make([]nodeinterface.CloudStateResponseItem, 0)

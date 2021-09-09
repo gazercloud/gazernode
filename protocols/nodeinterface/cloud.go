@@ -32,6 +32,7 @@ type CloudStateResponse struct {
 	ConnectionStatus string `json:"connection_status"`
 	IAmStatus        string `json:"i_am_status"`
 	CurrentRepeater  string `json:"current_repeater"`
+	SessionKey       string `json:"session_key"`
 	Counters         []CloudStateResponseItem
 }
 

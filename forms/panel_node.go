@@ -69,6 +69,7 @@ type PanelNode struct {
 	updateStatisticsLastTime time.Time
 
 	OnNodeNameUpdated func(nodeName string)
+	OnNeedToConnect   func(nodeId string, sessionKey string)
 }
 
 func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionIndex int) *PanelNode {
@@ -304,6 +305,12 @@ func (c *PanelNode) OnInit() {
 	panelContent.AddWidgetOnGrid(c.panelMaps, 0, 4)
 	c.panelUsers = NewPanelUsers(panelContent, c.client)
 	panelContent.AddWidgetOnGrid(c.panelUsers, 0, 5)
+
+	c.panelCloud.OnNeedToConnect = func(nodeId string, sessionKey string) {
+		if c.OnNeedToConnect != nil {
+			c.OnNeedToConnect(nodeId, sessionKey)
+		}
+	}
 
 	c.panelMaps.OnActionOpenMap = func(resId string) {
 		c.client.ResGet(resId, func(item *common_interfaces.ResourcesItem, err error) {

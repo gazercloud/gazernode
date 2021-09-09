@@ -148,6 +148,20 @@ func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 	panelNode.OnNodeNameUpdated = func(nodeName string) {
 		page.SetText(nodeName)
 	}
+
+	panelNode.OnNeedToConnect = func(nodeId string, sessionKey string) {
+		var conn local_user_storage.NodeConnection
+		conn.Transport = string(client.TransportTypeCloudHttps)
+		conn.Address = nodeId
+		conn.UserName = ""
+		conn.SessionToken = sessionKey
+		local_user_storage.Instance().AddConnection(conn)
+		connIndex := local_user_storage.Instance().ConnectionCount() - 1
+
+		// Add connection tab
+		cl := client.NewWithSessionToken(c, conn.Address, conn.UserName, conn.SessionToken, conn.Transport)
+		c.addNodeTab(cl, connIndex)
+	}
 	c.nodeWidgets = append(c.nodeWidgets, panelNode)
 	c.tabNodes.SetCurrentPage(len(c.nodeWidgets) - 1)
 }

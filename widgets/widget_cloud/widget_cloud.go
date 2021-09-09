@@ -18,6 +18,8 @@ type WidgetCloud struct {
 	wMain   *WidgetCloudMain
 
 	currentState nodeinterface.CloudStateResponse
+
+	OnNeedToConnect func(nodeId string, sessionKey string)
 }
 
 func NewWidgetCloud(parent uiinterfaces.Widget, client *client.Client) *WidgetCloud {
@@ -45,6 +47,12 @@ func (c *WidgetCloud) OnInit() {
 	c.wMain = NewWidgetCloudMain(c, c.client)
 	c.AddWidgetOnGrid(c.wMain, 0, 1)
 	c.wMain.SetVisible(false)
+
+	c.wMain.OnNeedToConnect = func(nodeId string, sessionKey string) {
+		if c.OnNeedToConnect != nil {
+			c.OnNeedToConnect(nodeId, sessionKey)
+		}
+	}
 
 	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
