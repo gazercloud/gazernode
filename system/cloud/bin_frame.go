@@ -8,12 +8,12 @@ import (
 )
 
 type BinFrameHeader struct {
-	Src           string `json:"src"`
-	Dest          string `json:"dest"`
-	Function      string `json:"function"`
-	TransactionId string `json:"transaction_id"`
-	SessionId     string `json:"session_id"`
-	Error         string `json:"error"`
+	TargetNodeId   string `json:"n"`
+	Function       string `json:"f"`
+	IsRequest      bool   `json:"r"`
+	TransactionId  string `json:"t"`
+	CloudSessionId string `json:"s"`
+	Error          string `json:"e"`
 }
 
 type BinFrame struct {

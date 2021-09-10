@@ -1,10 +1,16 @@
 package client
 
 import (
+	"archive/zip"
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"io/fs"
+	"io/ioutil"
 )
 
 func (c *Client) Write(itemName string, value string, f func(error)) {
@@ -96,13 +102,40 @@ func (c *Client) ReadHistoryChart(name string, dtBegin int64, dtEnd int64, group
 	req.DTBegin = dtBegin
 	req.DTEnd = dtEnd
 	req.GroupTimeRange = groupTimeRange
+	req.OutFormat = "zip"
 	call.function = nodeinterface.FuncDataItemHistoryChart
 	call.request, _ = json.MarshalIndent(req, "", " ")
 	call.onResponse = func(call *Call) {
-		err := call.err
 		var resp nodeinterface.DataItemHistoryChartResponse
+		err := call.err
 		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
+			type ZipOut struct {
+				Data string `json:"data"`
+			}
+			var zipOut ZipOut
+			err = json.Unmarshal([]byte(call.response), &zipOut)
+			if err == nil {
+				var data []byte
+				data, err = base64.StdEncoding.DecodeString(zipOut.Data)
+				if err == nil {
+					buf := bytes.NewReader(data)
+					var zipFile *zip.Reader
+					zipFile, err = zip.NewReader(buf, buf.Size())
+					var file fs.File
+					file, err = zipFile.Open("data")
+					if err == nil {
+						var bs []byte
+						bs, err = ioutil.ReadAll(file)
+						if err == nil {
+							err = json.Unmarshal(bs, &resp)
+							if err == nil {
+								logger.Println("ok")
+							}
+						}
+						_ = file.Close()
+					}
+				}
+			}
 		}
 		if f != nil {
 			f(&resp, err)

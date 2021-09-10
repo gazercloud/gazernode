@@ -8,7 +8,6 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
-	"github.com/gazercloud/gazernode/settings"
 	"io/ioutil"
 	"math/rand"
 	"net"
@@ -19,8 +18,8 @@ import (
 )
 
 type Connection struct {
-	mtx  sync.Mutex
-	ss   *settings.Settings
+	mtx sync.Mutex
+	//ss   *settings.Settings
 	addr string
 	conn net.Conn
 
@@ -39,6 +38,7 @@ type Connection struct {
 	iamStatus        string
 
 	disconnectedSent bool
+	targetRepeater   string
 
 	callsSuccess   map[string]int64
 	callsUnSuccess map[string]int64
@@ -60,11 +60,14 @@ type Connection struct {
 	proxyTasks map[string]*ProxyTask
 
 	allowIncomingFunctions map[string]bool
+
+	serverDataPath string
 }
 
-func NewConnection(ss *settings.Settings) *Connection {
+func NewConnection(serverDataPath string) *Connection {
 	var c Connection
-	c.ss = ss
+	//c.ss = ss
+	c.serverDataPath = serverDataPath
 	c.addr = ""
 	c.userName = ""
 	c.password = ""
@@ -134,8 +137,18 @@ func (c *Connection) Stop() {
 	}
 }
 
+func (c *Connection) LoadSessionData(sessionKey string, userName string, password string) {
+	c.sessionId = sessionKey
+	c.userName = userName
+	c.password = password
+}
+
 func (c *Connection) LoadSession() error {
-	configString, err := ioutil.ReadFile(c.ss.ServerDataPath() + "/cloud_session.json")
+	if len(c.serverDataPath) < 1 {
+		return nil
+	}
+
+	configString, err := ioutil.ReadFile(c.serverDataPath + "/cloud_session.json")
 	if err == nil {
 		var config SessionConfig
 		err = json.Unmarshal(configString, &config)
@@ -157,6 +170,10 @@ func (c *Connection) LoadSession() error {
 }
 
 func (c *Connection) SaveSession() error {
+	if len(c.serverDataPath) < 1 {
+		return nil
+	}
+
 	var config SessionConfig
 	config.Key = c.sessionId
 	config.UserName = c.userName
@@ -169,7 +186,7 @@ func (c *Connection) SaveSession() error {
 	}
 	bs, err := json.MarshalIndent(config, "", " ")
 	if err == nil {
-		err = ioutil.WriteFile(c.ss.ServerDataPath()+"/cloud_session.json", bs, 0600)
+		err = ioutil.WriteFile(c.serverDataPath+"/cloud_session.json", bs, 0600)
 	}
 	return err
 }
@@ -198,13 +215,10 @@ func (c *Connection) Logout() {
 	closeSessionRequest.Key = c.sessionId
 
 	// Send LogOut frame to the cloud
-	frame.Header.Src = ""
-	frame.Header.Dest = ""
 	frame.Header.Function = "session_close"
 	frame.Header.TransactionId = ""
-	frame.Header.SessionId = ""
 	frame.Data, err = json.Marshal(closeSessionRequest)
-	c.SendData(&frame)
+	c.SendData(&frame, true)
 
 	// Clear local data
 	c.mtx.Lock()
@@ -283,9 +297,57 @@ func (c *Connection) updateCurrentRepeater() {
 	logger.Println("updateCurrentRepeater ok:", resp.Host)
 }
 
+func (c *Connection) updateRepeaterForNode(nodeId string) {
+
+	type SWhereNodeRequest struct {
+		NodeId string `json:"node_id"`
+	}
+	var sWhereNodeRequest SWhereNodeRequest
+	sWhereNodeRequest.NodeId = nodeId
+	sWhereNodeRequestBytes, _ := json.Marshal(sWhereNodeRequest)
+
+	logger.Println("updateRepeaterForNode")
+	c.connectionStatus = "repeater search"
+
+	IPs, err := net.LookupIP("home.gazer.cloud")
+	if err != nil {
+		logger.Println("updateRepeaterForNode error (LookupIP)", err)
+		return
+	}
+	logger.Println("updateRepeaterForNode IPs:", IPs)
+
+	req, _ := http.NewRequest("GET", "https://home.gazer.cloud/api/request?fn=s-where-node&rj="+string(sWhereNodeRequestBytes), nil)
+
+	response, err := c.httpClient.Transport.RoundTrip(req)
+
+	if err != nil {
+		c.connectionStatus = "repeater search error: " + err.Error()
+		logger.Println("updateRepeaterForNode error (httpClient)", err)
+		return
+	}
+
+	type SWhereNodeResponse struct {
+		NodeId string `json:"node_id"`
+		Host   string `json:"host"`
+	}
+	var sWhereNodeResponse SWhereNodeResponse
+
+	var content []byte
+	content, err = ioutil.ReadAll(response.Body)
+	if err == nil {
+		json.Unmarshal(content, &sWhereNodeResponse)
+		response.Body.Close()
+		c.addr = sWhereNodeResponse.Host + ":1077"
+		logger.Println("updateRepeaterForNode ok:", c.addr)
+	}
+
+	logger.Println("Content:", string(content))
+
+}
+
 func (c *Connection) thConn() {
 	logger.Println("CloudConnection th begin")
-	const inputBufferSize = 100 * 1024
+	const inputBufferSize = 1024 * 1024
 	inputBuffer := make([]byte, inputBufferSize)
 	inputBufferOffset := 0
 	for !c.stopping {
@@ -321,7 +383,11 @@ func (c *Connection) thConn() {
 				}
 
 			} else {
-				c.updateCurrentRepeater()
+				if len(c.nodeId) > 0 {
+					c.updateCurrentRepeater()
+				} else {
+					c.updateRepeaterForNode(c.targetRepeater)
+				}
 				time.Sleep(100 * time.Millisecond)
 				continue
 			}
@@ -369,7 +435,7 @@ func (c *Connection) thConn() {
 			} else {
 				frameData.SessionId = c.sessionId
 				frameData.Client = c
-				c.processData(frameData, int64(frameLen))
+				go c.processData(frameData, int64(frameLen))
 			}
 
 			processed += frameLen
@@ -401,11 +467,12 @@ func (c *Connection) applyDisconnected() {
 	c.mtx.Unlock()
 }
 
-func (c *Connection) SendData(data *BinFrame) (frameLen int64) {
+func (c *Connection) SendData(data *BinFrame, isRequest bool) (frameLen int64) {
 	c.mtx.Lock()
 	conn := c.conn
 	if conn != nil {
-		data.Header.SessionId = c.sessionId
+		data.Header.CloudSessionId = c.sessionId
+		data.Header.IsRequest = isRequest
 		frameBytes, _ := data.Marshal()
 		frameLen += int64(len(frameBytes))
 
@@ -424,6 +491,8 @@ func (c *Connection) SendData(data *BinFrame) (frameLen int64) {
 }
 
 func (c *Connection) openSession() {
+	logger.Println("Cloud Connection openSession", c.userName)
+
 	if c.password == "" {
 		c.loginStatus = "error: no password provided"
 		logger.Println("CloudConnection openSession - no auth data")
@@ -441,11 +510,8 @@ func (c *Connection) openSession() {
 	openSessionRequest.UserName = c.userName
 	openSessionRequest.Password = c.password
 
-	frame.Header.Src = ""
-	frame.Header.Dest = ""
 	frame.Header.Function = "session_open"
 	frame.Header.TransactionId = ""
-	frame.Header.SessionId = ""
 	frame.Data, err = json.Marshal(openSessionRequest)
 
 	c.loginStatus = "processing"
@@ -454,7 +520,7 @@ func (c *Connection) openSession() {
 		c.loginStatus = "error: " + err.Error()
 		return
 	}
-	c.SendData(&frame)
+	c.SendData(&frame, true)
 }
 
 func (c *Connection) regNode() {
@@ -474,17 +540,14 @@ func (c *Connection) regNode() {
 
 	c.iamStatus = "processing"
 
-	frame.Header.Src = ""
-	frame.Header.Dest = ""
 	frame.Header.Function = "#iam"
 	frame.Header.TransactionId = ""
-	frame.Header.SessionId = ""
 	frame.Data, err = json.Marshal(regNodeRequest)
 
 	if err != nil {
 		return
 	}
-	c.SendData(&frame)
+	c.SendData(&frame, true)
 }
 
 func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
@@ -547,7 +610,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	}
 
 	if task.Frame.Header.Function == "session_open" {
-		logger.Println("CloudConnection session_open data received", task.Frame.Data)
+		logger.Println("Cloud Connection session_open data received", task.Frame.Data)
 		type SessionInfo struct {
 			SessionToken string `json:"session_token"`
 			Error        string `json:"error"`
@@ -581,6 +644,11 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		}
 	}
 
+	if !task.Frame.Header.IsRequest && task.Frame.Header.Function == "s-account-info" {
+		logger.Println("!task.Frame.Header.IsRequest && task.Frame.Header.Function == 123123123", task.Frame.Header.TransactionId, task.Frame.Header.Error, string(task.Frame.Data))
+		//allowed = true
+	}
+
 	var bs []byte
 	if allowed {
 		if c.requester == nil {
@@ -595,7 +663,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		c.addSuccessCallStat(task.Frame.Header.Function)
 	} else {
 		c.addUnSuccessCallStat(task.Frame.Header.Function)
-		logger.Println("NOT ALLOWED FUNCTION:", task.Frame.Header.Function)
+		logger.Println("NOT ALLOWED FUNCTION:", task.Frame.Header.Function, task.Frame.Header.TransactionId)
 		err = errors.New("access denied")
 	}
 
@@ -609,28 +677,22 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		bs, _ = json.MarshalIndent(res, "", " ")
 
 		var frame BinFrame
-		frame.Header.Src = ""
-		frame.Header.Dest = ""
 		frame.Header.Function = task.Frame.Header.Function
 		frame.Header.TransactionId = task.Frame.Header.TransactionId
-		frame.Header.SessionId = ""
 		frame.Header.Error = err.Error()
 		frame.Data = bs
-		c.sentBytes += task.Client.SendData(&frame)
+		c.sentBytes += task.Client.SendData(&frame, false)
 		return
 	}
 
 	var frame BinFrame
-	frame.Header.Src = ""
-	frame.Header.Dest = ""
 	frame.Header.Function = task.Frame.Header.Function
 	frame.Header.TransactionId = task.Frame.Header.TransactionId
-	frame.Header.SessionId = ""
 	if err != nil {
 		frame.Header.Error = err.Error()
 	}
 	frame.Data = bs
-	c.sentBytes += task.Client.SendData(&frame)
+	c.sentBytes += task.Client.SendData(&frame, false)
 }
 
 func (c *Connection) addSuccessCallStat(f string) {
@@ -663,10 +725,17 @@ type ProxyTask struct {
 	ResponseText     []byte
 }
 
-func (c *Connection) Call(function string, requestText []byte) (response []byte, err error) {
+func (c *Connection) Call(function string, requestText []byte, targetNodeId string) (response []byte, err error) {
+	logger.Println("Cloud Connection Call", function)
+	if len(targetNodeId) > 0 {
+		c.targetRepeater = targetNodeId
+	}
 
 	// Unique Transaction Id
 	transactionId := strconv.FormatInt(rand.Int63(), 16) + strconv.FormatInt(time.Now().UnixNano(), 16)
+	if function == "s-account-info" {
+		logger.Println("Cloud Connection Call s-account-info TransactionID:", transactionId)
+	}
 
 	// ProxyTask
 	var task ProxyTask
@@ -680,13 +749,12 @@ func (c *Connection) Call(function string, requestText []byte) (response []byte,
 
 	// Send frame to node
 	var frame BinFrame
-	frame.Header.Src = ""
-	frame.Header.Dest = ""
+	frame.Header.TargetNodeId = targetNodeId
 	frame.Header.Function = function
 	frame.Header.TransactionId = transactionId
-	frame.Header.SessionId = ""
+	frame.Header.IsRequest = true
 	frame.Data = requestText
-	c.SendData(&frame)
+	c.SendData(&frame, true)
 
 	// Waiting for response
 	tBegin := time.Now()
@@ -714,6 +782,8 @@ func (c *Connection) Call(function string, requestText []byte) (response []byte,
 	} else {
 		err = errors.New("node timeout")
 	}
+
+	logger.Println("Cloud Connection Call res:", err, c.sessionId, frame.Header.TargetNodeId)
 
 	return resultBytes, err
 }
@@ -753,7 +823,7 @@ func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
 func (c *Connection) Nodes() (resp nodeinterface.CloudNodesResponse, err error) {
 	resp.Nodes = make([]nodeinterface.CloudNodesResponseItem, 0)
 
-	cloudResp, err := c.Call("s-registered-nodes", nil)
+	cloudResp, err := c.Call("s-registered-nodes", nil, "")
 	if err != nil {
 		logger.Println("Connection::Nodes s-registered-nodes error", err)
 		return
@@ -796,7 +866,7 @@ func (c *Connection) AddNode(name string) (resp nodeinterface.CloudAddNodeRespon
 		return
 	}
 
-	cloudResp, err := c.Call("s-node-add", bs)
+	cloudResp, err := c.Call("s-node-add", bs, "")
 	if err != nil {
 		logger.Println("!!!!!! s-node-add", err)
 		return
@@ -833,7 +903,7 @@ func (c *Connection) UpdateNode(nodeId string, name string) (resp nodeinterface.
 
 	logger.Println("!!!!!! s-node-update bin:", string(bs))
 
-	cloudResp, err := c.Call("s-node-update", bs)
+	cloudResp, err := c.Call("s-node-update", bs, "")
 	if err != nil {
 		logger.Println("!!!!!! s-node-update error", err)
 		return
@@ -864,7 +934,7 @@ func (c *Connection) RemoveNode(nodeId string) (resp nodeinterface.CloudRemoveNo
 
 	logger.Println("!!!!!! s-node-remove bin:", string(bs))
 
-	cloudResp, err := c.Call("s-node-remove", bs)
+	cloudResp, err := c.Call("s-node-remove", bs, "")
 	if err != nil {
 		logger.Println("!!!!!! s-node-remove error", err)
 		return
@@ -922,7 +992,7 @@ func (c *Connection) SetSettings(request nodeinterface.CloudSetSettingsRequest) 
 }
 
 func (c *Connection) AccountInfo(request nodeinterface.CloudAccountInfoRequest) (resp nodeinterface.CloudAccountInfoResponse, err error) {
-	cloudResp, err := c.Call("s-account-info", []byte("{}"))
+	cloudResp, err := c.Call("s-account-info", []byte("{}"), "")
 	if err != nil {
 		logger.Println("s-account-info error", err)
 		return

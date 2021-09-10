@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/system/cloud"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"io"
@@ -33,7 +34,10 @@ type Client struct {
 	watcher       *ItemsWatcher
 	transportType TransportType
 
-	repeater string
+	binCloudConnection *cloud.Connection
+
+	repeater            string
+	needSessionActivate bool
 
 	address      string
 	userName     string
@@ -86,6 +90,7 @@ func NewWithSessionToken(window uiinterfaces.Window, address string, userName st
 	c.userName = userName
 	c.sessionToken = sessionToken
 	c.initClient(window)
+	c.needSessionActivate = true
 	c.SessionActivate(sessionToken, nil)
 	return &c
 }
@@ -201,12 +206,17 @@ func (c *Client) thCall(call *Call) {
 	}
 
 	if c.transportType == TransportTypeCloudHttps {
-
 		if len(c.repeater) == 0 {
 			c.updateRepeater()
+			c.needSessionActivate = true
 		}
 
 		if len(c.repeater) > 0 {
+			if c.needSessionActivate {
+				c.SessionActivate(c.sessionToken, nil)
+				c.needSessionActivate = false
+			}
+
 			response, err := c.Post("https://"+c.repeater+"/api/request", writer.FormDataContentType(), &body, "https://"+addr+"-n.gazer.cloud")
 
 			if err != nil {
@@ -243,10 +253,21 @@ func (c *Client) thCall(call *Call) {
 			call.err = errors.New("waiting for the route to the node")
 		}
 	}
-	//logger.Println("!!!!!!!!!!!!!!!!REMOTE CLIENT:", "post", c.sessionToken)
-	//logger.Println("!!!!!!!!!!!!!!!!REMOTE CLIENT:", "response")
 
-	//client.CloseIdleConnections()
+	if c.transportType == TransportTypeCloudBin {
+		if c.binCloudConnection == nil {
+			c.binCloudConnection = cloud.NewConnection("")
+			c.binCloudConnection.LoadSessionData(c.sessionToken, c.userName, c.password)
+			logger.Println("c.binCloudConnection.LoadSessionData", c.sessionToken, c.userName, c.password)
+			c.binCloudConnection.Start()
+		}
+
+		var bsResp []byte
+		bsResp, call.err = c.binCloudConnection.Call(call.function, call.request, c.address)
+		call.response = string(bsResp)
+
+		c.sessionToken = c.binCloudConnection.SessionId()
+	}
 
 	call.client.mtx.Lock()
 	call.client.received = append(call.client.received, call)

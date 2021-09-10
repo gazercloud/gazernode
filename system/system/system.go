@@ -48,7 +48,7 @@ func NewSystem(ss *settings.Settings) *System {
 	c.itemsByName = make(map[string]*common_interfaces.Item)
 	c.itemsById = make(map[uint64]*common_interfaces.Item)
 
-	c.cloudConnection = cloud.NewConnection(c.ss)
+	c.cloudConnection = cloud.NewConnection(c.ss.ServerDataPath())
 
 	c.publicChannels = public_channel.NewCloud(&c)
 	c.unitsSystem = units_system.New(&c)

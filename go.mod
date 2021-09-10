@@ -7,7 +7,7 @@ require (
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fogleman/gg v1.3.0
-	github.com/gazercloud/gazerui v1.0.9
+	github.com/gazercloud/gazerui v1.0.10
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
 	github.com/go-ping/ping v0.0.0-20210216210419-25d1413fb7bb
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
@@ -36,4 +36,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
 
-replace github.com/gazercloud/gazerui => ../gazerui
+// replace github.com/gazercloud/gazerui => ../gazerui

@@ -124,6 +124,9 @@ func (c *WidgetDataItems) addNode(parentNode *uicontrols.TreeNode, item *tree_it
 
 func (c *WidgetDataItems) LoadItems() {
 	c.client.GetAllItems(func(items []common_interfaces.ItemGetUnitItems, err error) {
+		if c.tvItems == nil {
+			return
+		}
 		itemsNames := make([]string, 0)
 		for _, i := range items {
 			itemsNames = append(itemsNames, i.Name)

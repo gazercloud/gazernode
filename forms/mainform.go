@@ -151,7 +151,7 @@ func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 
 	panelNode.OnNeedToConnect = func(nodeId string, sessionKey string) {
 		var conn local_user_storage.NodeConnection
-		conn.Transport = string(client.TransportTypeCloudHttps)
+		conn.Transport = string(client.TransportTypeCloudBin)
 		conn.Address = nodeId
 		conn.UserName = ""
 		conn.SessionToken = sessionKey

@@ -404,6 +404,9 @@ func (c *PanelCharts) GetDataItemValue(path string, control simplemap.IMapContro
 
 func (c *PanelCharts) loadChartGroups(selectAfterLoadingId string, forEdit bool) {
 	c.client.ResList("chart_group", "", 0, 1000000, func(infos common_interfaces.ResourcesInfo, err error) {
+		if c.lvItems == nil {
+			return
+		}
 
 		if selectAfterLoadingId == "" {
 			if c.lvItems.SelectedItem() != nil {
