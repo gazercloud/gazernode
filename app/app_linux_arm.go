@@ -8,7 +8,7 @@ import (
 
 func RunDesktop() {
 	logger.Init(paths.HomeFolder() + "/gazer/log_ui")
-	start()
+	start(application.ServerDataPathArgument)
 	logger.Println("Started as console application")
 	logger.Println("Press ENTER to stop")
 	_, _ = fmt.Scanln()
