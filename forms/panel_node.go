@@ -502,6 +502,9 @@ func (c *PanelNode) updateStatistics() {
 func (c *PanelNode) updateNodeName() {
 	c.updateNodeNameLastTime = time.Now()
 	c.client.ServiceNodeName(func(response nodeinterface.ServiceNodeNameResponse, err error) {
+		if c.client == nil {
+			return
+		}
 		c.lastNodeName = response.Name
 		name := response.Name
 		nameForHeader := response.Name

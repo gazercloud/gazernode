@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -298,6 +299,10 @@ func (c *Connection) updateCurrentRepeater() {
 }
 
 func (c *Connection) updateRepeaterForNode(nodeId string) {
+	if nodeId == "" {
+		c.addr = "home.gazer.cloud:1077"
+		return
+	}
 
 	type SWhereNodeRequest struct {
 		NodeId string `json:"node_id"`
@@ -729,6 +734,10 @@ func (c *Connection) Call(function string, requestText []byte, targetNodeId stri
 	logger.Println("Cloud Connection Call", function)
 	if len(targetNodeId) > 0 {
 		c.targetRepeater = targetNodeId
+		if c.targetRepeater != "" && strings.HasPrefix(c.addr, "home.gazer.cloud") {
+			c.addr = ""
+			c.updateRepeaterForNode(c.targetRepeater)
+		}
 	}
 
 	// Unique Transaction Id

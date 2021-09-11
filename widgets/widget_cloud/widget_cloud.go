@@ -2,6 +2,7 @@ package widget_cloud
 
 import (
 	"github.com/gazercloud/gazernode/client"
+	"github.com/gazercloud/gazernode/cloud_accounts"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
@@ -85,6 +86,8 @@ func (c *WidgetCloud) timerUpdate() {
 		c.wLogin.SetState(response)
 		c.wMain.SetState(response)
 		c.wHeader.SetState(response)
+
+		cloud_accounts.Set(response.UserName, response.SessionKey)
 	})
 }
 

@@ -115,8 +115,21 @@ func (c *MainForm) Dispose() {
 }
 
 func (c *MainForm) AddNode(first bool) {
-	dialog := NewNodeConnectionDialog(c.Panel(), nil, first)
+	OpenSessionInDialog(c.Panel(), func(cl *client.Client) {
+		var conn local_user_storage.NodeConnection
+		conn.Transport = cl.Transport()
+		conn.Address = cl.Address()
+		conn.UserName = cl.UserName()
+		conn.SessionToken = cl.SessionToken()
+		local_user_storage.Instance().AddConnection(conn)
+
+		connIndex := local_user_storage.Instance().ConnectionCount() - 1
+		c.addNodeTab(cl, connIndex)
+	})
+
+	/*dialog := NewNodeConnectionDialog(c.Panel(), nil, first)
 	dialog.OnAccept = func() {
+
 		// Add to preferences
 		var conn local_user_storage.NodeConnection
 		conn.Transport = dialog.Connection.Transport
@@ -130,7 +143,7 @@ func (c *MainForm) AddNode(first bool) {
 		cl := client.New(c, dialog.Connection.Address, dialog.Connection.UserName, dialog.Connection.Password, dialog.Connection.Transport)
 		c.addNodeTab(cl, connIndex)
 	}
-	dialog.ShowDialog()
+	dialog.ShowDialog()*/
 }
 
 func (c *MainForm) RemoveNode(index int) {
