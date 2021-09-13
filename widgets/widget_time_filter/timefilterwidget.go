@@ -57,17 +57,12 @@ func NewTimeFilterWidget(parent uiinterfaces.Widget) *TimeFilterWidget {
 	c.pButtons = c.AddPanelOnGrid(0, 0)
 	c.pButtons.SetPanelPadding(0)
 
-	c.pButtons.AddTextBlockOnGrid(0, 0, "Time filter:")
-	c.AddButton(1, "1m", "last1min", "Last 1 minute")
-	c.AddButton(2, "5m", "last5min", "Last 5 minutes")
-	c.AddButton(3, "10m", "last10min", "Last 10 minutes")
-	c.AddButton(4, "30m", "last30min", "Last 30 minutes")
-	c.AddButton(5, "60m", "last60min", "Last Hour")
-	c.AddButton(6, "current hour", "current_hour", "Current Hour")
-	c.AddButton(7, "today", "current_day", "Today")
-	c.AddButton(8, "previous hour", "previous_hour", "Previous Hour")
-	c.AddButton(9, "yesterday", "previous_day", "Previous Day")
-	c.AddButton(10, "custom", "custom", "Custom")
+	//c.pButtons.AddTextBlockOnGrid(0, 0, "Time filter:")
+	c.AddButton(1, "5m", "last5min", "Last 5 minutes")
+	c.AddButton(2, "60m", "last60min", "Last Hour")
+	c.AddButton(3, "24h", "last24hours", "Last 24 hours")
+	c.AddButton(4, "7d", "last7days", "Last Week")
+	c.AddButton(5, "C", "custom", "Custom")
 
 	c.cmbIntervals = c.pButtons.AddComboBoxOnGrid(15, 0)
 	c.cmbIntervals.SetMinWidth(170)
@@ -79,6 +74,8 @@ func NewTimeFilterWidget(parent uiinterfaces.Widget) *TimeFilterWidget {
 	c.cmbIntervals.AddItem("Last 10 min", "last10min")
 	c.cmbIntervals.AddItem("Last 30 min", "last30min")
 	c.cmbIntervals.AddItem("Last 60 min", "last60min")
+	c.cmbIntervals.AddItem("Last 24 hours", "last24hours")
+	c.cmbIntervals.AddItem("Last 7 days", "last7days")
 
 	c.cmbIntervals.AddItem("Current Hour", "current_hour")
 	c.cmbIntervals.AddItem("Current Day", "current_day")
@@ -116,11 +113,11 @@ func NewTimeFilterWidget(parent uiinterfaces.Widget) *TimeFilterWidget {
 }
 
 func (c *TimeFilterWidget) AddButton(pos int, text string, key string, tooltip string) {
-	b := c.pButtons.AddButtonOnGrid(pos, 0, "", func(event *uievents.Event) {
+	b := c.pButtons.AddButtonOnGrid(pos, 0, text, func(event *uievents.Event) {
 		k := event.Sender.(*uicontrols.Button).UserData("key").(string)
 		c.selectIntervalComboItem(k)
 	})
-	//b.SetMinWidth(80)
+	b.SetMinWidth(50)
 	b.SetUserData("key", key)
 	b.SetTooltip(tooltip)
 	//b.SetImageSize(32, 24)
@@ -189,8 +186,8 @@ func (c *TimeFilterWidget) updateButtonsColors() {
 			b.SetBackColor(nil)
 		}
 
-		b.SetImageSize(32, 24)
-		b.SetImage(uiresources.ResImgCol(c.imageByKey(b.UserData("key").(string)), b.ForeColor()))
+		//b.SetImageSize(32, 24)
+		//b.SetImage(uiresources.ResImgCol(c.imageByKey(b.UserData("key").(string)), b.ForeColor()))
 	}
 }
 
@@ -300,6 +297,16 @@ func (c *TimeFilterWidget) TimeFrom() int64 {
 	stepTime := int64(10000000)
 	key := c.cmbIntervals.Items[c.cmbIntervals.CurrentItemIndex].UserData("key").(string)
 
+	if key == "last7days" {
+		timeFrom = (time.Now().UTC().UnixNano() - 7*24*3600*1000000000) / 1000
+		stepTime = 7 * 5760 * 1000000
+	}
+
+	if key == "last24hours" {
+		timeFrom = (time.Now().UTC().UnixNano() - 24*3600*1000000000) / 1000
+		stepTime = 5760 * 1000000
+	}
+
 	if key == "last60min" {
 		timeFrom = (time.Now().UTC().UnixNano() - 3600*1000000000) / 1000
 		stepTime = 240 * 1000000
@@ -338,6 +345,12 @@ func (c *TimeFilterWidget) TimeTo() int64 {
 	key := c.cmbIntervals.Items[c.cmbIntervals.CurrentItemIndex].UserData("key").(string)
 	if strings.HasPrefix(key, "last") {
 
+		if key == "last7days" {
+			stepTime = 7 * 24 * 240 * 1000000
+		}
+		if key == "last24hours" {
+			stepTime = 24 * 240 * 1000000
+		}
 		if key == "last60min" {
 			stepTime = 240 * 1000000
 		}

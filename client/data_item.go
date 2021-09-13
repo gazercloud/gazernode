@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
-	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"io/fs"
 	"io/ioutil"
@@ -129,7 +128,7 @@ func (c *Client) ReadHistoryChart(name string, dtBegin int64, dtEnd int64, group
 						if err == nil {
 							err = json.Unmarshal(bs, &resp)
 							if err == nil {
-								logger.Println("ok")
+								//logger.Println("ok")
 							}
 						}
 						_ = file.Close()

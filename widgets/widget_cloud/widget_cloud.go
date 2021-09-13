@@ -18,7 +18,8 @@ type WidgetCloud struct {
 	wLogin  *WidgetCloudLogin
 	wMain   *WidgetCloudMain
 
-	currentState nodeinterface.CloudStateResponse
+	currentState         nodeinterface.CloudStateResponse
+	firstTimeStateLoaded bool
 
 	OnNeedToConnect func(nodeId string, sessionKey string)
 }
@@ -73,7 +74,7 @@ func (c *WidgetCloud) Dispose() {
 }
 
 func (c *WidgetCloud) timerUpdate() {
-	if !c.IsVisibleRec() {
+	if !c.IsVisibleRec() && c.firstTimeStateLoaded {
 		return
 	}
 
@@ -81,6 +82,7 @@ func (c *WidgetCloud) timerUpdate() {
 		if err != nil {
 			return
 		}
+		c.firstTimeStateLoaded = true
 		c.currentState = response
 		c.updateVisibility()
 		c.wLogin.SetState(response)

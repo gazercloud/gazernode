@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gazercloud/gazernode/application"
-	"github.com/gazercloud/gazernode/forms"
+	"github.com/gazercloud/gazernode/forms/mainform"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/gazercloud/gazerui/ui"
@@ -19,7 +19,7 @@ func RunDesktop() {
 	ui.InitUISystem()
 
 	{
-		var form forms.MainForm
+		var form mainform.MainForm
 		uiforms.StartMainForm(&form)
 		form.Dispose()
 	}

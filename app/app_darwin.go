@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	"github.com/gazercloud/gazernode/forms"
+	"github.com/gazercloud/gazernode/forms/mainform"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/utilities"
 	"github.com/gazercloud/gazernode/utilities/paths"
@@ -22,7 +22,7 @@ func RunDesktop() {
 	}
 
 	{
-		var form forms.MainForm
+		var form mainform.MainForm
 		uiforms.StartMainForm(&form)
 		form.Dispose()
 	}

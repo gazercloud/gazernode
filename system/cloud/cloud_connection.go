@@ -731,7 +731,6 @@ type ProxyTask struct {
 }
 
 func (c *Connection) Call(function string, requestText []byte, targetNodeId string) (response []byte, err error) {
-	logger.Println("Cloud Connection Call", function)
 	if len(targetNodeId) > 0 {
 		c.targetRepeater = targetNodeId
 		if c.targetRepeater != "" && strings.HasPrefix(c.addr, "home.gazer.cloud") {
@@ -742,9 +741,6 @@ func (c *Connection) Call(function string, requestText []byte, targetNodeId stri
 
 	// Unique Transaction Id
 	transactionId := strconv.FormatInt(rand.Int63(), 16) + strconv.FormatInt(time.Now().UnixNano(), 16)
-	if function == "s-account-info" {
-		logger.Println("Cloud Connection Call s-account-info TransactionID:", transactionId)
-	}
 
 	// ProxyTask
 	var task ProxyTask
@@ -791,8 +787,6 @@ func (c *Connection) Call(function string, requestText []byte, targetNodeId stri
 	} else {
 		err = errors.New("node timeout")
 	}
-
-	logger.Println("Cloud Connection Call res:", err, c.sessionId, frame.Header.TargetNodeId)
 
 	return resultBytes, err
 }
