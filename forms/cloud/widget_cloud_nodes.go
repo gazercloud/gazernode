@@ -1,4 +1,4 @@
-package widget_cloud
+package cloud
 
 import (
 	"github.com/gazercloud/gazernode/client"

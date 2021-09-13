@@ -75,7 +75,7 @@ func (c *PanelCharts) OnInit() {
 	}
 
 	c.btnAdd = pButtons.AddButtonOnGrid(0, 0, "", func(event *uievents.Event) {
-		d := NewFormAddChartGroup(c, c.client, "chart_group")
+		d := NewDialogChartGroupAdd(c, c.client, "chart_group")
 		d.ShowDialog()
 		d.OnAccept = func() {
 			c.loadChartGroups(d.Id, false)
@@ -90,7 +90,7 @@ func (c *PanelCharts) OnInit() {
 			return
 		}
 		item := c.lvItems.SelectedItems()[0]
-		dialog := NewDialogEditChartGroupName(c, c.client, item.TempData, item.Value(0))
+		dialog := NewDialogChartGroupEditName(c, c.client, item.TempData, item.Value(0))
 		dialog.ShowDialog()
 		dialog.OnAccept = func() {
 			c.loadChartGroups("", false)

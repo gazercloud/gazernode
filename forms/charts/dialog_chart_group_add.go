@@ -5,18 +5,22 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/gazercloud/gazerui/uiresources"
 )
 
-type FormAddChartsGroup struct {
+type DialogChartGroupAdd struct {
 	uicontrols.Dialog
 	client      *client.Client
+	Id          string
+	tp          string
 	txtUnitName *uicontrols.TextBox
 	btnOK       *uicontrols.Button
 }
 
-func NewFormAddChartsGroup(parent uiinterfaces.Widget, client *client.Client) *FormAddChartsGroup {
-	var c FormAddChartsGroup
+func NewDialogChartGroupAdd(parent uiinterfaces.Widget, client *client.Client, tp string) *DialogChartGroupAdd {
+	var c DialogChartGroupAdd
 	c.client = client
+	c.tp = tp
 	c.InitControl(parent, &c)
 
 	pContent := c.ContentPanel().AddPanelOnGrid(0, 0)
@@ -27,13 +31,13 @@ func NewFormAddChartsGroup(parent uiinterfaces.Widget, client *client.Client) *F
 	pRight := pContent.AddPanelOnGrid(1, 0)
 	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
 
-	/*img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.ForeColor()))
+	img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImgCol(uiresources.R_icons_material4_png_editor_stacked_line_chart_materialiconsoutlined_48dp_1x_outline_stacked_line_chart_black_48dp_png, c.ForeColor()))
 	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
 	img.SetMinHeight(64)
-	img.SetMinWidth(64)*/
+	img.SetMinWidth(64)
 	pLeft.AddVSpacerOnGrid(0, 1)
 
-	pRight.AddTextBlockOnGrid(0, 0, "Channel name:")
+	pRight.AddTextBlockOnGrid(0, 0, "Chart group name:")
 	c.txtUnitName = pRight.AddTextBoxOnGrid(1, 0)
 
 	pRight.AddVSpacerOnGrid(0, 10)
@@ -41,9 +45,15 @@ func NewFormAddChartsGroup(parent uiinterfaces.Widget, client *client.Client) *F
 	pButtons.AddHSpacerOnGrid(0, 0)
 	c.btnOK = pButtons.AddButtonOnGrid(1, 0, "OK", nil)
 	c.TryAccept = func() bool {
+		if c.txtUnitName.Text() == "" || len(c.txtUnitName.Text()) > 50 {
+			uicontrols.ShowErrorMessage(&c, "wrong name", "Error")
+			return false
+		}
+
 		c.btnOK.SetEnabled(false)
-		c.client.ResAdd(c.txtUnitName.Text(), "chart_group", []byte(""), func(id string, err error) {
+		c.client.ResAdd(c.txtUnitName.Text(), c.tp, []byte(""), func(id string, err error) {
 			if err == nil {
+				c.Id = id
 				c.TryAccept = nil
 				c.Accept()
 			} else {
@@ -63,11 +73,15 @@ func NewFormAddChartsGroup(parent uiinterfaces.Widget, client *client.Client) *F
 	c.SetAcceptButton(c.btnOK)
 	c.SetRejectButton(btnCancel)
 
+	c.OnShow = func() {
+		c.txtUnitName.Focus()
+	}
+
 	return &c
 }
 
-func (c *FormAddChartsGroup) OnInit() {
+func (c *DialogChartGroupAdd) OnInit() {
 	c.Dialog.OnInit()
-	c.SetTitle("Add charts group")
+	c.SetTitle("Add chart group")
 	c.Resize(400, 200)
 }

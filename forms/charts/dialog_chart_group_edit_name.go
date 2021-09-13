@@ -7,7 +7,7 @@ import (
 	"github.com/gazercloud/gazerui/uiresources"
 )
 
-type DialogEditChartGroupName struct {
+type DialogChartGroupEditName struct {
 	uicontrols.Dialog
 	id        string
 	client    *client.Client
@@ -16,8 +16,8 @@ type DialogEditChartGroupName struct {
 	btnCancel *uicontrols.Button
 }
 
-func NewDialogEditChartGroupName(parent uiinterfaces.Widget, client *client.Client, id string, text string) *DialogEditChartGroupName {
-	var c DialogEditChartGroupName
+func NewDialogChartGroupEditName(parent uiinterfaces.Widget, client *client.Client, id string, text string) *DialogChartGroupEditName {
+	var c DialogChartGroupEditName
 	c.id = id
 	c.client = client
 	c.InitControl(parent, &c)
