@@ -203,8 +203,8 @@ func (c *UnitSystemProcess) Tick() {
 			lastCpuValue = cpuTime
 			lastCpuValid = true
 
-			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()), "bytes", 0)
-			c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()), "bytes", 0)
+			c.SetFloat64("ResidentMemory", float64(pStat.ResidentMemory()/1024), "KB", 0)
+			c.SetFloat64("VirtualMemory", float64(pStat.VirtualMemory()/1024), "KB", 0)
 			c.SetString("Status", pStat.State, "")
 		} else {
 			c.SetString("ResidentMemory", "", "error")

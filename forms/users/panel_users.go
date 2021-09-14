@@ -14,13 +14,13 @@ type PanelUsers struct {
 	uicontrols.Panel
 	client *client.Client
 
-	lvUsers              *uicontrols.ListView
-	firstTimeStateLoaded bool
-
 	btnAdd     *uicontrols.Button
 	btnEdit    *uicontrols.Button
 	btnRemove  *uicontrols.Button
 	btnRefresh *uicontrols.Button
+
+	lvUsers              *uicontrols.ListView
+	firstTimeStateLoaded bool
 
 	txtHeaderChartGroup *uicontrols.TextBlock
 
@@ -39,10 +39,6 @@ func NewPanelUsers(parent uiinterfaces.Widget, client *client.Client) *PanelUser
 }
 
 func (c *PanelUsers) OnInit() {
-	//pHeader := c.AddPanelOnGrid(0, 0)
-	//txtHeader := pHeader.AddTextBlockOnGrid(0, 0, "Users")
-	//txtHeader.SetFontSize(24)
-
 	pContent := c.AddPanelOnGrid(0, 1)
 	pContent.SetPanelPadding(0)
 	splitter := pContent.AddSplitContainerOnGrid(0, 0)
@@ -54,6 +50,7 @@ func (c *PanelUsers) OnInit() {
 
 	txtHeader := pUnitsList.AddTextBlockOnGrid(0, 0, "Users")
 	txtHeader.SetFontSize(24)
+	txtHeader.SetForeColor(c.AccentColor())
 
 	pButtons := pUnitsList.AddPanelOnGrid(0, 1)
 	pButtons.SetPanelPadding(0)
@@ -112,6 +109,7 @@ func (c *PanelUsers) OnInit() {
 	pHeaderRight.SetPanelPadding(0)
 	c.txtHeaderChartGroup = pHeaderRight.AddTextBlockOnGrid(0, 0, "")
 	c.txtHeaderChartGroup.SetFontSize(24)
+	c.txtHeaderChartGroup.SetForeColor(c.AccentColor())
 
 	pItems := splitter.Panel2.AddPanelOnGrid(0, 1)
 	pItems.SetPanelPadding(0)

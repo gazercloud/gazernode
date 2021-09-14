@@ -43,6 +43,7 @@ func (c *WidgetCloudLogin) OnInit() {
 	c.txtEMail = pLoginForm.AddTextBoxOnGrid(1, 0)
 	pLoginForm.AddTextBlockOnGrid(0, 1, "Password:")
 	c.txtPassword = pLoginForm.AddTextBoxOnGrid(1, 1)
+	c.txtPassword.SetIsPassword(true)
 	c.btnLogin = pLoginForm.AddButtonOnGrid(1, 2, "Login", func(event *uievents.Event) {
 		c.client.CloudLogin(c.txtEMail.Text(), c.txtPassword.Text(), func(err error) {
 			if c.OnNeedToLoadState != nil {
