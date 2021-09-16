@@ -142,44 +142,6 @@ func (c *System) loadSessions() {
 	logger.Println("System loadSessions end")
 }
 
-/*func (c *System) saveUsers() {
-	c.mtx.Lock()
-	defer c.mtx.Unlock()
-	bs, err := json.MarshalIndent(c.users, "", " ")
-	if err == nil {
-		err = ioutil.WriteFile(paths.ProgramDataFolder()+"/gazer/users.json", bs, 0666)
-		if err != nil {
-			logger.Println("saveUsers error", err)
-		}
-	} else {
-		logger.Println("saveUsers (marshal) error", err)
-	}
-}
-
-func (c *System) loadUsers() {
-	logger.Println("System loadUsers begin")
-	configString, err := ioutil.ReadFile(paths.ProgramDataFolder() + "/gazer/users.json")
-	if err == nil {
-		err = json.Unmarshal(configString, &c.users)
-		if err != nil {
-			logger.Println("loadUsers (unmarshal) error ", err)
-		} else {
-			c.userByName = make(map[string]*common_interfaces.User)
-			for _, u := range c.users {
-				c.userByName[u.Name] = u
-			}
-		}
-	} else {
-		logger.Println("loadUsers error ", err)
-	}
-
-	logger.Println("System loadUsers")
-	for index, u := range c.users {
-		logger.Println(index, ":", u.Name)
-	}
-	logger.Println("System loadUsers end")
-}*/
-
 func (c *System) UserList() (nodeinterface.UserListResponse, error) {
 	var result nodeinterface.UserListResponse
 	c.mtx.Lock()

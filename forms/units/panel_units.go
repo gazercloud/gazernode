@@ -252,39 +252,40 @@ func (c *PanelUnits) OnInit() {
 	c.lvItems.SetColumnTextAlign(1, canvas.HAlignRight)
 
 	menuItems := uicontrols.NewPopupMenu(c.lvUnits)
+
 	menuItems.AddItem("Add To Public Channel ...", func(event *uievents.Event) {
 		c.addSelectedItemsToCloud()
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.ForeColor()), "")
+
 	menuItems.AddItem("Remove From Public Channel ...", func(event *uievents.Event) {
 		c.removeSelectedItemsFromCloud()
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_off_materialiconsoutlined_48dp_1x_outline_cloud_off_black_48dp_png, c.ForeColor()), "")
+
 	menuItems.AddItem("Open Public Channel In Browser", func(event *uievents.Event) {
 		c.openSelectedItemInBrowser()
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_open_in_browser_materialiconsoutlined_48dp_1x_outline_open_in_browser_black_48dp_png, c.ForeColor()), "")
+
 	menuItems.AddItem("Big view ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) > 0 {
 			tools.MainFormInstance.ShowFullScreenValue(true, items[0])
 		}
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_navigation_fullscreen_materialiconsoutlined_48dp_1x_outline_fullscreen_black_48dp_png, c.ForeColor()), "")
+
 	menuItems.AddItem("History ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
 			tools.NewFormItemHistory(c, c.client, items[0]).ShowDialog()
 		}
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_view_headline_materialiconsoutlined_48dp_1x_outline_view_headline_black_48dp_png, c.ForeColor()), "")
-	menuItems.AddItem("Properties ...", func(event *uievents.Event) {
-		items := c.SelectedItems()
-		if len(items) == 1 {
-			tools.NewFormItemProperties(c, c.client, items[0]).ShowDialog()
-		}
-	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_image_tune_materialiconsoutlined_48dp_1x_outline_tune_black_48dp_png, c.ForeColor()), "")
+
 	menuItems.AddItem("Write ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
 			tools.NewFormWriteValue(c, c.client, items[0]).ShowDialog()
 		}
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_content_save_alt_materialiconsoutlined_48dp_1x_outline_save_alt_black_48dp_png, c.ForeColor()), "")
+
 	menuItems.AddItem("Remove", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		NewFormRemoveItems(c, c.client, items).ShowDialog()
@@ -293,6 +294,13 @@ func (c *PanelUnits) OnInit() {
 	menuItems.AddItem("Add to chart group ...", func(event *uievents.Event) {
 		c.addSelectedItemsToChartGroup()
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_timeline_materialiconsoutlined_48dp_1x_outline_timeline_black_48dp_png, c.ForeColor()), "")
+
+	menuItems.AddItem("Properties ...", func(event *uievents.Event) {
+		items := c.SelectedItems()
+		if len(items) == 1 {
+			tools.NewFormItemProperties(c, c.client, items[0]).ShowDialog()
+		}
+	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_image_tune_materialiconsoutlined_48dp_1x_outline_tune_black_48dp_png, c.ForeColor()), "")
 
 	c.lvItems.SetContextMenu(menuItems)
 	c.lvItems.OnSelectionChanged = func() {

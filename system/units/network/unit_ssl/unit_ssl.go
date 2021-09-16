@@ -131,7 +131,7 @@ func (c *UnitSSL) Tick() {
 	var lastIP string
 
 	c.Started = true
-	dtLastTime := time.Now().UTC()
+	dtLastTime := time.Now().UTC().Add(-1 * time.Hour)
 
 	for !c.Stopping {
 		for {

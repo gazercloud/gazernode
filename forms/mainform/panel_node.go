@@ -400,11 +400,11 @@ func (c *PanelNode) OnInit() {
 
 	c.lblStatistics = c.panelBottom.AddTextBlockOnGrid(2, 0, "---")
 	c.lblStatistics.OnClick = func(ev *uievents.Event) {
-		dialog := NewNodeConnectionDialog(c, c.client, false)
+		/*dialog := NewNodeConnectionDialog(c, c.client, false)
 		dialog.OnAccept = func() {
 			c.client.SessionOpen(dialog.Connection.UserName, dialog.Connection.Password, nil)
 		}
-		dialog.ShowDialog()
+		dialog.ShowDialog()*/
 	}
 	c.lblStatistics.SetMouseCursor(ui.MouseCursorPointer)
 	c.lblStatistics.SetUnderline(true)

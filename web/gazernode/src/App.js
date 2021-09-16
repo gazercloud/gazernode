@@ -152,6 +152,7 @@ function ResponsiveDrawer(props) {
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
+        forceUpdate()
     };
 
 
@@ -162,6 +163,11 @@ function ResponsiveDrawer(props) {
 
     getWindow().onhashchange = () => {
         setRedrawBool(!redrawBool)
+    }
+
+    const getClientWidth = () => {
+        let w = getWindow().innerWidth - 300
+        return w
     }
 
     const drawer = (
@@ -332,6 +338,7 @@ function ResponsiveDrawer(props) {
                     OnNavigate={(addr) => navigate(addr)}
                     DataItemName={getHashVariable("dataItemName")}
                     OnTitleUpdate={(title) => updateTitle(title)}
+                    FullWidth={mobileOpen}
                 />
             )
         }
@@ -401,7 +408,7 @@ function ResponsiveDrawer(props) {
             <SnackbarProvider maxSnack={3}>
                 <div className={classes.root} key='gazer-main'>
                     <CssBaseline/>
-                    <AppBar position="fixed" className={classes.appBar} style={{backgroundColor: '#1E1E1E'}}>
+                    <AppBar position="fixed" className={classes.appBar} style={{backgroundColor: '#1E1E1E', color: '#CCC'}}>
                         <Toolbar>
                             <IconButton
                                 color="inherit"
@@ -419,7 +426,7 @@ function ResponsiveDrawer(props) {
                     </AppBar>
                     <nav className={classes.drawer} aria-label="mailbox folders">
                         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                        <Hidden smUp implementation="css">
+                        <Hidden smUp implementation="js">
                             <Drawer
                                 container={container}
                                 variant="temporary"
@@ -436,7 +443,7 @@ function ResponsiveDrawer(props) {
                                 {drawer}
                             </Drawer>
                         </Hidden>
-                        <Hidden xsDown implementation="css">
+                        <Hidden xsDown implementation="js">
                             <Drawer
                                 classes={{
                                     paper: classes.drawerPaper,

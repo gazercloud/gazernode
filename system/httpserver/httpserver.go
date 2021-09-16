@@ -247,8 +247,8 @@ func (c *HttpServer) contentTypeByExt(ext string) string {
 }
 
 func (c *HttpServer) processFile(w http.ResponseWriter, r *http.Request) {
-	//c.processFileLocal(w, r)
-	c.file(w, r, r.URL.Path)
+	c.processFileLocal(w, r)
+	//c.file(w, r, r.URL.Path)
 }
 
 func (c *HttpServer) processFileLocal(w http.ResponseWriter, r *http.Request) {

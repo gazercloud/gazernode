@@ -33,7 +33,7 @@ export default function WidgetTimeChart(props) {
     render1()
 
     return (
-        <div>
+        <div style={{display: "block"}}>
             <canvas style={{backgroundColor: "#111"}} id={"qwe"} ref={element1} width={props.ChartWidth}/>
         </div>
     );

@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Request, {RequestFailed} from "../request";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import Button from "@material-ui/core/Button";
 import WidgetTimeChart from "./WidgetTimeChart/WidgetTimeChart";
 import JSZip from "jszip";
 import {LinearProgress} from "@material-ui/core";
+import NewTimeChart from "./WidgetTimeChart/TimeChart";
 
 export default function WidgetItemHistory(props) {
     const [dataItemHistory, setDataItemHistory] = React.useState([])
@@ -20,7 +21,7 @@ export default function WidgetItemHistory(props) {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            requestDataItemHistory(props.DataItemName)
+            requestDataItemHistory(props.DataItemName, minMaxTime(timeRangeLast), false)
             setRenderCounter(renderCounter + 1)
         }, 1000);
         return () => clearInterval(timer);
@@ -118,33 +119,23 @@ export default function WidgetItemHistory(props) {
         return groupTimeRange
     }
 
-    const requestDataItemHistory = (dataItemName) => {
+    const requestDataItemHistory = (dataItemName, minmax, force) => {
         if (stateLoading) {
             return
         }
-
-        /*let w = width() // width
-        let r = timeRangeLast * 60.0 * 1000000.0
-        let timePerPixel = r / w*/
 
         let updateTimeout = 10000
         if (timeRangeLast <= 5) {
             updateTimeout = 1000
         }
 
-        if (((new Date().getTime()) - lastUpdateTime) <= updateTimeout) {
-            return
+        if (!force) {
+            if (((new Date().getTime()) - lastUpdateTime) <= updateTimeout) {
+                return
+            }
         }
 
-
-        //console.log("timePerPixel", timePerPixel)
-
-        /*let groupTimeRange = alignGroupTimeRange(timePerPixel)
-
-        let dtNow = new Date().getTime() * 1000
-        dtNow = dtNow - (dtNow % groupTimeRange)*/
-
-        let minmax = minMaxTime()
+        //let minmax =
 
         let req = {
             name: dataItemName,
@@ -163,14 +154,11 @@ export default function WidgetItemHistory(props) {
                         (result) => {
                             setLastUpdateTime(new Date().getTime())
                             const byteCharacters = atob(result.data);
-                            console.log("HISTORY 1:", byteCharacters.length)
                             let new_zip = new JSZip();
                             new_zip.loadAsync(byteCharacters)
                                 .then(function (zip) {
-                                    console.log("HISTORY 2:")
                                     zip.file("data").async("string").then((v) => {
                                         let obj = JSON.parse(v)
-                                        console.log("HISTORY 3:", obj)
 
                                         let items = [];
                                         items = obj.items
@@ -196,15 +184,18 @@ export default function WidgetItemHistory(props) {
     }
 
     const width = () => {
-        let w = window.innerWidth - 300
-        if (w < 300)
-            return 300
+        let w = window.innerWidth
+        if (window.innerWidth > 600) {
+            w -= 310
+        } else {
+            w -= 65
+        }
         return w
     }
 
-    const minMaxTime = () => {
+    const minMaxTime = (timeRangeLastValue) => {
         let w = width() // width
-        let r = timeRangeLast * 60.0 * 1000000.0
+        let r = timeRangeLastValue * 60.0 * 1000000.0
         let timePerPixel = r / w
         //console.log("timePerPixel", timePerPixel)
 
@@ -213,13 +204,13 @@ export default function WidgetItemHistory(props) {
         let dtNow = new Date().getTime() * 1000
         dtNow = dtNow - (dtNow % groupTimeRange)
 
-        let res = {max: dtNow, min: dtNow - timeRangeLast * 60000000, groupTimeRange: groupTimeRange}
+        let res = {max: dtNow, min: dtNow - timeRangeLastValue * 60000000, groupTimeRange: groupTimeRange}
         return res
     }
 
     const renderChart = () => {
         return (
-            <WidgetTimeChart Data={dataItemHistory} ChartWidth={width()} MinTime={minMaxTime().min} MaxTime={minMaxTime().max}>
+            <WidgetTimeChart Data={dataItemHistory} ChartWidth={width()} MinTime={minMaxTime(timeRangeLast).min} MaxTime={minMaxTime(timeRangeLast).max}>
             </WidgetTimeChart>
         );
     }
@@ -229,6 +220,7 @@ export default function WidgetItemHistory(props) {
         setTimeRangeLast(g)
         setLastUpdateTime(0)
         setDataItemHistory([])
+        requestDataItemHistory(props.DataItemName, minMaxTime(g), true)
     }
 
     const btnStyle = (v) => {
@@ -239,7 +231,7 @@ export default function WidgetItemHistory(props) {
             }
         }
         return {
-            color: "#f00",
+            color: "#00A0E3",
             minWidth: "100px"
         }
     }
@@ -247,34 +239,11 @@ export default function WidgetItemHistory(props) {
     return (
         <div>
             <div>
-                <div>
-                    <ButtonGroup color="primary" aria-label="outlined primary button group">
-                        <Button onClick={setLastRange.bind(this, 1)} style={btnStyle(1)}>1m</Button>
-                        <Button onClick={setLastRange.bind(this, 5)} style={btnStyle(5)}>5m</Button>
-                        <Button onClick={setLastRange.bind(this, 30)} style={btnStyle(30)}>30m</Button>
-                        <Button onClick={setLastRange.bind(this, 60)} style={btnStyle(60)}>60m</Button>
-                    </ButtonGroup>
-                </div>
-                <div>
-                    <ButtonGroup color="primary" aria-label="outlined primary button group">
-                        <Button onClick={setLastRange.bind(this, 60 * 3)} style={btnStyle(60 * 3)}>3H</Button>
-                        <Button onClick={setLastRange.bind(this, 60 * 6)} style={btnStyle(60 * 6)}>6H</Button>
-                        <Button onClick={setLastRange.bind(this, 60 * 12)} style={btnStyle(60 * 12)}>12H</Button>
-                        <Button onClick={setLastRange.bind(this, 60 * 24)} style={btnStyle(60 * 24)}>24H</Button>
-                    </ButtonGroup>
-                </div>
-                <div>
-                    <ButtonGroup color="primary" aria-label="outlined primary button group">
-                        <Button onClick={setLastRange.bind(this, 7 * 60 * 24)} style={btnStyle(7 * 60 * 24)}>7
-                            days</Button>
-                        <Button onClick={setLastRange.bind(this, 30 * 60 * 24)} style={btnStyle(30 * 60 * 24)}>30
-                            days</Button>
-                        <Button onClick={setLastRange.bind(this, 90 * 60 * 24)} style={btnStyle(90 * 60 * 24)}>90
-                            days</Button>
-                        <Button onClick={setLastRange.bind(this, 180 * 60 * 24)} style={btnStyle(180 * 60 * 24)}>180
-                            days</Button>
-                    </ButtonGroup>
-                </div>
+                <ButtonGroup color="primary" aria-label="outlined primary button group">
+                    <Button onClick={setLastRange.bind(this, 5)} style={btnStyle(5)}>5m</Button>
+                    <Button onClick={setLastRange.bind(this, 60)} style={btnStyle(60)}>60m</Button>
+                    <Button onClick={setLastRange.bind(this, 60 * 24)} style={btnStyle(60 * 24)}>24H</Button>
+                </ButtonGroup>
             </div>
             <div style={{marginTop: "10px"}}>{renderChart()}</div>
             <div>{stateLoading ? <div><LinearProgress /></div> : <div><LinearProgress value={0} variant="determinate" /></div>}</div>

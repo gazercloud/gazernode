@@ -190,7 +190,7 @@ export default function PageDataItem(props) {
                     {displayItem(dataItemState)}
                 </div>
                 <div>
-                    <WidgetItemHistory DataItemName={getDataItemName()}/>
+                    <WidgetItemHistory DataItemName={getDataItemName()} FullWidth={props.FullWidth}/>
                 </div>
             </div>
 

@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/gazercloud/gazerui/uiresources"
 	"time"
 )
 
@@ -32,10 +33,10 @@ func NewFormItemProperties(parent uiinterfaces.Widget, client *client.Client, it
 	pRight := pContent.AddPanelOnGrid(1, 0)
 	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
 
-	/*img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.ForeColor()))
+	img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImgCol(uiresources.R_icons_material4_png_image_tune_materialiconsoutlined_48dp_1x_outline_tune_black_48dp_png, c.AccentColor()))
 	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
 	img.SetMinHeight(64)
-	img.SetMinWidth(64)*/
+	img.SetMinWidth(64)
 	pLeft.AddVSpacerOnGrid(0, 1)
 
 	c.lvProperties = pRight.AddListViewOnGrid(0, 1)
@@ -80,6 +81,13 @@ func (c *FormItemProperties) Dispose() {
 func (c *FormItemProperties) loadProperties() {
 	items := []string{c.itemName}
 	c.client.GetItemsValues(items, func(items []common_interfaces.ItemGetUnitItems, err error) {
+		if err != nil {
+			return
+		}
+		if c.lvProperties == nil {
+			return
+		}
+
 		for _, item := range items {
 			if item.Name == c.itemName {
 				if c.lvProperties.ItemsCount() == 0 {

@@ -5,6 +5,7 @@ import (
 	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/gazercloud/gazerui/uiresources"
 )
 
 type FormAddToCloud struct {
@@ -37,10 +38,10 @@ func NewFormAddToCloud(parent uiinterfaces.Widget, client *client.Client, items 
 	pRight := pContent.AddPanelOnGrid(1, 0)
 	pButtons := c.ContentPanel().AddPanelOnGrid(0, 1)
 
-	/*img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImageAdjusted("icons/material/image/drawable-hdpi/ic_blur_on_black_48dp.png", c.ForeColor()))
+	img := pLeft.AddImageBoxOnGrid(0, 0, uiresources.ResImgCol(uiresources.R_icons_material4_png_file_cloud_upload_materialiconsoutlined_48dp_1x_outline_cloud_upload_black_48dp_png, c.AccentColor()))
 	img.SetScaling(uicontrols.ImageBoxScaleAdjustImageKeepAspectRatio)
 	img.SetMinHeight(64)
-	img.SetMinWidth(64)*/
+	img.SetMinWidth(64)
 	pLeft.AddVSpacerOnGrid(0, 1)
 
 	pRight.AddTextBlockOnGrid(0, 0, "Select cloud channel:")
