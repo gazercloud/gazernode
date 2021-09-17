@@ -51,7 +51,8 @@ func (c *UnitNetwork) InternalUnitStop() {
 }
 
 func (c *UnitNetwork) GetConfigMeta() string {
-	return ""
+	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
+	return meta.Marshal()
 }
 
 func (c *UnitNetwork) Tick() {

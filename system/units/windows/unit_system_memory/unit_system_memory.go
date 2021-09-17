@@ -40,7 +40,8 @@ func (c *UnitSystemMemory) InternalUnitStop() {
 }
 
 func (c *UnitSystemMemory) GetConfigMeta() string {
-	return ""
+	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
+	return meta.Marshal()
 }
 
 func (c *UnitSystemMemory) Tick() {

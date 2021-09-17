@@ -81,7 +81,8 @@ func (c *UnitStorage) InternalUnitStop() {
 }
 
 func (c *UnitStorage) GetConfigMeta() string {
-	return ""
+	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
+	return meta.Marshal()
 }
 
 func (c *UnitStorage) Tick() {

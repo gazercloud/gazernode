@@ -37,7 +37,8 @@ func (c *UnitGazerCloud) InternalUnitStop() {
 }
 
 func (c *UnitGazerCloud) GetConfigMeta() string {
-	return ""
+	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
+	return meta.Marshal()
 }
 
 func (c *UnitGazerCloud) Tick() {
