@@ -329,7 +329,7 @@ func (c *UnitsSystem) MakeUnitByType(unitType string, dataStorage common_interfa
 	return unit
 }
 
-func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, config string) (common_interfaces.IUnit, error) {
+func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, config string, fromCloud bool) (common_interfaces.IUnit, error) {
 	var unit common_interfaces.IUnit
 	nameIsExists := false
 	c.mtx.Lock()
@@ -339,6 +339,12 @@ func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, confi
 		}
 	}
 	c.mtx.Unlock()
+
+	if fromCloud {
+		if unitType == "general_cgi" || unitType == "general_cgi_key_value" {
+			return nil, errors.New("cannot edit a cgi-unit via the Cloud")
+		}
+	}
 
 	if !nameIsExists {
 		unit = c.MakeUnitByType(unitType, c.iDataStorage)
@@ -527,7 +533,7 @@ func (c *UnitsSystem) GetConfigByType(unitType string) (string, string, error) {
 	return "", "", errors.New("no unit type found")
 }
 
-func (c *UnitsSystem) SetConfig(unitId string, name string, config string) error {
+func (c *UnitsSystem) SetConfig(unitId string, name string, config string, fromCloud bool) error {
 	var unit common_interfaces.IUnit
 
 	c.mtx.Lock()
@@ -539,6 +545,15 @@ func (c *UnitsSystem) SetConfig(unitId string, name string, config string) error
 	c.mtx.Unlock()
 
 	if unit != nil {
+		if fromCloud {
+			if unit.Type() == "general_cgi" || unit.Type() == "general_cgi_key_value" {
+				return errors.New("cannot edit a cgi-unit via the Cloud")
+			}
+		}
+	}
+
+	if unit != nil {
+
 		unit.Stop()
 		oldName := unit.Name()
 

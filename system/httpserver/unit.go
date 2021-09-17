@@ -5,7 +5,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 )
 
-func (c *HttpServer) UnitAdd(request []byte) (response []byte, err error) {
+func (c *HttpServer) UnitAdd(request []byte, fromCloud bool) (response []byte, err error) {
 	var req nodeinterface.UnitAddRequest
 	var resp nodeinterface.UnitAddResponse
 	err = json.Unmarshal(request, &req)
@@ -13,7 +13,7 @@ func (c *HttpServer) UnitAdd(request []byte) (response []byte, err error) {
 		return
 	}
 
-	resp.UnitId, err = c.system.AddUnit(req.UnitName, req.UnitType, req.Config)
+	resp.UnitId, err = c.system.AddUnit(req.UnitName, req.UnitType, req.Config, fromCloud)
 	if err == nil {
 		response, err = json.MarshalIndent(resp, "", " ")
 	}
@@ -132,7 +132,7 @@ func (c *HttpServer) UnitStop(request []byte) (response []byte, err error) {
 	return
 }
 
-func (c *HttpServer) UnitSetConfig(request []byte) (response []byte, err error) {
+func (c *HttpServer) UnitSetConfig(request []byte, fromCloud bool) (response []byte, err error) {
 	var req nodeinterface.UnitSetConfigRequest
 	var resp nodeinterface.UnitSetConfigResponse
 	err = json.Unmarshal(request, &req)
@@ -140,7 +140,7 @@ func (c *HttpServer) UnitSetConfig(request []byte) (response []byte, err error) 
 		return
 	}
 
-	err = c.system.SetConfig(req.UnitId, req.UnitName, req.UnitConfig)
+	err = c.system.SetConfig(req.UnitId, req.UnitName, req.UnitConfig, fromCloud)
 	if err != nil {
 		return
 	}

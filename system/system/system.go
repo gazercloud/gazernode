@@ -101,10 +101,6 @@ func (c *System) RegApiCall() {
 	c.mtx.Unlock()
 }
 
-func (c *System) Exec(function string, request []byte, host string) ([]byte, error) {
-	return c.requester.RequestJson(function, request, host)
-}
-
 func (c *System) StatGazerNode() (res common_interfaces.StatGazerNode) {
 	return
 }

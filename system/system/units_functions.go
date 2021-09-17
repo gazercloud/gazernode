@@ -52,9 +52,9 @@ func (c *System) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
 	return c.unitsSystem.UnitCategories()
 }
 
-func (c *System) AddUnit(unitName string, unitType string, config string) (string, error) {
+func (c *System) AddUnit(unitName string, unitType string, config string, fromCloud bool) (string, error) {
 	unitId := strconv.FormatInt(time.Now().UnixNano(), 16) + "_" + strconv.FormatInt(int64(rand.Int()), 16)
-	unit, err := c.unitsSystem.AddUnit(unitType, unitId, unitName, config)
+	unit, err := c.unitsSystem.AddUnit(unitType, unitId, unitName, config, fromCloud)
 	if err != nil {
 		return "", err
 	}
@@ -114,8 +114,8 @@ func (c *System) GetConfigByType(unitType string) (string, string, error) {
 	return c.unitsSystem.GetConfigByType(unitType)
 }
 
-func (c *System) SetConfig(unitId string, name string, config string) error {
-	err := c.unitsSystem.SetConfig(unitId, name, config)
+func (c *System) SetConfig(unitId string, name string, config string, fromCloud bool) error {
+	err := c.unitsSystem.SetConfig(unitId, name, config, fromCloud)
 	//logger.Println("system - SetConfig:", unitId, "name:", name, "error:", err)
 	if err != nil {
 		return err

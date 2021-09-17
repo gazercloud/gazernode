@@ -289,43 +289,6 @@ func (c *Channel) processData(task bin_client.BinFrameTask) {
 
 		return
 	}
-
-	if task.Frame.Channel == "#proxy#" {
-
-		transactionId := task.Frame.Password
-		parts := strings.Split(transactionId, "|")
-		if len(parts) != 2 {
-			return
-		}
-
-		fn := parts[1]
-		rj := task.Frame.Data
-
-		res, err := c.iDataStorage.Exec(fn, rj, "web")
-
-		var outFrame bin_client.BinFrame
-		outFrame.Password = transactionId
-		outFrame.Channel = "#proxy#"
-
-		if err != nil {
-			type ErrorObject struct {
-				Error string `json:"error"`
-			}
-			var errObj ErrorObject
-			errObj.Error = err.Error()
-			res, _ = json.Marshal(errObj)
-			outFrame.Channel = "#proxyError#"
-		}
-		outFrame.Data = res
-		task.Client.SendData(&outFrame)
-
-		//logger.Println("System #count_of_subscribers# from ", task.Client.GetRemoteAddr(), " = ", resp.)
-
-		/*addedChannels := c.AddTranslateChannelsToClient(task.Client, channels)
-		task.Client.SendNeedChannelOK(addedChannels)*/
-
-		return
-	}
 }
 
 func (c *Channel) thIncomingTraffic() {

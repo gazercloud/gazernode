@@ -151,7 +151,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err == nil {
-			responseText, err = c.RequestJson(function, []byte(requestJson), r.RemoteAddr)
+			responseText, err = c.RequestJson(function, []byte(requestJson), r.RemoteAddr, false)
 		}
 
 		if function == nodeinterface.FuncSessionOpen && err == nil {

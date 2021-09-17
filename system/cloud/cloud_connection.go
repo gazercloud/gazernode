@@ -662,7 +662,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		}
 
 		// Frame for the node
-		bs, err = c.requester.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web")
+		bs, err = c.requester.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web", true)
 		//logger.Println("CloudConnection REQUEST", task.Frame.Header.Function, "resLen:", len(bs))
 
 		c.addSuccessCallStat(task.Frame.Header.Function)

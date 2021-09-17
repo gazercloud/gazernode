@@ -94,7 +94,7 @@ func (c *System) LoadConfig() error {
 		}
 
 		for _, sens := range conf.Units {
-			c.unitsSystem.AddUnit(sens.Type, sens.Id, sens.Name, sens.Config)
+			c.unitsSystem.AddUnit(sens.Type, sens.Id, sens.Name, sens.Config, false)
 		}
 
 		for _, ch := range conf.Channels {

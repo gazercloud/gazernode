@@ -12,7 +12,7 @@ type IDataStorage interface {
 	RenameItems(oldPrefix string, newPrefix string)
 	RemoveItemsOfUnit(unitName string) error
 
-	Exec(function string, request []byte, host string) ([]byte, error)
+	//Exec(function string, request []byte, host string) ([]byte, error)
 
 	StatGazerNode() StatGazerNode
 	StatGazerCloud() StatGazerCloud

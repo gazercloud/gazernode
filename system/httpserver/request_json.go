@@ -6,7 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 )
 
-func (c *HttpServer) RequestJson(function string, requestText []byte, host string) ([]byte, error) {
+func (c *HttpServer) RequestJson(function string, requestText []byte, host string, fromCloud bool) ([]byte, error) {
 	var err error
 	var result []byte
 
@@ -24,7 +24,7 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 
 		// *** Unit ***
 	case nodeinterface.FuncUnitAdd:
-		result, err = c.UnitAdd(requestText)
+		result, err = c.UnitAdd(requestText, fromCloud)
 	case nodeinterface.FuncUnitRemove:
 		result, err = c.UnitRemove(requestText)
 	case nodeinterface.FuncUnitState:
@@ -40,7 +40,7 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 	case nodeinterface.FuncUnitStop:
 		result, err = c.UnitStop(requestText)
 	case nodeinterface.FuncUnitSetConfig:
-		result, err = c.UnitSetConfig(requestText)
+		result, err = c.UnitSetConfig(requestText, fromCloud)
 	case nodeinterface.FuncUnitGetConfig:
 		result, err = c.UnitGetConfig(requestText)
 
