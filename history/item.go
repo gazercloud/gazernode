@@ -26,7 +26,7 @@ func NewItem(id uint64, ss *settings.Settings) *Item {
 	var c Item
 	c.ss = ss
 	c.id = id
-	c.historyDepthDays = 7
+	c.historyDepthDays = 30
 	c.data = make([]*common_interfaces.ItemValue, 0)
 	c.files = make(map[string]*FileCache)
 	return &c

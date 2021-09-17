@@ -13,7 +13,7 @@ type Settings struct {
 
 func NewSettings() *Settings {
 	var c Settings
-	c.serverDataPath = "~/gazer_node"
+	c.serverDataPath = "~/gazernode"
 	return &c
 }
 

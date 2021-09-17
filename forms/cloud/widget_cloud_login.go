@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	"golang.org/x/image/colornames"
 )
 
@@ -41,9 +42,26 @@ func (c *WidgetCloudLogin) OnInit() {
 	pLoginForm.SetMaxWidth(500)
 	pLoginForm.AddTextBlockOnGrid(0, 0, "E-Mail:")
 	c.txtEMail = pLoginForm.AddTextBoxOnGrid(1, 0)
+	c.txtEMail.SetTabIndex(1)
+	c.txtEMail.SetOnKeyDown(func(event *uievents.KeyDownEvent) bool {
+		if event.Key == glfw.KeyEnter || event.Key == glfw.KeyKPEnter {
+			c.btnLogin.Press()
+			return true
+		}
+		return false
+	})
+
 	pLoginForm.AddTextBlockOnGrid(0, 1, "Password:")
 	c.txtPassword = pLoginForm.AddTextBoxOnGrid(1, 1)
 	c.txtPassword.SetIsPassword(true)
+	c.txtPassword.SetTabIndex(2)
+	c.txtPassword.SetOnKeyDown(func(event *uievents.KeyDownEvent) bool {
+		if event.Key == glfw.KeyEnter || event.Key == glfw.KeyKPEnter {
+			c.btnLogin.Press()
+			return true
+		}
+		return false
+	})
 	c.btnLogin = pLoginForm.AddButtonOnGrid(1, 2, "Login", func(event *uievents.Event) {
 		c.client.CloudLogin(c.txtEMail.Text(), c.txtPassword.Text(), func(err error) {
 			if c.OnNeedToLoadState != nil {
@@ -51,6 +69,7 @@ func (c *WidgetCloudLogin) OnInit() {
 			}
 		})
 	})
+	c.btnLogin.SetTabIndex(3)
 	c.lblStatus = pLoginForm.AddTextBlockOnGrid(1, 3, "-")
 
 	c.AddVSpacerOnGrid(0, 2)

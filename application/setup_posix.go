@@ -15,7 +15,7 @@ func setupPosix() {
 
 	log.Println("copying to /usr/local/bin")
 	sourceFile := os.Args[0]
-	destinationFile := "/usr/local/bin/gazer_node"
+	destinationFile := "/usr/local/bin/gazernode"
 	input, err := ioutil.ReadFile(sourceFile)
 	if err != nil {
 		log.Println("Error (read):", err)

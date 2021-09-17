@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/forms/tools"
-	"github.com/gazercloud/gazernode/local_user_storage"
 	"github.com/gazercloud/gazernode/product/productinfo"
+	"github.com/gazercloud/gazernode/workspace"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiforms"
@@ -23,7 +23,7 @@ type MainForm struct {
 	nodeWidgets       []*PanelNode
 	currentNodeWidget *PanelNode
 
-	loadingConnections            []local_user_storage.NodeConnection
+	loadingConnections            []workspace.NodeConnection
 	currentConnectionLoadingIndex int
 }
 
@@ -115,14 +115,14 @@ func (c *MainForm) Dispose() {
 
 func (c *MainForm) AddNode(first bool) {
 	OpenSessionInDialog(c.Panel(), func(cl *client.Client) {
-		var conn local_user_storage.NodeConnection
+		var conn workspace.NodeConnection
 		conn.Transport = cl.Transport()
 		conn.Address = cl.Address()
 		conn.UserName = cl.UserName()
 		conn.SessionToken = cl.SessionToken()
-		local_user_storage.Instance().AddConnection(conn)
+		workspace.Instance().AddConnection(conn)
 
-		connIndex := local_user_storage.Instance().ConnectionCount() - 1
+		connIndex := workspace.Instance().ConnectionCount() - 1
 		c.addNodeTab(cl, connIndex)
 	})
 
@@ -148,7 +148,7 @@ func (c *MainForm) AddNode(first bool) {
 func (c *MainForm) RemoveNode(index int) {
 	c.nodeWidgets = append(c.nodeWidgets[:index], c.nodeWidgets[index+1:]...)
 	c.tabNodes.RemovePage(index)
-	local_user_storage.Instance().RemoveConnection(index)
+	workspace.Instance().RemoveConnection(index)
 }
 
 func (c *MainForm) addNodeTab(cl *client.Client, index int) {
@@ -162,13 +162,13 @@ func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 	}
 
 	panelNode.OnNeedToConnect = func(nodeId string, sessionKey string) {
-		var conn local_user_storage.NodeConnection
+		var conn workspace.NodeConnection
 		conn.Transport = string(client.TransportTypeCloudBin)
 		conn.Address = nodeId
 		conn.UserName = ""
 		conn.SessionToken = sessionKey
-		local_user_storage.Instance().AddConnection(conn)
-		connIndex := local_user_storage.Instance().ConnectionCount() - 1
+		workspace.Instance().AddConnection(conn)
+		connIndex := workspace.Instance().ConnectionCount() - 1
 
 		// Add connection tab
 		cl := client.NewWithSessionToken(c, conn.Address, conn.UserName, conn.SessionToken, conn.Transport)
@@ -180,7 +180,7 @@ func (c *MainForm) addNodeTab(cl *client.Client, index int) {
 
 func (c *MainForm) loadNodes() {
 	c.currentConnectionLoadingIndex = 0
-	c.loadingConnections = local_user_storage.Instance().Connections()
+	c.loadingConnections = workspace.Instance().Connections()
 
 	if len(c.loadingConnections) == 0 {
 		c.AddNode(true)
@@ -210,7 +210,7 @@ func (c *MainForm) loadNodes() {
 }
 
 func (c *MainForm) GetTheme() int {
-	theme := local_user_storage.Instance().Theme()
+	theme := workspace.Instance().Theme()
 	if theme == "light" {
 		return uistyles.StyleLight
 	}
@@ -242,7 +242,7 @@ func (c *MainForm) SetTheme(theme int) {
 		themeStr = "dark_blue"
 	}
 
-	local_user_storage.Instance().SetTheme(themeStr)
+	workspace.Instance().SetTheme(themeStr)
 }
 
 func (c *MainForm) OnClose() bool {

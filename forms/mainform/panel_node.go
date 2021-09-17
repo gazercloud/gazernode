@@ -10,9 +10,9 @@ import (
 	"github.com/gazercloud/gazernode/forms/tools"
 	"github.com/gazercloud/gazernode/forms/units"
 	"github.com/gazercloud/gazernode/forms/users"
-	"github.com/gazercloud/gazernode/local_user_storage"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/settings"
+	"github.com/gazercloud/gazernode/workspace"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
@@ -86,12 +86,12 @@ func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionI
 	c.InitControl(parent, &c)
 
 	c.client.OnSessionOpen = func() {
-		var conn local_user_storage.NodeConnection
+		var conn workspace.NodeConnection
 		conn.Transport = c.client.Transport()
 		conn.UserName = c.client.UserName()
 		conn.Address = c.client.Address()
 		conn.SessionToken = c.client.SessionToken()
-		local_user_storage.Instance().SetConnection(c.connectionIndex, conn)
+		workspace.Instance().SetConnection(c.connectionIndex, conn)
 		c.FullRefresh()
 
 		/*if MainFormInstance.currentNodeWidget == &c {
@@ -108,12 +108,12 @@ func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionI
 	}
 
 	c.client.OnSessionClose = func() {
-		var conn local_user_storage.NodeConnection
+		var conn workspace.NodeConnection
 		conn.Transport = c.client.Transport()
 		conn.UserName = c.client.UserName()
 		conn.Address = c.client.Address()
 		conn.SessionToken = c.client.SessionToken()
-		local_user_storage.Instance().SetConnection(c.connectionIndex, conn)
+		workspace.Instance().SetConnection(c.connectionIndex, conn)
 		c.FullRefresh()
 	}
 

@@ -1,18 +1,6 @@
 package last_values
 
-import (
-	"encoding/json"
-	"fmt"
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/settings"
-	"io/ioutil"
-	"os"
-	"sort"
-	"strconv"
-	"time"
-)
-
-func Write(items []*common_interfaces.Item) {
+/*func Write(items []*common_interfaces.Item) {
 	dir := settings.ServerDataPath() + "/last_values/"
 	fullPath := dir + "/" + fmt.Sprintf("%016X", time.Now().UTC().UnixNano())
 	_ = os.MkdirAll(dir, 0755)
@@ -58,3 +46,4 @@ func Read() []*common_interfaces.Item {
 
 	return result
 }
+*/

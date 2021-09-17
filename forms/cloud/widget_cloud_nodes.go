@@ -221,6 +221,10 @@ func (c *WidgetCloudNodes) UpdateStyle() {
 }
 
 func (c *WidgetCloudNodes) SetState(response nodeinterface.CloudStateResponse) {
+	if response.SessionKey != c.lastSessionKey {
+		c.accountLoaded = false
+	}
+
 	c.lastSessionKey = response.SessionKey
 
 	for i := 0; i < c.lvItems.ItemsCount(); i++ {

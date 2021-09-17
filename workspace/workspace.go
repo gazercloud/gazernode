@@ -1,4 +1,4 @@
-package local_user_storage
+package workspace
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ type NodeConnection struct {
 	Transport    string `json:"transport"`
 	Address      string `json:"address"`
 	UserName     string `json:"user_name"`
-	SessionToken string `json:"password"`
+	SessionToken string `json:"session_token"`
 }
 
 func (c *NodeConnection) String() string {
@@ -34,11 +34,13 @@ type Preferences struct {
 var pref *Preferences
 
 func init() {
-	pref = NewPreferences()
-	pref.loadPreferences()
 }
 
 func Instance() *Preferences {
+	if pref == nil {
+		pref = NewPreferences()
+		pref.loadPreferences()
+	}
 	return pref
 }
 
@@ -48,19 +50,22 @@ func NewPreferences() *Preferences {
 	return &c
 }
 
+const WSFileExt = "gazernode_workspace"
+const WSDefaultFileName = "default"
+
 func (c *Preferences) loadPreferences() {
 	usr, err := user.Current()
 	if err != nil {
 		logger.Println(err)
 		return
 	}
-	dir := usr.HomeDir + "/gazer"
+	dir := usr.HomeDir + "/gazer/workspaces"
 	err = os.MkdirAll(dir, 0700)
 	if err != nil {
 		logger.Println(err)
 		return
 	}
-	fullPath := dir + "/preferences.json"
+	fullPath := dir + "/" + WSDefaultFileName + "." + WSFileExt
 	var bs []byte
 	bs, err = ioutil.ReadFile(fullPath)
 	if err != nil {
@@ -83,13 +88,14 @@ func (c *Preferences) savePreferences() {
 		logger.Println(err)
 		return
 	}
-	dir := usr.HomeDir + "/gazer"
+	dir := usr.HomeDir + "/gazer/workspaces"
 	err = os.MkdirAll(dir, 0700)
 	if err != nil {
 		logger.Println(err)
 		return
 	}
-	fullPath := dir + "/preferences.json"
+	fullPath := dir + "/" + WSDefaultFileName + "." + WSFileExt
+
 	var bs []byte
 	bs, err = json.MarshalIndent(pref.pref, "", " ")
 	err = ioutil.WriteFile(fullPath, bs, 0600)
