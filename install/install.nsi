@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "GazerNode"
-!define PRODUCT_VERSION "2.4.2"
+!define PRODUCT_VERSION "2.4.4"
 !define ARP "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !include "MUI2.nsh"
 !include "FileFunc.nsh"

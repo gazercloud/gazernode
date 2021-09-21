@@ -1,19 +1,6 @@
 package unit_http_json_items_server
 
-import (
-	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/resources"
-	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/gorilla/mux"
-	"net/http"
-	"time"
-)
-
+/*
 type Item struct {
 	Name    string `json:"item_name"`
 	UrlPath string `json:"url_path"`
@@ -159,3 +146,4 @@ func (c *UnitHttpJsonServer) processFile(w http.ResponseWriter, r *http.Request)
 		_, _ = w.Write([]byte("no item found"))
 	}
 }
+*/

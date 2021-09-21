@@ -27,6 +27,14 @@ func HomeFolder() string {
 	return ProgramDataFolder1()
 }
 
+func HomeGazerFolder() string {
+	usr, err := user.Current()
+	if err == nil {
+		return usr.HomeDir + "/gazer"
+	}
+	return ProgramDataFolder1()
+}
+
 func DocumentsFolder() string {
 	usr, err := user.Current()
 	if err == nil {

@@ -1,19 +1,6 @@
 package unit_http_json_units_server
 
-import (
-	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/resources"
-	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/gorilla/mux"
-	"net/http"
-	"time"
-)
-
+/*
 type Item struct {
 	UnitId  string `json:"unit_id"`
 	UrlPath string `json:"url_path"`
@@ -159,3 +146,4 @@ func (c *UnitHttpJsonUnitServer) processFile(w http.ResponseWriter, r *http.Requ
 		_, _ = w.Write([]byte("no unit found"))
 	}
 }
+*/

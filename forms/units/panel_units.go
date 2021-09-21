@@ -18,6 +18,7 @@ import (
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"golang.org/x/image/colornames"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"sort"
@@ -454,13 +455,25 @@ func (c *PanelUnits) viewLog() {
 	}
 }
 
+func (c *PanelUnits) needToAddUnit() bool {
+	if c.lvUnits == nil {
+		return false
+	}
+	return c.lvUnits.ItemsCount() == 0
+}
+
 func (c *PanelUnits) UpdateStyle() {
 	c.Panel.UpdateStyle()
 
 	activeColor := c.AccentColor()
 	inactiveColor := c.InactiveColor()
 
-	c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, activeColor))
+	btnAddColor := activeColor
+	if c.needToAddUnit() {
+		btnAddColor = colornames.Green
+	}
+
+	c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, btnAddColor))
 	c.btnEdit.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_create_materialiconsoutlined_48dp_1x_outline_create_black_48dp_png, activeColor))
 	c.btnRemove.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_clear_materialiconsoutlined_48dp_1x_outline_clear_black_48dp_png, activeColor))
 	c.btnStart.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_av_play_arrow_materialicons_48dp_1x_baseline_play_arrow_black_48dp_png, activeColor))
@@ -544,6 +557,14 @@ func (c *PanelUnits) updateUnitsButtons() {
 		c.btnRemove.SetEnabled(false)
 		c.btnStart.SetEnabled(false)
 		c.btnStop.SetEnabled(false)
+	}
+
+	if c.lvUnits.ItemsCount() == 0 {
+		c.btnAdd.SetBorders(1, colornames.Green)
+		c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, colornames.Green))
+	} else {
+		c.btnAdd.SetBorders(1, nil)
+		c.btnAdd.SetImage(uiresources.ResImgCol(uiresources.R_icons_material4_png_content_add_materialiconsoutlined_48dp_1x_outline_add_black_48dp_png, c.AccentColor()))
 	}
 }
 

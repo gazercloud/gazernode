@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/forms/tools"
 	"github.com/gazercloud/gazernode/product/productinfo"
+	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/gazercloud/gazernode/workspace"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 type MainForm struct {
@@ -107,14 +109,31 @@ func (c *MainForm) OnInit() {
 	go updateAdFromSite()
 
 	//MainFormInstance.SetTheme(MainFormInstance.GetTheme())
+
 }
 
 func (c *MainForm) Dispose() {
 	c.Form.Dispose()
 }
 
+func (c *MainForm) checkFirstOpening() {
+	if len(c.nodeWidgets) == 0 {
+		first := true
+		_, err := os.Stat(paths.HomeGazerFolder() + "/was_launched")
+		if err == nil {
+			first = false
+		}
+		c.AddNode(first)
+	}
+}
+
 func (c *MainForm) AddNode(first bool) {
-	OpenSessionInDialog(c.Panel(), func(cl *client.Client) {
+	hasNodes := true
+	if len(c.nodeWidgets) == 0 {
+		hasNodes = false
+	}
+
+	OpenSessionInDialog(c.Panel(), hasNodes, first, func(cl *client.Client) {
 		var conn workspace.NodeConnection
 		conn.Transport = cl.Transport()
 		conn.Address = cl.Address()
@@ -124,6 +143,7 @@ func (c *MainForm) AddNode(first bool) {
 
 		connIndex := workspace.Instance().ConnectionCount() - 1
 		c.addNodeTab(cl, connIndex)
+		_ = ioutil.WriteFile(paths.HomeGazerFolder()+"/was_launched", []byte(""), 0600)
 	})
 
 	/*dialog := NewNodeConnectionDialog(c.Panel(), nil, first)
@@ -182,9 +202,7 @@ func (c *MainForm) loadNodes() {
 	c.currentConnectionLoadingIndex = 0
 	c.loadingConnections = workspace.Instance().Connections()
 
-	if len(c.loadingConnections) == 0 {
-		c.AddNode(true)
-	} else {
+	if len(c.loadingConnections) > 0 {
 		loadingDialog := uicontrols.NewDialog(c.Panel(), "Loading nodes", 500, 500)
 		txtProgress := loadingDialog.ContentPanel().AddTextBlockOnGrid(0, 0, "")
 		txtProgress.SetXExpandable(true)
@@ -206,6 +224,8 @@ func (c *MainForm) loadNodes() {
 				c.currentConnectionLoadingIndex++
 			}
 		})
+	} else {
+		c.checkFirstOpening()
 	}
 }
 

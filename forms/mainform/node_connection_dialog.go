@@ -54,10 +54,12 @@ type NodeConnectionDialog struct {
 	runner *crunner.CRunner
 
 	Connection NodeConnectionInfo
+
+	cloudByDefault bool
 }
 
-func OpenSessionInDialog(parent uiinterfaces.Widget, OnConnected func(cl *client.Client)) {
-	dialog := NewNodeConnectionDialog(parent, nil, false)
+func OpenSessionInDialog(parent uiinterfaces.Widget, cloudByDefault bool, first bool, OnConnected func(cl *client.Client)) {
+	dialog := NewNodeConnectionDialog(parent, nil, cloudByDefault, first)
 	dialog.runner = crunner.New(parent.Window())
 	dialog.ShowDialog()
 	dialog.OnAccept = func() {
@@ -67,10 +69,11 @@ func OpenSessionInDialog(parent uiinterfaces.Widget, OnConnected func(cl *client
 	}
 }
 
-func NewNodeConnectionDialog(parent uiinterfaces.Widget, cl *client.Client, first bool) *NodeConnectionDialog {
+func NewNodeConnectionDialog(parent uiinterfaces.Widget, cl *client.Client, cloudByDefault bool, first bool) *NodeConnectionDialog {
 	var c NodeConnectionDialog
 	c.client = cl
 	c.first = first
+	c.cloudByDefault = cloudByDefault
 	c.InitControl(parent, &c)
 
 	if c.client == nil || c.client.SessionToken() == "" {
@@ -191,12 +194,22 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, cl *client.Client, firs
 			c.txtAddress.Focus()
 		}
 
-		c.btnTransportCloud.Press()
+		if c.cloudByDefault {
+			c.btnTransportCloud.Press()
+		} else {
+			c.btnTransportLocal.Press()
+		}
+
 		if len(c.cmbCloudAccounts.Items) > 0 {
 			c.cmbCloudAccounts.SetCurrentItemIndex(0)
 		}
 
 		c.updateButtons()
+
+		if c.first {
+			c.txtUserName.SetText("admin")
+			c.txtPassword.SetText("admin")
+		}
 	} else {
 		c.SetTitle("Connection to node")
 		c.Resize(450, 300)
