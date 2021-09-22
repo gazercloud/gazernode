@@ -39,7 +39,7 @@ func (c *WidgetCloudLogin) OnInit() {
 
 	pLoginForm := pContent.AddPanelOnGrid(0, 0)
 	pLoginForm.SetPanelPadding(20)
-	pLoginForm.SetBorders(1, colornames.Orange)
+	pLoginForm.SetBorders(1, colornames.Green)
 	pLoginForm.SetMinWidth(300)
 	pLoginForm.SetMaxWidth(500)
 	pLoginForm.AddTextBlockOnGrid(0, 0, "E-Mail:")
@@ -72,8 +72,9 @@ func (c *WidgetCloudLogin) OnInit() {
 		})
 	})
 	c.btnLogin.SetTabIndex(3)
+	c.btnLogin.SetMouseCursor(ui.MouseCursorPointer)
 	c.lblStatus = pLoginForm.AddTextBlockOnGrid(1, 3, "-")
-	c.lblRegistration = pLoginForm.AddTextBlockOnGrid(1, 4, "Don't have an account yet? Registration.")
+	c.lblRegistration = pLoginForm.AddTextBlockOnGrid(1, 4, "Don't have an account yet? Go to the registration page.")
 	c.lblRegistration.SetUnderline(true)
 	c.lblRegistration.SetMouseCursor(ui.MouseCursorPointer)
 	c.lblRegistration.OnClick = func(ev *uievents.Event) {
