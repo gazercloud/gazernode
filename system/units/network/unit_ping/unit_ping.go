@@ -7,8 +7,9 @@ import (
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/utilities"
-	"github.com/go-ping/ping"
+	"github.com/gazercloud/gazernode/utilities/gazerping"
 	"math"
+	"net"
 	"runtime"
 	"time"
 )
@@ -155,8 +156,8 @@ func (c *UnitPing) Tick() {
 			continue
 		}
 
-		var timeoutMSec int32 = int32(c.timeoutMs)
-		var frameSize int32 = int32(c.frameSize)
+		//var timeoutMSec int32 = int32(c.timeoutMs)
+		//var frameSize int32 = int32(c.frameSize)
 
 		if c.addr == "" {
 			c.SetError("ipaddress == ''")
@@ -167,7 +168,7 @@ func (c *UnitPing) Tick() {
 		//logger.Println("PING 1 ", c.addr)
 
 		var err error
-		pingObject, err := ping.NewPinger(c.addr)
+		/*pingObject, err := ping.NewPinger(c.addr)
 		if err != nil {
 			c.SetString(ItemNameTime, err.Error(), "error")
 			c.SetError("ping.NewPinger: " + err.Error())
@@ -182,32 +183,35 @@ func (c *UnitPing) Tick() {
 		pingObject.Count = 1
 		pingObject.Size = int(frameSize)
 		pingObject.Timeout = time.Duration(timeoutMSec) * time.Millisecond
+		*/
 
-		pingObject.Run()
+		var pingTime int
+		var peer net.Addr
 
-		stats := pingObject.Statistics()
-		ip := stats.IPAddr.String()
-		if ip != lastIP {
-			lastIP = ip
-			c.SetString(ItemNameIP, ip, "-")
-		}
+		pingTime, peer, err = gazerping.Ping(c.addr, c.frameSize, c.timeoutMs)
 
-		if stats.PacketsRecv < 1 {
-			if lastError != "timeout" {
-				lastError = "timeout"
-				lastIP = ""
-				c.SetError(lastError)
-				c.SetString(ItemNameIP, lastIP, "error")
+		if err == nil {
+			ip := peer.String()
+			if ip != lastIP {
+				lastIP = ip
+				c.SetString(ItemNameIP, ip, "-")
 			}
-			c.SetString(ItemNameTime, lastError, "error")
-		} else {
 			if !c.Stopping {
-				c.SetInt(ItemNameTime, int(stats.AvgRtt.Nanoseconds())/1000000, "ms")
+				t := pingTime
+				c.SetInt(ItemNameTime, t, "ms")
 				if lastError != "" {
 					c.SetError("")
 				}
 				lastError = ""
 			}
+		} else {
+			if lastError != err.Error() {
+				lastError = err.Error()
+				lastIP = ""
+				c.SetError(lastError)
+				c.SetString(ItemNameIP, lastIP, "error")
+			}
+			c.SetString(ItemNameTime, lastError, "error")
 		}
 
 		dtLastPingTime = time.Now().UTC()

@@ -15,7 +15,7 @@ type WidgetCloudMain struct {
 	wNodes    *WidgetCloudNodes
 	wSettings *WidgetCloudSettings
 
-	OnNeedToConnect func(nodeId string, sessionKey string)
+	OnNeedToConnect func(userName string, nodeId string, sessionKey string)
 }
 
 func NewWidgetCloudMain(parent uiinterfaces.Widget, client *client.Client) *WidgetCloudMain {
@@ -28,9 +28,9 @@ func NewWidgetCloudMain(parent uiinterfaces.Widget, client *client.Client) *Widg
 
 func (c *WidgetCloudMain) OnInit() {
 	c.wNodes = NewWidgetCloudNodes(c, c.client)
-	c.wNodes.OnNeedToConnect = func(nodeId string, sessionKey string) {
+	c.wNodes.OnNeedToConnect = func(userName string, nodeId string, sessionKey string) {
 		if c.OnNeedToConnect != nil {
-			c.OnNeedToConnect(nodeId, sessionKey)
+			c.OnNeedToConnect(userName, nodeId, sessionKey)
 		}
 	}
 	c.AddWidgetOnGrid(c.wNodes, 0, 0)

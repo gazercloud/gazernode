@@ -20,6 +20,8 @@ type WidgetCloudHeader struct {
 	lblState2 *uicontrols.TextBlock
 	lblState3 *uicontrols.TextBlock
 
+	somethingWrong bool
+
 	OnNeedToLoadState func()
 }
 
@@ -87,6 +89,8 @@ func (c *WidgetCloudHeader) Dispose() {
 }
 
 func (c *WidgetCloudHeader) SetState(response nodeinterface.CloudStateResponse) {
+	c.somethingWrong = false
+
 	if response.LoggedIn {
 		c.btnLogout.SetEnabled(true)
 	} else {
@@ -100,6 +104,7 @@ func (c *WidgetCloudHeader) SetState(response nodeinterface.CloudStateResponse) 
 		c.lblState1.SetForeColor(settings.GoodColor)
 	} else {
 		c.lblState1.SetForeColor(settings.BadColor)
+		c.somethingWrong = true
 	}
 
 	c.lblState2.SetText(response.UserName + " / " + response.LoginStatus)
@@ -107,6 +112,7 @@ func (c *WidgetCloudHeader) SetState(response nodeinterface.CloudStateResponse) 
 		c.lblState2.SetForeColor(settings.GoodColor)
 	} else {
 		c.lblState2.SetForeColor(settings.BadColor)
+		c.somethingWrong = true
 	}
 
 	if response.Connected {
@@ -115,5 +121,10 @@ func (c *WidgetCloudHeader) SetState(response nodeinterface.CloudStateResponse) 
 	} else {
 		c.lblState3.SetForeColor(settings.BadColor)
 		c.lblState3.SetText(response.CurrentRepeater + " / " + response.ConnectionStatus)
+		c.somethingWrong = true
 	}
+}
+
+func (c *WidgetCloudHeader) IsSomethingWrong() bool {
+	return c.somethingWrong
 }

@@ -419,7 +419,9 @@ func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
 				}
 
 				// Apply incoming data
-				c.insertValues(resultItems, task.timeFrom, task.timeTo)
+				if len(resultItems) > 0 {
+					c.insertValues(resultItems, task.timeFrom, task.timeTo)
+				}
 			}
 		} else {
 			logger.Println("DocumentChart timerUpdateValuesHandler error: " + err.Error())

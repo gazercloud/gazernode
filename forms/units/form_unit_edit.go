@@ -26,6 +26,8 @@ type FormUnitEdit struct {
 	configObj     interface{}
 	configMetaObj []*units_common.UnitConfigItem
 	help          string
+
+	CreatedUnitId string
 }
 
 func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId string, unitType string) *FormUnitEdit {
@@ -70,6 +72,7 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 			configBytes, _ := json.MarshalIndent(c.configObj, "", "")
 			c.client.AddUnit(c.unitType, c.txtName.Text(), string(configBytes), func(unitId string, err error) {
 				if err == nil {
+					c.CreatedUnitId = unitId
 					c.TryAccept = nil
 					c.Accept()
 				} else {

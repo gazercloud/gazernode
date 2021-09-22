@@ -28,6 +28,8 @@ type FormAddUnit struct {
 	btnLast         *uicontrols.Button
 	btnCategories   []*uicontrols.Button
 	currentCategory string
+
+	UnitId string
 }
 
 func NewFormAddUnit(parent uiinterfaces.Widget, client *client.Client) *FormAddUnit {
@@ -204,6 +206,7 @@ func (c *FormAddUnit) updateUnits() {
 						f.ShowDialog()
 						f.OnAccept = func() {
 							logger.Println("OnAccept NewFormUnitEdit")
+							c.UnitId = f.CreatedUnitId
 							c.allowAccept = true
 							c.TryAccept = nil
 							c.Accept()

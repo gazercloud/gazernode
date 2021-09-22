@@ -62,6 +62,8 @@ type PanelUnits struct {
 	wItemHistory *widget_item_history.WidgetItemHistory
 
 	menuUnits *uicontrols.PopupMenu
+
+	unitIdToSelect string
 }
 
 func NewPanelUnits(parent uiinterfaces.Widget, client *client.Client) *PanelUnits {
@@ -120,7 +122,7 @@ func (c *PanelUnits) OnInit() {
 	pButtons.AddTextBlockOnGrid(7, 0, " | ")
 
 	c.btnRefresh = pButtons.AddButtonOnGrid(8, 0, "", func(event *uievents.Event) {
-		c.loadUnits()
+		c.updateUnitsState()
 	})
 	c.btnRefresh.SetTooltip("Refresh")
 
@@ -344,7 +346,7 @@ func (c *PanelUnits) OnInit() {
 	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
 
-	c.loadUnits()
+	c.updateUnitsState()
 	c.UpdateStyle()
 }
 
@@ -375,7 +377,7 @@ func (c *PanelUnits) Dispose() {
 }
 
 func (c *PanelUnits) FullRefresh() {
-	c.loadUnits()
+	c.updateUnitsState()
 }
 
 func (c *PanelUnits) Activate() {
@@ -387,8 +389,9 @@ func (c *PanelUnits) addUnit() {
 	f.SetName("FormAddUnit")
 	f.ShowDialog()
 	f.OnAccept = func() {
+		c.unitIdToSelect = f.UnitId
 		logger.Println("OnAccept NewFormAddUnit")
-		c.loadUnits()
+		c.updateUnitsState()
 	}
 }
 
@@ -399,7 +402,8 @@ func (c *PanelUnits) editUnit() {
 			f := NewFormUnitEdit(c, c.client, unitState.UnitId, "")
 			f.ShowDialog()
 			f.OnAccept = func() {
-				c.loadUnits()
+				c.unitIdToSelect = unitState.UnitId
+				c.updateUnitsState()
 			}
 		}
 	}
@@ -417,7 +421,7 @@ func (c *PanelUnits) removeUnit() {
 	f := NewFormRemoveUnits(c, c.client, units)
 	f.ShowDialog()
 	f.OnAccept = func() {
-		c.loadUnits()
+		c.updateUnitsState()
 	}
 }
 
@@ -524,24 +528,6 @@ func (c *PanelUnits) AllItems() []string {
 	return items
 }
 
-func (c *PanelUnits) loadUnits() {
-	return
-	c.client.ListOfUnits(func(infos []nodeinterface.UnitListResponseItem, err error) {
-		if c.lvItems == nil {
-			return
-		}
-		c.lvUnits.RemoveItems()
-		for _, s := range infos {
-			sens := s
-			lvItem := c.lvUnits.AddItem(s.Name)
-			lvItem.SetValue(1, s.TypeForDisplay)
-			lvItem.SetUserData("info", &sens)
-			lvItem.SetUserData("id", sens.Id)
-			lvItem.SetUserData("name", sens.Name)
-		}
-	})
-}
-
 func (c *PanelUnits) updateUnitsButtons() {
 	if len(c.lvUnits.SelectedItems()) > 0 {
 		if len(c.lvUnits.SelectedItems()) == 1 {
@@ -625,6 +611,8 @@ func (c *PanelUnits) updateUnitsState() {
 			}
 		}
 
+		indexForSelect := -1
+
 		for i, item := range response.Items {
 			value := item.Value
 			{
@@ -633,9 +621,14 @@ func (c *PanelUnits) updateUnitsState() {
 					value = strings.ReplaceAll(p.Sprint(intValue), ",", " ")
 				}
 			}
+			c.lvUnits.Item(i).SetValue(0, item.UnitName)
 			c.lvUnits.Item(i).SetValue(1, item.TypeName)
 			c.lvUnits.Item(i).SetValue(2, value+" "+item.UOM)
-			c.lvUnits.Item(i).SetUserData("state", item)
+			c.lvUnits.Item(i).SetUserData("unit_state", &response.Items[i])
+
+			if len(c.unitIdToSelect) > 0 && c.unitIdToSelect == item.UnitId {
+				indexForSelect = i
+			}
 
 			if item.UOM == "error" {
 				c.lvUnits.Item(i).SetForeColorForCell(2, settings.BadColor)
@@ -651,48 +644,12 @@ func (c *PanelUnits) updateUnitsState() {
 				c.lvUnits.Item(i).SetForeColorForCell(1, nil)
 			}
 		}
+
+		if indexForSelect >= 0 {
+			c.lvUnits.SelectItem(indexForSelect)
+			c.unitIdToSelect = ""
+		}
 	})
-
-	return
-
-	for i := 0; i < c.lvUnits.ItemsCount(); i++ {
-		unitId := c.lvUnits.Item(i).UserData("id").(string)
-		c.client.GetUnitState(unitId, func(state nodeinterface.UnitStateResponse, err error) {
-			if c.lvUnits == nil {
-				return
-			}
-			for i := 0; i < c.lvUnits.ItemsCount(); i++ {
-				sId := c.lvUnits.Item(i).UserData("id").(string)
-				if sId == state.UnitId {
-					value := state.Value
-					{
-						if intValue, err := strconv.ParseInt(value, 10, 64); err == nil {
-							p := message.NewPrinter(language.English)
-							value = strings.ReplaceAll(p.Sprint(intValue), ",", " ")
-						}
-					}
-
-					c.lvUnits.Item(i).SetValue(2, value+" "+state.UOM)
-					c.lvUnits.Item(i).SetUserData("state", state)
-
-					if state.UOM == "error" {
-						c.lvUnits.Item(i).SetForeColorForCell(2, settings.BadColor)
-					} else {
-						c.lvUnits.Item(i).SetForeColorForCell(2, settings.GoodColor)
-					}
-
-					if state.Status == "stopped" {
-						c.lvUnits.Item(i).SetForeColorForCell(0, c.InactiveColor())
-						c.lvUnits.Item(i).SetForeColorForCell(1, c.InactiveColor())
-					} else {
-						c.lvUnits.Item(i).SetForeColorForCell(0, nil)
-						c.lvUnits.Item(i).SetForeColorForCell(1, nil)
-					}
-				}
-			}
-		})
-	}
-
 }
 
 func (c *PanelUnits) updateHeader() {

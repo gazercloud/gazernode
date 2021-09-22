@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
+	"os"
 )
 
 type FormAddNode struct {
@@ -14,11 +15,14 @@ type FormAddNode struct {
 	client      *client.Client
 	txtUnitName *uicontrols.TextBox
 	btnOK       *uicontrols.Button
+	NodeId      string
+	addThis     bool
 }
 
-func NewFormAddNode(parent uiinterfaces.Widget, client *client.Client) *FormAddNode {
+func NewFormAddNode(parent uiinterfaces.Widget, client *client.Client, addThis bool) *FormAddNode {
 	var c FormAddNode
 	c.client = client
+	c.addThis = addThis
 	c.InitControl(parent, &c)
 
 	pContent := c.ContentPanel().AddPanelOnGrid(0, 0)
@@ -38,6 +42,11 @@ func NewFormAddNode(parent uiinterfaces.Widget, client *client.Client) *FormAddN
 	pRight.AddTextBlockOnGrid(0, 0, "Node name:")
 	c.txtUnitName = pRight.AddTextBoxOnGrid(1, 0)
 
+	if c.addThis {
+		hostname, _ := os.Hostname()
+		c.txtUnitName.SetText(hostname)
+	}
+
 	pRight.AddVSpacerOnGrid(0, 10)
 
 	pButtons.AddHSpacerOnGrid(0, 0)
@@ -50,6 +59,7 @@ func NewFormAddNode(parent uiinterfaces.Widget, client *client.Client) *FormAddN
 
 		c.btnOK.SetEnabled(false)
 		c.client.CloudAddNode(c.txtUnitName.Text(), func(resp nodeinterface.CloudAddNodeResponse, err error) {
+			c.NodeId = resp.NodeId
 			if err == nil {
 				c.TryAccept = nil
 				c.Accept()

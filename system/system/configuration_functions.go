@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"io/ioutil"
+	"os"
 )
 
 type Config struct {
@@ -44,6 +45,14 @@ func (c *System) SaveConfig() error {
 	configBytes, err := json.MarshalIndent(&conf, "", " ")
 	if err != nil {
 		return err
+	}
+
+	_, err = os.Stat(c.ss.ServerDataPath())
+	if err != nil {
+		err = os.MkdirAll(c.ss.ServerDataPath(), 0777)
+		if err != nil {
+			logger.Println("System SaveConfig MkdirAll error: ", err)
+		}
 	}
 
 	err = ioutil.WriteFile(c.ss.ServerDataPath()+"/config.json", configBytes, 0666)

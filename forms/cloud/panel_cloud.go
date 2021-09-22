@@ -11,7 +11,7 @@ type PanelCloud struct {
 	client *client.Client
 	wCloud *WidgetCloud
 
-	OnNeedToConnect func(nodeId string, sessionKey string)
+	OnNeedToConnect func(userName string, nodeId string, sessionKey string)
 }
 
 func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelCloud {
@@ -21,9 +21,9 @@ func NewPanelCloud(parent uiinterfaces.Widget, client *client.Client) *PanelClou
 	c.wCloud = NewWidgetCloud(&c, client)
 	c.AddWidgetOnGrid(c.wCloud, 0, 0)
 
-	c.wCloud.OnNeedToConnect = func(nodeId string, sessionKey string) {
+	c.wCloud.OnNeedToConnect = func(userName string, nodeId string, sessionKey string) {
 		if c.OnNeedToConnect != nil {
-			c.OnNeedToConnect(nodeId, sessionKey)
+			c.OnNeedToConnect(userName, nodeId, sessionKey)
 		}
 	}
 
@@ -38,4 +38,8 @@ func (c *PanelCloud) FullRefresh() {
 
 func (c *PanelCloud) UpdateStyle() {
 	c.Panel.UpdateStyle()
+}
+
+func (c *PanelCloud) IsSomethingWrong() bool {
+	return c.wCloud.IsSomethingWrong()
 }

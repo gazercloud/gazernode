@@ -6,22 +6,9 @@
 package main
 
 import (
-	"crypto/tls"
-	"fmt"
 	"github.com/gazercloud/gazernode/app"
 	"github.com/gazercloud/gazernode/application"
-	"net"
-	"time"
 )
-
-func ttt() {
-	conn, err := tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 3}, "tcp", "51.38.98.192:1077", &tls.Config{})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	conn.Close()
-}
 
 func main() {
 	application.Name = "Gazer"

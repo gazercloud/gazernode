@@ -12,6 +12,7 @@ import (
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
+	"golang.org/x/image/colornames"
 	"time"
 )
 
@@ -209,6 +210,8 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, cl *client.Client, clou
 		if c.first {
 			c.txtUserName.SetText("admin")
 			c.txtPassword.SetText("admin")
+			c.btnOK.SetBorders(1, colornames.Green)
+			c.btnOK.SetForeColor(colornames.Green)
 		}
 	} else {
 		c.SetTitle("Connection to node")

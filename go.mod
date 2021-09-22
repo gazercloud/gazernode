@@ -31,6 +31,7 @@ require (
 	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da
 	go.bug.st/serial v1.1.2
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
+	golang.org/x/net v0.0.0-20200904194848-62affa334b73
 	golang.org/x/sys v0.0.0-20210223212115-eede4237b368
 	golang.org/x/text v0.3.5
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect

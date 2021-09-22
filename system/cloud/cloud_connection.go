@@ -362,7 +362,7 @@ func (c *Connection) thConn() {
 				var err error
 				var conn net.Conn
 				c.connectionStatus = "connecting"
-				conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1}, "tcp", c.addr, &tls.Config{})
+				conn, err = tls.DialWithDialer(&net.Dialer{Timeout: time.Second * 1, KeepAlive: 5 * time.Second}, "tcp", c.addr, &tls.Config{})
 				if err != nil {
 					c.conn = nil
 					c.connectionStatus = "connect error:" + err.Error()
@@ -878,7 +878,7 @@ func (c *Connection) AddNode(name string) (resp nodeinterface.CloudAddNodeRespon
 	logger.Println("!!!!!! s-node-add resp", string(cloudResp))
 
 	type NodeAddResponse struct {
-		NodeId string `json:"node_id"`
+		NodeId string `json:"id"`
 	}
 	var r NodeAddResponse
 	err = json.Unmarshal(cloudResp, &r)

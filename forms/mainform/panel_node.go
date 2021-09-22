@@ -76,7 +76,7 @@ type PanelNode struct {
 	updateStatisticsLastTime time.Time
 
 	OnNodeNameUpdated func(nodeName string)
-	OnNeedToConnect   func(nodeId string, sessionKey string)
+	OnNeedToConnect   func(userName string, nodeId string, sessionKey string)
 }
 
 func NewPanelNode(parent uiinterfaces.Widget, client *client.Client, connectionIndex int) *PanelNode {
@@ -313,9 +313,9 @@ func (c *PanelNode) OnInit() {
 	c.panelUsers = users.NewPanelUsers(panelContent, c.client)
 	panelContent.AddWidgetOnGrid(c.panelUsers, 0, 5)
 
-	c.panelCloud.OnNeedToConnect = func(nodeId string, sessionKey string) {
+	c.panelCloud.OnNeedToConnect = func(userName string, nodeId string, sessionKey string) {
 		if c.OnNeedToConnect != nil {
-			c.OnNeedToConnect(nodeId, sessionKey)
+			c.OnNeedToConnect(userName, nodeId, sessionKey)
 		}
 	}
 
@@ -480,6 +480,13 @@ func (c *PanelNode) timerUpdate() {
 
 func (c *PanelNode) updateStatistics() {
 	c.updateStatisticsLastTime = time.Now()
+
+	if c.panelCloud.IsSomethingWrong() {
+		c.btnPanelCloud.SetForeColor(colornames.Orangered)
+	} else {
+		c.btnPanelCloud.SetForeColor(nil)
+	}
+
 	c.client.GetStatistics(func(statistics common_interfaces.Statistics, err error) {
 		if c.lblStatistics != nil {
 			if err == nil {

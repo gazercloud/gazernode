@@ -3,6 +3,7 @@ package cloud
 import (
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
@@ -14,11 +15,12 @@ type WidgetCloudLogin struct {
 	uicontrols.Panel
 	client *client.Client
 
-	userName    string
-	txtEMail    *uicontrols.TextBox
-	txtPassword *uicontrols.TextBox
-	lblStatus   *uicontrols.TextBlock
-	btnLogin    *uicontrols.Button
+	userName        string
+	txtEMail        *uicontrols.TextBox
+	txtPassword     *uicontrols.TextBox
+	lblStatus       *uicontrols.TextBlock
+	lblRegistration *uicontrols.TextBlock
+	btnLogin        *uicontrols.Button
 
 	OnNeedToLoadState func()
 }
@@ -71,6 +73,12 @@ func (c *WidgetCloudLogin) OnInit() {
 	})
 	c.btnLogin.SetTabIndex(3)
 	c.lblStatus = pLoginForm.AddTextBlockOnGrid(1, 3, "-")
+	c.lblRegistration = pLoginForm.AddTextBlockOnGrid(1, 4, "Don't have an account yet? Registration.")
+	c.lblRegistration.SetUnderline(true)
+	c.lblRegistration.SetMouseCursor(ui.MouseCursorPointer)
+	c.lblRegistration.OnClick = func(ev *uievents.Event) {
+		client.OpenBrowser("https://home.gazer.cloud/#form=registration")
+	}
 
 	c.AddVSpacerOnGrid(0, 2)
 

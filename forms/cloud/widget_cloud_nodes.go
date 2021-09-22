@@ -8,6 +8,7 @@ import (
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
+	"golang.org/x/image/colornames"
 	"strconv"
 )
 
@@ -33,7 +34,10 @@ type WidgetCloudNodes struct {
 
 	menuNodes *uicontrols.PopupMenu
 
-	OnNeedToConnect func(nodeId string, sessionKey string)
+	needToAddThisNode bool
+	currentUser       string
+
+	OnNeedToConnect func(userName string, nodeId string, sessionKey string)
 }
 
 func NewWidgetCloudNodes(parent uiinterfaces.Widget, client *client.Client) *WidgetCloudNodes {
@@ -109,7 +113,7 @@ func (c *WidgetCloudNodes) OnInit() {
 	}, uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, "")
 	c.menuNodes.AddItemWithUiResImage("Connect ...", func(event *uievents.Event) {
 		c.connect()
-	}, uiresources.R_icons_material4_png_navigation_refresh_materialicons_48dp_1x_baseline_refresh_black_48dp_png, "")
+	}, uiresources.R_icons_material4_png_hardware_cast_connected_materialiconsoutlined_48dp_1x_outline_cast_connected_black_48dp_png, "")
 	c.lvItems.SetContextMenu(c.menuNodes)
 
 	lblAccountInfo := pContent.AddTextBlockOnGrid(0, 1, "Account information")
@@ -142,9 +146,14 @@ func (c *WidgetCloudNodes) Dispose() {
 }
 
 func (c *WidgetCloudNodes) addNode() {
-	d := NewFormAddNode(c, c.client)
+	d := NewFormAddNode(c, c.client, c.needToAddThisNode)
 	d.ShowDialog()
 	d.OnAccept = func() {
+		if c.needToAddThisNode {
+			c.client.CloudSetCurrentNodeId(d.NodeId, func(response nodeinterface.CloudSetCurrentNodeIdResponse, err error) {
+				c.loadNodes()
+			})
+		}
 		c.loadNodes()
 	}
 }
@@ -196,7 +205,7 @@ func (c *WidgetCloudNodes) connect() {
 	}
 	item := c.lvItems.SelectedItems()[0]
 	if c.OnNeedToConnect != nil {
-		c.OnNeedToConnect(item.TempData, c.lastSessionKey)
+		c.OnNeedToConnect(c.currentUser, item.TempData, c.lastSessionKey)
 	}
 }
 
@@ -238,6 +247,21 @@ func (c *WidgetCloudNodes) SetState(response nodeinterface.CloudStateResponse) {
 	if !c.accountLoaded {
 		c.loadNodes()
 	}
+
+	c.needToAddThisNode = false
+	if c.accountLoaded {
+		if response.NodeId == "" {
+			c.needToAddThisNode = true
+		}
+	}
+
+	if c.needToAddThisNode {
+		c.btnAdd.SetBorders(1, colornames.Green)
+	} else {
+		c.btnAdd.SetBorders(1, nil)
+	}
+
+	c.currentUser = response.UserName
 }
 
 func (c *WidgetCloudNodes) loadNodes() {
