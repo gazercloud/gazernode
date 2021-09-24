@@ -2,7 +2,6 @@ package gazerping
 
 import (
 	"errors"
-	"github.com/gazercloud/gazernode/logger"
 	"golang.org/x/net/icmp"
 	"golang.org/x/net/ipv4"
 	"net"
@@ -81,7 +80,7 @@ func PingHost(addr string, dataFrame []byte, timeoutMs int, source uint16, seque
 		if ipv4 != nil {
 			ipAddr = ipv4
 		}
-		logger.Println("IPs:", ip.String())
+		//logger.Println("IPs:", ip.String())
 	}
 
 	if len(ipAddr) == 0 {

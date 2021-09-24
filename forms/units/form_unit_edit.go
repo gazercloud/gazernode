@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/forms/tools"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazerui/ui"
@@ -30,9 +29,9 @@ type FormUnitEdit struct {
 	CreatedUnitId string
 }
 
-func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId string, unitType string) *FormUnitEdit {
+func NewFormUnitEdit(parent uiinterfaces.Widget, cl *client.Client, unitId string, unitType string) *FormUnitEdit {
 	var c FormUnitEdit
-	c.client = client
+	c.client = cl
 	c.unitId = unitId
 	c.unitType = unitType
 	c.InitControl(parent, &c)
@@ -90,9 +89,11 @@ func NewFormUnitEdit(parent uiinterfaces.Widget, client *client.Client, unitId s
 	makeHelpButton := func(panel *uicontrols.Panel) {
 		c.txtHelp = panel.AddTextBlockOnGrid(2, 0, "Help")
 		c.txtHelp.OnClick = func(ev *uievents.Event) {
-			dialog := tools.NewFormHelp(&c, c.unitTypeName, c.help)
+			/*dialog := tools.NewFormHelp(&c, c.unitTypeName, c.help)
 			dialog.Resize(900, 500)
 			dialog.ShowDialog()
+			*/
+			client.OpenBrowser(c.help)
 		}
 		c.txtHelp.SetForeColor(c.AccentColor())
 		c.txtHelp.SetUnderline(true)

@@ -274,9 +274,15 @@ func (c *Connection) updateCurrentRepeater() {
 		return
 	}
 
+	type RepeaterForNodeResponseItem struct {
+		Host  string  `json:"host"`
+		Score float64 `json:"score"`
+	}
+
 	type RepeaterForNodeResponse struct {
-		NodeId string `json:"node_id"`
-		Host   string `json:"host"`
+		NodeId string                        `json:"node_id"`
+		Items  []RepeaterForNodeResponseItem `json:"items"`
+		Host   string                        `json:"host"`
 	}
 
 	content, _ := ioutil.ReadAll(response.Body)
@@ -293,9 +299,20 @@ func (c *Connection) updateCurrentRepeater() {
 	}
 
 	c.addr = resp.Host + ":1077"
-	c.connectionStatus = "repeater search complete: " + c.addr
 
-	logger.Println("updateCurrentRepeater ok:", resp.Host)
+	//c.addr = "rep02.gazer.cloud:1077"
+
+	c.connectionStatus = "repeater search complete: " + c.addr
+	logger.Println("updateCurrentRepeater ok:", c.addr)
+
+	/*if len(resp.Items) > 0 {
+		c.addr = resp.Items[0].Host + ":1077"
+		c.connectionStatus = "repeater search complete: " + c.addr
+		logger.Println("updateCurrentRepeater ok:", c.addr)
+	} else {
+		logger.Println("updateCurrentRepeater no items")
+	}*/
+
 }
 
 func (c *Connection) updateRepeaterForNode(nodeId string) {

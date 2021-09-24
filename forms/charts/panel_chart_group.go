@@ -133,6 +133,7 @@ func (c *PanelCharts) OnInit() {
 		}
 		c.SetEdit(true)
 		c.updateButtons()
+		c.itemsPanel.LoadItems()
 	})
 	c.btnEdit.SetTooltip("Switch to Edit")
 	c.btnEdit.SetMinWidth(70)

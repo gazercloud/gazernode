@@ -125,6 +125,10 @@ func (c *MapToolbox) Dispose() {
 }
 
 func (c *MapToolbox) Reset() {
+	if c.txtFilter == nil {
+		return
+	}
+
 	c.currentTool = c.defaultCurrentTool
 	c.txtFilter.SetText("")
 	c.loadItems()
@@ -137,6 +141,10 @@ func (c *MapToolbox) SetMapDataSource(mapDataSource IMapDataSource) {
 }
 
 func (c *MapToolbox) loadItems() {
+	if c.panelButtons == nil {
+		return
+	}
+
 	c.buttons = make([]*uicontrols.Button, 0)
 	c.panelButtons.RemoveAllWidgets()
 	c.itemsCount = 0
@@ -150,6 +158,10 @@ func (c *MapToolbox) loadItems() {
 }
 
 func (c *MapToolbox) AddItem(displayName string, codeName string, image image.Image, item common_interfaces.ResourcesItemInfo) {
+	if c.panelButtons == nil {
+		return
+	}
+
 	btn := uicontrols.NewButton(c, " "+displayName, c.onBtnClicked)
 	btn.SetUserData("codeName", codeName)
 	btn.SetUserData("item", item)
@@ -163,6 +175,10 @@ func (c *MapToolbox) AddItem(displayName string, codeName string, image image.Im
 }
 
 func (c *MapToolbox) AddStopItem() {
+	if c.panelButtons == nil {
+		return
+	}
+
 	c.panelButtons.AddVSpacerOnGrid(0, c.itemsCount)
 	c.updateButtonsState()
 	c.itemsCount++
@@ -174,6 +190,7 @@ func (c *MapToolbox) onBtnClicked(ev *uievents.Event) {
 }
 
 func (c *MapToolbox) updateButtonsState() {
+
 	allButtons := make([]*uicontrols.Button, 0)
 	allButtons = append(allButtons, c.standardButtons...)
 	allButtons = append(allButtons, c.buttons...)
@@ -233,6 +250,10 @@ func (c *MapToolbox) UpdateStyle() {
 }
 
 func (c *MapToolbox) SetItems(widgets common_interfaces.ResourcesInfo) {
+	if c.panelButtons == nil {
+		return
+	}
+
 	c.panelButtons.RemoveAllWidgets()
 
 	for _, w := range widgets.Items {

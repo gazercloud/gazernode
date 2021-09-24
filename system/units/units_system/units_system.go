@@ -7,7 +7,6 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/resources"
-	"github.com/gazercloud/gazernode/system/units/databases/unit_mysql"
 	"github.com/gazercloud/gazernode/system/units/databases/unit_postgreesql"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
@@ -23,7 +22,6 @@ import (
 	"github.com/gazercloud/gazernode/system/units/network/unit_tcp_connect"
 	unit_tcp_telnet_control "github.com/gazercloud/gazernode/system/units/network/unit_tcp_control"
 	"github.com/gazercloud/gazernode/system/units/raspberry_pi/unit_raspberry_pi_cpu_temp"
-	"github.com/gazercloud/gazernode/system/units/raspberry_pi/unit_raspberry_pi_gpio"
 	unit_serial_port_key_value "github.com/gazercloud/gazernode/system/units/serial_port/serial_port_key_value"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_network"
@@ -80,127 +78,70 @@ func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
 	var unitType *UnitType
 
 	unitType = c.RegisterUnit("network_ping", "network", "Ping", unit_ping.New, unit_ping.Image, "")
-	unitType.Help = `The sensor sends ICMP-requests to the remote host and measures the response time. 
-The measured time is written to the data item "Time".
-It works like standard command "ping".
-You can specify period between frames and timeout in milliseconds.
-Timeout: 100-10000 ms. Default value is 1000
-Period: 0-999999 ms. Default value is 1000
-Frame size: 4-500 bytes. Default value is 64
-`
+	unitType.Help = "https://gazer.cloud/unit-types/network/ping/"
 	unitType = c.RegisterUnit("network_tcp_connect", "network", "TCP Connect", unit_tcp_connect.New, unit_tcp_connect.Image, "")
-	unitType.Help = `The sensor tries to connect to the specified address and writes the result to the data item.
-
-Address - Destination host
-Timeout - Timeout in milliseconds to wait for each reply.
-Period - The period between sensor activities
-
-The result time is written to the data item "Time"
-`
+	unitType.Help = "https://gazer.cloud/unit-types/network/tcp-connect/"
 
 	unitType = c.RegisterUnit("network_http_json_requester", "network", "JSON Requester", unit_http_json_requester.New, unit_http_json_requester.Image, "")
-	unitType.Help = `
-`
+	unitType.Help = "https://gazer.cloud/unit-types/network/json-requester/"
 
 	unitType = c.RegisterUnit("network_tcp_telnet_control", "network", "TCP Telnet Control", unit_tcp_telnet_control.New, unit_tcp_telnet_control.Image, "")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/network/tcp-telnet-control/"
 
 	unitType = c.RegisterUnit("network_ssl", "network", "SSL", unit_ssl.New, unit_ssl.Image, "")
-	unitType.Help = `
-`
+	unitType.Help = "https://gazer.cloud/unit-types/network/ssl/"
 
 	//unitType = c.RegisterUnit("network_http_json_items_server", "network", "HTTP Json Items Server", unit_http_json_items_server.New, unit_http_json_items_server.Image, "")
 	//unitType = c.RegisterUnit("network_http_json_units_server", "network", "HTTP Json Units Server", unit_http_json_units_server.New, unit_http_json_units_server.Image, "")
 
 	unitType = c.RegisterUnit("computer_memory", "computer", "Memory", unit_system_memory.New, unit_system_memory.Image, "")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/computer/memory/"
 	unitType = c.RegisterUnit("computer_process", "computer", "Process", unit_process.New, unit_process.Image, "")
-	unitType.Help = `
-The sensor periodically gets information about the process and writes it to the corresponding data items.
-`
+	unitType.Help = "https://gazer.cloud/unit-types/computer/process/"
 	unitType = c.RegisterUnit("computer_storage", "computer", "Storage", unit_storage.New, unit_storage.Image, "")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/computer/storage/"
 	unitType = c.RegisterUnit("computer_network", "computer", "Network", unit_network.New, unit_network.Image, "")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/computer/network/"
 
 	unitType = c.RegisterUnit("computer_network_interface", "computer", "Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/computer/network-interface/"
 
 	unitType = c.RegisterUnit("file_size", "file", "File Size", unit_filesize.New, unit_filesize.Image, "")
-	unitType.Help = `
-The sensor writes the file size to the data item.
-`
+	unitType.Help = "https://gazer.cloud/unit-types/files/file-size/"
 	unitType = c.RegisterUnit("file_content", "file", "File Content", unit_filecontent.New, unit_filecontent.Image, "")
-	unitType.Help = `
-The sensor reads the file contents and writes it to the data item. 
-The maximum size to be read is 1 kilobyte.
-`
+	unitType.Help = "https://gazer.cloud/unit-types/files/file-content/"
 	//unitType = c.RegisterUnit("file_csv_export", "file", "CSV Export", unit_csv_export.New, unit_csv_export.Image, "")
 
 	unitType = c.RegisterUnit("general_cgi", "general", "Console", unit_general_cgi.New, unit_general_cgi.Image, "")
-	unitType.Help = `
-CGI is an interface for requesting information through the command line interface. 
-The sensor reads the output stream of the external program. All external program output is written to the data item. 
-In fact, this sensor allows you transfer a file content to the cloud in real time.
-`
+	unitType.Help = "https://gazer.cloud/unit-types/general/cgi/"
 	unitType = c.RegisterUnit("general_cgi_key_value", "general", "Console Key=Value", unit_general_cgi_key_value.New, unit_general_cgi_key_value.Image, "")
-	unitType.Help = `
-The Sensor is similar to CGI-sensor, but it can parse data by sorting it out into data elements. 
-The sensor requires each data item to be written on a separate line. 
-The item name is placed before the equal sign(=), and the value is placed after it.
-`
+	unitType.Help = "https://gazer.cloud/unit-types/general/cgi-key-value/"
 	unitType = c.RegisterUnit("general_manual", "general", "Manual Items", unit_manual.New, unit_manual.Image, "")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/general/manual-items/"
 	unitType = c.RegisterUnit("general_hhgttg", "general", "HHGTTG", unit_hhgttg.New, unit_hhgttg.Image, "")
-	unitType.Help = `
-Ultimate Question of Life, the Universe, and Everything
-`
+	unitType.Help = "https://gazer.cloud/unit-types/general/hhgttg/"
 	unitType = c.RegisterUnit("general_signal_generator", "general", "Signal Generator", unit_signal_generator.New, unit_signal_generator.Image, "")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/general/signal-generator/"
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/serial-port/serial-port-key-value/"
 
-	unitType = c.RegisterUnit("raspberry_pi_gpio", "raspberry_pi", "Raspberry PI GPIO", unit_raspberry_pi_gpio.New, unit_raspberry_pi_gpio.Image, "RaspberryPI GPIO")
-	unitType.Help = `
-No description available
-`
+	/*unitType = c.RegisterUnit("raspberry_pi_gpio", "raspberry_pi", "Raspberry PI GPIO", unit_raspberry_pi_gpio.New, unit_raspberry_pi_gpio.Image, "RaspberryPI GPIO")
+	unitType.Help = ""*/
 
 	unitType = c.RegisterUnit("raspberry_pi_cpu_temp", "raspberry_pi", "Raspberry PI CPU temperature", unit_raspberry_pi_cpu_temp.New, unit_raspberry_pi_cpu_temp.Image, "RaspberryPI CPU Temperature")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/raspberrypi/cpu-temperature/"
 
 	unitType = c.RegisterUnit("database_postgresql", "database", "PostgreSQL", unit_postgreesql.New, unit_postgreesql.Image, "PostgreSQL database query execute")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = "https://gazer.cloud/unit-types/databases/postgresql/"
 
-	unitType = c.RegisterUnit("database_mysql", "database", "MySQL", unit_mysql.New, unit_mysql.Image, "MySQL database query execute")
-	unitType.Help = `
-No description available
-`
-
+	/*unitType = c.RegisterUnit("database_mysql", "database", "MySQL", unit_mysql.New, unit_mysql.Image, "MySQL database query execute")
+		unitType.Help = `
+	No description available
+	`
+	*/
 	unitType = c.RegisterUnit("gazer_cloud", "gazer", "Gazer Cloud", unit_gazer_cloud.New, unit_gazer_cloud.Image, "Gazer Cloud Monitoring")
-	unitType.Help = `
-No description available
-`
+	unitType.Help = ""
 
 	//unitType = c.RegisterUnit("industrial_modbus", "industrial", "Modbus TCP", unit_modbus.New, unit_modbus.Image, "Modbus TCP")
 

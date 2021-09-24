@@ -121,7 +121,7 @@ func NewPanelUnitConfigItem(parent uiinterfaces.Widget, item *units_common.UnitC
 		c.numValue.SetMaxWidth(100)
 		//c.AddHSpacerOnGrid(2, 0)
 
-		{
+		/*{
 			minValue, err := strconv.ParseFloat(item.MinValue, 64)
 			if err == nil {
 				c.numValue.SetMinValue(minValue)
@@ -137,7 +137,7 @@ func NewPanelUnitConfigItem(parent uiinterfaces.Widget, item *units_common.UnitC
 			} else {
 				c.numValue.SetMaxValue(100)
 			}
-		}
+		}*/
 
 		{
 			precision, _ := strconv.ParseInt(item.Format, 10, 64)

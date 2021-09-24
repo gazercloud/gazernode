@@ -45,9 +45,9 @@ func (c *UnitPing) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	pAddr := meta.Add("addr", "Address", "localhost", "string", "", "", "")
 	pAddr.ItemIsDisplayName = true
-	meta.Add("period", "Period, ms", "1000", "num", "10", "4294967295", "0")
-	meta.Add("timeout", "Timeout, ms", "1000", "num", "10", "4294967295", "0")
-	meta.Add("frame_size", "Frame Size, bytes", "64", "num", "4", "500", "0")
+	meta.Add("period", "Period, ms", "1000", "num", "100", "60000", "0")
+	meta.Add("timeout", "Timeout, ms", "1000", "num", "100", "10000", "0")
+	meta.Add("frame_size", "Frame Size, bytes", "64", "num", "4", "1400", "0")
 	return meta.Marshal()
 }
 
@@ -112,8 +112,8 @@ func (c *UnitPing) InternalUnitStart() error {
 		c.SetString(ItemNameTime, err.Error(), "error")
 		return err
 	}
-	if c.frameSize > 500 {
-		err = errors.New("wrong FrameSize (>500)")
+	if c.frameSize > 1400 {
+		err = errors.New("wrong FrameSize (>1400)")
 		c.SetString(ItemNameTime, err.Error(), "error")
 		return err
 	}
