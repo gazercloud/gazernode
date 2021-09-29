@@ -16,11 +16,12 @@ import (
 )
 
 var DefaultUserName string
-var DefaultUserPassword string
+
+//var DefaultUserPassword string
 
 func init() {
 	DefaultUserName = "admin"
-	DefaultUserPassword = "admin"
+	//DefaultUserPassword = "admin"
 }
 
 type UserSession struct {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/resources"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"golang.org/x/sys/windows"
 	"strconv"
 	"strings"
@@ -68,7 +69,7 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 	if err != nil {
 		logger.Println("ERROR[UnitSystemProcess]:", err)
 		err = errors.New("config error")
-		c.SetString("Common/ProcessID", err.Error(), "error")
+		c.SetString("Common/ProcessID", err.Error(), uom.ERROR)
 		return err
 	}
 
@@ -107,14 +108,14 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 
 	if !c.processIdActive && !c.processNameActive {
 		err = errors.New("wrong filter")
-		c.SetString("Common/ProcessID", err.Error(), "error")
+		c.SetString("Common/ProcessID", err.Error(), uom.ERROR)
 		return err
 	}
 
 	c.periodMs = int(config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
-		c.SetString("Common/ProcessID", err.Error(), "error")
+		c.SetString("Common/ProcessID", err.Error(), uom.ERROR)
 		return err
 	}
 
@@ -209,26 +210,26 @@ func (c *UnitSystemProcess) Tick() {
 			hProcess, err := windows.OpenProcess(windows.STANDARD_RIGHTS_REQUIRED|windows.SYNCHRONIZE|windows.SPECIFIC_RIGHTS_ALL, false, uint32(processId))
 			if err == nil {
 				// Common
-				c.SetString("Common/Name", c.actualProcessName, "")
-				c.SetUInt32("Common/ProcessID", uint32(processId), "")
+				c.SetString("Common/Name", c.actualProcessName, uom.NONE)
+				c.SetUInt32("Common/ProcessID", uint32(processId), uom.NONE)
 
 				{
 					res, _ := GetProcessMemoryInfo(hProcess)
-					c.SetUInt64("Main/Working Set Size", res.WorkingSetSize/1024, "KB")
+					c.SetUInt64("Main/Working Set Size", res.WorkingSetSize/1024, uom.KB)
 
-					c.SetUInt32("Memory/Page Faults", res.PageFaultCount, "")
-					c.SetUInt64("Memory/Peak Working SetSize", res.PeakWorkingSetSize/1024, "KB")
-					c.SetUInt64("Memory/Private Usage", res.PrivateUsage/1024, "KB")
+					c.SetUInt32("Memory/Page Faults", res.PageFaultCount, uom.NONE)
+					c.SetUInt64("Memory/Peak Working SetSize", res.PeakWorkingSetSize/1024, uom.KB)
+					c.SetUInt64("Memory/Private Usage", res.PrivateUsage/1024, uom.KB)
 				}
 
-				c.SetUInt32("Main/Thread Count", uint32(ProcessThreadsCount(uint32(processId))), "")
-				c.SetUInt32("Main/Handle Count", uint32(GetProcessHandleCount(hProcess)), "")
+				c.SetUInt32("Main/Thread Count", uint32(ProcessThreadsCount(uint32(processId))), uom.NONE)
+				c.SetUInt32("Main/Handle Count", uint32(GetProcessHandleCount(hProcess)), uom.NONE)
 				{
 					cntGDI, cntUser, cntGDIPeak, cntUserPeak, _ := GetGuiResources(hProcess)
-					c.SetInt64("Main/GDI Objects", cntGDI, "")
-					c.SetInt64("Main/GDI Objects Peak", cntGDIPeak, "")
-					c.SetInt64("Main/User Objects", cntUser, "")
-					c.SetInt64("Main/User Objects Peak", cntUserPeak, "")
+					c.SetInt64("Main/GDI Objects", cntGDI, uom.NONE)
+					c.SetInt64("Main/GDI Objects Peak", cntGDIPeak, uom.NONE)
+					c.SetInt64("Main/User Objects", cntUser, uom.NONE)
+					c.SetInt64("Main/User Objects Peak", cntUserPeak, uom.NONE)
 				}
 
 				{
@@ -264,20 +265,20 @@ func (c *UnitSystemProcess) Tick() {
 							usageCpu = 0
 						}
 
-						c.SetInt64("CPU/Kernel Mode Time", kernelTimeMs, "ms")
-						c.SetInt64("CPU/User Mode Time", userTimeMs, "ms")
-						c.SetFloat64("CPU/Usage", usageCpu*100, "%", 1)
-						c.SetFloat64("CPU/Usage Kernel", usageCpuKernel*100, "%", 1)
-						c.SetFloat64("CPU/Usage User", usageCpuUser*100, "%", 1)
+						c.SetInt64("CPU/Kernel Mode Time", kernelTimeMs, uom.MS)
+						c.SetInt64("CPU/User Mode Time", userTimeMs, uom.MS)
+						c.SetFloat64("CPU/Usage", usageCpu*100, uom.PERCENTS, 1)
+						c.SetFloat64("CPU/Usage Kernel", usageCpuKernel*100, uom.PERCENTS, 1)
+						c.SetFloat64("CPU/Usage User", usageCpuUser*100, uom.PERCENTS, 1)
 
 						{
 							res, _ := GetProcessIoCounters(hProcess)
-							c.SetUInt64("Operations/Read Operation Count", res.ReadOperationCount, "")
-							c.SetUInt64("Operations/Read Transfer Count", res.ReadTransferCount, "")
-							c.SetUInt64("Operations/Write Operation Count", res.WriteOperationCount, "")
-							c.SetUInt64("Operations/Write Transfer Count", res.WriteTransferCount, "")
-							c.SetUInt64("Operations/Other Operation Count", res.OtherOperationCount, "")
-							c.SetUInt64("Operations/Other Transfer Count", res.OtherTransferCount, "")
+							c.SetUInt64("Operations/Read Operation Count", res.ReadOperationCount, uom.NONE)
+							c.SetUInt64("Operations/Read Transfer Count", res.ReadTransferCount, uom.NONE)
+							c.SetUInt64("Operations/Write Operation Count", res.WriteOperationCount, uom.NONE)
+							c.SetUInt64("Operations/Write Transfer Count", res.WriteTransferCount, uom.NONE)
+							c.SetUInt64("Operations/Other Operation Count", res.OtherOperationCount, uom.NONE)
+							c.SetUInt64("Operations/Other Transfer Count", res.OtherTransferCount, uom.NONE)
 						}
 
 					}
@@ -293,36 +294,36 @@ func (c *UnitSystemProcess) Tick() {
 
 		if processId < 0 {
 			// Common
-			c.SetString("Common/Name", c.processName, "")
-			c.SetString("Common/ProcessID", "not found", "error")
+			c.SetString("Common/Name", c.processName, uom.NONE)
+			c.SetString("Common/ProcessID", "not found", uom.ERROR)
 
 			// Main
-			c.SetString("Main/Working Set Size", "", "error")
-			c.SetString("Main/Thread Count", "", "error")
-			c.SetString("Main/Handle Count", "", "error")
-			c.SetString("Main/GDI Objects", "", "error")
-			c.SetString("Main/GDI Objects Peak", "", "error")
-			c.SetString("Main/User Objects", "", "error")
-			c.SetString("Main/User Objects Peak", "", "error")
+			c.SetString("Main/Working Set Size", "", uom.ERROR)
+			c.SetString("Main/Thread Count", "", uom.ERROR)
+			c.SetString("Main/Handle Count", "", uom.ERROR)
+			c.SetString("Main/GDI Objects", "", uom.ERROR)
+			c.SetString("Main/GDI Objects Peak", "", uom.ERROR)
+			c.SetString("Main/User Objects", "", uom.ERROR)
+			c.SetString("Main/User Objects Peak", "", uom.ERROR)
 
 			// Operations
-			c.SetString("Operations/Read Operation Count", "", "error")
-			c.SetString("Operations/Read Transfer Count", "", "error")
-			c.SetString("Operations/Write Operation Count", "", "error")
-			c.SetString("Operations/Write Transfer Count", "", "error")
-			c.SetString("Operations/Other Operation Count", "", "error")
-			c.SetString("Operations/Other Transfer Count", "", "error")
+			c.SetString("Operations/Read Operation Count", "", uom.ERROR)
+			c.SetString("Operations/Read Transfer Count", "", uom.ERROR)
+			c.SetString("Operations/Write Operation Count", "", uom.ERROR)
+			c.SetString("Operations/Write Transfer Count", "", uom.ERROR)
+			c.SetString("Operations/Other Operation Count", "", uom.ERROR)
+			c.SetString("Operations/Other Transfer Count", "", uom.ERROR)
 
 			// CPU
-			c.SetString("CPU/Kernel Mode Time", "", "error")
-			c.SetString("CPU/User Mode Time", "", "error")
-			c.SetString("CPU/Usage", "", "error")
-			c.SetString("CPU/Usage Kernel", "", "error")
-			c.SetString("CPU/Usage User", "", "error")
+			c.SetString("CPU/Kernel Mode Time", "", uom.ERROR)
+			c.SetString("CPU/User Mode Time", "", uom.ERROR)
+			c.SetString("CPU/Usage", "", uom.ERROR)
+			c.SetString("CPU/Usage Kernel", "", uom.ERROR)
+			c.SetString("CPU/Usage User", "", uom.ERROR)
 			// Memory
-			c.SetString("Memory/Page Faults", "", "error")
-			c.SetString("Memory/Peak Working SetSize", "", "error")
-			c.SetString("Memory/Private Usage", "", "error")
+			c.SetString("Memory/Page Faults", "", uom.ERROR)
+			c.SetString("Memory/Peak Working SetSize", "", uom.ERROR)
+			c.SetString("Memory/Private Usage", "", uom.ERROR)
 		}
 
 		dtOperationTime = time.Now().UTC()
@@ -330,36 +331,36 @@ func (c *UnitSystemProcess) Tick() {
 
 	{
 		// Common
-		c.SetString("Common/Name", "", "stopped")
-		c.SetString("Common/ProcessID", "", "stopped")
+		c.SetString("Common/Name", "", uom.STOPPED)
+		c.SetString("Common/ProcessID", "", uom.STOPPED)
 
 		// Main
-		c.SetString("Main/Working Set Size", "", "stopped")
-		c.SetString("Main/Thread Count", "", "stopped")
-		c.SetString("Main/Handle Count", "", "stopped")
-		c.SetString("Main/GDI Objects", "", "stopped")
-		c.SetString("Main/GDI Objects Peak", "", "stopped")
-		c.SetString("Main/User Objects", "", "stopped")
-		c.SetString("Main/User Objects Peak", "", "stopped")
+		c.SetString("Main/Working Set Size", "", uom.STOPPED)
+		c.SetString("Main/Thread Count", "", uom.STOPPED)
+		c.SetString("Main/Handle Count", "", uom.STOPPED)
+		c.SetString("Main/GDI Objects", "", uom.STOPPED)
+		c.SetString("Main/GDI Objects Peak", "", uom.STOPPED)
+		c.SetString("Main/User Objects", "", uom.STOPPED)
+		c.SetString("Main/User Objects Peak", "", uom.STOPPED)
 
 		// Operations
-		c.SetString("Operations/Read Operation Count", "", "stopped")
-		c.SetString("Operations/Read Transfer Count", "", "stopped")
-		c.SetString("Operations/Write Operation Count", "", "stopped")
-		c.SetString("Operations/Write Transfer Count", "", "stopped")
-		c.SetString("Operations/Other Operation Count", "", "stopped")
-		c.SetString("Operations/Other Transfer Count", "", "stopped")
+		c.SetString("Operations/Read Operation Count", "", uom.STOPPED)
+		c.SetString("Operations/Read Transfer Count", "", uom.STOPPED)
+		c.SetString("Operations/Write Operation Count", "", uom.STOPPED)
+		c.SetString("Operations/Write Transfer Count", "", uom.STOPPED)
+		c.SetString("Operations/Other Operation Count", "", uom.STOPPED)
+		c.SetString("Operations/Other Transfer Count", "", uom.STOPPED)
 
 		// CPU
-		c.SetString("CPU/Kernel Mode Time", "", "stopped")
-		c.SetString("CPU/User Mode Time", "", "stopped")
-		c.SetString("CPU/Usage", "", "stopped")
-		c.SetString("CPU/Usage Kernel", "", "stopped")
-		c.SetString("CPU/Usage User", "", "stopped")
+		c.SetString("CPU/Kernel Mode Time", "", uom.STOPPED)
+		c.SetString("CPU/User Mode Time", "", uom.STOPPED)
+		c.SetString("CPU/Usage", "", uom.STOPPED)
+		c.SetString("CPU/Usage Kernel", "", uom.STOPPED)
+		c.SetString("CPU/Usage User", "", uom.STOPPED)
 		// Memory
-		c.SetString("Memory/Page Faults", "", "stopped")
-		c.SetString("Memory/Peak Working SetSize", "", "stopped")
-		c.SetString("Memory/Private Usage", "", "stopped")
+		c.SetString("Memory/Page Faults", "", uom.STOPPED)
+		c.SetString("Memory/Peak Working SetSize", "", uom.STOPPED)
+		c.SetString("Memory/Private Usage", "", uom.STOPPED)
 	}
 
 	logger.Println("UNIT <Process Windows> stopped:", c.Id())

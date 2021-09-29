@@ -4,6 +4,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"golang.org/x/sys/windows"
 	"strconv"
 	"syscall"
@@ -62,15 +63,15 @@ func (c *UnitStorage) drives() []string {
 
 func (c *UnitStorage) InternalUnitStart() error {
 	drives := c.drives()
-	c.SetString("UsedPercents", "", "")
+	c.SetString("UsedPercents", "", uom.STARTED)
 	c.SetMainItem("UsedPercents")
 
 	for _, disk := range drives {
-		c.SetString(disk+"/Total", "", "")
+		c.SetString(disk+"/Total", "", uom.STARTED)
 		//c.SetString(disk+"/Available", "", "")
-		c.SetString(disk+"/Free", "", "")
-		c.SetString(disk+"/Used", "", "")
-		c.SetString(disk+"/Utilization", "", "")
+		c.SetString(disk+"/Free", "", uom.STARTED)
+		c.SetString(disk+"/Used", "", uom.STARTED)
+		c.SetString(disk+"/Utilization", "", uom.STARTED)
 	}
 
 	go c.Tick()
@@ -88,6 +89,9 @@ func (c *UnitStorage) GetConfigMeta() string {
 func (c *UnitStorage) Tick() {
 	var err error
 	c.Started = true
+
+	envolvedItems := make(map[string]string)
+
 	for !c.Stopping {
 		for i := 0; i < 10; i++ {
 			if c.Stopping {
@@ -112,9 +116,14 @@ func (c *UnitStorage) Tick() {
 				&total,
 				&avail,
 			)
+
+			envolvedItems[disk+"/Total"] = ""
+			envolvedItems[disk+"/Free"] = ""
+			envolvedItems[disk+"/Used"] = ""
+			envolvedItems[disk+"/Utilization"] = ""
+
 			if err != nil {
 				c.SetString(disk+"/Total", "", "error")
-				//c.SetString(disk+"/Available", "", "error")
 				c.SetString(disk+"/Free", "", "error")
 				c.SetString(disk+"/Used", "", "error")
 				c.SetString(disk+"/Utilization", "", "error")
@@ -136,7 +145,12 @@ func (c *UnitStorage) Tick() {
 
 		summary := summaryUtilization
 
+		envolvedItems["UsedPercents"] = ""
 		c.SetString("UsedPercents", summary, "%")
+	}
+
+	for envItem, _ := range envolvedItems {
+		c.SetString(envItem, "", uom.STOPPED)
 	}
 
 	c.Started = false

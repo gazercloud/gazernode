@@ -182,6 +182,10 @@ func (c *Unit) SetString(name string, value string, UOM string) {
 	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), flags)
 }
 
+func (c *Unit) SetPropertyIfDoesntExist(itemName string, propName string, propValue string) {
+	c.iDataStorage.SetPropertyIfDoesntExist(itemName, propName, propValue)
+}
+
 func (c *Unit) TouchItem(name string) {
 	fullName := c.Name()
 	if len(name) > 0 {

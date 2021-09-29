@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"net"
 	"strings"
 	"time"
@@ -45,7 +46,6 @@ func (c *UnitTcpConnect) GetConfigMeta() string {
 
 func (c *UnitTcpConnect) InternalUnitStart() error {
 	var err error
-	c.addr = "r002.gazer.cloud:80"
 
 	type Config struct {
 		Addr      string  `json:"addr"`
@@ -58,57 +58,57 @@ func (c *UnitTcpConnect) InternalUnitStart() error {
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)
 	if err != nil {
 		err = errors.New("config error")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 
 	c.addr = config.Addr
 	if c.addr == "" {
 		err = errors.New("wrong address")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 
 	c.timeoutMs = int(config.Timeout)
 	if c.timeoutMs < 100 {
 		err = errors.New("wrong timeout (<100)")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 	if c.timeoutMs > 10000 {
 		err = errors.New("wrong timeout (>10000)")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 
 	c.periodMs = int(config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 
 	if c.periodMs < c.timeoutMs {
 		err = errors.New("wrong period (<timeout)")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 	if c.periodMs < 100 {
 		err = errors.New("wrong period (<100)")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 	if c.periodMs > 60000 {
 		err = errors.New("wrong period (>60000)")
-		c.SetString(ItemNameTime, err.Error(), "error")
+		c.SetString(ItemNameTime, err.Error(), uom.ERROR)
 		return err
 	}
 
 	c.SetMainItem(ItemNameTime)
 
 	c.SetString(ItemNameTime, "", "")
-	c.SetString(ItemNameAddress, c.addr, "-")
-	c.SetString(ItemNameIP, "", "-")
+	c.SetString(ItemNameAddress, c.addr, uom.EVENT)
+	c.SetString(ItemNameIP, "", uom.EVENT)
 	go c.Tick()
 	return nil
 }
@@ -131,7 +131,7 @@ func (c *UnitTcpConnect) Tick() {
 			time.Sleep(10 * time.Millisecond)
 		}
 		if c.Stopping {
-			c.SetString(ItemNameTime, "stopped", "")
+			c.SetString(ItemNameTime, "", uom.STOPPED)
 			break
 		}
 		dtLastTime = time.Now().UTC()
@@ -151,7 +151,7 @@ func (c *UnitTcpConnect) Tick() {
 			ip := resolvedAddr.IP.String()
 			if ip != lastIP {
 				lastIP = ip
-				c.SetString(ItemNameIP, ip, "-")
+				c.SetString(ItemNameIP, ip, uom.EVENT)
 			}
 
 			timeBegin := time.Now()
@@ -159,7 +159,7 @@ func (c *UnitTcpConnect) Tick() {
 			timeEnd := time.Now()
 			duration := timeEnd.Sub(timeBegin)
 			if err == nil {
-				c.SetInt(ItemNameTime, int(duration.Milliseconds()), "ms")
+				c.SetInt(ItemNameTime, int(duration.Milliseconds()), uom.MS)
 			}
 
 			if conn != nil {
@@ -172,9 +172,9 @@ func (c *UnitTcpConnect) Tick() {
 				lastError = err.Error()
 				lastIP = ""
 				c.SetError(lastError)
-				c.SetString(ItemNameIP, lastIP, "error")
+				c.SetString(ItemNameIP, lastIP, uom.ERROR)
 			}
-			c.SetString(ItemNameTime, lastError, "error")
+			c.SetString(ItemNameTime, lastError, uom.ERROR)
 		} else {
 			if !c.Stopping {
 				if lastError != "" {
@@ -184,6 +184,6 @@ func (c *UnitTcpConnect) Tick() {
 			}
 		}
 	}
-	c.SetString(ItemNameTime, "", "stopped")
+	c.SetString(ItemNameTime, "", uom.STOPPED)
 	c.Started = false
 }

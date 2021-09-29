@@ -8,6 +8,7 @@ import (
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/utilities"
 	"github.com/gazercloud/gazernode/utilities/gazerping"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"math"
 	"net"
 	"runtime"
@@ -121,7 +122,9 @@ func (c *UnitPing) InternalUnitStart() error {
 	c.SetString(ItemNameAddress, c.addr, "-")
 	c.SetString(ItemNameTime, "", "")
 	c.SetString(ItemNameIP, "", "-")
-	c.SetInt(ItemNameDataSize, c.frameSize, "bytes")
+	c.SetInt(ItemNameDataSize, c.frameSize, uom.BYTES)
+
+	c.SetPropertyIfDoesntExist(ItemNameAddress, "color", "#AA0000")
 
 	go c.Tick()
 	return nil
@@ -136,7 +139,7 @@ func (c *UnitPing) Tick() {
 	var lastIP string
 
 	c.Started = true
-	dtLastPingTime := time.Now().UTC()
+	var dtLastPingTime time.Time
 	for !c.Stopping {
 		for {
 			if c.Stopping || time.Now().Sub(dtLastPingTime) > time.Duration(c.periodMs)*time.Millisecond {
@@ -198,7 +201,7 @@ func (c *UnitPing) Tick() {
 			}
 			if !c.Stopping {
 				t := pingTime
-				c.SetInt(ItemNameTime, t, "ms")
+				c.SetInt(ItemNameTime, t, uom.MS)
 				if lastError != "" {
 					c.SetError("")
 				}

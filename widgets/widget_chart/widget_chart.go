@@ -310,6 +310,26 @@ func (c *DocumentChartItem) GetLoadingDiapasons() []timechart.LoadingDiapason {
 	return result
 }
 
+func (c *DocumentChartItem) GetLoadedDiapasons() []timechart.LoadedDiapason {
+	result := make([]timechart.LoadedDiapason, 0)
+
+	for _, values := range c.values {
+		for _, r := range values.loadedRanges {
+			var diapason timechart.LoadedDiapason
+			diapason.MinTime = r.timeFrom
+			diapason.MaxTime = r.timeTo
+			diapason.TimeRange = values.groupTimeRange
+			result = append(result, diapason)
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].TimeRange < result[j].TimeRange
+	})
+
+	return result
+}
+
 func (c *DocumentChartItem) GetData(key string, minTime, maxTime int64, groupTimeRange int64) ([]*timechart.Value, string) {
 
 	groupTimeRange = AlignGroupTimeRange(groupTimeRange)
@@ -416,12 +436,14 @@ func (c *DocumentChartValues) requestHistory(task *LoadingTask) {
 						Loaded:        false,
 						UOM:           item.UOM,
 					}
+
+					//logger.Println("History: ", item)
 				}
 
 				// Apply incoming data
-				if len(resultItems) > 0 {
-					c.insertValues(resultItems, task.timeFrom, task.timeTo)
-				}
+				//if len(resultItems) > 0 {
+				c.insertValues(resultItems, task.timeFrom, task.timeTo)
+				//}
 			}
 		} else {
 			logger.Println("DocumentChart timerUpdateValuesHandler error: " + err.Error())
@@ -518,11 +540,12 @@ func (c *DocumentChartValues) checkValues(timeFrom, timeTo int64) {
 }
 
 func (c *DocumentChartValues) insertValues(readResult []*timechart.Value, timeFrom, timeTo int64) {
+
+	// Remove values in received range
 	indexOfBeginForDelete := -1
 	indexOfBeginForDeleteFound := false
 	indexOfEndForDelete := -1
 	indexOfEndForDeleteFound := false
-
 	for index, v := range c.values {
 		if v.DatetimeFirst > timeFrom {
 			indexOfBeginForDelete = index
@@ -530,7 +553,6 @@ func (c *DocumentChartValues) insertValues(readResult []*timechart.Value, timeFr
 			break
 		}
 	}
-
 	for index := len(c.values) - 1; index >= 0; index-- {
 		v := c.values[index]
 		if v.DatetimeLast < timeTo {
@@ -539,26 +561,25 @@ func (c *DocumentChartValues) insertValues(readResult []*timechart.Value, timeFr
 			break
 		}
 	}
-
 	if indexOfEndForDelete > indexOfBeginForDelete && indexOfBeginForDeleteFound && indexOfEndForDeleteFound {
 		c.values = append(c.values[:indexOfBeginForDelete], c.values[indexOfEndForDelete:]...)
 	}
 
+	// Append received values
 	for _, dataItemValue := range readResult {
 		c.values = append(c.values, dataItemValue)
 	}
-
 	sort.Slice(c.values, func(i, j int) bool { return c.values[i].DatetimeFirst < c.values[j].DatetimeFirst })
 
+	// Add loaded range
 	loadedRange := &TimeRange{}
 	loadedRange.timeFrom = timeFrom
 	loadedRange.timeTo = timeTo
 	c.loadedRanges = append(c.loadedRanges, loadedRange)
-
 	sort.Slice(c.loadedRanges, func(i, j int) bool { return c.loadedRanges[i].timeFrom < c.loadedRanges[j].timeFrom })
 
 	// Crossing time ranges
-	for {
+	/*for {
 		foundCross := false
 		lastTimeTo := int64(0)
 		crossIndexOfSecond := 0
@@ -583,11 +604,50 @@ func (c *DocumentChartValues) insertValues(readResult []*timechart.Value, timeFr
 		if !foundCross {
 			break
 		}
+	}*/
+
+	if len(c.loadedRanges) > 0 {
+		newLoadedRanges := make([]*TimeRange, 0)
+		currentLoadedRange := &TimeRange{c.loadedRanges[0].timeFrom, c.loadedRanges[0].timeTo}
+
+		for _, rng := range c.loadedRanges {
+			// If rng has margin
+			if rng.timeFrom > (currentLoadedRange.timeTo + 1) {
+				// margin detected - new currenLoadedRange
+				newLoadedRanges = append(newLoadedRanges, currentLoadedRange)
+				currentLoadedRange = &TimeRange{rng.timeFrom, rng.timeTo}
+				continue
+			}
+
+			// expand current range if needed
+			if rng.timeTo > currentLoadedRange.timeTo {
+				currentLoadedRange.timeTo = rng.timeTo
+			}
+		}
+		newLoadedRanges = append(newLoadedRanges, currentLoadedRange)
+
+		c.loadedRanges = newLoadedRanges
+
+		/*logger.Println("LoadedRanges:", len(c.loadedRanges))
+		for _, lr := range c.loadedRanges {
+			logger.Println(lr.timeFrom, lr.timeTo)
+		}*/
 	}
 
 	// Last time range must be less than last timestamp of values
 	if len(c.values) > 0 {
 		lastDateTime := c.values[len(c.values)-1].DatetimeFirst
+		for index, rng := range c.loadedRanges {
+			if lastDateTime >= rng.timeFrom && lastDateTime <= rng.timeTo {
+				rng.timeTo = lastDateTime
+				if rng.timeTo <= rng.timeFrom {
+					c.loadedRanges = append(c.loadedRanges[:index], c.loadedRanges[index+1:]...)
+				}
+				break
+			}
+		}
+	} else {
+		lastDateTime := time.Now().UTC().UnixNano() / 1000
 		for index, rng := range c.loadedRanges {
 			if lastDateTime >= rng.timeFrom && lastDateTime <= rng.timeTo {
 				rng.timeTo = lastDateTime

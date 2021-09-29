@@ -4,6 +4,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"github.com/shirou/gopsutil/mem"
 	"time"
 )
@@ -59,9 +60,9 @@ func (c *UnitSystemMemory) Tick() {
 		percents := (float64(v.Used) / float64(v.Total)) * 100.0
 
 		// Common
-		c.SetUInt64("Total", v.Total/1048576, "MBytes")
-		c.SetUInt64("Available", v.Available/1048576, "MBytes")
-		c.SetUInt64("Used", v.Used/1048576, "MBytes")
+		c.SetUInt64("Total", v.Total/1048576, uom.MB)
+		c.SetUInt64("Available", v.Available/1048576, uom.MB)
+		c.SetUInt64("Used", v.Used/1048576, uom.MB)
 		c.SetFloat64("UsedPercent", percents, "%", 1)
 	}
 

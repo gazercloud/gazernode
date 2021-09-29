@@ -29,6 +29,8 @@ type Series struct {
 	bottomHeader *AreaTopHeader
 	dataProvider IDataProvider
 	area         *Area
+
+	drawLoadedDiapasons bool
 }
 
 func NewSeries(id string, area *Area) *Series {
@@ -249,37 +251,50 @@ func (c *Series) Draw(ctx ui.DrawContext, scaleXOffset int, xOffset int, height 
 		statYOffset += 20
 	}
 
-	loadingDiapasons := c.dataProvider.GetLoadingDiapasons()
-	for _, d := range loadingDiapasons {
-		ctx.SetColor(color.RGBA{
-			R: 200,
-			G: 200,
-			B: 0,
-			A: 50,
-		})
-		x1 := hScale.valueToPixel(d.MinTime) + c.verticalScaleWidth()
-		x2 := hScale.valueToPixel(d.MaxTime) + c.verticalScaleWidth()
-		//ctx.FillRect(x1, 0, x2-x1, 5)
-		ii := 0
-		for x := x1; x < x2; x += 10 {
-			ii++
-			if (ii % 2) == 0 {
-				ctx.SetColor(color.RGBA{
-					R: 200,
-					G: 200,
-					B: 0,
-					A: 50,
-				})
-			} else {
-				ctx.SetColor(color.RGBA{
-					R: 100,
-					G: 0,
-					B: 100,
-					A: 50,
-				})
+	{
+		ctx.SetColor(colornames.Green)
+		diapasonLineHeight := 1
+		loadingDiapasons := c.dataProvider.GetLoadingDiapasons()
+		for diapasonIndex, d := range loadingDiapasons {
+			x1 := hScale.valueToPixel(d.MinTime)
+			x2 := hScale.valueToPixel(d.MaxTime)
+
+			if x1 < 0 {
+				x1 = 0
+			}
+			if x2 > c.area.timeChart.Width() {
+				x2 = c.area.timeChart.Width()
 			}
 
-			ctx.FillRect(x, 0, x+10, 5)
+			x1 += xOffset
+			x2 += xOffset
+
+			ctx.FillRect(x1, diapasonIndex*diapasonLineHeight, x2-x1, diapasonLineHeight)
+		}
+	}
+
+	if c.drawLoadedDiapasons {
+		diapasonLineHeight := 20
+		loadedDiapasons := c.dataProvider.GetLoadedDiapasons()
+		ctx.SetColor(colornames.Blue)
+		for diapasonIndex, d := range loadedDiapasons {
+			x1 := hScale.valueToPixel(d.MinTime)
+			x2 := hScale.valueToPixel(d.MaxTime)
+
+			if x1 < 0 {
+				x1 = 0
+			}
+			if x2 > c.area.timeChart.Width() {
+				x2 = c.area.timeChart.Width()
+			}
+
+			x1 += xOffset
+			x2 += xOffset
+
+			ctx.FillRect(x1, diapasonIndex*diapasonLineHeight+50, x2-x1, diapasonLineHeight)
+			ctx.SetColor(colornames.White)
+			ctx.SetTextAlign(canvas.HAlignCenter, canvas.VAlignCenter)
+			ctx.DrawText(x1, diapasonIndex*diapasonLineHeight+50, x2-x1, diapasonLineHeight, fmt.Sprint(d.TimeRange))
 		}
 	}
 
@@ -381,7 +396,7 @@ func (c *Series) RemoveItemsByTime(timeFrom, timeTo int64) {
 func (c *Series) fillVLine(vline *vline, value *Value, x int) {
 	vline.X = x
 
-	good := !value.hasBadQuality() && value != nil
+	good := value.hasGoodQuality() && value != nil
 
 	if good {
 

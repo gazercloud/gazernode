@@ -1,12 +1,15 @@
 package system
 
 import (
+	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"io/ioutil"
+	"math/rand"
 	"os"
 )
 
@@ -37,6 +40,16 @@ func (c *System) SaveConfig() error {
 		var itemConf common_interfaces.ItemConfiguration
 		itemConf.Id = item.Id
 		itemConf.Name = item.Name
+		/*itemConf.Properties = make([]*common_interfaces.ItemProperty, 0)
+		for _, p := range item.Properties {
+			itemConf.Properties = append(itemConf.Properties, &common_interfaces.ItemProperty{
+				Name:  p.Name,
+				Value: p.Value,
+			})
+		}
+		sort.Slice(itemConf.Properties, func(i, j int) bool {
+			return itemConf.Properties[i].Name < itemConf.Properties[j].Name
+		})*/
 		conf.Items = append(conf.Items, itemConf)
 	}
 
@@ -88,6 +101,13 @@ func (c *System) LoadConfig() error {
 			var item common_interfaces.Item
 			item.Id = itemConf.Id
 			item.Name = itemConf.Name
+			/*item.Properties = make(map[string]*common_interfaces.ItemProperty)
+			for _, p := range itemConf.Properties {
+				item.Properties[p.Name] = &common_interfaces.ItemProperty{
+					Name:  p.Name,
+					Value: p.Value,
+				}
+			}*/
 
 			c.items = append(c.items, &item)
 			c.itemsByName[item.Name] = &item
@@ -114,9 +134,32 @@ func (c *System) LoadConfig() error {
 
 	if len(c.users) == 0 {
 		logger.Println("System loadUsers adding default user")
+		passwordBuffer := make([]byte, 8)
+		binary.LittleEndian.PutUint64(passwordBuffer, rand.Uint64())
+		for i := 0; i < 8; i++ {
+			xorKey := byte(rand.Intn(255))
+			passwordBuffer[i] = passwordBuffer[i] ^ xorKey
+		}
+		userPassword := hex.EncodeToString(passwordBuffer)
+
+		_, err = os.Stat(c.ss.ServerDataPath())
+		if err != nil {
+			err = os.MkdirAll(c.ss.ServerDataPath(), 0777)
+			if err != nil {
+				logger.Println("System LoadConfig loadUsers MkdirAll error: ", err)
+			}
+		}
+
+		defaultAdminPasswordFilename := c.ss.ServerDataPath() + "/default_admin_password.txt"
+
+		err = ioutil.WriteFile(defaultAdminPasswordFilename, []byte(userPassword), 0655)
+		if err != nil {
+			logger.Println("cannot write ", defaultAdminPasswordFilename)
+		}
+
 		var u common_interfaces.User
 		u.Name = DefaultUserName
-		u.PasswordHash = c.hashPassword(DefaultUserPassword)
+		u.PasswordHash = c.hashPassword(userPassword)
 		c.users = append(c.users, &u)
 		c.userByName[u.Name] = &u
 	}

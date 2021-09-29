@@ -8,6 +8,7 @@ import (
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/utilities"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -194,6 +195,8 @@ func (c *Item) Flush() FlushResult {
 }
 
 func (c *Item) Remove() {
+	logger.Println("History Item Remove", strconv.FormatUint(c.id, 16))
+
 	c.mtx.Lock()
 	c.data = nil
 	c.files = nil

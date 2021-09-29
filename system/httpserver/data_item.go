@@ -9,6 +9,7 @@ import (
 	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -108,6 +109,8 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 		return
 	}
 
+	//logger.Println("ReadHistory: ", respItems.Items)
+
 	resultItems := make([]*nodeinterface.DataItemHistoryChartResponseItem, 0)
 	rawValues := make([]*common_interfaces.ItemValue, 0)
 	rawValuesGroupIndex := make([]int64, 0)
@@ -138,8 +141,8 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 			currentValueRange.DatetimeFirst = r.DT - (r.DT % req.GroupTimeRange)
 			currentValueRange.DatetimeLast = r.DT - (r.DT % req.GroupTimeRange) + req.GroupTimeRange - 1
 			currentValueRange.Qualities = make([]int64, 0)
-			currentValueRange.MinValue = 1000000000000
-			currentValueRange.MaxValue = -1000000000000
+			currentValueRange.MinValue = math.MaxFloat64
+			currentValueRange.MaxValue = -math.MaxFloat64
 			currentValueRange.AvgValue = 0
 			currentValueRange.FirstValue = 0
 			currentValueRange.LastValue = 0
@@ -202,6 +205,12 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 		}
 
 	}
+
+	if currentValueRange != nil {
+		resultItems = append(resultItems, currentValueRange)
+		currentValueRange = nil
+	}
+
 	resp.Items = resultItems
 
 	response, err = json.Marshal(resp)

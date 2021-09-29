@@ -33,11 +33,21 @@ func (c *System) SetItem(name string, value string, UOM string, dt time.Time, fl
 	return nil
 }
 
-func (c *System) TouchItem(name string) error {
+func (c *System) SetPropertyIfDoesntExist(itemName string, propName string, propValue string) {
+	item, err := c.TouchItem(itemName)
+	if err == nil {
+		c.mtx.Lock()
+		item.SetPropertyIfDoesntExist(propName, propValue)
+		c.mtx.Unlock()
+	}
+}
+
+func (c *System) TouchItem(name string) (*common_interfaces.Item, error) {
 	var item *common_interfaces.Item
 	fullName := name
 	c.mtx.Lock()
-	if _, ok := c.itemsByName[fullName]; !ok {
+	var ok bool
+	if item, ok = c.itemsByName[fullName]; !ok {
 		item = common_interfaces.NewItem()
 		item.Id = c.nextItemId
 		item.Name = fullName
@@ -46,7 +56,7 @@ func (c *System) TouchItem(name string) error {
 		c.nextItemId++
 	}
 	c.mtx.Unlock()
-	return nil
+	return item, nil
 }
 
 func (c *System) GetItem(name string) (common_interfaces.Item, error) {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
+	"github.com/gazercloud/gazernode/crunner"
 	"github.com/gazercloud/gazernode/forms/tools"
 	"github.com/gazercloud/gazernode/product/productinfo"
 	"github.com/gazercloud/gazernode/utilities/paths"
@@ -27,6 +28,9 @@ type MainForm struct {
 
 	loadingConnections            []workspace.NodeConnection
 	currentConnectionLoadingIndex int
+	runner                        *crunner.CRunner
+
+	loadNodesDelay int
 }
 
 type AdFromSite struct {
@@ -51,10 +55,12 @@ func updateAdFromSite() {
 
 func (c *MainForm) OnInit() {
 	tools.MainFormInstance = c
+	c.loadNodesDelay = 0
 	c.SetTitle("Gazer " + productinfo.Version())
 	c.SetIcon(productinfo.Icon())
 
 	c.nodeWidgets = make([]*PanelNode, 0)
+	c.runner = crunner.New(c)
 
 	winWidth := 1300
 	winHeight := 700
@@ -100,8 +106,6 @@ func (c *MainForm) OnInit() {
 		}
 	}
 
-	c.loadNodes()
-
 	c.SetTheme(c.GetTheme())
 
 	c.tabNodes.SetCurrentPage(0)
@@ -109,6 +113,23 @@ func (c *MainForm) OnInit() {
 	go updateAdFromSite()
 
 	//MainFormInstance.SetTheme(MainFormInstance.GetTheme())
+	//c.loadNodes()
+
+	c.runner.Call(func(thParameters interface{}) (interface{}, error) {
+		return nil, nil
+	}, func(result interface{}, err error) {
+		c.Maximize()
+
+	})
+
+	c.MakeTimerAndStart(100, func(timer *uievents.FormTimer) {
+		if c.loadNodesDelay < 1 {
+			c.loadNodesDelay++
+			return
+		}
+		c.loadNodes()
+		timer.StopTimer()
+	})
 
 }
 
@@ -204,15 +225,21 @@ func (c *MainForm) loadNodes() {
 	c.loadingConnections = workspace.Instance().Connections()
 
 	if len(c.loadingConnections) > 0 {
+
+		closed := false
+
 		loadingDialog := uicontrols.NewDialog(c.Panel(), "Loading nodes", 500, 500)
 		txtProgress := loadingDialog.ContentPanel().AddTextBlockOnGrid(0, 0, "")
 		txtProgress.SetXExpandable(true)
 		loadingDialog.ContentPanel().AddVSpacerOnGrid(0, 1)
 		loadingDialog.ShowDialog()
+		loadingDialog.OnReject = func() {
+			closed = true
+		}
 
 		c.MakeTimerAndStart(100, func(timer *uievents.FormTimer) {
 			if c.currentConnectionLoadingIndex == len(c.loadingConnections) {
-				if loadingDialog != nil {
+				if loadingDialog != nil && !closed {
 					loadingDialog.Close()
 				}
 				loadingDialog = nil

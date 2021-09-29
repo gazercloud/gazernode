@@ -193,7 +193,6 @@ func (c *Connection) SaveSession() error {
 }
 
 func (c *Connection) Login(userName string, password string) {
-	logger.Println("CloudConnection login", userName, password)
 	c.mtx.Lock()
 	c.userName = userName
 	c.password = password

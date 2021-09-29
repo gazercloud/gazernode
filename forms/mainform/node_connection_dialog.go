@@ -7,12 +7,14 @@ import (
 	"github.com/gazercloud/gazernode/crunner"
 	"github.com/gazercloud/gazernode/home_client"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
 	"golang.org/x/image/colornames"
+	"io/ioutil"
 	"time"
 )
 
@@ -79,7 +81,7 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, cl *client.Client, clou
 
 	if c.client == nil || c.client.SessionToken() == "" {
 		c.SetTitle("Connect to node")
-		c.Resize(450, 500)
+		c.Resize(550, 500)
 
 		pContent := c.ContentPanel().AddPanelOnGrid(0, 0)
 		pContent.SetPanelPadding(0)
@@ -115,22 +117,36 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, cl *client.Client, clou
 		c.btnTransportCloud.SetMouseCursor(ui.MouseCursorPointer)
 
 		// Local Transport
+		pLocalTransport := c.panelLocalTransport.AddPanelOnGrid(0, 0)
 
-		c.panelLocalTransport.AddTextBlockOnGrid(0, 1, "Address:")
-		c.txtAddress = c.panelLocalTransport.AddTextBoxOnGrid(1, 1)
+		pLocalTransport.AddTextBlockOnGrid(0, 1, "Address:")
+		c.txtAddress = pLocalTransport.AddTextBoxOnGrid(1, 1)
 		c.txtAddress.SetText("localhost")
 		c.txtAddress.SetTabIndex(1)
 
-		c.panelLocalTransport.AddTextBlockOnGrid(0, 2, "User name:")
-		c.txtUserName = c.panelLocalTransport.AddTextBoxOnGrid(1, 2)
+		pLocalTransport.AddTextBlockOnGrid(0, 2, "User name:")
+		c.txtUserName = pLocalTransport.AddTextBoxOnGrid(1, 2)
 		c.txtUserName.SetTabIndex(2)
 
-		c.panelLocalTransport.AddTextBlockOnGrid(0, 3, "Password:")
-		c.txtPassword = c.panelLocalTransport.AddTextBoxOnGrid(1, 3)
+		pLocalTransport.AddTextBlockOnGrid(0, 3, "Password:")
+		c.txtPassword = pLocalTransport.AddTextBoxOnGrid(1, 3)
 		c.txtPassword.SetTabIndex(3)
 		c.txtPassword.SetIsPassword(true)
 
-		c.panelLocalTransport.AddVSpacerOnGrid(0, 10)
+		lblDefaultPassword1 := c.panelLocalTransport.AddTextBlockOnGrid(0, 1, "Default password for the admin user")
+		lblDefaultPassword1.SetFontSize(14)
+		lblDefaultPassword1.SetForeColor(colornames.Gray)
+		lblDefaultPassword2 := c.panelLocalTransport.AddTextBlockOnGrid(0, 2, "can be viewed in the node data folder.")
+		lblDefaultPassword2.SetFontSize(14)
+		lblDefaultPassword2.SetForeColor(colornames.Gray)
+		lblDefaultPassword3 := c.panelLocalTransport.AddTextBlockOnGrid(0, 3, "Windows: c:\\ProgramData\\gazer\\default_admin_password.txt")
+		lblDefaultPassword3.SetFontSize(14)
+		lblDefaultPassword3.SetForeColor(colornames.Gray)
+		lblDefaultPassword4 := c.panelLocalTransport.AddTextBlockOnGrid(0, 4, "Linux: /var/gazer/default_admin_password.txt")
+		lblDefaultPassword4.SetFontSize(14)
+		lblDefaultPassword4.SetForeColor(colornames.Gray)
+
+		c.panelLocalTransport.AddVSpacerOnGrid(0, 5)
 
 		c.cmbCloudAccounts = c.panelCloudTransport.AddComboBoxOnGrid(0, 0)
 		for _, ac := range cloud_accounts.List() {
@@ -208,8 +224,15 @@ func NewNodeConnectionDialog(parent uiinterfaces.Widget, cl *client.Client, clou
 		c.updateButtons()
 
 		if c.first {
+			defaultAdminPasswordFilename := paths.ProgramDataFolder1() + "/gazer/default_admin_password.txt"
+			adminPassword := ""
+			bsAdminPassword, err := ioutil.ReadFile(defaultAdminPasswordFilename)
+			if err == nil {
+				adminPassword = string(bsAdminPassword)
+			}
+
 			c.txtUserName.SetText("admin")
-			c.txtPassword.SetText("admin")
+			c.txtPassword.SetText(adminPassword)
 			c.btnOK.SetBorders(1, colornames.Green)
 			c.btnOK.SetForeColor(colornames.Green)
 		}

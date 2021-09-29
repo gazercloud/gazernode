@@ -411,14 +411,18 @@ func (c *UnitsSystem) StopUnit(unitId string) error {
 }
 
 func (c *UnitsSystem) RemoveUnits(units []string) error {
+	logger.Println("UnitsSystem RemoveUnits", units)
 	c.mtx.Lock()
 
 	var deletedUnit common_interfaces.IUnit
 	var unitIndex int
+	namesOfDeletedUnits := make([]string, 0)
 
 	for _, unitToRemove := range units {
 		for unitIndex, deletedUnit = range c.units {
 			if deletedUnit.Id() == unitToRemove {
+				logger.Println("UnitsSystem RemoveUnits unit", deletedUnit.Id())
+				namesOfDeletedUnits = append(namesOfDeletedUnits, deletedUnit.Name())
 				deletedUnit.Stop()
 				c.units = append(c.units[:unitIndex], c.units[unitIndex+1:]...)
 				break
@@ -428,8 +432,8 @@ func (c *UnitsSystem) RemoveUnits(units []string) error {
 
 	c.mtx.Unlock()
 
-	if deletedUnit != nil {
-		_ = c.iDataStorage.RemoveItemsOfUnit(deletedUnit.Name())
+	for _, namesOfDeletedUnit := range namesOfDeletedUnits {
+		_ = c.iDataStorage.RemoveItemsOfUnit(namesOfDeletedUnit)
 	}
 
 	return nil

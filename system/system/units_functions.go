@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/lookup"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
@@ -126,6 +127,7 @@ func (c *System) SetConfig(unitId string, name string, config string, fromCloud 
 }
 
 func (c *System) RemoveUnits(units []string) error {
+	logger.Println("System RemoveUnits", units)
 	err := c.unitsSystem.RemoveUnits(units)
 	if err != nil {
 		return err
