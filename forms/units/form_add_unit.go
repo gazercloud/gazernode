@@ -191,7 +191,17 @@ func (c *FormAddUnit) updateUnits() {
 	c.client.UnitTypes(c.currentCategory, c.txtUnitFilter.Text(), c.offset, countOnPage, func(unitTypes nodeinterface.UnitTypeListResponse, err error) {
 		c.pUnits.RemoveAllWidgets()
 
-		c.txtStat.SetText(fmt.Sprintf("shown %d units out of %d", len(unitTypes.Types), unitTypes.InFilterCount))
+		pagesCount := unitTypes.InFilterCount / countOnPage
+		if (unitTypes.InFilterCount % countOnPage) > 0 {
+			pagesCount += 1
+		}
+
+		pageNum := 0
+		if c.offset > 0 {
+			pageNum = c.offset / countOnPage
+		}
+		pageNum += 1
+		c.txtStat.SetText(fmt.Sprint("page ", pageNum, " of ", pagesCount))
 
 		if err == nil {
 			x := 0
@@ -253,7 +263,7 @@ func (c *FormAddUnit) updateUnits() {
 				c.updateUnits()
 			})
 
-			if c.offset >= maxOffset {
+			if c.offset+countOnPage >= unitTypes.InFilterCount {
 				btnNavRight.SetEnabled(false)
 			}
 

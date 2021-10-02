@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
+	"golang.org/x/image/colornames"
 )
 
 type FormRemoveUnits struct {
@@ -36,7 +37,12 @@ func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units
 	img.SetMinWidth(64)
 	pLeft.AddVSpacerOnGrid(0, 1)
 
-	c.lvUnits = pRight.AddListViewOnGrid(0, 1)
+	lblConfirmation := pRight.AddTextBlockOnGrid(0, 1, "Do you want to remove the units?")
+	lblConfirmation.SetForeColor(colornames.Red)
+	lblAllDataWillBeDestroyed := pRight.AddTextBlockOnGrid(0, 2, "All unit's data will be destroyed!")
+	lblAllDataWillBeDestroyed.SetForeColor(c.AccentColor())
+
+	c.lvUnits = pRight.AddListViewOnGrid(0, 4)
 	c.lvUnits.AddColumn("Name", 200)
 	c.lvUnits.AddColumn("Type", 200)
 
@@ -50,6 +56,16 @@ func NewFormRemoveUnits(parent uiinterfaces.Widget, client *client.Client, units
 	btnOK.SetMinWidth(70)
 	btnCancel := pButtons.AddButtonOnGrid(2, 0, "Cancel", nil)
 	btnCancel.SetMinWidth(70)
+
+	btnOK.SetEnabled(false)
+	chkConfirm := pRight.AddCheckBoxOnGrid(0, 3, "Confirm")
+	chkConfirm.OnCheckedChanged = func(checkBox *uicontrols.CheckBox, checked bool) {
+		if checked {
+			btnOK.SetEnabled(true)
+		} else {
+			btnOK.SetEnabled(false)
+		}
+	}
 
 	c.TryAccept = func() bool {
 		unitIDs := make([]string, 0)
