@@ -199,6 +199,13 @@ func (c *TimeChart) Editing() bool {
 	return c.editing_
 }
 
+func (c *TimeChart) SelectedTimeRange() (int64, int64) {
+	if len(c.selections_) > 0 {
+		return c.selections_[0].minX, c.selections_[0].maxX
+	}
+	return 0, 0
+}
+
 func (c *TimeChart) borderColor() color.Color {
 	col, _, _, _ := c.BorderColors()
 	return col

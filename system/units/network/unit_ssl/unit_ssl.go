@@ -43,8 +43,8 @@ func init() {
 func (c *UnitSSL) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("domain", "Domain", "example.com", "string", "", "", "")
-	meta.Add("period", "Period, ms", "10000", "num", "0", "999999", "")
-	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
+	meta.Add("period", "Period, ms", "10000", "num", "0", "999999", "0")
+	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "0")
 	return meta.Marshal()
 }
 

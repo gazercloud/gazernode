@@ -25,6 +25,8 @@ type Unit struct {
 
 	Started  bool
 	Stopping bool
+
+	watchItems map[string]bool
 }
 
 func (c *Unit) Id() string {
@@ -77,6 +79,7 @@ func (c *Unit) GetConfigMeta() string {
 
 func (c *Unit) Start(iDataStorage common_interfaces.IDataStorage) error {
 	var err error
+	c.watchItems = make(map[string]bool)
 	c.iDataStorage = iDataStorage
 	if c.Started {
 		return errors.New("already started")
@@ -106,6 +109,11 @@ func (c *Unit) Stop() {
 		return
 	}
 	c.LogInfo("stopping ...")
+
+	for itemWatched, _ := range c.watchItems {
+		c.iDataStorage.RemoveFromWatch(c.Id(), itemWatched)
+	}
+
 	c.SetStringService("status", "stopping", "")
 	c.Stopping = true
 	c.iUnit.InternalUnitStop()
@@ -131,7 +139,7 @@ func (c *Unit) IDataStorage() common_interfaces.IDataStorage {
 
 func (c *Unit) SetStringService(name string, value string, UOM string) {
 	fullName := c.Name() + "/" + UnitServicePrefix + name
-	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), "")
+	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), false)
 }
 
 func (c *Unit) LogInfo(value string) {
@@ -142,7 +150,7 @@ func (c *Unit) LogInfo(value string) {
 	c.lastLogDT = dt
 	if c.lastInfo != value || time.Now().UTC().Sub(c.lastInfoDT) > 5*time.Second {
 		fullName := c.Name() + "/" + UnitServicePrefix + "log"
-		c.iDataStorage.SetItem(fullName, value, "", dt, "")
+		c.iDataStorage.SetItem(fullName, value, "", dt, false)
 		c.lastInfoDT = time.Now().UTC()
 	}
 	c.lastInfo = value
@@ -158,7 +166,7 @@ func (c *Unit) LogError(value string) {
 
 	if c.lastError != value || time.Now().UTC().Sub(c.lastErrorDT) > 5*time.Second {
 		fullName := c.Name() + "/" + UnitServicePrefix + "log"
-		c.iDataStorage.SetItem(fullName, value, "error", dt, "")
+		c.iDataStorage.SetItem(fullName, value, "error", dt, false)
 		c.lastErrorDT = time.Now().UTC()
 	}
 	c.lastError = value
@@ -167,19 +175,15 @@ func (c *Unit) LogError(value string) {
 
 func (c *Unit) SetError(value string) {
 	fullName := c.Name() + "/" + UnitServicePrefix + ItemNameError
-	c.iDataStorage.SetItem(fullName, value, "", time.Now().UTC(), "")
+	c.iDataStorage.SetItem(fullName, value, "", time.Now().UTC(), false)
 }
 
 func (c *Unit) SetString(name string, value string, UOM string) {
-	flags := ""
-	if c.mainItem == name {
-		flags = "m"
-	}
 	fullName := c.Name()
 	if len(name) > 0 {
 		fullName = c.Name() + "/" + name
 	}
-	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), flags)
+	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), false)
 }
 
 func (c *Unit) SetPropertyIfDoesntExist(itemName string, propName string, propValue string) {
@@ -244,4 +248,17 @@ func (c *Unit) GetItem(name string) (common_interfaces.ItemValue, error) {
 
 func (c *Unit) GetItemsOfUnit(unitId string) ([]common_interfaces.ItemGetUnitItems, error) {
 	return c.iDataStorage.GetUnitValues(unitId), nil
+}
+
+func (c *Unit) AddToWatch(itemName string) {
+	c.iDataStorage.AddToWatch(c.Id(), itemName)
+	c.watchItems[itemName] = true
+}
+
+func (c *Unit) RemoveFromWatch(itemName string) {
+	c.iDataStorage.RemoveFromWatch(c.Id(), itemName)
+	delete(c.watchItems, itemName)
+}
+
+func (c *Unit) ItemChanged(itemName string, value common_interfaces.ItemValue) {
 }

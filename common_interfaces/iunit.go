@@ -18,4 +18,5 @@ type IUnit interface {
 
 	InternalUnitStart() error
 	InternalUnitStop()
+	ItemChanged(itemName string, value ItemValue)
 }

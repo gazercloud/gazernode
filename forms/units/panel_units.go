@@ -10,6 +10,7 @@ import (
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/settings"
+	"github.com/gazercloud/gazernode/timechart"
 	"github.com/gazercloud/gazernode/widgets/widget_chart"
 	"github.com/gazercloud/gazernode/widgets/widget_item_history"
 	"github.com/gazercloud/gazerui/canvas"
@@ -278,7 +279,7 @@ func (c *PanelUnits) OnInit() {
 	menuItems.AddItem("History ...", func(event *uievents.Event) {
 		items := c.SelectedItems()
 		if len(items) == 1 {
-			tools.NewFormItemHistory(c, c.client, items[0]).ShowDialog()
+			tools.NewFormItemHistory(c, c.client, items[0], 0, 0).ShowDialog()
 		}
 	}, uiresources.ResImgCol(uiresources.R_icons_material4_png_action_view_headline_materialiconsoutlined_48dp_1x_outline_view_headline_black_48dp_png, c.ForeColor()), "")
 
@@ -338,6 +339,19 @@ func (c *PanelUnits) OnInit() {
 
 	c.wItemChart = widget_chart.NewWidgetCharts(pItems, c.client)
 	pItems.AddWidgetOnGrid(c.wItemChart, 0, 3)
+
+	c.wItemChart.SetOnChartContextMenuNeed(func(timeChart *timechart.TimeChart, area *timechart.Area, areaIndex int) uiinterfaces.Menu {
+		var m *uicontrols.PopupMenu
+		m = uicontrols.NewPopupMenu(c.Window().CentralWidget())
+		m.AddItem("Table view", func(event *uievents.Event) {
+			items := c.SelectedItems()
+			if len(items) == 1 {
+				minTime, maxTime := c.wItemChart.SelectedTimeRange()
+				tools.NewFormItemHistory(c, c.client, items[0], minTime, maxTime).ShowDialog()
+			}
+		}, nil, "")
+		return m
+	})
 
 	c.wItemHistory = widget_item_history.NewWidgetItemHistory(pItems, c.client)
 	pItems.AddWidgetOnGrid(c.wItemHistory, 0, 4)
@@ -451,7 +465,7 @@ func (c *PanelUnits) viewLog() {
 	for _, selectedItem := range c.lvUnits.SelectedItems() {
 		sens, ok := selectedItem.UserData("unit_state").(*nodeinterface.UnitStateAllResponseItem)
 		if ok {
-			f := tools.NewFormItemHistory(c, c.client, sens.UnitName+"/.service/log")
+			f := tools.NewFormItemHistory(c, c.client, sens.UnitName+"/.service/log", 0, 0)
 			f.SetWideValue(true)
 			f.ShowDialog()
 		}

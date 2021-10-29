@@ -11,10 +11,12 @@ import (
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
 	"github.com/gazercloud/gazernode/system/units/gazer/unit_gazer_cloud"
+	"github.com/gazercloud/gazernode/system/units/general/unit_calculator"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi_key_value"
 	"github.com/gazercloud/gazernode/system/units/general/unit_hhgttg"
 	"github.com/gazercloud/gazernode/system/units/general/unit_manual"
+	"github.com/gazercloud/gazernode/system/units/general/unit_repeater"
 	"github.com/gazercloud/gazernode/system/units/general/unit_signal_generator"
 	"github.com/gazercloud/gazernode/system/units/network/unit_http_json_requester"
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
@@ -122,6 +124,10 @@ func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
 	unitType.Help = "https://gazer.cloud/unit-types/general/hhgttg/"
 	unitType = c.RegisterUnit("general_signal_generator", "general", "Signal Generator", unit_signal_generator.New, unit_signal_generator.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/general/signal-generator/"
+	unitType = c.RegisterUnit("general_repeater", "general", "Repeater", unit_repeater.New, unit_repeater.Image, "")
+	unitType.Help = "https://gazer.cloud/unit-types/"
+	unitType = c.RegisterUnit("general_calculator", "general", "Calculator", unit_calculator.New, unit_calculator.Image, "")
+	unitType.Help = "https://gazer.cloud/unit-types/"
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
 	unitType.Help = "https://gazer.cloud/unit-types/serial-port/serial-port-key-value/"
@@ -297,6 +303,8 @@ func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, confi
 			unit.SetConfig(config)
 			unit.SetIUnit(unit)
 			c.units = append(c.units, unit)
+		} else {
+			return nil, errors.New("cannot create unit")
 		}
 	} else {
 		return nil, errors.New("unit already exists")
@@ -526,4 +534,22 @@ func (c *UnitsSystem) SetConfig(unitId string, name string, config string, fromC
 	}
 
 	return nil
+}
+
+func (c *UnitsSystem) SendToWatcher(unitId string, itemName string, value common_interfaces.ItemValue) {
+	var targetUnit common_interfaces.IUnit
+
+	c.mtx.Lock()
+	for _, unit := range c.units {
+		if unit.Id() == unitId {
+			targetUnit = unit
+			break
+		}
+	}
+	c.mtx.Unlock()
+
+	if targetUnit != nil {
+		targetUnit.ItemChanged(itemName, value)
+	}
+
 }

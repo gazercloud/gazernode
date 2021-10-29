@@ -25,7 +25,7 @@ func New() common_interfaces.IUnit {
 func (c *UnitSystemProcess) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("process_name", "Process Name", "notepad.exe", "string", "", "", "processes")
-	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "0")
 	return meta.Marshal()
 }
 

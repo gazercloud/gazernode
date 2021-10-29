@@ -54,6 +54,7 @@ func (c *System) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
 }
 
 func (c *System) AddUnit(unitName string, unitType string, config string, fromCloud bool) (string, error) {
+	logger.Println("System - AddUnit - ", unitName, unitType)
 	unitId := strconv.FormatInt(time.Now().UnixNano(), 16) + "_" + strconv.FormatInt(int64(rand.Int()), 16)
 	unit, err := c.unitsSystem.AddUnit(unitType, unitId, unitName, config, fromCloud)
 	if err != nil {

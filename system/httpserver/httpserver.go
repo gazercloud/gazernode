@@ -113,8 +113,11 @@ func (c *HttpServer) Stop() error {
 func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var responseText []byte
+	var sessionToken string
+
 	requestJson := r.FormValue("rj")
 	function := r.FormValue("fn")
+	sessionToken = r.FormValue("s")
 
 	//logger.Println(function)
 
@@ -136,11 +139,11 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	//}
 
 	if len(function) > 0 {
-		var sessionToken string
-		sessionTokenCookie, errSessionToken := r.Cookie("session_token")
-
-		if errSessionToken == nil {
-			sessionToken = sessionTokenCookie.Value
+		if sessionToken == "" {
+			sessionTokenCookie, errSessionToken := r.Cookie("session_token")
+			if errSessionToken == nil {
+				sessionToken = sessionTokenCookie.Value
+			}
 		}
 
 		if function != nodeinterface.FuncSessionOpen && function != nodeinterface.FuncSessionActivate {

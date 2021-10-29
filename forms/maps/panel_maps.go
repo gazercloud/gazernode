@@ -517,7 +517,9 @@ func (c *PanelMaps) LoadContent(itemUrl string, control simplemap.IMapControl) {
 
 func (c *PanelMaps) GetWidgets(filter string, offset int, maxCount int, toolbox simplemap.IMapToolbox) {
 	c.client.ResList("simple_map", filter, offset, maxCount, func(infos common_interfaces.ResourcesInfo, err error) {
-		toolbox.SetItems(infos)
+		if toolbox != nil {
+			toolbox.SetItems(infos)
+		}
 	})
 }
 

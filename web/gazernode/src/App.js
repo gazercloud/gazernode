@@ -38,6 +38,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import PageUsers from "./Pages/PageUsers";
 import PageUser from "./Pages/PageUser";
 
+
 const drawerWidth = 240;
 
 
@@ -47,6 +48,7 @@ function getCookie(name) {
     ));
     return matches ? decodeURIComponent(matches[1]) : undefined;
 }
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -355,8 +357,8 @@ function ResponsiveDrawer(props) {
                     OnNavigate={(addr) => navigate(addr)}
                     OnTitleUpdate={(title) => updateTitle(title)}
                     OnNeedUpdate={() => {
-                    forceUpdate()
-                }}/>
+                        forceUpdate()
+                    }}/>
             )
         }
         if (form === "about") {
@@ -365,8 +367,8 @@ function ResponsiveDrawer(props) {
                     OnNavigate={(addr) => navigate(addr)}
                     OnTitleUpdate={(title) => updateTitle(title)}
                     OnNeedUpdate={() => {
-                    forceUpdate()
-                }}/>
+                        forceUpdate()
+                    }}/>
             )
         }
 
@@ -408,7 +410,8 @@ function ResponsiveDrawer(props) {
             <SnackbarProvider maxSnack={3}>
                 <div className={classes.root} key='gazer-main'>
                     <CssBaseline/>
-                    <AppBar position="fixed" className={classes.appBar} style={{backgroundColor: '#1E1E1E', color: '#CCC'}}>
+                    <AppBar position="fixed" className={classes.appBar}
+                            style={{backgroundColor: '#1E1E1E', color: '#CCC'}}>
                         <Toolbar>
                             <IconButton
                                 color="inherit"

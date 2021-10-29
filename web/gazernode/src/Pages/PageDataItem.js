@@ -10,6 +10,9 @@ import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
 import {useSnackbar} from "notistack";
 import WidgetError from "../Widgets/WidgetError";
+import DialogWriteValue from "../Dialogs/DialogWriteValue";
+import {HotKeys} from "react-hotkeys";
+
 
 export default function PageDataItem(props) {
     const [dataItemState, setDataItemState] = React.useState([])
@@ -155,7 +158,7 @@ export default function PageDataItem(props) {
 
     const displayItemName = (item) => {
         return (
-                <div style={{fontSize: '20pt'}}>{item.name}</div>
+            <div style={{fontSize: '20pt'}}>{item.name}</div>
         )
     }
 
@@ -197,26 +200,31 @@ export default function PageDataItem(props) {
         )
     }
 
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
 
     return (
         <div>
-            <Grid container alignItems="center" style={{backgroundColor: "#222", borderRadius: "10px", padding: "5px"}}>
-                <Tooltip title="Back" TransitionComponent={Zoom} style={{border: "1px solid #333", marginRight: "5px"}}>
-                    <IconButton onClick={()=>{
+            <Grid container alignItems="center"
+                  style={{backgroundColor: "#222", borderRadius: "10px", padding: "5px"}}>
+                <Tooltip title="Back" TransitionComponent={Zoom}
+                         style={{border: "1px solid #333", marginRight: "5px"}}>
+                    <IconButton onClick={() => {
                         window.history.back()
                     }} variant="outlined" color="primary"><ArrowBackIosOutlinedIcon fontSize="large"/></IconButton>
                 </Tooltip>
-                <Divider orientation="vertical" flexItem style={{marginLeft: "20px", marginRight: "20px"}} />
-                <DialogAddItemPublicChannel ItemName={getDataItemName()} OnSuccess={(channel)=>{
+                <Divider orientation="vertical" flexItem style={{marginLeft: "20px", marginRight: "20px"}}/>
+                <DialogAddItemPublicChannel ItemName={getDataItemName()} OnSuccess={(channel) => {
                     enqueueSnackbar("Item added to channel" + channel, {variant: 'success'});
+                }}/>
+                <DialogWriteValue ItemName={getDataItemName()} OnSuccess={() => {
+                    enqueueSnackbar("Value has been written", {variant: 'success'});
                 }}/>
             </Grid>
 
             {displayItems()}
 
             <div>
-                <WidgetError Message={messageError} />
+                <WidgetError Message={messageError}/>
             </div>
         </div>
     );

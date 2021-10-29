@@ -17,6 +17,7 @@ type Item struct {
 	SignalPeriod float64 `json:"period"`
 	SignalMin    float64 `json:"min"`
 	SignalMax    float64 `json:"max"`
+	Precision    float64 `json:"precision"`
 }
 
 type Config struct {
@@ -52,6 +53,7 @@ func (c *UnitSignalGenerator) GetConfigMeta() string {
 	t1.Add("period", "Period, sec", "10", "num", "0", "99999", "")
 	t1.Add("min", "Min Value", "0", "num", "-999999999", "999999999", "")
 	t1.Add("max", "Max Value", "100", "num", "-999999999", "999999999", "")
+	t1.Add("precision", "Precision", "3", "num", "0", "99", "")
 	return meta.Marshal()
 }
 
@@ -65,6 +67,14 @@ func (c *UnitSignalGenerator) InternalUnitStart() error {
 		err = errors.New("config error")
 		c.SetString(ItemNameStatus, err.Error(), "error")
 		return err
+	}
+
+	for _, item := range c.config.Items {
+		if item.Precision < 0 || item.Precision > 100 {
+			err = errors.New("wrong precision")
+			c.SetString(ItemNameStatus, err.Error(), "error")
+			return err
+		}
 	}
 
 	go c.Tick()
@@ -122,6 +132,7 @@ func (c *UnitSignalGenerator) Tick() {
 
 		for _, itemName := range itemNames {
 			value := 0.0
+			maxPrecision := 0
 			for _, item := range items {
 				if item.Name == itemName && item.SignalPeriod > 0 {
 					tItem := tMS % int64(item.SignalPeriod*1000)
@@ -143,8 +154,12 @@ func (c *UnitSignalGenerator) Tick() {
 					}
 
 				}
+
+				if int(item.Precision) > maxPrecision {
+					maxPrecision = int(item.Precision)
+				}
 			}
-			c.SetFloat64(itemName, value, "", 3)
+			c.SetFloat64(itemName, value, "", maxPrecision)
 		}
 
 	}

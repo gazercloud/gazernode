@@ -5,7 +5,7 @@ import (
 )
 
 type IDataStorage interface {
-	SetItem(name string, value string, UOM string, dt time.Time, flags string) error
+	SetItem(name string, value string, UOM string, dt time.Time, external bool) error
 	TouchItem(name string) (*Item, error)
 	GetItem(name string) (Item, error)
 	GetUnitValues(unitId string) []ItemGetUnitItems
@@ -17,4 +17,7 @@ type IDataStorage interface {
 
 	StatGazerNode() StatGazerNode
 	StatGazerCloud() StatGazerCloud
+
+	AddToWatch(unitId string, itemName string)
+	RemoveFromWatch(unitId string, itemName string)
 }

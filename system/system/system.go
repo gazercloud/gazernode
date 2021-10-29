@@ -34,6 +34,8 @@ type System struct {
 	userByName map[string]*common_interfaces.User
 	sessions   map[string]*UserSession
 
+	itemWatchers map[string]*ItemWatcher
+
 	apiCallsCount int
 
 	stopping bool
@@ -44,6 +46,7 @@ type System struct {
 func NewSystem(ss *settings.Settings) *System {
 	var c System
 	c.ss = ss
+	c.itemWatchers = make(map[string]*ItemWatcher)
 	c.items = make([]*common_interfaces.Item, 0)
 	c.itemsByName = make(map[string]*common_interfaces.Item)
 	c.itemsById = make(map[uint64]*common_interfaces.Item)

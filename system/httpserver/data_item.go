@@ -51,7 +51,7 @@ func (c *HttpServer) DataItemWrite(request []byte) (response []byte, err error) 
 		return
 	}
 
-	err = c.system.SetItem(req.ItemName, req.Value, "", time.Now().UTC(), "")
+	err = c.system.SetItem(req.ItemName, req.Value, "", time.Now().UTC(), true)
 	if err != nil {
 		return
 	}
@@ -89,6 +89,8 @@ func (c *HttpServer) DataItemHistory(request []byte) (response []byte, err error
 	if err != nil {
 		return
 	}
+
+	//logger.Println("HttpServer DataItemHistory", req.Name, (req.DTEnd - req.DTBegin) / 1000000, len(resp.History.Items))
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
@@ -210,6 +212,12 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 		resultItems = append(resultItems, currentValueRange)
 		currentValueRange = nil
 	}
+
+	resp.Name = req.Name
+	resp.DTBegin = req.DTBegin
+	resp.DTEnd = req.DTEnd
+	resp.GroupTimeRange = req.GroupTimeRange
+	resp.OutFormat = req.OutFormat
 
 	resp.Items = resultItems
 

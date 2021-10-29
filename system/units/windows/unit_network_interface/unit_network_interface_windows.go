@@ -32,7 +32,7 @@ func New() common_interfaces.IUnit {
 func (c *UnitNetworkInterface) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("interface_name", "Network Interface", "-", "string", "", "", "network_interface")
-	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "0")
 	return meta.Marshal()
 }
 

@@ -42,7 +42,7 @@ func init() {
 func (c *UnitFileContent) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("file_name", "File Name", "file.txt", "string", "", "", "")
-	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "0")
 	meta.Add("trim", "Trim", "true", "bool", "", "", "")
 	meta.Add("parse", "Parse", "true", "bool", "", "", "")
 	meta.Add("scale", "Scale", "1", "num", "-999999999", "99999999", "6")

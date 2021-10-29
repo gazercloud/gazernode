@@ -10,9 +10,11 @@ import (
 	"time"
 )
 
-func (c *System) SetItem(name string, value string, UOM string, dt time.Time, flags string) error {
+func (c *System) SetItem(name string, value string, UOM string, dt time.Time, external bool) error {
 	var item *common_interfaces.Item
 	fullName := name
+	var watchersUnits []string
+
 	c.mtx.Lock()
 	if i, ok := c.itemsByName[fullName]; ok {
 		item = i
@@ -27,10 +29,52 @@ func (c *System) SetItem(name string, value string, UOM string, dt time.Time, fl
 	item.Value.Value = value
 	item.Value.DT = dt.UnixNano() / 1000
 	item.Value.UOM = UOM
+
+	if watcher, ok := c.itemWatchers[item.Name]; ok {
+		watchersUnits = make([]string, 0)
+		for watcherUnitId, _ := range watcher.UnitIDs {
+			watchersUnits = append(watchersUnits, watcherUnitId)
+		}
+	}
+
 	//item.Value.Flags = flags
 	c.mtx.Unlock()
 	c.history.Write(item.Id, item.Value)
+
+	for _, unitId := range watchersUnits {
+		c.unitsSystem.SendToWatcher(unitId, item.Name, item.Value)
+	}
+
 	return nil
+}
+
+type ItemWatcher struct {
+	UnitIDs map[string]bool
+}
+
+func (c *System) AddToWatch(unitId string, itemName string) {
+	c.mtx.Lock()
+	watcher, ok := c.itemWatchers[itemName]
+	if !ok {
+		watcher = &ItemWatcher{
+			UnitIDs: make(map[string]bool),
+		}
+		c.itemWatchers[itemName] = watcher
+	}
+	watcher.UnitIDs[unitId] = true
+	c.mtx.Unlock()
+}
+
+func (c *System) RemoveFromWatch(unitId string, itemName string) {
+	c.mtx.Lock()
+	watcher, ok := c.itemWatchers[itemName]
+	if ok {
+		delete(watcher.UnitIDs, unitId)
+	}
+	if len(watcher.UnitIDs) == 0 {
+		delete(c.itemWatchers, itemName)
+	}
+	c.mtx.Unlock()
 }
 
 func (c *System) SetPropertyIfDoesntExist(itemName string, propName string, propValue string) {

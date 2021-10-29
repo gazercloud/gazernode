@@ -55,14 +55,19 @@ type DataItemHistoryChartResponseItem struct {
 	MaxValue      float64 `json:"vu"`
 	AvgValue      float64 `json:"va"`
 	CountOfValues int     `json:"c"`
-	Qualities     []int64
-	HasGood       bool   `json:"has_good"`
-	HasBad        bool   `json:"has_bad"`
-	UOM           string `json:"uom"`
+	Qualities     []int64 `json:"qualities"`
+	HasGood       bool    `json:"has_good"`
+	HasBad        bool    `json:"has_bad"`
+	UOM           string  `json:"uom"`
 }
 
 type DataItemHistoryChartResponse struct {
-	Items []*DataItemHistoryChartResponseItem `json:"items"`
+	Name           string                              `json:"name"`
+	DTBegin        int64                               `json:"dt_begin"`
+	DTEnd          int64                               `json:"dt_end"`
+	GroupTimeRange int64                               `json:"group_time_range"`
+	OutFormat      string                              `json:"out_format"`
+	Items          []*DataItemHistoryChartResponseItem `json:"items"`
 }
 
 type DataItemRemoveRequest struct {

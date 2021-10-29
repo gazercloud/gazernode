@@ -149,6 +149,14 @@ func (c *TimeFilterWidget) UpdateStyle() {
 	c.updateButtonsColors()
 }
 
+func (c *TimeFilterWidget) SetCustomFilter(minTime, maxTime int64) {
+	if minTime != 0 && maxTime != 0 {
+		c.dtPickerFrom.SetDateTime(time.UnixMicro(minTime))
+		c.dtPickerTo.SetDateTime(time.UnixMicro(maxTime))
+		c.cmbIntervals.SetCurrentItemKey("custom")
+	}
+}
+
 func (c *TimeFilterWidget) imageByKey(key string) []byte {
 	switch key {
 	case "last1min":

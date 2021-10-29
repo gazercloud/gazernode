@@ -46,8 +46,8 @@ func init() {
 func (c *UnitTcpControl) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("addr", "Address", "localhost:7777", "string", "", "", "")
-	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
-	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "")
+	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "0")
+	meta.Add("timeout", "Timeout, ms", "1000", "num", "0", "999999", "0")
 	t1 := meta.Add("items", "Items", "", "table", "", "", "")
 	t1.Add("item_name", "Item Name", "Unit/Item", "string", "", "", "data-item")
 	t1.Add("format", "Format", "item=%VALUE%\\r\\n", "string", "", "", "")

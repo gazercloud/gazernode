@@ -51,8 +51,8 @@ func init() {
 func (c *UnitSerialPortKeyValue) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("port", "Serial Port", "COM1", "string", "", "", "serial-ports")
-	meta.Add("baud", "Baud", "9600", "num", "0", "999999999", "")
-	meta.Add("data_size", "Data Size", "8", "num", "4", "8", "")
+	meta.Add("baud", "Baud", "9600", "num", "0", "999999999", "0")
+	meta.Add("data_size", "Data Size", "8", "num", "4", "8", "0")
 	meta.Add("parity", "Parity", "none", "string", "", "", "serial-port-parity")
 	meta.Add("stop_bits", "Stop Bits", "1", "string", "", "", "serial-port-stop-bits")
 	meta.Add("receive_all", "Receive All", "true", "bool", "", "", "")
@@ -105,6 +105,8 @@ func (c *UnitSerialPortKeyValue) InternalUnitStart() error {
 
 	for _, item := range config.Items {
 		c.items[item.Name] = item
+		c.TouchItem(item.Name)
+		c.AddToWatch(c.Name() + "/" + item.Name)
 	}
 
 	parity := serial.ParityNone
@@ -266,4 +268,18 @@ func (c *UnitSerialPortKeyValue) Tick() {
 
 	c.SetString("status", "", "stopped")
 	c.Started = false
+}
+
+func (c *UnitSerialPortKeyValue) ItemChanged(itemName string, value common_interfaces.ItemValue) {
+	if c.serialPort == nil {
+		return
+	}
+
+	if strings.HasPrefix(itemName, c.Name()+"/") {
+		countChartsToRemove := len(c.Name() + "/")
+		localName := itemName[countChartsToRemove:]
+		//logger.Println("Send to Serial", localName, value.Value)
+		strForSend := localName + "=" + value.Value + "\r\n"
+		c.serialPort.Write([]byte(strForSend))
+	}
 }

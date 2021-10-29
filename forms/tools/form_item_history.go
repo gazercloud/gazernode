@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/client"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/dialogs"
 	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/widgets/widget_time_filter"
@@ -18,13 +19,14 @@ import (
 
 type FormItemHistory struct {
 	uicontrols.Dialog
-	client         *client.Client
-	itemName       string
-	wideValue      bool
-	timer          *uievents.FormTimer
-	lastLoadedDT   int64
-	loadedItems    []*common_interfaces.ItemValue
-	loadedItemsMap map[int64]*common_interfaces.ItemValue
+	client                 *client.Client
+	itemName               string
+	wideValue              bool
+	timer                  *uievents.FormTimer
+	lastLoadedDT           int64
+	loadedItems            []*common_interfaces.ItemValue
+	loadedItemsMap         map[int64]*common_interfaces.ItemValue
+	loadHistoryTransaction int64
 
 	timeFilter    *widget_time_filter.TimeFilterWidget
 	lvItems       *uicontrols.ListView
@@ -33,7 +35,7 @@ type FormItemHistory struct {
 	loading       bool
 }
 
-func NewFormItemHistory(parent uiinterfaces.Widget, client *client.Client, itemName string) *FormItemHistory {
+func NewFormItemHistory(parent uiinterfaces.Widget, client *client.Client, itemName string, minTime, maxTime int64) *FormItemHistory {
 	var c FormItemHistory
 	c.client = client
 	c.itemName = itemName
@@ -60,6 +62,7 @@ func NewFormItemHistory(parent uiinterfaces.Widget, client *client.Client, itemN
 	c.timeFilter.OnEdited = c.timeFilterChanged
 	c.timeFilter.SetGridX(0)
 	c.timeFilter.SetGridY(0)
+	c.timeFilter.SetCustomFilter(minTime, maxTime)
 	pRight.AddWidgetOnGrid(c.timeFilter, 0, 0)
 
 	c.lvItems = pRight.AddListViewOnGrid(0, 1)
@@ -75,10 +78,24 @@ func NewFormItemHistory(parent uiinterfaces.Widget, client *client.Client, itemN
 		}
 	}
 
-	c.lblStatistics = pRight.AddTextBlockOnGrid(0, 2, "")
+	pBottom := pRight.AddPanelOnGrid(0, 2)
+	pBottom.SetPanelPadding(0)
+	c.lblStatistics = pBottom.AddTextBlockOnGrid(0, 0, "")
+	pBottom.AddHSpacerOnGrid(1, 0)
+	pBottom.AddButtonOnGrid(2, 0, "Export ...", func(event *uievents.Event) {
+		task := dialogs.ExportToCSVTask{
+			ItemName: c.itemName,
+		}
+		task.Values = c.loadedItems
+		dialogExport := dialogs.NewDialogExportToCSV(&c, task)
+		dialogExport.ShowDialog()
+		dialogExport.OnAccept = func() {
+			uicontrols.ShowInformationMessage(&c, "Data has been exported", "Information")
+		}
+	})
 
 	c.timeFilterChanged()
-	c.loadHistory()
+	//c.loadHistory()
 
 	c.chkAutoscroll = pButtons.AddCheckBoxOnGrid(0, 0, "Autoscroll")
 	c.chkAutoscroll.SetChecked(true)
@@ -116,10 +133,17 @@ func NewFormItemHistory(parent uiinterfaces.Widget, client *client.Client, itemN
 }
 
 func (c *FormItemHistory) loadHistory() {
+	c.loadHistoryTransaction++
+
 	if c.loading {
 		return
 	}
 	c.loading = true
+
+	//logger.Println("loadHistory", (c.timeFilter.TimeTo() - c.lastLoadedDT+1) / 1000000)
+
+	currentLoadHistoryTransaction := c.loadHistoryTransaction
+
 	c.client.ReadHistory(c.itemName, c.lastLoadedDT+1, c.timeFilter.TimeTo(), func(result *history.ReadResult, err error) {
 		c.loading = false
 
@@ -132,6 +156,10 @@ func (c *FormItemHistory) loadHistory() {
 		}
 
 		if c.lvItems == nil {
+			return
+		}
+
+		if currentLoadHistoryTransaction != c.loadHistoryTransaction {
 			return
 		}
 
@@ -197,8 +225,12 @@ func (c *FormItemHistory) timeFilterChanged() {
 	c.lastLoadedDT = c.timeFilter.TimeFrom() - 1
 	c.loadedItems = make([]*common_interfaces.ItemValue, 0)
 	c.loadedItemsMap = make(map[int64]*common_interfaces.ItemValue)
-	c.lvItems.RemoveItems()
-	c.lblStatistics.SetText("loading ...")
+	if c.lvItems != nil {
+		c.lvItems.RemoveItems()
+	}
+	if c.lblStatistics != nil {
+		c.lblStatistics.SetText("loading ...")
+	}
 	//c.lvItems.AddItem("loading ...")
 	c.loadHistory()
 	//logger.Println("Filter: ", time.Unix(0, c.lastLoadedDT * 1000).Local().Format("2006-01-02 15-04-05.000"), c.lastLoadedDT)

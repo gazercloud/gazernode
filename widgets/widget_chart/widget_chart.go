@@ -84,6 +84,10 @@ func (c *WidgetCharts) Dispose() {
 	c.Panel.Dispose()
 }
 
+func (c *WidgetCharts) SelectedTimeRange() (int64, int64) {
+	return c.timeChart.SelectedTimeRange()
+}
+
 func (c *WidgetCharts) AddItem(id string) {
 	c.AddSeries(id, nil)
 }

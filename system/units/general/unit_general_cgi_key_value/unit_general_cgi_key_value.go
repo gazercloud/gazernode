@@ -53,7 +53,7 @@ func (c *UnitGeneralCGIKeyValue) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("command", "Command", "", "string", "", "", "")
 	meta.Add("arguments", "Arguments", "", "string", "", "", "")
-	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "0")
 	meta.Add("show_error", "Show error in result", "true", "bool", "", "", "")
 	meta.Add("receive_all", "Receive All", "true", "bool", "", "", "")
 	t1 := meta.Add("items", "Elements", "", "table", "", "", "")
