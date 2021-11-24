@@ -81,3 +81,19 @@ func (c *HttpServer) ServiceNodeName(request []byte) (response []byte, err error
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
+
+func (c *HttpServer) ServiceInfo(request []byte) (response []byte, err error) {
+	var req nodeinterface.ServiceInfoRequest
+	var resp nodeinterface.ServiceInfoResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp, err = c.system.GetInfo()
+	if err != nil {
+		return
+	}
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}

@@ -57,6 +57,7 @@ const (
 	FuncServiceApi         = "service_api"
 	FuncServiceSetNodeName = "service_set_node_name"
 	FuncServiceNodeName    = "service_node_name"
+	FuncServiceInfo        = "service_info"
 
 	// *** Resource ***
 	FuncResourceAdd    = "resource_add"
@@ -130,6 +131,7 @@ func ApiFunctions() []string {
 	res = append(res, FuncServiceApi)
 	res = append(res, FuncServiceSetNodeName)
 	res = append(res, FuncServiceNodeName)
+	res = append(res, FuncServiceInfo)
 
 	res = append(res, FuncResourceAdd)
 	res = append(res, FuncResourceSet)

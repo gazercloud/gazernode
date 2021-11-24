@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
@@ -85,6 +86,16 @@ func (c *HttpServer) DataItemHistory(request []byte) (response []byte, err error
 		return
 	}
 
+	if req.DTEnd-req.DTBegin < 1 {
+		err = errors.New("wrong time range (min)")
+		return
+	}
+
+	if req.DTEnd-req.DTBegin > 2*365*24*3600*1000000 {
+		err = errors.New("wrong time range (max)")
+		return
+	}
+
 	resp.History, err = c.system.ReadHistory(req.Name, req.DTBegin, req.DTEnd)
 	if err != nil {
 		return
@@ -101,6 +112,27 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 	var resp nodeinterface.DataItemHistoryChartResponse
 	err = json.Unmarshal(request, &req)
 	if err != nil {
+		return
+	}
+
+	if req.GroupTimeRange < 1 {
+		err = errors.New("wrong group_time_range")
+		return
+	}
+
+	if req.DTEnd-req.DTBegin < 1 {
+		err = errors.New("wrong time range (min)")
+		return
+	}
+
+	if req.DTEnd-req.DTBegin > 2*365*24*3600*1000000 {
+		err = errors.New("wrong time range (max)")
+		return
+	}
+
+	expectedItemsCount := (req.DTEnd - req.DTBegin) / req.GroupTimeRange
+	if expectedItemsCount > 10000 {
+		err = errors.New("wrong time range (max items)")
 		return
 	}
 

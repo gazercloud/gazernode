@@ -55,6 +55,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.ServiceSetNodeName(requestText)
 	case nodeinterface.FuncServiceNodeName:
 		result, err = c.ServiceNodeName(requestText)
+	case nodeinterface.FuncServiceInfo:
+		result, err = c.ServiceInfo(requestText)
 
 		// *** Resource ***
 	case nodeinterface.FuncResourceAdd:
@@ -97,7 +99,7 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.CloudGetSettingsProfiles(requestText)
 
 		// *** Public Channel ***
-	case nodeinterface.FuncPublicChannelList:
+	/*case nodeinterface.FuncPublicChannelList:
 		result, err = c.PublicChannelList(requestText)
 	case nodeinterface.FuncPublicChannelAdd:
 		result, err = c.PublicChannelAdd(requestText)
@@ -114,9 +116,9 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 	case nodeinterface.FuncPublicChannelStart:
 		result, err = c.PublicChannelStart(requestText)
 	case nodeinterface.FuncPublicChannelStop:
-		result, err = c.PublicChannelStop(requestText)
+		result, err = c.PublicChannelStop(requestText)*/
 
-		// *** Data Item ***
+	// *** Data Item ***
 	case nodeinterface.FuncDataItemList:
 		result, err = c.DataItemList(requestText)
 	case nodeinterface.FuncDataItemListAll:

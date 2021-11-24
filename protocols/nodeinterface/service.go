@@ -44,3 +44,12 @@ type ServiceNodeNameRequest struct {
 type ServiceNodeNameResponse struct {
 	Name string `json:"name"`
 }
+
+type ServiceInfoRequest struct {
+}
+
+type ServiceInfoResponse struct {
+	NodeName  string `json:"node_name"`
+	Version   string `json:"version"`
+	BuildTime string `json:"build_time"`
+}

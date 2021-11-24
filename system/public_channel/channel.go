@@ -1,22 +1,6 @@
 package public_channel
 
-import (
-	"crypto/tls"
-	"encoding/json"
-	"errors"
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/protocols/bin_client"
-	"github.com/gazercloud/gazernode/protocols/cloud_structures/protocol"
-	"github.com/gazercloud/gazernode/utilities"
-	"io/ioutil"
-	"net/http"
-	"sort"
-	"strings"
-	"sync"
-	"time"
-)
-
+/*
 type Channel struct {
 	client       *http.Client
 	iDataStorage common_interfaces.IDataStorage
@@ -284,9 +268,6 @@ func (c *Channel) processData(task bin_client.BinFrameTask) {
 
 		//logger.Println("System #count_of_subscribers# from ", task.Client.GetRemoteAddr(), " = ", resp.)
 
-		/*addedChannels := c.AddTranslateChannelsToClient(task.Client, channels)
-		task.Client.SendNeedChannelOK(addedChannels)*/
-
 		return
 	}
 }
@@ -501,3 +482,4 @@ func (c *Channel) Status() string {
 	}
 	return "stopped"
 }
+*/

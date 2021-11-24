@@ -148,7 +148,7 @@ func (c *System) RemoveItems(itemsNames []string) error {
 	}
 	c.mtx.Unlock()
 
-	c.publicChannels.RemoveItems(nil, itemsNames)
+	//c.publicChannels.RemoveItems(nil, itemsNames)
 
 	err = c.SaveConfig()
 	return err
@@ -176,7 +176,7 @@ func (c *System) RenameItems(oldPrefix string, newPrefix string) {
 	}
 	c.mtx.Unlock()
 
-	c.publicChannels.RenameItems(oldPrefix, newPrefix)
+	//c.publicChannels.RenameItems(oldPrefix, newPrefix)
 }
 
 func (c *System) ReadHistory(name string, dtBegin int64, dtEnd int64) (*history.ReadResult, error) {
@@ -193,8 +193,8 @@ func (c *System) ReadHistory(name string, dtBegin int64, dtEnd int64) (*history.
 
 func (c *System) GetStatistics() (common_interfaces.Statistics, error) {
 	var res common_interfaces.Statistics
-	res.CloudSentBytes = c.publicChannels.SentBytes()
-	res.CloudReceivedBytes = c.publicChannels.ReceivedBytes()
+	//res.CloudSentBytes = c.publicChannels.SentBytes()
+	//res.CloudReceivedBytes = c.publicChannels.ReceivedBytes()
 	res.ApiCalls = c.apiCallsCount
 	return res, nil
 }
@@ -216,4 +216,12 @@ func (c *System) SetNodeName(name string) error {
 
 func (c *System) NodeName() string {
 	return c.nodeName
+}
+
+func (c *System) GetInfo() (nodeinterface.ServiceInfoResponse, error) {
+	var res nodeinterface.ServiceInfoResponse
+	res.NodeName = c.NodeName()
+	res.Version = productinfo.Version()
+	res.BuildTime = productinfo.BuildTime()
+	return res, nil
 }

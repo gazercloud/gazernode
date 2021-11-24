@@ -1,12 +1,6 @@
 package public_channel
 
-import (
-	"errors"
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/logger"
-	"sync"
-)
-
+/*
 type Cloud struct {
 	channels     []*Channel
 	mtx          sync.Mutex
@@ -298,3 +292,4 @@ func (c *Cloud) StopChannels(ids []string) (err error) {
 	}
 	return
 }
+*/

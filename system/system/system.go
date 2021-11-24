@@ -5,7 +5,6 @@ import (
 	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/cloud"
-	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazernode/system/resources"
 	"github.com/gazercloud/gazernode/system/units/units_system"
 	"sync"
@@ -24,7 +23,7 @@ type System struct {
 
 	unitsSystem *units_system.UnitsSystem
 
-	publicChannels  *public_channel.Cloud
+	//publicChannels  *public_channel.Cloud
 	cloudConnection *cloud.Connection
 
 	history   *history.History
@@ -53,7 +52,7 @@ func NewSystem(ss *settings.Settings) *System {
 
 	c.cloudConnection = cloud.NewConnection(c.ss.ServerDataPath())
 
-	c.publicChannels = public_channel.NewCloud(&c)
+	//c.publicChannels = public_channel.NewCloud(&c)
 	c.unitsSystem = units_system.New(&c)
 	c.history = history.NewHistory(c.ss)
 	c.resources = resources.NewResources(c.ss)
@@ -81,7 +80,7 @@ func (c *System) Start() {
 		}
 	}
 	c.cloudConnection.Start()
-	c.publicChannels.Start()
+	//c.publicChannels.Start()
 	c.history.Start()
 	c.unitsSystem.Start()
 
@@ -90,7 +89,7 @@ func (c *System) Start() {
 func (c *System) Stop() {
 	c.stopping = true
 	c.unitsSystem.Stop()
-	c.publicChannels.Stop()
+	//c.publicChannels.Stop()
 	c.history.Stop()
 	c.cloudConnection.Stop()
 	c.SaveConfig()

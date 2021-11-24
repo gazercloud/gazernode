@@ -1,10 +1,6 @@
 package public_channel
 
-import (
-	"github.com/gazercloud/gazernode/logger"
-	"sync"
-)
-
+/*
 type Routers struct {
 	mtx                sync.Mutex
 	currentRouterIndex int
@@ -45,3 +41,4 @@ func SetNextRouter() {
 	logger.Println("Routers: switched to ", routersInstance.routers[routersInstance.currentRouterIndex])
 	routersInstance.mtx.Unlock()
 }
+*/

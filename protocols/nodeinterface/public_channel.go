@@ -2,14 +2,13 @@ package nodeinterface
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/system/public_channel"
 )
 
 type PublicChannelListRequest struct {
 }
 
 type PublicChannelListResponse struct {
-	Channels []public_channel.ChannelInfo `json:"channels"`
+	//Channels []public_channel.ChannelInfo `json:"channels"`
 }
 
 type PublicChannelAddRequest struct {

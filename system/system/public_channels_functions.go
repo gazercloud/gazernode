@@ -1,10 +1,6 @@
 package system
 
-import (
-	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/system/public_channel"
-)
-
+/*
 func (c *System) GetCloudChannelValues(channelId string) ([]common_interfaces.Item, error) {
 	items, err := c.publicChannels.GetChannelValues(channelId)
 	return items, err
@@ -76,3 +72,4 @@ func (c *System) StopPublicChannels(ids []string) (err error) {
 	err = c.SaveConfig()
 	return
 }
+*/

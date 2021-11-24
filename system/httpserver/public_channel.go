@@ -1,10 +1,6 @@
 package httpserver
 
-import (
-	"encoding/json"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
-)
-
+/*
 func (c *HttpServer) PublicChannelList(request []byte) (response []byte, err error) {
 	var req nodeinterface.PublicChannelListRequest
 	var resp nodeinterface.PublicChannelListResponse
@@ -150,3 +146,4 @@ func (c *HttpServer) PublicChannelStop(request []byte) (response []byte, err err
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
+*/
