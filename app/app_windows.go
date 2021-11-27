@@ -1,21 +1,23 @@
 package app
 
 import (
-	"fmt"
 	"github.com/gazercloud/gazernode/application"
+	"github.com/gazercloud/gazernode/forms/mainform"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/utilities/paths"
+	"github.com/gazercloud/gazerui/ui"
+	"github.com/gazercloud/gazerui/uiforms"
 )
 
 func RunDesktop() {
-	logger.Init(paths.HomeFolder() + "/gazer/log_ui")
+	/*logger.Init(paths.HomeFolder() + "/gazer/log_ui")
 	start(application.ServerDataPathArgument)
 	logger.Println("Started as console application")
 	logger.Println("Press ENTER to stop")
 	_, _ = fmt.Scanln()
-	stop()
+	stop()*/
 
-	/*logger.Init(paths.HomeFolder() + "/gazer/log_ui")
+	logger.Init(paths.HomeFolder() + "/gazer/log_ui")
 
 	if *runServerFlagPtr {
 		start(application.ServerDataPathArgument)
@@ -31,5 +33,5 @@ func RunDesktop() {
 
 	if *runServerFlagPtr {
 		stop()
-	}*/
+	}
 }

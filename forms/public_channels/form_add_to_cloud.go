@@ -2,7 +2,6 @@ package public_channels
 
 import (
 	"github.com/gazercloud/gazernode/client"
-	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
@@ -62,7 +61,7 @@ func NewFormAddToCloud(parent uiinterfaces.Widget, client *client.Client, items 
 	c.chkAllItems = pRight.AddCheckBoxOnGrid(0, 2, "All the items of the unit")
 	c.chkAllItems.SetChecked(true)
 
-	c.loadChannels()
+	//c.loadChannels()
 
 	pButtons.AddHSpacerOnGrid(0, 0)
 	btnOK := pButtons.AddButtonOnGrid(1, 0, "OK", nil)
@@ -102,7 +101,7 @@ func NewFormAddToCloud(parent uiinterfaces.Widget, client *client.Client, items 
 	return &c
 }
 
-func (c *FormAddToCloud) loadChannels() {
+/*func (c *FormAddToCloud) loadChannels() {
 	c.client.GetCloudChannels(func(channels []public_channel.ChannelInfo, err error) {
 		c.lvChannels.RemoveItems()
 		for _, s := range channels {
@@ -128,7 +127,7 @@ func (c *FormAddToCloud) loadChannels() {
 			}
 		}
 	})
-}
+}*/
 
 func (c *FormAddToCloud) OnInit() {
 	c.Dialog.OnInit()

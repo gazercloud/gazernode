@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
-	"github.com/gazercloud/gazernode/system/public_channel"
 )
 
 func (c *Client) GetCloudChannelValues(channelId string, f func([]common_interfaces.Item, error)) {
@@ -88,7 +87,7 @@ func (c *Client) RemoveCloudChannel(channelId string, f func(error)) {
 	go c.thCall(&call)
 }
 
-func (c *Client) GetCloudChannels(f func([]public_channel.ChannelInfo, error)) {
+/*func (c *Client) GetCloudChannels(f func([]public_channel.ChannelInfo, error)) {
 	var call Call
 	var req nodeinterface.PublicChannelListRequest
 	call.function = nodeinterface.FuncPublicChannelList
@@ -105,7 +104,7 @@ func (c *Client) GetCloudChannels(f func([]public_channel.ChannelInfo, error)) {
 	}
 	call.client = c
 	go c.thCall(&call)
-}
+}*/
 
 func (c *Client) CloudAddItems(channels []string, items []string, f func(error)) {
 	var call Call

@@ -6,7 +6,6 @@ import (
 	"github.com/gazercloud/gazernode/forms/tools"
 	"github.com/gazercloud/gazernode/gazer_dictionary"
 	"github.com/gazercloud/gazernode/settings"
-	"github.com/gazercloud/gazernode/system/public_channel"
 	"github.com/gazercloud/gazerui/canvas"
 	"github.com/gazercloud/gazerui/ui"
 	"github.com/gazercloud/gazerui/uicontrols"
@@ -16,7 +15,6 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -85,7 +83,7 @@ func (c *PanelPublicChannels) OnInit() {
 		f := NewFormAddCloudChannel(c, c.client)
 		f.ShowDialog()
 		f.OnAccept = func() {
-			c.loadChannels()
+			//c.loadChannels()
 		}
 	})
 	c.btnAdd.SetTooltip("Add new public channel")
@@ -95,7 +93,7 @@ func (c *PanelPublicChannels) OnInit() {
 		f := NewFormEditCloudChannel(c, c.client, channelId, c.lvChannels.SelectedItem().UserData("channelName").(string))
 		f.ShowDialog()
 		f.OnAccept = func() {
-			c.loadChannels()
+			//c.loadChannels()
 		}
 	})
 	c.btnEdit.SetTooltip("Edit public channel")
@@ -104,7 +102,7 @@ func (c *PanelPublicChannels) OnInit() {
 		uicontrols.ShowQuestionMessageOKCancel(c, "Remove public channel?", "Confirmation", func() {
 			channelId := c.lvChannels.SelectedItem().TempData
 			c.client.RemoveCloudChannel(channelId, func(err error) {
-				c.loadChannels()
+				//c.loadChannels()
 			})
 		}, nil)
 	})
@@ -125,7 +123,7 @@ func (c *PanelPublicChannels) OnInit() {
 	pButtons.AddTextBlockOnGrid(6, 0, " | ")
 
 	c.btnRefresh = pButtons.AddButtonOnGrid(7, 0, "", func(event *uievents.Event) {
-		c.loadChannels()
+		//c.loadChannels()
 	})
 	c.btnRefresh.SetTooltip("Refresh")
 
@@ -251,10 +249,10 @@ func (c *PanelPublicChannels) OnInit() {
 	c.timer = c.Window().NewTimer(1000, c.timerUpdate)
 	c.timer.StartTimer()
 
-	c.loadChannels()
+	//c.loadChannels()
 	c.UpdateStyle()
 
-	c.createCloudChannelIfItDoesntExists()
+	//c.createCloudChannelIfItDoesntExists()
 
 	c.loadSelected()
 }
@@ -303,7 +301,7 @@ func (c *PanelPublicChannels) loadSelected() {
 }
 
 func (c *PanelPublicChannels) FullRefresh() {
-	c.loadChannels()
+	//c.loadChannels()
 }
 
 func (c *PanelPublicChannels) startChannel() {
@@ -371,7 +369,7 @@ func (c *PanelPublicChannels) SetCurrentChannelId(channelId string, name string)
 	}
 }
 
-func (c *PanelPublicChannels) loadChannels() {
+/*func (c *PanelPublicChannels) loadChannels() {
 	if c.client == nil {
 		return
 	}
@@ -394,7 +392,7 @@ func (c *PanelPublicChannels) loadChannels() {
 			lvItem.SetUserData("channelName", s.Name)
 		}
 	})
-}
+}*/
 
 func (c *PanelPublicChannels) SelectedItems() []string {
 	items := make([]string, 0)
@@ -405,7 +403,7 @@ func (c *PanelPublicChannels) SelectedItems() []string {
 	return items
 }
 
-func (c *PanelPublicChannels) createCloudChannelIfItDoesntExists() {
+/*func (c *PanelPublicChannels) createCloudChannelIfItDoesntExists() {
 	c.client.GetCloudChannels(func(channels []public_channel.ChannelInfo, err error) {
 		if err == nil && len(channels) == 0 {
 			var hostName string
@@ -418,7 +416,7 @@ func (c *PanelPublicChannels) createCloudChannelIfItDoesntExists() {
 			})
 		}
 	})
-}
+}*/
 
 func (c *PanelPublicChannels) timerUpdate() {
 	if !c.IsVisibleRec() {
@@ -466,7 +464,7 @@ func (c *PanelPublicChannels) timerUpdate() {
 		c.btnRemoveFromCloud.SetEnabled(false)
 	}
 
-	c.loadChannels()
+	//c.loadChannels()
 
 	if len(c.currentChannelId) > 0 {
 		c.client.GetCloudChannelValues(c.currentChannelId, func(items []common_interfaces.Item, err error) {
