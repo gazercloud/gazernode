@@ -151,8 +151,8 @@ func (c *TimeFilterWidget) UpdateStyle() {
 
 func (c *TimeFilterWidget) SetCustomFilter(minTime, maxTime int64) {
 	if minTime != 0 && maxTime != 0 {
-		c.dtPickerFrom.SetDateTime(time.UnixMicro(minTime))
-		c.dtPickerTo.SetDateTime(time.UnixMicro(maxTime))
+		//c.dtPickerFrom.SetDateTime(time.UnixMicro(minTime))
+		//c.dtPickerTo.SetDateTime(time.UnixMicro(maxTime))
 		c.cmbIntervals.SetCurrentItemKey("custom")
 	}
 }

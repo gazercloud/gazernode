@@ -3,14 +3,13 @@ module github.com/gazercloud/gazernode
 go 1.16
 
 require (
-	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
+	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fogleman/gg v1.3.0
 	github.com/gazercloud/gazerui v1.0.10
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
-	github.com/go-ping/ping v0.0.0-20210216210419-25d1413fb7bb
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
@@ -28,11 +27,12 @@ require (
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20210209000435-a757b9cbd472
 	github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f5e9
+	github.com/stianeikeland/go-rpio/v4 v4.5.1
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da
 	go.bug.st/serial v1.1.2
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
-	golang.org/x/net v0.0.0-20200904194848-62affa334b73
+	golang.org/x/net v0.0.0-20210222171744-9060382bd457
 	golang.org/x/sys v0.0.0-20210223212115-eede4237b368
 	golang.org/x/text v0.3.5
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect

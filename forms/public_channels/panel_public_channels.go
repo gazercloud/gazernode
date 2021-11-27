@@ -419,9 +419,9 @@ func (c *PanelPublicChannels) SelectedItems() []string {
 }*/
 
 func (c *PanelPublicChannels) timerUpdate() {
-	if !c.IsVisibleRec() {
+	/*if !c.IsVisibleRec() {
 		return
-	}
+	}*/
 
 	if len(c.lvChannels.SelectedItems()) > 0 {
 		if len(c.lvChannels.SelectedItems()) == 1 {

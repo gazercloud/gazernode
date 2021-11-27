@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"runtime"
 	"strings"
-	"time"
 )
 
 type ExportToCSVTask struct {
@@ -114,7 +113,7 @@ func (c *DialogExportToCSV) updateExample() {
 
 func (c *DialogExportToCSV) export(maxLines int) string {
 	var builder strings.Builder
-	for i, item := range c.task.Values {
+	/*for i, item := range c.task.Values {
 		dt := time.UnixMicro(item.DT)
 		line := ""
 		line += dt.Format("2006-01-02 15:04:05.999")
@@ -128,7 +127,7 @@ func (c *DialogExportToCSV) export(maxLines int) string {
 			builder.WriteString("...")
 			break
 		}
-	}
+	}*/
 
 	return builder.String()
 }

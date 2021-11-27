@@ -1,12 +1,9 @@
 package hostid
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/settings"
 	"github.com/google/uuid"
-	"io/ioutil"
 	"time"
 )
 
@@ -27,14 +24,14 @@ func InitHostId() {
 }
 
 func LoadHostId() error {
-	hostIdString, err := ioutil.ReadFile(settings.ServerDataPath() + "/host_id.json")
+	/*hostIdString, err := ioutil.ReadFile(settings.ServerDataPath() + "/host_id.json")
 	if err != nil {
 		return err
 	}
 	err = json.Unmarshal(hostIdString, &hostId)
 	if err != nil {
 		return err
-	}
+	}*/
 	return nil
 }
 
@@ -45,10 +42,10 @@ func MakeHostId() error {
 		hostId.UniqueId = time.Now().UTC().Format("2006-01-02 15:04:05") + "_" + uuid.New().String()
 	}
 	hostId.DT = time.Now().UTC()
-	var bs []byte
-	bs, err = json.Marshal(hostId)
+	//var bs []byte
+	//bs, err = json.Marshal(hostId)
 	if err == nil {
-		err = ioutil.WriteFile(settings.ServerDataPath()+"/host_id.json", bs, 0666)
+		//err = ioutil.WriteFile(()+"/host_id.json", bs, 0666)
 		if err != nil {
 			return err
 		}

@@ -238,9 +238,9 @@ func (c *PanelUsers) timerUpdate() {
 		return
 	}
 
-	if !c.IsVisibleRec() {
+	/*if !c.IsVisibleRec() {
 		return
-	}
+	}*/
 
 	if !c.firstTimeStateLoaded {
 		c.loadUsers()

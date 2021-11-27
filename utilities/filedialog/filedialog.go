@@ -7,7 +7,6 @@ import (
 	"github.com/gazercloud/gazerui/uicontrols"
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
-	"golang.org/x/sys/windows"
 	"runtime"
 	"strings"
 	"time"
@@ -66,9 +65,9 @@ func NewFileDialog(parent uiinterfaces.Widget, isSaveFileDialog bool, defaultFil
 	c.lvRight.AddColumn("Name", 200)
 	c.lvRight.AddColumn("Date modified", 140)
 	c.lvRight.AddColumn("Size", 100)
-	c.lvRight.OnItemDblClicked = func(item *uicontrols.ListViewItem) {
+	/*c.lvRight.OnItemDblClicked = func(item *uicontrols.ListViewItem) {
 		c.ItemAction()
-	}
+	}*/
 
 	c.lvRight.OnItemClicked = func(item *uicontrols.ListViewItem) {
 		c.ItemClick()
@@ -298,10 +297,10 @@ func (c *FileDialog) bitsToDrives(bitMap uint32) (drives []string) {
 
 func (c *FileDialog) drives() []string {
 	drives := make([]string, 0)
-	drivesBits, err := windows.GetLogicalDrives()
-	if err == nil {
+	//drivesBits, err := windows.GetLogicalDrives()
+	/*if err == nil {
 		drives = c.bitsToDrives(drivesBits)
-	}
+	}*/
 	return drives
 }
 

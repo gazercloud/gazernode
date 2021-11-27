@@ -8,7 +8,6 @@ import (
 	"github.com/gazercloud/gazerui/uievents"
 	"github.com/gazercloud/gazerui/uiinterfaces"
 	"github.com/gazercloud/gazerui/uiresources"
-	"time"
 )
 
 type WidgetDataItems struct {
@@ -73,7 +72,7 @@ func (c *WidgetDataItems) OnInit() {
 	c.AddTextBlockOnGrid(0, 3, c.text2)
 
 	c.timer = c.Window().NewTimer(500, func() {
-		if c.IsVisibleRec() {
+		/*if c.IsVisibleRec() {
 			nodes := c.tvItems.VisibleNodes()
 			for _, node := range nodes {
 				value := c.client.GetItemValue(node.UserData.(string)).Value
@@ -82,7 +81,7 @@ func (c *WidgetDataItems) OnInit() {
 				c.tvItems.SetNodeValue(node, 2, uom)
 				c.tvItems.SetNodeValue(node, 3, time.Unix(0, c.client.GetItemValue(node.UserData.(string)).DT*1000).Format("15:04:05"))
 			}
-		}
+		}*/
 	})
 	c.timer.StartTimer()
 }

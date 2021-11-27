@@ -74,9 +74,9 @@ func (c *WidgetCloud) Dispose() {
 }
 
 func (c *WidgetCloud) timerUpdate() {
-	if !c.IsVisibleRec() && c.firstTimeStateLoaded {
+	/*if !c.IsVisibleRec() && c.firstTimeStateLoaded {
 		return
-	}
+	}*/
 
 	c.client.CloudState(func(response nodeinterface.CloudStateResponse, err error) {
 		if err != nil {

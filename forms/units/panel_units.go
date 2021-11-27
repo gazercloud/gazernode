@@ -605,9 +605,9 @@ func (c *PanelUnits) updateDataItemsButtons() {
 }
 
 func (c *PanelUnits) updateUnitsState() {
-	if !c.IsVisibleRec() {
+	/*if !c.IsVisibleRec() {
 		return
-	}
+	}*/
 
 	c.client.GetUnitStateAll(func(response nodeinterface.UnitStateAllResponse, err error) {
 		if err != nil {
@@ -675,9 +675,9 @@ func (c *PanelUnits) updateHeader() {
 }
 
 func (c *PanelUnits) updateDataItemsState() {
-	if !c.IsVisibleRec() {
+	/*if !c.IsVisibleRec() {
 		return
-	}
+	}*/
 
 	if len(c.currentUnitName) > 0 {
 		c.client.GetUnitValues(c.currentUnitName, func(items []common_interfaces.ItemGetUnitItems, err error) {

@@ -108,9 +108,9 @@ func (c *PanelFullScreenValue) Clear() {
 }
 
 func (c *PanelFullScreenValue) timerUpdate() {
-	if !c.IsVisibleRec() {
+	/*if !c.IsVisibleRec() {
 		return
-	}
+	}*/
 
 	c.client.GetItemsValues([]string{c.itemId}, func(items []common_interfaces.ItemGetUnitItems, err error) {
 		for _, di := range items {
