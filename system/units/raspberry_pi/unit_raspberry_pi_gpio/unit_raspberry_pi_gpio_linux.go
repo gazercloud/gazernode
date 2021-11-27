@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/stianeikeland/go-rpio/v4"
 	"time"
 )
 
@@ -70,6 +71,14 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
 
+	if err := rpio.Open(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer rpio.Close()
+
+	pin.Output()
+
 	for !c.Stopping {
 		for {
 			if c.Stopping || time.Now().Sub(dtOperationTime) > time.Duration(c.periodMs)*time.Millisecond {
@@ -81,6 +90,7 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			break
 		}
 		dtOperationTime = time.Now().UTC()
+		pin.Toggle()
 	}
 	c.SetString(ItemNameResult, "", "stopped")
 	c.Started = false
