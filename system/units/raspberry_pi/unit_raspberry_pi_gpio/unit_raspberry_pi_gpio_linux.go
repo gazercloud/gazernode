@@ -3,10 +3,12 @@ package unit_raspberry_pi_gpio
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/stianeikeland/go-rpio/v4"
+	"os"
 	"time"
 )
 
@@ -77,6 +79,7 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 	}
 	defer rpio.Close()
 
+	pin := rpio.Pin(17)
 	pin.Output()
 
 	for !c.Stopping {
