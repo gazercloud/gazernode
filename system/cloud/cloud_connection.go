@@ -663,6 +663,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 				allowed = true
 			}
 		}
+		allowed = true
 	}
 
 	if !task.Frame.Header.IsRequest && task.Frame.Header.Function == "s-account-info" {

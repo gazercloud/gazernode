@@ -7,6 +7,7 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/fatih/color v1.13.0 // indirect
 	github.com/fogleman/gg v1.3.0
 	github.com/gazercloud/gazerui v1.0.10
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
@@ -33,7 +34,7 @@ require (
 	go.bug.st/serial v1.1.2
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
 	golang.org/x/net v0.0.0-20210222171744-9060382bd457
-	golang.org/x/sys v0.0.0-20210223212115-eede4237b368
+	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
 	golang.org/x/text v0.3.5
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )

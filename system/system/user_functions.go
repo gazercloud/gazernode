@@ -2,9 +2,12 @@ package system
 
 import (
 	"crypto"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/protocols/nodeinterface"
@@ -196,8 +199,9 @@ func (c *System) hashPassword(password string) string {
 }
 
 func (c *System) hashSession(sessionData string) string {
-	s := crypto.SHA256.New()
-	return base64.StdEncoding.EncodeToString(s.Sum([]byte(sessionData)))
+	sum := sha256.Sum256([]byte(sessionData))
+	hexStr := hex.EncodeToString(sum[0:10])
+	return fmt.Sprint(hexStr)
 }
 
 func (c *System) UserRemove(name string) (nodeinterface.UserRemoveResponse, error) {
