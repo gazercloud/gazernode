@@ -52,6 +52,14 @@ func New(addr string) *GazerNodeClient {
 	return &c
 }
 
+func NewWithSession(addr string, sessionKey string) *GazerNodeClient {
+	var c GazerNodeClient
+	c.address = addr
+	c.sessionToken = sessionKey
+	c.initClient()
+	return &c
+}
+
 func (c *GazerNodeClient) initClient() {
 	tr := &http.Transport{}
 	jar, _ := cookiejar.New(nil)
@@ -81,6 +89,10 @@ func (c *GazerNodeClient) thCall(call *Call) {
 	{
 		fw, _ := writer.CreateFormField("fn")
 		fw.Write([]byte(call.function))
+	}
+	{
+		fw, _ := writer.CreateFormField("s")
+		fw.Write([]byte(c.sessionToken))
 	}
 	{
 		fw, _ := writer.CreateFormField("rj")
