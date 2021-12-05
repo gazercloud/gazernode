@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"io/ioutil"
 	"math/rand"
 	"net"
@@ -76,7 +76,7 @@ func NewConnection(serverDataPath string) *Connection {
 
 	c.allowIncomingFunctions = make(map[string]bool)
 
-	for _, f := range nodeinterface.ApiFunctions() {
+	for _, f := range nodeinterface2.ApiFunctions() {
 		c.allowIncomingFunctions[f] = false
 	}
 
@@ -808,8 +808,8 @@ func (c *Connection) Call(function string, requestText []byte, targetNodeId stri
 	return resultBytes, err
 }
 
-func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
-	var resp nodeinterface.CloudStateResponse
+func (c *Connection) State() (nodeinterface2.CloudStateResponse, error) {
+	var resp nodeinterface2.CloudStateResponse
 	resp.Connected = c.conn != nil
 	resp.LoggedIn = c.sessionId != ""
 	resp.UserName = c.userName
@@ -821,7 +821,7 @@ func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
 	resp.SessionKey = c.sessionId
 
 	c.mtx.Lock()
-	resp.Counters = make([]nodeinterface.CloudStateResponseItem, 0)
+	resp.Counters = make([]nodeinterface2.CloudStateResponseItem, 0)
 	for key, value := range c.callsSuccess {
 
 		allow, ok := c.allowIncomingFunctions[key]
@@ -829,7 +829,7 @@ func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
 			allow = false
 		}
 
-		resp.Counters = append(resp.Counters, nodeinterface.CloudStateResponseItem{
+		resp.Counters = append(resp.Counters, nodeinterface2.CloudStateResponseItem{
 			Name:  key,
 			Allow: allow,
 			Value: value,
@@ -840,8 +840,8 @@ func (c *Connection) State() (nodeinterface.CloudStateResponse, error) {
 	return resp, nil
 }
 
-func (c *Connection) Nodes() (resp nodeinterface.CloudNodesResponse, err error) {
-	resp.Nodes = make([]nodeinterface.CloudNodesResponseItem, 0)
+func (c *Connection) Nodes() (resp nodeinterface2.CloudNodesResponse, err error) {
+	resp.Nodes = make([]nodeinterface2.CloudNodesResponseItem, 0)
 
 	cloudResp, err := c.Call("s-registered-nodes", nil, "")
 	if err != nil {
@@ -865,7 +865,7 @@ func (c *Connection) Nodes() (resp nodeinterface.CloudNodesResponse, err error) 
 	}
 
 	for _, n := range nodesResp.Items {
-		resp.Nodes = append(resp.Nodes, nodeinterface.CloudNodesResponseItem{
+		resp.Nodes = append(resp.Nodes, nodeinterface2.CloudNodesResponseItem{
 			NodeId: n.Id,
 			Name:   n.Name,
 		})
@@ -874,7 +874,7 @@ func (c *Connection) Nodes() (resp nodeinterface.CloudNodesResponse, err error) 
 	return resp, nil
 }
 
-func (c *Connection) AddNode(name string) (resp nodeinterface.CloudAddNodeResponse, err error) {
+func (c *Connection) AddNode(name string) (resp nodeinterface2.CloudAddNodeResponse, err error) {
 	type NodeAddRequest struct {
 		Name string `json:"name"`
 	}
@@ -907,7 +907,7 @@ func (c *Connection) AddNode(name string) (resp nodeinterface.CloudAddNodeRespon
 	return
 }
 
-func (c *Connection) UpdateNode(nodeId string, name string) (resp nodeinterface.CloudUpdateNodeResponse, err error) {
+func (c *Connection) UpdateNode(nodeId string, name string) (resp nodeinterface2.CloudUpdateNodeResponse, err error) {
 	type NodeUpdateRequest struct {
 		NodeId string `json:"node_id"`
 		Name   string `json:"name"`
@@ -940,7 +940,7 @@ func (c *Connection) UpdateNode(nodeId string, name string) (resp nodeinterface.
 	return
 }
 
-func (c *Connection) RemoveNode(nodeId string) (resp nodeinterface.CloudRemoveNodeResponse, err error) {
+func (c *Connection) RemoveNode(nodeId string) (resp nodeinterface2.CloudRemoveNodeResponse, err error) {
 	type NodeRemoveRequest struct {
 		NodeId string `json:"node_id"`
 	}
@@ -971,16 +971,16 @@ func (c *Connection) RemoveNode(nodeId string) (resp nodeinterface.CloudRemoveNo
 	return
 }
 
-func (c *Connection) GetSettings(request nodeinterface.CloudGetSettingsRequest) (nodeinterface.CloudGetSettingsResponse, error) {
-	var resp nodeinterface.CloudGetSettingsResponse
-	resp.Items = make([]*nodeinterface.CloudGetSettingsResponseItem, 0)
-	for _, function := range nodeinterface.ApiFunctions() {
+func (c *Connection) GetSettings(request nodeinterface2.CloudGetSettingsRequest) (nodeinterface2.CloudGetSettingsResponse, error) {
+	var resp nodeinterface2.CloudGetSettingsResponse
+	resp.Items = make([]*nodeinterface2.CloudGetSettingsResponseItem, 0)
+	for _, function := range nodeinterface2.ApiFunctions() {
 		v, ok := c.allowIncomingFunctions[function]
 		if !ok {
 			v = false
 		}
 
-		resp.Items = append(resp.Items, &nodeinterface.CloudGetSettingsResponseItem{
+		resp.Items = append(resp.Items, &nodeinterface2.CloudGetSettingsResponseItem{
 			Function: function,
 			Allow:    v,
 		})
@@ -988,11 +988,11 @@ func (c *Connection) GetSettings(request nodeinterface.CloudGetSettingsRequest) 
 	return resp, nil
 }
 
-func (c *Connection) GetSettingsProfiles(request nodeinterface.CloudGetSettingsProfilesRequest) (nodeinterface.CloudGetSettingsProfilesResponse, error) {
-	var resp nodeinterface.CloudGetSettingsProfilesResponse
-	resp.Items = make([]*nodeinterface.CloudGetSettingsProfilesResponseItem, 0)
-	for _, role := range nodeinterface.ApiRoles() {
-		resp.Items = append(resp.Items, &nodeinterface.CloudGetSettingsProfilesResponseItem{
+func (c *Connection) GetSettingsProfiles(request nodeinterface2.CloudGetSettingsProfilesRequest) (nodeinterface2.CloudGetSettingsProfilesResponse, error) {
+	var resp nodeinterface2.CloudGetSettingsProfilesResponse
+	resp.Items = make([]*nodeinterface2.CloudGetSettingsProfilesResponseItem, 0)
+	for _, role := range nodeinterface2.ApiRoles() {
+		resp.Items = append(resp.Items, &nodeinterface2.CloudGetSettingsProfilesResponseItem{
 			Code:      role.Code,
 			Name:      role.Name,
 			Functions: role.Functions,
@@ -1001,7 +1001,7 @@ func (c *Connection) GetSettingsProfiles(request nodeinterface.CloudGetSettingsP
 	return resp, nil
 }
 
-func (c *Connection) SetSettings(request nodeinterface.CloudSetSettingsRequest) (resp nodeinterface.CloudSetSettingsResponse, err error) {
+func (c *Connection) SetSettings(request nodeinterface2.CloudSetSettingsRequest) (resp nodeinterface2.CloudSetSettingsResponse, err error) {
 	for _, item := range request.Items {
 		if _, ok := c.allowIncomingFunctions[item.Function]; ok {
 			c.allowIncomingFunctions[item.Function] = item.Allow
@@ -1011,7 +1011,7 @@ func (c *Connection) SetSettings(request nodeinterface.CloudSetSettingsRequest) 
 	return
 }
 
-func (c *Connection) AccountInfo(request nodeinterface.CloudAccountInfoRequest) (resp nodeinterface.CloudAccountInfoResponse, err error) {
+func (c *Connection) AccountInfo(request nodeinterface2.CloudAccountInfoRequest) (resp nodeinterface2.CloudAccountInfoResponse, err error) {
 	cloudResp, err := c.Call("s-account-info", []byte("{}"), "")
 	if err != nil {
 		logger.Println("s-account-info error", err)
@@ -1035,7 +1035,7 @@ func (c *Connection) AccountInfo(request nodeinterface.CloudAccountInfoRequest) 
 	return resp, nil
 }
 
-func (c *Connection) SetCurrentNodeId(request nodeinterface.CloudSetCurrentNodeIdRequest) (resp nodeinterface.CloudSetCurrentNodeIdResponse, err error) {
+func (c *Connection) SetCurrentNodeId(request nodeinterface2.CloudSetCurrentNodeIdRequest) (resp nodeinterface2.CloudSetCurrentNodeIdResponse, err error) {
 	if request.NodeId != c.nodeId {
 		c.nodeId = request.NodeId
 		c.CloseConnection()

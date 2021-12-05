@@ -6,23 +6,23 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/history"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/history"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"io/fs"
 	"io/ioutil"
 )
 
 func (c *GazerNodeClient) Write(itemName string, value string) error {
-	var req nodeinterface.DataItemWriteRequest
+	var req nodeinterface2.DataItemWriteRequest
 	req.ItemName = itemName
 	req.Value = value
 	var call Call
-	call.function = nodeinterface.FuncDataItemWrite
+	call.function = nodeinterface2.FuncDataItemWrite
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.DataItemWriteResponse
+	var resp nodeinterface2.DataItemWriteResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
@@ -31,14 +31,14 @@ func (c *GazerNodeClient) Write(itemName string, value string) error {
 
 func (c *GazerNodeClient) GetItemsValues(items []string) ([]common_interfaces.ItemGetUnitItems, error) {
 	var call Call
-	var req nodeinterface.DataItemListRequest
+	var req nodeinterface2.DataItemListRequest
 	req.Items = items
-	call.function = nodeinterface.FuncDataItemList
+	call.function = nodeinterface2.FuncDataItemList
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.DataItemListResponse
+	var resp nodeinterface2.DataItemListResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
@@ -47,13 +47,13 @@ func (c *GazerNodeClient) GetItemsValues(items []string) ([]common_interfaces.It
 
 func (c *GazerNodeClient) GetAllItems() ([]common_interfaces.ItemGetUnitItems, error) {
 	var call Call
-	var req nodeinterface.DataItemListAllRequest
-	call.function = nodeinterface.FuncDataItemListAll
+	var req nodeinterface2.DataItemListAllRequest
+	call.function = nodeinterface2.FuncDataItemListAll
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.DataItemListAllResponse
+	var resp nodeinterface2.DataItemListAllResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
@@ -62,35 +62,35 @@ func (c *GazerNodeClient) GetAllItems() ([]common_interfaces.ItemGetUnitItems, e
 
 func (c *GazerNodeClient) ReadHistory(name string, dtBegin int64, dtEnd int64) (*history.ReadResult, error) {
 	var call Call
-	var req nodeinterface.DataItemHistoryRequest
+	var req nodeinterface2.DataItemHistoryRequest
 	req.Name = name
 	req.DTBegin = dtBegin
 	req.DTEnd = dtEnd
-	call.function = nodeinterface.FuncDataItemHistory
+	call.function = nodeinterface2.FuncDataItemHistory
 	call.request, _ = json.MarshalIndent(req, "", " ")
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.DataItemHistoryResponse
+	var resp nodeinterface2.DataItemHistoryResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp.History, err
 }
 
-func (c *GazerNodeClient) ReadHistoryChart(name string, dtBegin int64, dtEnd int64, groupTimeRange int64) (*nodeinterface.DataItemHistoryChartResponse, error) {
+func (c *GazerNodeClient) ReadHistoryChart(name string, dtBegin int64, dtEnd int64, groupTimeRange int64) (*nodeinterface2.DataItemHistoryChartResponse, error) {
 	var call Call
-	var req nodeinterface.DataItemHistoryChartRequest
+	var req nodeinterface2.DataItemHistoryChartRequest
 	req.Name = name
 	req.DTBegin = dtBegin
 	req.DTEnd = dtEnd
 	req.GroupTimeRange = groupTimeRange
 	req.OutFormat = "zip"
-	call.function = nodeinterface.FuncDataItemHistoryChart
+	call.function = nodeinterface2.FuncDataItemHistoryChart
 	call.request, _ = json.MarshalIndent(req, "", " ")
 	call.client = c
 	c.thCall(&call)
-	var resp nodeinterface.DataItemHistoryChartResponse
+	var resp nodeinterface2.DataItemHistoryChartResponse
 	err := call.err
 	if err == nil {
 		type ZipOut struct {
@@ -125,15 +125,15 @@ func (c *GazerNodeClient) ReadHistoryChart(name string, dtBegin int64, dtEnd int
 }
 
 func (c *GazerNodeClient) DataItemRemove(items []string) error {
-	var req nodeinterface.DataItemRemoveRequest
+	var req nodeinterface2.DataItemRemoveRequest
 	req.Items = items
 	var call Call
-	call.function = nodeinterface.FuncDataItemRemove
+	call.function = nodeinterface2.FuncDataItemRemove
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.DataItemRemoveResponse
+	var resp nodeinterface2.DataItemRemoveResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}

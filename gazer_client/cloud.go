@@ -2,20 +2,20 @@ package gazer_client
 
 import (
 	"encoding/json"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 )
 
 func (c *GazerNodeClient) CloudLogin(userName string, password string) error {
 	var call Call
-	var req nodeinterface.CloudLoginRequest
+	var req nodeinterface2.CloudLoginRequest
 	req.UserName = userName
 	req.Password = password
-	call.function = nodeinterface.FuncCloudLogin
+	call.function = nodeinterface2.FuncCloudLogin
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudLoginResponse
+	var resp nodeinterface2.CloudLoginResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
@@ -24,169 +24,169 @@ func (c *GazerNodeClient) CloudLogin(userName string, password string) error {
 
 func (c *GazerNodeClient) CloudLogout() error {
 	var call Call
-	var req nodeinterface.CloudLogoutRequest
-	call.function = nodeinterface.FuncCloudLogout
+	var req nodeinterface2.CloudLogoutRequest
+	call.function = nodeinterface2.FuncCloudLogout
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudLogoutResponse
+	var resp nodeinterface2.CloudLogoutResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return err
 }
 
-func (c *GazerNodeClient) CloudState() (nodeinterface.CloudStateResponse, error) {
+func (c *GazerNodeClient) CloudState() (nodeinterface2.CloudStateResponse, error) {
 	var call Call
-	var req nodeinterface.CloudStateRequest
-	call.function = nodeinterface.FuncCloudState
+	var req nodeinterface2.CloudStateRequest
+	call.function = nodeinterface2.FuncCloudState
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudStateResponse
+	var resp nodeinterface2.CloudStateResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudNodes() (nodeinterface.CloudNodesResponse, error) {
+func (c *GazerNodeClient) CloudNodes() (nodeinterface2.CloudNodesResponse, error) {
 	var call Call
-	var req nodeinterface.CloudNodesRequest
-	call.function = nodeinterface.FuncCloudNodes
+	var req nodeinterface2.CloudNodesRequest
+	call.function = nodeinterface2.FuncCloudNodes
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudNodesResponse
+	var resp nodeinterface2.CloudNodesResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudAddNode(name string) (nodeinterface.CloudAddNodeResponse, error) {
+func (c *GazerNodeClient) CloudAddNode(name string) (nodeinterface2.CloudAddNodeResponse, error) {
 	var call Call
-	var req nodeinterface.CloudAddNodeRequest
+	var req nodeinterface2.CloudAddNodeRequest
 	req.Name = name
 
-	call.function = nodeinterface.FuncCloudAddNode
+	call.function = nodeinterface2.FuncCloudAddNode
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudAddNodeResponse
+	var resp nodeinterface2.CloudAddNodeResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudUpdateNode(nodeId string, name string) (nodeinterface.CloudUpdateNodeResponse, error) {
+func (c *GazerNodeClient) CloudUpdateNode(nodeId string, name string) (nodeinterface2.CloudUpdateNodeResponse, error) {
 	var call Call
-	var req nodeinterface.CloudUpdateNodeRequest
+	var req nodeinterface2.CloudUpdateNodeRequest
 	req.NodeId = nodeId
 	req.Name = name
-	call.function = nodeinterface.FuncCloudUpdateNode
+	call.function = nodeinterface2.FuncCloudUpdateNode
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudUpdateNodeResponse
+	var resp nodeinterface2.CloudUpdateNodeResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudRemoveNode(nodeId string) (nodeinterface.CloudRemoveNodeResponse, error) {
+func (c *GazerNodeClient) CloudRemoveNode(nodeId string) (nodeinterface2.CloudRemoveNodeResponse, error) {
 	var call Call
-	var req nodeinterface.CloudRemoveNodeRequest
+	var req nodeinterface2.CloudRemoveNodeRequest
 	req.NodeId = nodeId
-	call.function = nodeinterface.FuncCloudRemoveNode
+	call.function = nodeinterface2.FuncCloudRemoveNode
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudRemoveNodeResponse
+	var resp nodeinterface2.CloudRemoveNodeResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudGetSettings() (nodeinterface.CloudGetSettingsResponse, error) {
+func (c *GazerNodeClient) CloudGetSettings() (nodeinterface2.CloudGetSettingsResponse, error) {
 	var call Call
-	var req nodeinterface.CloudGetSettingsRequest
-	call.function = nodeinterface.FuncCloudGetSettings
+	var req nodeinterface2.CloudGetSettingsRequest
+	call.function = nodeinterface2.FuncCloudGetSettings
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudGetSettingsResponse
+	var resp nodeinterface2.CloudGetSettingsResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudGetSettingsProfiles() (nodeinterface.CloudGetSettingsProfilesResponse, error) {
+func (c *GazerNodeClient) CloudGetSettingsProfiles() (nodeinterface2.CloudGetSettingsProfilesResponse, error) {
 	var call Call
-	var req nodeinterface.CloudGetSettingsProfilesRequest
-	call.function = nodeinterface.FuncCloudGetSettingsProfiles
+	var req nodeinterface2.CloudGetSettingsProfilesRequest
+	call.function = nodeinterface2.FuncCloudGetSettingsProfiles
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudGetSettingsProfilesResponse
+	var resp nodeinterface2.CloudGetSettingsProfilesResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudSetSettings(req nodeinterface.CloudSetSettingsRequest) (nodeinterface.CloudSetSettingsResponse, error) {
+func (c *GazerNodeClient) CloudSetSettings(req nodeinterface2.CloudSetSettingsRequest) (nodeinterface2.CloudSetSettingsResponse, error) {
 	var call Call
 	//var req nodeinterface.CloudSetSettingsRequest
-	call.function = nodeinterface.FuncCloudSetSettings
+	call.function = nodeinterface2.FuncCloudSetSettings
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudSetSettingsResponse
+	var resp nodeinterface2.CloudSetSettingsResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudAccountInfo() (nodeinterface.CloudAccountInfoResponse, error) {
+func (c *GazerNodeClient) CloudAccountInfo() (nodeinterface2.CloudAccountInfoResponse, error) {
 	var call Call
-	var req nodeinterface.CloudAccountInfoRequest
-	call.function = nodeinterface.FuncCloudAccountInfo
+	var req nodeinterface2.CloudAccountInfoRequest
+	call.function = nodeinterface2.FuncCloudAccountInfo
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudAccountInfoResponse
+	var resp nodeinterface2.CloudAccountInfoResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp, err
 }
 
-func (c *GazerNodeClient) CloudSetCurrentNodeId(nodeId string) (nodeinterface.CloudSetCurrentNodeIdResponse, error) {
+func (c *GazerNodeClient) CloudSetCurrentNodeId(nodeId string) (nodeinterface2.CloudSetCurrentNodeIdResponse, error) {
 	var call Call
-	var req nodeinterface.CloudSetCurrentNodeIdRequest
+	var req nodeinterface2.CloudSetCurrentNodeIdRequest
 	req.NodeId = nodeId
-	call.function = nodeinterface.FuncCloudSetCurrentNodeId
+	call.function = nodeinterface2.FuncCloudSetCurrentNodeId
 	call.request, _ = json.Marshal(req)
 	call.client = c
 	c.thCall(&call)
 	err := call.err
-	var resp nodeinterface.CloudSetCurrentNodeIdResponse
+	var resp nodeinterface2.CloudSetCurrentNodeIdResponse
 	if err == nil {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}

@@ -3,20 +3,20 @@ package gazer_client
 import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/protocols/lookup"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/protocols/lookup"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"net/url"
 )
 
 func (c *GazerNodeClient) Lookup(entity string, f func(lookup.Result, error)) {
 	var call Call
-	var req nodeinterface.ServiceLookupRequest
+	var req nodeinterface2.ServiceLookupRequest
 	req.Entity = entity
-	call.function = nodeinterface.FuncServiceLookup
+	call.function = nodeinterface2.FuncServiceLookup
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ServiceLookupResponse
+		var resp nodeinterface2.ServiceLookupResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -39,12 +39,12 @@ func (c *GazerNodeClient) sessionTokenUrl() *url.URL {
 func (c *GazerNodeClient) GetStatistics(f func(common_interfaces.Statistics, error)) {
 	var call Call
 
-	var req nodeinterface.ServiceStatisticsRequest
-	call.function = nodeinterface.FuncServiceStatistics
+	var req nodeinterface2.ServiceStatisticsRequest
+	call.function = nodeinterface2.FuncServiceStatistics
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ServiceStatisticsResponse
+		var resp nodeinterface2.ServiceStatisticsResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -56,15 +56,15 @@ func (c *GazerNodeClient) GetStatistics(f func(common_interfaces.Statistics, err
 	go c.thCall(&call)
 }
 
-func (c *GazerNodeClient) ServiceApi(f func(nodeinterface.ServiceApiResponse, error)) {
+func (c *GazerNodeClient) ServiceApi(f func(nodeinterface2.ServiceApiResponse, error)) {
 	var call Call
 
-	var req nodeinterface.ServiceApiRequest
-	call.function = nodeinterface.FuncServiceApi
+	var req nodeinterface2.ServiceApiRequest
+	call.function = nodeinterface2.FuncServiceApi
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ServiceApiResponse
+		var resp nodeinterface2.ServiceApiResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -76,16 +76,16 @@ func (c *GazerNodeClient) ServiceApi(f func(nodeinterface.ServiceApiResponse, er
 	go c.thCall(&call)
 }
 
-func (c *GazerNodeClient) ServiceSetNodeName(nodeName string, f func(nodeinterface.ServiceSetNodeNameResponse, error)) {
+func (c *GazerNodeClient) ServiceSetNodeName(nodeName string, f func(nodeinterface2.ServiceSetNodeNameResponse, error)) {
 	var call Call
 
-	var req nodeinterface.ServiceSetNodeNameRequest
+	var req nodeinterface2.ServiceSetNodeNameRequest
 	req.Name = nodeName
-	call.function = nodeinterface.FuncServiceSetNodeName
+	call.function = nodeinterface2.FuncServiceSetNodeName
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ServiceSetNodeNameResponse
+		var resp nodeinterface2.ServiceSetNodeNameResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -97,15 +97,15 @@ func (c *GazerNodeClient) ServiceSetNodeName(nodeName string, f func(nodeinterfa
 	go c.thCall(&call)
 }
 
-func (c *GazerNodeClient) ServiceNodeName(f func(nodeinterface.ServiceNodeNameResponse, error)) {
+func (c *GazerNodeClient) ServiceNodeName(f func(nodeinterface2.ServiceNodeNameResponse, error)) {
 	var call Call
 
-	var req nodeinterface.ServiceNodeNameRequest
-	call.function = nodeinterface.FuncServiceNodeName
+	var req nodeinterface2.ServiceNodeNameRequest
+	call.function = nodeinterface2.FuncServiceNodeName
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ServiceNodeNameResponse
+		var resp nodeinterface2.ServiceNodeNameResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}

@@ -3,11 +3,11 @@ package app
 import (
 	"flag"
 	"github.com/gazercloud/gazernode/application"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/httpserver"
+	"github.com/gazercloud/gazernode/system/settings"
 	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gazercloud/gazernode/utilities/hostid"
+	"github.com/gazercloud/gazernode/utilities/logger"
 )
 
 var httpServer *httpserver.HttpServer

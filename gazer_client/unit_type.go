@@ -2,21 +2,21 @@ package gazer_client
 
 import (
 	"encoding/json"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 )
 
-func (c *GazerNodeClient) UnitTypes(category string, filter string, offset int, maxCount int, f func(nodeinterface.UnitTypeListResponse, error)) {
+func (c *GazerNodeClient) UnitTypes(category string, filter string, offset int, maxCount int, f func(nodeinterface2.UnitTypeListResponse, error)) {
 	var call Call
-	var req nodeinterface.UnitTypeListRequest
+	var req nodeinterface2.UnitTypeListRequest
 	req.Category = category
 	req.Filter = filter
 	req.Offset = offset
 	req.MaxCount = maxCount
-	call.function = nodeinterface.FuncUnitTypeList
+	call.function = nodeinterface2.FuncUnitTypeList
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var result nodeinterface.UnitTypeListResponse
+		var result nodeinterface2.UnitTypeListResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &result)
 		}
@@ -29,15 +29,15 @@ func (c *GazerNodeClient) UnitTypes(category string, filter string, offset int, 
 	go c.thCall(&call)
 }
 
-func (c *GazerNodeClient) UnitCategories(f func(nodeinterface.UnitTypeCategoriesResponse, error)) {
+func (c *GazerNodeClient) UnitCategories(f func(nodeinterface2.UnitTypeCategoriesResponse, error)) {
 	var call Call
-	var req nodeinterface.UnitTypeCategoriesRequest
+	var req nodeinterface2.UnitTypeCategoriesRequest
 
-	call.function = nodeinterface.FuncUnitTypeCategories
+	call.function = nodeinterface2.FuncUnitTypeCategories
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var result nodeinterface.UnitTypeCategoriesResponse
+		var result nodeinterface2.UnitTypeCategoriesResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &result)
 		}
@@ -52,14 +52,14 @@ func (c *GazerNodeClient) UnitCategories(f func(nodeinterface.UnitTypeCategories
 
 func (c *GazerNodeClient) GetUnitConfigByType(unitType string, f func(string, string, error)) {
 	var call Call
-	var req nodeinterface.UnitTypeConfigMetaRequest
+	var req nodeinterface2.UnitTypeConfigMetaRequest
 
 	req.UnitType = unitType
-	call.function = nodeinterface.FuncUnitTypeConfigMeta
+	call.function = nodeinterface2.FuncUnitTypeConfigMeta
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.UnitTypeConfigMetaResponse
+		var resp nodeinterface2.UnitTypeConfigMetaResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}

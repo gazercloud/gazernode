@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/settings"
+	"github.com/gazercloud/gazernode/system/settings"
 	"github.com/google/uuid"
 	"io/ioutil"
 	"os"

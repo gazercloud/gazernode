@@ -2,7 +2,7 @@ package httpserver
 
 import (
 	"encoding/json"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 )
 
 func (c *HttpServer) CloudLogin(request []byte) (response []byte, err error) {

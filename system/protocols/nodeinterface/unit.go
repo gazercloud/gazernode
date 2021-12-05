@@ -1,6 +1,8 @@
 package nodeinterface
 
-import "github.com/gazercloud/gazernode/common_interfaces"
+import (
+	"github.com/gazercloud/gazernode/common_interfaces"
+)
 
 type UnitAddRequest struct {
 	UnitType string `json:"type"`

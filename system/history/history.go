@@ -2,8 +2,8 @@ package history
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/settings"
+	"github.com/gazercloud/gazernode/system/settings"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"sync"
 	"time"
 )

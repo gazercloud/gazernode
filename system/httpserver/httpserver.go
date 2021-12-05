@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/system"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/gazercloud/gazernode/web"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -146,7 +146,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if function != nodeinterface.FuncSessionOpen && function != nodeinterface.FuncSessionActivate {
+		if function != nodeinterface2.FuncSessionOpen && function != nodeinterface2.FuncSessionActivate {
 			_, err = c.system.CheckSession(sessionToken)
 			if err != nil {
 				logger.Println("Session Token error: ", err, "Token:", sessionToken)
@@ -157,9 +157,9 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			responseText, err = c.RequestJson(function, []byte(requestJson), r.RemoteAddr, false)
 		}
 
-		if function == nodeinterface.FuncSessionOpen && err == nil {
+		if function == nodeinterface2.FuncSessionOpen && err == nil {
 			// Set cookie
-			var sessionOpenResponse nodeinterface.SessionOpenResponse
+			var sessionOpenResponse nodeinterface2.SessionOpenResponse
 			errSessionOpenResp := json.Unmarshal(responseText, &sessionOpenResponse)
 			if errSessionOpenResp == nil {
 				expiration := time.Now().Add(365 * 24 * time.Hour)
@@ -168,9 +168,9 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if function == nodeinterface.FuncSessionRemove && err == nil {
+		if function == nodeinterface2.FuncSessionRemove && err == nil {
 			// Set cookie
-			var sessionRemoveRequest nodeinterface.SessionRemoveRequest
+			var sessionRemoveRequest nodeinterface2.SessionRemoveRequest
 			errSessionOpenResp := json.Unmarshal([]byte(requestJson), &sessionRemoveRequest)
 			if errSessionOpenResp == nil {
 				if sessionRemoveRequest.SessionToken == sessionToken {
@@ -181,9 +181,9 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if function == nodeinterface.FuncSessionActivate && err == nil {
+		if function == nodeinterface2.FuncSessionActivate && err == nil {
 			// Set cookie
-			var sessionActivateResponse nodeinterface.SessionActivateResponse
+			var sessionActivateResponse nodeinterface2.SessionActivateResponse
 			errSessionActivateResp := json.Unmarshal(responseText, &sessionActivateResponse)
 			if errSessionActivateResp == nil {
 				expiration := time.Now().Add(365 * 24 * time.Hour)

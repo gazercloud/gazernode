@@ -1,6 +1,8 @@
 package system
 
-import "github.com/gazercloud/gazernode/common_interfaces"
+import (
+	"github.com/gazercloud/gazernode/common_interfaces"
+)
 
 func (c *System) ResAdd(name string, tp string, content []byte) (string, error) {
 	return c.resources.Add(name, tp, content)

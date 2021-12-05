@@ -3,9 +3,9 @@ package system
 import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/history"
 	"github.com/gazercloud/gazernode/product/productinfo"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/history"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"strings"
 	"time"
 )
@@ -204,12 +204,12 @@ func (c *System) GetStatistics() (common_interfaces.Statistics, error) {
 	return res, nil
 }
 
-func (c *System) GetApi() (nodeinterface.ServiceApiResponse, error) {
-	var res nodeinterface.ServiceApiResponse
+func (c *System) GetApi() (nodeinterface2.ServiceApiResponse, error) {
+	var res nodeinterface2.ServiceApiResponse
 	res.Product = productinfo.Name()
 	res.Version = productinfo.Version()
 	res.BuildTime = productinfo.BuildTime()
-	res.SupportedFunctions = nodeinterface.ApiFunctions()
+	res.SupportedFunctions = nodeinterface2.ApiFunctions()
 
 	return res, nil
 }
@@ -223,8 +223,8 @@ func (c *System) NodeName() string {
 	return c.nodeName
 }
 
-func (c *System) GetInfo() (nodeinterface.ServiceInfoResponse, error) {
-	var res nodeinterface.ServiceInfoResponse
+func (c *System) GetInfo() (nodeinterface2.ServiceInfoResponse, error) {
+	var res nodeinterface2.ServiceInfoResponse
 	res.NodeName = c.NodeName()
 	res.Version = productinfo.Version()
 	res.BuildTime = productinfo.BuildTime()

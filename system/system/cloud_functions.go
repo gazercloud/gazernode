@@ -1,6 +1,8 @@
 package system
 
-import "github.com/gazercloud/gazernode/protocols/nodeinterface"
+import (
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+)
 
 func (c *System) CloudLogin(userName string, password string) error {
 	c.cloudConnection.Login(userName, password)

@@ -2,10 +2,10 @@ package system
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/history"
-	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/cloud"
+	"github.com/gazercloud/gazernode/system/history"
 	"github.com/gazercloud/gazernode/system/resources"
+	"github.com/gazercloud/gazernode/system/settings"
 	"github.com/gazercloud/gazernode/system/units/units_system"
 	"sync"
 )

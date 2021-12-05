@@ -3,8 +3,8 @@ package unit_process
 import (
 	"encoding/json"
 	"errors"
-	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/resources"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/prometheus/procfs"
 	"strconv"
 	"strings"

@@ -2,7 +2,7 @@ package httpserver
 
 import (
 	"encoding/json"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 )
 
 func (c *HttpServer) UnitAdd(request []byte, fromCloud bool) (response []byte, err error) {

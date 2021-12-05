@@ -1,6 +1,8 @@
 package units_system
 
-import "github.com/gazercloud/gazernode/common_interfaces"
+import (
+	"github.com/gazercloud/gazernode/common_interfaces"
+)
 
 type UnitType struct {
 	TypeCode    string `json:"type_code"`

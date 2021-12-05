@@ -2,7 +2,7 @@ package nodeinterface
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/protocols/lookup"
+	"github.com/gazercloud/gazernode/system/protocols/lookup"
 )
 
 type ServiceLookupRequest struct {

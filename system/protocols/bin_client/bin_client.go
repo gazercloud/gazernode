@@ -4,10 +4,10 @@ import (
 	"crypto/tls"
 	"encoding/binary"
 	"encoding/json"
-	"github.com/gazercloud/gazernode/logger"
-	"github.com/gazercloud/gazernode/protocols/cloud_structures/protocol"
-	"github.com/gazercloud/gazernode/protocols/users"
+	"github.com/gazercloud/gazernode/system/protocols/cloud_structures/protocol"
+	users2 "github.com/gazercloud/gazernode/system/protocols/users"
 	"github.com/gazercloud/gazernode/utilities"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"net"
 	"sync"
 	"time"
@@ -26,13 +26,13 @@ type BinClient struct {
 	password         string
 	incomingChannels map[string]bool
 	incomingAll      bool
-	auth             *users.Users
+	auth             *users2.Users
 	stat             *utilities.Statistics
 
 	disconnectedSent bool
 }
 
-func NewByConn(conn net.Conn, chProcessingData chan BinFrameTask, auth *users.Users, stat *utilities.Statistics) *BinClient {
+func NewByConn(conn net.Conn, chProcessingData chan BinFrameTask, auth *users2.Users, stat *utilities.Statistics) *BinClient {
 	var c BinClient
 	c.incomingChannels = make(map[string]bool)
 	c.chProcessingData = chProcessingData
@@ -359,7 +359,7 @@ func (c *BinClient) processSpecial(frameData BinFrameTask) {
 				return
 			}
 
-			var session *users.Session
+			var session *users2.Session
 			session, err = c.auth.OpenSession(userAndPassword[0], userAndPassword[1])
 			if err == nil {
 				logger.Println("session opened: ", userAndPassword[0], ":", session.Id())

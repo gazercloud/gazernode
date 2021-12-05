@@ -3,20 +3,20 @@ package gazer_client
 import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/protocols/nodeinterface"
+	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 )
 
 func (c *GazerNodeClient) ResAdd(name string, tp string, content []byte, f func(string, error)) {
 	var call Call
-	var req nodeinterface.ResourceAddRequest
+	var req nodeinterface2.ResourceAddRequest
 	req.Name = name
 	req.Type = tp
 	req.Content = content
-	call.function = nodeinterface.FuncResourceAdd
+	call.function = nodeinterface2.FuncResourceAdd
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ResourceAddResponse
+		var resp nodeinterface2.ResourceAddResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -30,16 +30,16 @@ func (c *GazerNodeClient) ResAdd(name string, tp string, content []byte, f func(
 
 func (c *GazerNodeClient) ResSet(id string, thumbnail []byte, content []byte, f func(error)) {
 	var call Call
-	var req nodeinterface.ResourceSetRequest
+	var req nodeinterface2.ResourceSetRequest
 	req.Id = id
 	req.Thumbnail = thumbnail
 	req.Content = content
 
-	call.function = nodeinterface.FuncResourceSet
+	call.function = nodeinterface2.FuncResourceSet
 	call.request, _ = json.MarshalIndent(req, "", " ")
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ResourceSetResponse
+		var resp nodeinterface2.ResourceSetResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -53,13 +53,13 @@ func (c *GazerNodeClient) ResSet(id string, thumbnail []byte, content []byte, f 
 
 func (c *GazerNodeClient) ResGet(id string, f func(*common_interfaces.ResourcesItem, error)) {
 	var call Call
-	var req nodeinterface.ResourceGetRequest
+	var req nodeinterface2.ResourceGetRequest
 	req.Id = id
-	call.function = nodeinterface.FuncResourceGet
+	call.function = nodeinterface2.FuncResourceGet
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ResourceGetResponse
+		var resp nodeinterface2.ResourceGetResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -73,16 +73,16 @@ func (c *GazerNodeClient) ResGet(id string, f func(*common_interfaces.ResourcesI
 
 func (c *GazerNodeClient) ResList(tp string, filter string, offset int, maxCount int, f func(common_interfaces.ResourcesInfo, error)) {
 	var call Call
-	var req nodeinterface.ResourceListRequest
+	var req nodeinterface2.ResourceListRequest
 	req.Type = tp
 	req.Filter = filter
 	req.Offset = offset
 	req.MaxCount = maxCount
-	call.function = nodeinterface.FuncResourceList
+	call.function = nodeinterface2.FuncResourceList
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ResourceListResponse
+		var resp nodeinterface2.ResourceListResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -96,14 +96,14 @@ func (c *GazerNodeClient) ResList(tp string, filter string, offset int, maxCount
 
 func (c *GazerNodeClient) ResRemove(id string, f func(error)) {
 	var call Call
-	var req nodeinterface.ResourceRemoveRequest
+	var req nodeinterface2.ResourceRemoveRequest
 	req.Id = id
 
-	call.function = nodeinterface.FuncResourceRemove
+	call.function = nodeinterface2.FuncResourceRemove
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ResourceRemoveResponse
+		var resp nodeinterface2.ResourceRemoveResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
@@ -117,14 +117,14 @@ func (c *GazerNodeClient) ResRemove(id string, f func(error)) {
 
 func (c *GazerNodeClient) ResRename(id string, name string, f func(error)) {
 	var call Call
-	var req nodeinterface.ResourceRenameRequest
+	var req nodeinterface2.ResourceRenameRequest
 	req.Id = id
 	req.Name = name
-	call.function = nodeinterface.FuncResourceRename
+	call.function = nodeinterface2.FuncResourceRename
 	call.request, _ = json.Marshal(req)
 	call.onResponse = func(call *Call) {
 		err := call.err
-		var resp nodeinterface.ResourceRenameResponse
+		var resp nodeinterface2.ResourceRenameResponse
 		if err == nil {
 			err = json.Unmarshal([]byte(call.response), &resp)
 		}
