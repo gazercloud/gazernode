@@ -36,8 +36,10 @@ func (c *Session) load() {
 	if err != nil {
 		return
 	}
-	c.client = gazer_client.NewWithSession(settings.Address, settings.SessionKey)
-	fmt.Println("Session loaded:", settings.Address, settings.SessionKey)
+	if settings.Address != "" {
+		c.client = gazer_client.NewWithSession(settings.Address, settings.SessionKey)
+		fmt.Println("Session loaded:", settings.Address)
+	}
 }
 
 func (c *Session) save() {
@@ -115,10 +117,10 @@ func (c *Session) execLine(session *Session, line string) bool {
 		err = c.cmdLs(params)
 	case "cd":
 		err = c.cmdCd(params)
-	case "units":
-		err = c.cmdUnits(params)
-	case "items":
-		err = c.cmdItems(params)
+	case "item":
+		err = c.cmdItem(params)
+	case "unit":
+		err = c.cmdUnit(params)
 	case "cloud":
 		err = c.cmdCloud(params)
 	default:

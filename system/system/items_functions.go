@@ -151,6 +151,11 @@ func (c *System) RemoveItems(itemsNames []string) error {
 	//c.publicChannels.RemoveItems(nil, itemsNames)
 
 	err = c.SaveConfig()
+
+	if len(itemsForRemove) == 0 {
+		return errors.New("no items found")
+	}
+
 	return err
 }
 
