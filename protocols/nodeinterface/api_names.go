@@ -40,17 +40,6 @@ const (
 	FuncCloudSetCurrentNodeId    = "cloud_set_current_node_id"
 	FuncCloudGetSettingsProfiles = "cloud_get_settings_profiles"
 
-	// *** Public Channel ***
-	FuncPublicChannelList       = "public_channel_list"
-	FuncPublicChannelAdd        = "public_channel_add"
-	FuncPublicChannelSetName    = "public_channel_set_name"
-	FuncPublicChannelRemove     = "public_channel_remove"
-	FuncPublicChannelItemAdd    = "public_channel_item_add"
-	FuncPublicChannelItemRemove = "public_channel_item_remove"
-	FuncPublicChannelItemsState = "public_channel_item_state"
-	FuncPublicChannelStart      = "public_channel_start"
-	FuncPublicChannelStop       = "public_channel_stop"
-
 	// *** Service ***
 	FuncServiceLookup      = "service_lookup"
 	FuncServiceStatistics  = "service_statistics"
@@ -116,16 +105,6 @@ func ApiFunctions() []string {
 	res = append(res, FuncCloudSetCurrentNodeId)
 	res = append(res, FuncCloudGetSettingsProfiles)
 
-	res = append(res, FuncPublicChannelList)
-	res = append(res, FuncPublicChannelAdd)
-	res = append(res, FuncPublicChannelSetName)
-	res = append(res, FuncPublicChannelRemove)
-	res = append(res, FuncPublicChannelItemAdd)
-	res = append(res, FuncPublicChannelItemRemove)
-	res = append(res, FuncPublicChannelItemsState)
-	res = append(res, FuncPublicChannelStart)
-	res = append(res, FuncPublicChannelStop)
-
 	res = append(res, FuncServiceLookup)
 	res = append(res, FuncServiceStatistics)
 	res = append(res, FuncServiceApi)
@@ -187,18 +166,6 @@ func ApiRoles() []ApiRole {
 	})
 
 	res = append(res, ApiRole{
-		Code: "public_channels_administrator",
-		Name: "Public Channels Administrator",
-		Functions: []string{
-			FuncPublicChannelAdd,
-			FuncPublicChannelSetName,
-			FuncPublicChannelRemove,
-			FuncPublicChannelItemAdd,
-			FuncPublicChannelItemRemove,
-		},
-	})
-
-	res = append(res, ApiRole{
 		Code: "read_only",
 		Name: "ReadOnly",
 		Functions: []string{
@@ -213,8 +180,6 @@ func ApiRoles() []ApiRole {
 			FuncDataItemListAll,
 			FuncDataItemHistory,
 			FuncDataItemHistoryChart,
-			FuncPublicChannelList,
-			FuncPublicChannelItemsState,
 			FuncServiceLookup,
 			FuncServiceStatistics,
 			FuncServiceNodeName,
