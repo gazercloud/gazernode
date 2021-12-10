@@ -2,7 +2,7 @@ package hostid
 
 import (
 	"encoding/json"
-	"github.com/gazercloud/gazernode/logger"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/gazercloud/gazernode/utilities/paths"
 	"github.com/google/uuid"
 	"golang.org/x/sys/windows/registry"

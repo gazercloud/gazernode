@@ -5,18 +5,17 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/logger"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"io/ioutil"
 	"math/rand"
 	"os"
 )
 
 type Config struct {
-	Name  string                   `json:"name"`
-	Users []common_interfaces.User `json:"users"`
-	Units []units_common.UnitInfo  `json:"units"`
-	//Channels   []public_channel.ChannelFullInfo      `json:"channels"`
+	Name       string                                `json:"name"`
+	Users      []common_interfaces.User              `json:"users"`
+	Units      []units_common.UnitInfo               `json:"units"`
 	Items      []common_interfaces.ItemConfiguration `json:"items"`
 	NextItemId uint64                                `json:"next_item_id"`
 }
@@ -28,7 +27,6 @@ func (c *System) SaveConfig() error {
 	var conf Config
 	conf.Name = c.nodeName
 	conf.Units = c.unitsSystem.Units()
-	//conf.Channels = c.publicChannels.ChannelsFullInfo()
 	conf.Users = make([]common_interfaces.User, 0)
 	for _, u := range c.users {
 		conf.Users = append(conf.Users, *u)

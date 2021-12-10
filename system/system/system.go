@@ -2,10 +2,10 @@ package system
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
-	"github.com/gazercloud/gazernode/history"
-	"github.com/gazercloud/gazernode/settings"
 	"github.com/gazercloud/gazernode/system/cloud"
+	"github.com/gazercloud/gazernode/system/history"
 	"github.com/gazercloud/gazernode/system/resources"
+	"github.com/gazercloud/gazernode/system/settings"
 	"github.com/gazercloud/gazernode/system/units/units_system"
 	"sync"
 )
@@ -23,7 +23,6 @@ type System struct {
 
 	unitsSystem *units_system.UnitsSystem
 
-	//publicChannels  *public_channel.Cloud
 	cloudConnection *cloud.Connection
 
 	history   *history.History
@@ -52,7 +51,6 @@ func NewSystem(ss *settings.Settings) *System {
 
 	c.cloudConnection = cloud.NewConnection(c.ss.ServerDataPath())
 
-	//c.publicChannels = public_channel.NewCloud(&c)
 	c.unitsSystem = units_system.New(&c)
 	c.history = history.NewHistory(c.ss)
 	c.resources = resources.NewResources(c.ss)
