@@ -26,14 +26,15 @@ type UnitStateRequest struct {
 }
 
 type UnitStateResponse struct {
-	UnitId   string `json:"id"`
-	UnitName string `json:"name"`
-	Type     string `json:"type"`
-	TypeName string `json:"type_name"`
-	Status   string `json:"status"`
-	MainItem string `json:"main_item"`
-	Value    string `json:"value"`
-	UOM      string `json:"uom"`
+	UnitId   string                               `json:"id"`
+	UnitName string                               `json:"name"`
+	Type     string                               `json:"type"`
+	TypeName string                               `json:"type_name"`
+	Status   string                               `json:"status"`
+	MainItem string                               `json:"main_item"`
+	Value    string                               `json:"value"`
+	UOM      string                               `json:"uom"`
+	Items    []common_interfaces.ItemGetUnitItems `json:"items"`
 }
 
 type UnitStateAllRequest struct {

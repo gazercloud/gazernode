@@ -335,6 +335,7 @@ func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface2.UnitStateRespo
 		} else {
 			unitState.Status = "stopped"
 		}
+
 		return unitState, nil
 	}
 	return nodeinterface2.UnitStateResponse{}, errors.New("no unit found")

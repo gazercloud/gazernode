@@ -7,7 +7,6 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/stianeikeland/go-rpio"
 	"os"
 	"time"
 )
@@ -15,6 +14,17 @@ import (
 type UnitRaspberryPiGPIO struct {
 	units_common.Unit
 	periodMs int
+	config   Config
+}
+
+type ConfigItem struct {
+	Name string `json:"name"`
+	Mode string `json:"mode"`
+}
+
+type Config struct {
+	Period float64       `json:"period"`
+	Pins   []*ConfigItem `json:"pins"`
 }
 
 func New() common_interfaces.IUnit {
@@ -35,6 +45,9 @@ func init() {
 func (c *UnitRaspberryPiGPIO) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+	t1 := meta.Add("pins", "Pins", "", "table", "", "", "")
+	t1.Add("name", "Name", "pin_name", "string", "", "", "")
+	t1.Add("mode", "Mode", "input", "string", "", "", "gpio-mode")
 	return meta.Marshal()
 }
 
@@ -43,11 +56,6 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStart() error {
 	c.SetString(ItemNameResult, "", "")
 	c.SetMainItem(ItemNameResult)
 
-	type Config struct {
-		Period float64 `json:"period"`
-	}
-
-	var config Config
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)
 	if err != nil {
 		err = errors.New("config error")
@@ -55,7 +63,7 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStart() error {
 		return err
 	}
 
-	c.periodMs = int(config.Period)
+	c.periodMs = int(c.config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
 		c.SetString(ItemNameResult, err.Error(), "error")
@@ -70,6 +78,12 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
 }
 
 func (c *UnitRaspberryPiGPIO) Tick() {
+
+	c.SetInt("count of pins", len(c.config.Pins), "init")
+	for item := range c.config.Pins {
+		c.SetString(item.Name, item.Mode, "init")
+	}
+
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
 

@@ -82,6 +82,19 @@ func (c *System) GetUnitState(unitId string) (nodeinterface2.UnitStateResponse, 
 		unitState.Value = item.Value.Value
 		unitState.UOM = item.Value.UOM
 	}
+
+	unitState.Items = make([]common_interfaces.ItemGetUnitItems, 0)
+	for _, item := range c.items {
+		if strings.HasPrefix(item.Name, unitState.UnitName+"/") {
+			var i common_interfaces.ItemGetUnitItems
+			i.Name = item.Name
+			i.Value = item.Value
+			i.Value.DT = item.Value.DT
+			i.Value.UOM = item.Value.UOM
+			unitState.Items = append(unitState.Items, i)
+		}
+	}
+
 	c.mtx.Unlock()
 
 	return unitState, err
@@ -301,6 +314,11 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		result.AddRow1("1")
 		result.AddRow1("1.5")
 		result.AddRow1("2")
+	}
+	if entity == "gpio-mode" {
+		result.AddColumn("name", "GPIO Mode")
+		result.AddRow1("input")
+		result.AddRow1("output")
 	}
 	return result, nil
 }
