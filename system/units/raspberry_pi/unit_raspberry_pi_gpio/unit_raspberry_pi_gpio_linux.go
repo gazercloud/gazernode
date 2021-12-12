@@ -141,7 +141,7 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 				}
 				if item.Mode == "output" {
 					pin := rpio.Pin(indexOfPinInt)
-					st, err := c.IDataStorage().GetItem(c.Name() + "/name")
+					st, err := c.IDataStorage().GetItem(c.Name() + "/" + item.Name)
 					if err != nil {
 						if st.Value.Value == "1" {
 							pin.High()
