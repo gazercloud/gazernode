@@ -129,7 +129,7 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 
 		for _, item := range c.config.Pins {
 			indexOfPin, err := strconv.ParseInt(item.Index, 10, 64)
-			indexOfPinInt = int(indexOfPin)
+			indexOfPinInt := int(indexOfPin)
 			if err == nil && indexOfPinInt >= 2 && indexOfPinInt <= 27 {
 				if item.Mode == "input" {
 					pin := rpio.Pin(indexOfPinInt)
