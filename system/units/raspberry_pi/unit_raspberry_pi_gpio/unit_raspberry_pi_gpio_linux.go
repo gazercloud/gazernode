@@ -56,7 +56,7 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStart() error {
 	c.SetString(ItemNameResult, "", "")
 	c.SetMainItem(ItemNameResult)
 
-	err = json.Unmarshal([]byte(c.GetConfig()), &config)
+	err = json.Unmarshal([]byte(c.GetConfig()), &c.config)
 	if err != nil {
 		err = errors.New("config error")
 		c.SetString(ItemNameResult, err.Error(), "error")
@@ -80,7 +80,7 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
 func (c *UnitRaspberryPiGPIO) Tick() {
 
 	c.SetInt("count of pins", len(c.config.Pins), "init")
-	for item := range c.config.Pins {
+	for _, item := range c.config.Pins {
 		c.SetString(item.Name, item.Mode, "init")
 	}
 
