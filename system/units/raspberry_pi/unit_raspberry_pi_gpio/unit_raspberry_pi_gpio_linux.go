@@ -143,17 +143,13 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 					pin := rpio.Pin(indexOfPinInt)
 					st, err := c.IDataStorage().GetItem(c.Name() + "/" + item.Name)
 					if err == nil {
-						c.SetString(item.Name+"_st", st.Value.Value, "")
 						if st.Value.Value == "1" {
 							pin.High()
 						} else {
 							pin.Low()
 						}
-					} else {
-						c.SetString(item.Name+"_st", err.Error(), "")
 					}
 				}
-				//c.SetString(item.Name, item.Mode, "started")
 			}
 		}
 
