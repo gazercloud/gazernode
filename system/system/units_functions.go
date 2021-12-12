@@ -320,5 +320,14 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		result.AddRow1("input")
 		result.AddRow1("output")
 	}
+	if entity == "raspberry-pi-gpio" {
+		result.AddColumn("name", "Index")
+		result.AddColumn("full_name", "Full Name")
+		result.AddColumn("desc", "Description")
+
+		for i := 2; i <= 27; i++ {
+			result.AddRow3(fmt.Sprint(i), "GPIO"+fmt.Sprint(i), "")
+		}
+	}
 	return result, nil
 }

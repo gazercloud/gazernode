@@ -12,6 +12,19 @@ import (
 type UnitRaspberryPiGPIO struct {
 	units_common.Unit
 	periodMs int
+	config   Config
+}
+
+type ConfigItem struct {
+	Name    string `json:"name"`
+	Index   string `json:"index"`
+	Mode    string `json:"mode"`
+	Default string `json:"default"`
+}
+
+type Config struct {
+	Period float64       `json:"period"`
+	Pins   []*ConfigItem `json:"pins"`
 }
 
 func New() common_interfaces.IUnit {
@@ -32,6 +45,12 @@ func init() {
 func (c *UnitRaspberryPiGPIO) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+
+	t1 := meta.Add("pins", "Pins", "", "table", "", "", "")
+	t1.Add("name", "Name", "pin_name", "string", "", "", "")
+	t1.Add("index", "GPIO#", "0", "string", "", "", "raspberry-pi-gpio")
+	t1.Add("mode", "Mode", "input", "string", "", "", "gpio-mode")
+	t1.Add("default", "Default", "0", "string", "", "", "")
 	return meta.Marshal()
 }
 
@@ -40,19 +59,14 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStart() error {
 	c.SetString(ItemNameResult, "", "")
 	c.SetMainItem(ItemNameResult)
 
-	type Config struct {
-		Period float64 `json:"period"`
-	}
-
-	var config Config
-	err = json.Unmarshal([]byte(c.GetConfig()), &config)
+	err = json.Unmarshal([]byte(c.GetConfig()), &c.config)
 	if err != nil {
 		err = errors.New("config error")
 		c.SetString(ItemNameResult, err.Error(), "error")
 		return err
 	}
 
-	c.periodMs = int(config.Period)
+	c.periodMs = int(c.config.Period)
 	if c.periodMs < 100 {
 		err = errors.New("wrong period")
 		c.SetString(ItemNameResult, err.Error(), "error")
@@ -67,9 +81,13 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
 }
 
 func (c *UnitRaspberryPiGPIO) Tick() {
-	var err error
+	//var err error
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
+
+	for _, item := range c.config.Pins {
+		c.SetString(item.Name, item.Mode, item.Index)
+	}
 
 	for !c.Stopping {
 		for {
@@ -84,6 +102,15 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 		dtOperationTime = time.Now().UTC()
 
 		c.SetInt(ItemNameResult, 0, "")
+
+		st, err := c.IDataStorage().GetItem(c.Name() + "/name")
+		if err != nil {
+			if st.Value.Value == "1" {
+				// High
+			} else {
+				// Low
+			}
+		}
 
 		if err != nil {
 			c.SetString(ItemNameResult, err.Error(), "error")

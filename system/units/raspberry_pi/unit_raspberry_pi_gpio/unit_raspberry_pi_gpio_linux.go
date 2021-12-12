@@ -6,7 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/stianeikeland/go-rpio/v4"
+	"strconv"
 	"time"
 )
 
@@ -17,8 +17,10 @@ type UnitRaspberryPiGPIO struct {
 }
 
 type ConfigItem struct {
-	Name string `json:"name"`
-	Mode string `json:"mode"`
+	Name    string `json:"name"`
+	Index   string `json:"index"`
+	Mode    string `json:"mode"`
+	Default string `json:"default"`
 }
 
 type Config struct {
@@ -44,9 +46,12 @@ func init() {
 func (c *UnitRaspberryPiGPIO) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
 	meta.Add("period", "Period, ms", "1000", "num", "0", "999999", "")
+
 	t1 := meta.Add("pins", "Pins", "", "table", "", "", "")
 	t1.Add("name", "Name", "pin_name", "string", "", "", "")
+	t1.Add("index", "GPIO#", "0", "string", "", "", "raspberry-pi-gpio")
 	t1.Add("mode", "Mode", "input", "string", "", "", "gpio-mode")
+	t1.Add("default", "Default", "0", "string", "", "", "")
 	return meta.Marshal()
 }
 
@@ -77,14 +82,7 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
 }
 
 func (c *UnitRaspberryPiGPIO) Tick() {
-
 	c.SetInt("count of pins", len(c.config.Pins), "init")
-	for _, item := range c.config.Pins {
-		c.SetString(item.Name, item.Mode, "init")
-	}
-
-	c.Started = true
-	dtOperationTime := time.Now().UTC()
 
 	if err := rpio.Open(); err != nil {
 		c.SetString(ItemNameResult, err.Error(), "stopped")
@@ -93,8 +91,26 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 	}
 	defer rpio.Close()
 
-	pin := rpio.Pin(17)
-	pin.Output()
+	for _, item := range c.config.Pins {
+		indexOfPin, err := strconv.ParseInt(item.Index, 10, 64)
+		indexOfPinInt = int(indexOfPin)
+		if err == nil && indexOfPinInt >= 2 && indexOfPinInt <= 27 {
+			if item.Mode == "input" {
+				pin := rpio.Pin(indexOfPinInt)
+				pin.Input()
+			}
+			if item.Mode == "output" {
+				pin := rpio.Pin(indexOfPinInt)
+				pin.Output()
+			}
+			c.SetString(item.Name, item.Mode, "started")
+		} else {
+			c.SetString(item.Name, "wrong pin index", "error")
+		}
+	}
+
+	c.Started = true
+	dtOperationTime := time.Now().UTC()
 
 	for !c.Stopping {
 		for {
@@ -107,7 +123,34 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			break
 		}
 		dtOperationTime = time.Now().UTC()
-		pin.Toggle()
+
+		for _, item := range c.config.Pins {
+			indexOfPin, err := strconv.ParseInt(item.Index, 10, 64)
+			indexOfPinInt = int(indexOfPin)
+			if err == nil && indexOfPinInt >= 2 && indexOfPinInt <= 27 {
+				if item.Mode == "input" {
+					pin := rpio.Pin(indexOfPinInt)
+					if rpio.ReadPin(pin) == rpio.High {
+						c.SetString(item.Name, "1", "")
+					} else {
+						c.SetString(item.Name, "0", "")
+					}
+				}
+				if item.Mode == "output" {
+					pin := rpio.Pin(indexOfPinInt)
+					st, err := c.IDataStorage().GetItem(c.Name() + "/name")
+					if err != nil {
+						if st.Value.Value == "1" {
+							pin.High()
+						} else {
+							pin.Low()
+						}
+					}
+				}
+				c.SetString(item.Name, item.Mode, "started")
+			}
+		}
+
 	}
 	c.SetString(ItemNameResult, "", "stopped")
 	c.Started = false
