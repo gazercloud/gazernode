@@ -26,8 +26,9 @@ require (
 	github.com/stianeikeland/go-rpio/v4 v4.5.1
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	go.bug.st/serial v1.1.2
+	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b // indirect
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
-	golang.org/x/net v0.0.0-20210222171744-9060382bd457
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )

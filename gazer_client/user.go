@@ -34,167 +34,136 @@ func (c *GazerNodeClient) SessionOpen(userName string, password string) (nodeint
 	return resp, err
 }
 
-func (c *GazerNodeClient) SessionActivate(sessionToken string, f func(nodeinterface2.SessionActivateResponse, error)) {
+func (c *GazerNodeClient) SessionActivate(sessionToken string) (nodeinterface2.SessionActivateResponse, error) {
 	var call Call
 	var req nodeinterface2.SessionActivateRequest
 	req.SessionToken = sessionToken
 	call.function = nodeinterface2.FuncSessionActivate
 	call.request, _ = json.Marshal(req)
-	call.onResponse = func(call *Call) {
-		err := call.err
-		var resp nodeinterface2.SessionActivateResponse
-		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
-
-			// Save session token
-			if err == nil {
-				c.sessionToken = resp.SessionToken
-				if c.OnSessionOpen != nil {
-					c.OnSessionOpen()
-				}
-			}
-		}
-		if f != nil {
-			f(resp, err)
-		}
-	}
 	call.client = c
 
-	go c.thCall(&call)
+	c.thCall(&call)
+	err := call.err
+	var resp nodeinterface2.SessionActivateResponse
+	if err == nil {
+		err = json.Unmarshal([]byte(call.response), &resp)
+
+		// Save session token
+		if err == nil {
+			c.sessionToken = resp.SessionToken
+			if c.OnSessionOpen != nil {
+				c.OnSessionOpen()
+			}
+		}
+	}
+	return resp, err
 }
 
-func (c *GazerNodeClient) SessionRemove(sessionToken string, f func(nodeinterface2.SessionRemoveResponse, error)) {
+func (c *GazerNodeClient) SessionRemove(sessionToken string) (nodeinterface2.SessionRemoveResponse, error) {
 	var call Call
 	var req nodeinterface2.SessionRemoveRequest
 	req.SessionToken = sessionToken
 	call.function = nodeinterface2.FuncSessionRemove
 	call.request, _ = json.Marshal(req)
-	call.onResponse = func(call *Call) {
-		err := call.err
-		var resp nodeinterface2.SessionRemoveResponse
-		if c.sessionToken == sessionToken {
-			c.sessionToken = ""
-		}
-		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
-			if c.OnSessionClose != nil {
-				c.OnSessionClose()
-			}
-		}
-		if f != nil {
-			f(resp, err)
-		}
-	}
 	call.client = c
 
-	go c.thCall(&call)
+	c.thCall(&call)
+	err := call.err
+	var resp nodeinterface2.SessionRemoveResponse
+	if c.sessionToken == sessionToken {
+		c.sessionToken = ""
+	}
+	if err == nil {
+		err = json.Unmarshal([]byte(call.response), &resp)
+		if c.OnSessionClose != nil {
+			c.OnSessionClose()
+		}
+	}
+	return resp, err
 }
 
-func (c *GazerNodeClient) SessionList(userName string, f func(nodeinterface2.SessionListResponse, error)) {
+func (c *GazerNodeClient) SessionList(userName string) (nodeinterface2.SessionListResponse, error) {
 	var call Call
 	var req nodeinterface2.SessionListRequest
 	req.UserName = userName
 	call.function = nodeinterface2.FuncSessionList
 	call.request, _ = json.Marshal(req)
-	call.onResponse = func(call *Call) {
-		err := call.err
-		var resp nodeinterface2.SessionListResponse
-		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
-		}
-		if f != nil {
-			f(resp, err)
-		}
-	}
 	call.client = c
 
-	go c.thCall(&call)
+	c.thCall(&call)
+	err := call.err
+	var resp nodeinterface2.SessionListResponse
+	if err == nil {
+		err = json.Unmarshal([]byte(call.response), &resp)
+	}
+	return resp, err
 }
 
-func (c *GazerNodeClient) UserList(f func(nodeinterface2.UserListResponse, error)) {
+func (c *GazerNodeClient) UserList() (nodeinterface2.UserListResponse, error) {
 	var call Call
 	var req nodeinterface2.UserListRequest
 	call.function = nodeinterface2.FuncUserList
 	call.request, _ = json.Marshal(req)
-	call.onResponse = func(call *Call) {
-		err := call.err
-		var resp nodeinterface2.UserListResponse
-		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
-		}
-		if f != nil {
-			f(resp, err)
-		}
-	}
 	call.client = c
 
-	go c.thCall(&call)
+	c.thCall(&call)
+	err := call.err
+	var resp nodeinterface2.UserListResponse
+	if err == nil {
+		err = json.Unmarshal([]byte(call.response), &resp)
+	}
+	return resp, err
 }
 
-func (c *GazerNodeClient) UserAdd(userName string, password string, f func(nodeinterface2.UserAddResponse, error)) {
+func (c *GazerNodeClient) UserAdd(userName string, password string) (nodeinterface2.UserAddResponse, error) {
 	var call Call
 	var req nodeinterface2.UserAddRequest
 	req.UserName = userName
 	req.Password = password
 	call.function = nodeinterface2.FuncUserAdd
 	call.request, _ = json.Marshal(req)
-	call.onResponse = func(call *Call) {
-		err := call.err
-		var resp nodeinterface2.UserAddResponse
-		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
-		}
-
-		if f != nil {
-			f(resp, err)
-		}
-	}
 	call.client = c
 
-	go c.thCall(&call)
+	c.thCall(&call)
+	err := call.err
+	var resp nodeinterface2.UserAddResponse
+	if err == nil {
+		err = json.Unmarshal([]byte(call.response), &resp)
+	}
+	return resp, err
 }
 
-func (c *GazerNodeClient) UserSetPassword(userName string, password string, f func(nodeinterface2.UserSetPasswordResponse, error)) {
+func (c *GazerNodeClient) UserSetPassword(userName string, password string) (nodeinterface2.UserSetPasswordResponse, error) {
 	var call Call
 	var req nodeinterface2.UserSetPasswordRequest
 	req.UserName = userName
 	req.Password = password
 	call.function = nodeinterface2.FuncUserSetPassword
 	call.request, _ = json.Marshal(req)
-	call.onResponse = func(call *Call) {
-		err := call.err
-		var resp nodeinterface2.UserSetPasswordResponse
-		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
-		}
-
-		if f != nil {
-			f(resp, err)
-		}
-	}
 	call.client = c
 
-	go c.thCall(&call)
+	c.thCall(&call)
+	err := call.err
+	var resp nodeinterface2.UserSetPasswordResponse
+	if err == nil {
+		err = json.Unmarshal([]byte(call.response), &resp)
+	}
+	return resp, err
 }
 
-func (c *GazerNodeClient) UserRemove(userName string, f func(nodeinterface2.UserRemoveResponse, error)) {
+func (c *GazerNodeClient) UserRemove(userName string) (nodeinterface2.UserRemoveResponse, error) {
 	var call Call
 	var req nodeinterface2.UserRemoveRequest
 	req.UserName = userName
 	call.function = nodeinterface2.FuncUserRemove
 	call.request, _ = json.Marshal(req)
-	call.onResponse = func(call *Call) {
-		err := call.err
-		var resp nodeinterface2.UserRemoveResponse
-		if err == nil {
-			err = json.Unmarshal([]byte(call.response), &resp)
-		}
-
-		if f != nil {
-			f(resp, err)
-		}
-	}
 	call.client = c
 
-	go c.thCall(&call)
+	c.thCall(&call)
+	err := call.err
+	var resp nodeinterface2.UserRemoveResponse
+	if err == nil {
+		err = json.Unmarshal([]byte(call.response), &resp)
+	}
+	return resp, err
 }

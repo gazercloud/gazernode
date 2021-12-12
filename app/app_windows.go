@@ -1,37 +1,19 @@
 package app
 
 import (
+	"fmt"
 	"github.com/gazercloud/gazernode/application"
-	"github.com/gazercloud/gazernode/garbage/forms/mainform"
 	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/gazercloud/gazernode/utilities/paths"
-	"github.com/gazercloud/gazerui/ui"
-	"github.com/gazercloud/gazerui/uiforms"
 )
 
 func RunDesktop() {
-	/*logger.Init(paths.HomeFolder() + "/gazer/log_ui")
-	start(application.ServerDataPathArgument)
-	logger.Println("Started as console application")
-	logger.Println("Press ENTER to stop")
-	_, _ = fmt.Scanln()
-	stop()*/
-
-	logger.Init(paths.HomeFolder() + "/gazer/log_ui")
-
 	if *runServerFlagPtr {
+		logger.Init(paths.HomeFolder() + "/gazer/log_ui")
 		start(application.ServerDataPathArgument)
-	}
-
-	ui.InitUISystem()
-
-	{
-		var form mainform.MainForm
-		uiforms.StartMainForm(&form)
-		form.Dispose()
-	}
-
-	if *runServerFlagPtr {
+		logger.Println("Started as console application")
+		logger.Println("Press ENTER to stop")
+		_, _ = fmt.Scanln()
 		stop()
 	}
 }
