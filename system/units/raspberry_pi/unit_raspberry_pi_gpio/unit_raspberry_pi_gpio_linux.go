@@ -25,6 +25,7 @@ type ConfigItem struct {
 	Index   string `json:"index"`
 	Mode    string `json:"mode"`
 	Default string `json:"default"`
+	Pull    string `json:"pull"`
 }
 
 type Config struct {
@@ -56,6 +57,7 @@ func (c *UnitRaspberryPiGPIO) GetConfigMeta() string {
 	t1.Add("index", "GPIO#", "0", "string", "", "", "raspberry-pi-gpio")
 	t1.Add("mode", "Mode", "input", "string", "", "", "gpio-mode")
 	t1.Add("default", "Default", "0", "string", "", "", "")
+	t1.Add("pull", "Pull", "off", "string", "", "", "raspberry-pi-gpio-pull")
 	return meta.Marshal()
 }
 
@@ -100,6 +102,15 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			if item.Mode == "input" {
 				pin := rpio.Pin(indexOfPinInt)
 				pin.Input()
+				if item.Pull == "off" {
+					pin.PullOff()
+				}
+				if item.Pull == "up" {
+					pin.PullUp()
+				}
+				if item.Pull == "down" {
+					pin.PullDown()
+				}
 			}
 			if item.Mode == "output" {
 				pin := rpio.Pin(indexOfPinInt)
