@@ -3,11 +3,9 @@ package unit_raspberry_pi_gpio
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/stianeikeland/go-rpio"
 	"os"
 	"time"
