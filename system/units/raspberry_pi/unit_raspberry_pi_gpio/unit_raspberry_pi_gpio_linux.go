@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"github.com/stianeikeland/go-rpio/v4"
 	"strconv"
 	"time"
@@ -85,10 +86,8 @@ func (c *UnitRaspberryPiGPIO) InternalUnitStop() {
 }
 
 func (c *UnitRaspberryPiGPIO) Tick() {
-	c.SetInt("count of pins", len(c.config.Pins), "init")
-
 	if err := rpio.Open(); err != nil {
-		c.SetString(ItemNameResult, err.Error(), "stopped")
+		c.SetString(ItemNameResult, err.Error(), uom.STARTED)
 		c.Started = false
 		return
 	}
@@ -105,8 +104,13 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 			if item.Mode == "output" {
 				pin := rpio.Pin(indexOfPinInt)
 				pin.Output()
+				if item.Default == "1" {
+					pin.High()
+				} else {
+					pin.Low()
+				}
 			}
-			c.SetString(item.Name, item.Mode, "started")
+			c.SetString(item.Name, "", uom.STARTED)
 		} else {
 			c.SetString(item.Name, "wrong pin index", "error")
 		}
@@ -114,6 +118,8 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 
 	c.Started = true
 	dtOperationTime := time.Now().UTC()
+
+	c.SetString(ItemNameResult, "", uom.STARTED)
 
 	for !c.Stopping {
 		for {
@@ -154,6 +160,17 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 		}
 
 	}
-	c.SetString(ItemNameResult, "", "stopped")
+
+	for _, item := range c.config.Pins {
+		indexOfPin, err := strconv.ParseInt(item.Index, 10, 64)
+		indexOfPinInt := int(indexOfPin)
+		if err == nil && indexOfPinInt >= 2 && indexOfPinInt <= 27 {
+			pin := rpio.Pin(indexOfPinInt)
+			pin.Input()
+		}
+		c.SetString(item.Name, "", uom.STOPPED)
+	}
+
+	c.SetString(ItemNameResult, "", uom.STOPPED)
 	c.Started = false
 }
