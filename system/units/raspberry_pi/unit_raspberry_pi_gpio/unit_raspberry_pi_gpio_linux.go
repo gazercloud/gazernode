@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/stianeikeland/go-rpio"
 	"os"
 	"time"
@@ -89,8 +90,9 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 	dtOperationTime := time.Now().UTC()
 
 	if err := rpio.Open(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		c.SetString(ItemNameResult, err.Error(), "stopped")
+		c.Started = false
+		return
 	}
 	defer rpio.Close()
 
