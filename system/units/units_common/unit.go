@@ -139,7 +139,7 @@ func (c *Unit) IDataStorage() common_interfaces.IDataStorage {
 
 func (c *Unit) SetStringService(name string, value string, UOM string) {
 	fullName := c.Name() + "/" + UnitServicePrefix + name
-	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), false)
+	c.iDataStorage.SetItemByName(fullName, value, UOM, time.Now().UTC(), false)
 }
 
 func (c *Unit) LogInfo(value string) {
@@ -150,7 +150,7 @@ func (c *Unit) LogInfo(value string) {
 	c.lastLogDT = dt
 	if c.lastInfo != value || time.Now().UTC().Sub(c.lastInfoDT) > 5*time.Second {
 		fullName := c.Name() + "/" + UnitServicePrefix + "log"
-		c.iDataStorage.SetItem(fullName, value, "", dt, false)
+		c.iDataStorage.SetItemByName(fullName, value, "", dt, false)
 		c.lastInfoDT = time.Now().UTC()
 	}
 	c.lastInfo = value
@@ -166,7 +166,7 @@ func (c *Unit) LogError(value string) {
 
 	if c.lastError != value || time.Now().UTC().Sub(c.lastErrorDT) > 5*time.Second {
 		fullName := c.Name() + "/" + UnitServicePrefix + "log"
-		c.iDataStorage.SetItem(fullName, value, "error", dt, false)
+		c.iDataStorage.SetItemByName(fullName, value, "error", dt, false)
 		c.lastErrorDT = time.Now().UTC()
 	}
 	c.lastError = value
@@ -175,7 +175,7 @@ func (c *Unit) LogError(value string) {
 
 func (c *Unit) SetError(value string) {
 	fullName := c.Name() + "/" + UnitServicePrefix + ItemNameError
-	c.iDataStorage.SetItem(fullName, value, "", time.Now().UTC(), false)
+	c.iDataStorage.SetItemByName(fullName, value, "", time.Now().UTC(), false)
 }
 
 func (c *Unit) SetString(name string, value string, UOM string) {
@@ -183,7 +183,7 @@ func (c *Unit) SetString(name string, value string, UOM string) {
 	if len(name) > 0 {
 		fullName = c.Name() + "/" + name
 	}
-	c.iDataStorage.SetItem(fullName, value, UOM, time.Now().UTC(), false)
+	c.iDataStorage.SetItemByName(fullName, value, UOM, time.Now().UTC(), false)
 }
 
 func (c *Unit) SetPropertyIfDoesntExist(itemName string, propName string, propValue string) {

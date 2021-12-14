@@ -84,14 +84,3 @@ func (c *UnitRepeater) Tick() {
 	c.SetString(ItemNameStatus, "", "stopped")
 	c.Started = false
 }
-
-func (c *UnitRepeater) ItemChanged(itemName string, value common_interfaces.ItemValue) {
-	if !c.Started {
-		return
-	}
-	for _, item := range c.config.Items {
-		if item.ItemFrom == itemName {
-			c.IDataStorage().SetItem(item.ItemTo, value.Value, value.UOM, time.Now().UTC(), true)
-		}
-	}
-}

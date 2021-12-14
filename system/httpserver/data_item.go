@@ -52,7 +52,7 @@ func (c *HttpServer) DataItemWrite(request []byte) (response []byte, err error) 
 		return
 	}
 
-	err = c.system.SetItem(req.ItemName, req.Value, "", time.Now().UTC(), true)
+	err = c.system.SetItemByName(req.ItemName, req.Value, "", time.Now().UTC(), true)
 	if err != nil {
 		return
 	}
@@ -282,5 +282,22 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 	/*logger.Println("DataItemHistoryChart REQUEST dt(sec):", (req.DTEnd - req.DTBegin) / 1000000, "range:", req.GroupTimeRange,
 	"itemsCount:", len(respItems.Items), "resCount", len(resultItems), "bytes:", len(response))*/
 
+	return
+}
+
+func (c *HttpServer) DataItemSetSource(request []byte) (response []byte, err error) {
+	var req nodeinterface.DataItemSetSourceRequest
+	var resp nodeinterface.DataItemSetSourceResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.SetItemSource(req.ItemName, req.Source)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }

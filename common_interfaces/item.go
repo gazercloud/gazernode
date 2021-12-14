@@ -9,7 +9,6 @@ type ItemValue struct {
 	Value string `json:"v"`
 	DT    int64  `json:"t"`
 	UOM   string `json:"u"`
-	//Flags string `json:"f"`
 }
 
 type Item struct {

@@ -76,3 +76,11 @@ type DataItemRemoveRequest struct {
 
 type DataItemRemoveResponse struct {
 }
+
+type DataItemSetSourceRequest struct {
+	ItemName string `json:"item_name"`
+	Source   string `json:"source"`
+}
+
+type DataItemSetSourceResponse struct {
+}

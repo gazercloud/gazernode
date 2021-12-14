@@ -131,6 +131,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.DataItemHistoryChart(requestText)
 	case nodeinterface.FuncDataItemRemove:
 		result, err = c.DataItemRemove(requestText)
+	case nodeinterface.FuncDataItemSetSource:
+		result, err = c.DataItemSetSource(requestText)
 
 		// *** Data Item ***
 	case nodeinterface.FuncSessionOpen:

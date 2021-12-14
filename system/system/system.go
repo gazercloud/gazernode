@@ -33,6 +33,7 @@ type System struct {
 	sessions   map[string]*UserSession
 
 	itemWatchers map[string]*ItemWatcher
+	translators  map[uint64]*Translator
 
 	apiCallsCount int
 
@@ -48,6 +49,7 @@ func NewSystem(ss *settings.Settings) *System {
 	c.items = make([]*common_interfaces.Item, 0)
 	c.itemsByName = make(map[string]*common_interfaces.Item)
 	c.itemsById = make(map[uint64]*common_interfaces.Item)
+	c.translators = make(map[uint64]*Translator)
 
 	c.cloudConnection = cloud.NewConnection(c.ss.ServerDataPath())
 
@@ -81,6 +83,12 @@ func (c *System) Start() {
 	//c.publicChannels.Start()
 	c.history.Start()
 	c.unitsSystem.Start()
+
+	c.addTranslator(Translator{
+		Id:   0,
+		Src:  646,
+		Dest: 655,
+	})
 
 }
 

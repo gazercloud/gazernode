@@ -25,6 +25,7 @@ const (
 	FuncDataItemHistory      = "data_item_history"
 	FuncDataItemHistoryChart = "data_item_history_chart"
 	FuncDataItemRemove       = "data_item_remove"
+	FuncDataItemSetSource    = "data_item_set_source"
 
 	// *** Cloud ***
 	FuncCloudLogin               = "cloud_login"
@@ -91,6 +92,7 @@ func ApiFunctions() []string {
 	res = append(res, FuncDataItemHistory)
 	res = append(res, FuncDataItemHistoryChart)
 	res = append(res, FuncDataItemRemove)
+	res = append(res, FuncDataItemSetSource)
 
 	res = append(res, FuncCloudLogin)
 	res = append(res, FuncCloudLogout)

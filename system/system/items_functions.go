@@ -10,46 +10,140 @@ import (
 	"time"
 )
 
-func (c *System) SetItem(name string, value string, UOM string, dt time.Time, external bool) error {
+func (c *System) SetItemByName(name string, value string, UOM string, dt time.Time, external bool) error {
 	var item *common_interfaces.Item
-	fullName := name
-	var watchersUnits []string
 
 	c.mtx.Lock()
-	if i, ok := c.itemsByName[fullName]; ok {
+	if i, ok := c.itemsByName[name]; ok {
 		item = i
 	} else {
 		item = common_interfaces.NewItem()
 		item.Id = c.nextItemId
-		item.Name = fullName
+		item.Name = name
 		c.itemsByName[item.Name] = item
+		c.itemsById[item.Id] = item
 		c.items = append(c.items, item)
 		c.nextItemId++
 	}
-	item.Value.Value = value
-	item.Value.DT = dt.UnixNano() / 1000
-	item.Value.UOM = UOM
+	c.mtx.Unlock()
 
-	if watcher, ok := c.itemWatchers[item.Name]; ok {
-		watchersUnits = make([]string, 0)
-		for watcherUnitId, _ := range watcher.UnitIDs {
-			watchersUnits = append(watchersUnits, watcherUnitId)
+	var itemValue common_interfaces.ItemValue
+	itemValue.Value = value
+	itemValue.DT = dt.UnixNano() / 1000
+	itemValue.UOM = UOM
+	return c.SetItem(item.Id, itemValue)
+}
+
+func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue) error {
+	var item *common_interfaces.Item
+	c.mtx.Lock()
+	if i, ok := c.itemsById[itemId]; ok {
+		item = i
+		item.Value = value
+	}
+	c.mtx.Unlock()
+	if item == nil {
+		return errors.New("item not found")
+	}
+	c.history.Write(item.Id, value)
+	c.processTranslators(item)
+	return nil
+}
+
+func (c *System) SetItemSource(itemName string, source string) error {
+	var itemSrc *common_interfaces.Item
+	var itemDest *common_interfaces.Item
+	var okSrc, okDest bool
+
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
+	itemSrc, okSrc = c.itemsByName[source]
+	itemDest, okDest = c.itemsByName[itemName]
+
+	if source != "" && !okSrc {
+		return errors.New("source item not found")
+	}
+	if !okDest {
+		return errors.New("dest item not found")
+	}
+
+	translatorsForDelete := make([]uint64, 0)
+	for _, tr := range c.translators {
+		if tr.Dest == itemDest.Id {
+			translatorsForDelete = append(translatorsForDelete, tr.Id)
 		}
 	}
 
-	//item.Value.Flags = flags
-	c.mtx.Unlock()
-	c.history.Write(item.Id, item.Value)
-
-	for _, unitId := range watchersUnits {
-		c.unitsSystem.SendToWatcher(unitId, item.Name, item.Value)
+	for _, translatorForDelete := range translatorsForDelete {
+		delete(c.translators, translatorForDelete)
 	}
 
+	if okSrc {
+		_, err := c.addTranslator(Translator{
+			Id:   0,
+			Src:  itemSrc.Id,
+			Dest: itemDest.Id,
+		})
+
+		return err
+	}
 	return nil
+}
+
+func (c *System) addTranslator(translator Translator) (uint64, error) {
+	maxTranslatorId := uint64(0)
+	for _, tr := range c.translators {
+		if tr.Id > maxTranslatorId {
+			maxTranslatorId = tr.Id
+		}
+	}
+	if maxTranslatorId == ^uint64(0) {
+		return 0, errors.New("no more translator's identifiers")
+	}
+	nextTranslatorId := maxTranslatorId + 1
+	translator.Id = nextTranslatorId
+	c.translators[nextTranslatorId] = &translator
+	return nextTranslatorId, nil
+}
+
+func (c *System) processTranslators(src *common_interfaces.Item) {
+	involvedTranslators := make([]*Translator, 0)
+	c.mtx.Lock()
+	for _, tr := range c.translators {
+		if tr.Src == src.Id {
+			involvedTranslators = append(involvedTranslators, tr)
+		}
+	}
+	c.mtx.Unlock()
+	for _, translator := range involvedTranslators {
+		c.executeTranslator(translator)
+	}
+}
+
+func (c *System) executeTranslator(translator *Translator) error {
+	c.mtx.Lock()
+	itemSrc, itemSrcExists := c.itemsById[translator.Src]
+	itemDest, itemDestExists := c.itemsById[translator.Dest]
+	c.mtx.Unlock()
+	if !itemSrcExists {
+		return errors.New("src item not found")
+	}
+	if !itemDestExists {
+		return errors.New("dest item not found")
+	}
+
+	return c.SetItem(itemDest.Id, itemSrc.Value)
 }
 
 type ItemWatcher struct {
 	UnitIDs map[string]bool
+}
+
+type Translator struct {
+	Id   uint64
+	Src  uint64
+	Dest uint64
 }
 
 func (c *System) AddToWatch(unitId string, itemName string) {
