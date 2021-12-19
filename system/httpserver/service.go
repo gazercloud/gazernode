@@ -3,6 +3,7 @@ package httpserver
 import (
 	"encoding/json"
 	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/utilities/logger"
 )
 
 func (c *HttpServer) ServiceLookup(request []byte) (response []byte, err error) {
@@ -64,6 +65,16 @@ func (c *HttpServer) ServiceSetNodeName(request []byte) (response []byte, err er
 	err = c.system.SetNodeName(req.Name)
 	if err != nil {
 		return
+	} else {
+		cloudState, errCloudState := c.system.CloudState()
+		if errCloudState == nil {
+			_, err = c.system.CloudUpdateNode(cloudState.NodeId, req.Name)
+			if err != nil {
+				logger.Println("HttpServer ServiceSetNodeName CloudUpdateNode error", err)
+			} else {
+				logger.Println("HttpServer ServiceSetNodeName CloudUpdateNode ok", cloudState.NodeId, req.Name)
+			}
+		}
 	}
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
