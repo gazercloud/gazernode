@@ -12,12 +12,14 @@ type ItemValue struct {
 }
 
 type Item struct {
-	Id     uint64    `json:"id"`
-	UnitId string    `json:"unit_id"`
-	Name   string    `json:"name"`
-	Value  ItemValue `json:"value"`
-	//Properties map[string]*ItemProperty
+	Id               uint64    `json:"id"`
+	UnitId           string    `json:"unit_id"`
+	Name             string    `json:"name"`
+	Value            ItemValue `json:"value"`
+	Properties       map[string]*ItemProperty
+	TranslateToItems map[uint64]*Item
 
+	SourceItemId            uint64
 	PostprocessingTrim      bool    `json:"postprocessing_trim"`
 	PostprocessingAdjust    bool    `json:"postprocessing_adjust"`
 	PostprocessingScale     float64 `json:"postprocessing_scale"`
@@ -33,7 +35,8 @@ type ItemGetUnitItems struct {
 
 func NewItem() *Item {
 	var c Item
-	//c.Properties = make(map[string]*ItemProperty)
+	c.Properties = make(map[string]*ItemProperty)
+	c.TranslateToItems = make(map[uint64]*Item)
 	return &c
 }
 
@@ -58,10 +61,10 @@ func (c *Item) PostprocessingValue(value string) string {
 }
 
 func (c *Item) SetPropertyIfDoesntExist(propName string, propValue string) {
-	/*if _, ok := c.Properties[propName]; !ok {
+	if _, ok := c.Properties[propName]; !ok {
 		c.Properties[propName] = &ItemProperty{
 			Name:  propName,
 			Value: propValue,
 		}
-	}*/
+	}
 }

@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"sort"
 )
 
 type Config struct {
@@ -37,7 +38,7 @@ func (c *System) SaveConfig() error {
 		var itemConf common_interfaces.ItemConfiguration
 		itemConf.Id = item.Id
 		itemConf.Name = item.Name
-		/*itemConf.Properties = make([]*common_interfaces.ItemProperty, 0)
+		itemConf.Properties = make([]*common_interfaces.ItemProperty, 0)
 		for _, p := range item.Properties {
 			itemConf.Properties = append(itemConf.Properties, &common_interfaces.ItemProperty{
 				Name:  p.Name,
@@ -46,7 +47,7 @@ func (c *System) SaveConfig() error {
 		}
 		sort.Slice(itemConf.Properties, func(i, j int) bool {
 			return itemConf.Properties[i].Name < itemConf.Properties[j].Name
-		})*/
+		})
 		conf.Items = append(conf.Items, itemConf)
 	}
 
@@ -98,13 +99,14 @@ func (c *System) LoadConfig() error {
 			var item common_interfaces.Item
 			item.Id = itemConf.Id
 			item.Name = itemConf.Name
-			/*item.Properties = make(map[string]*common_interfaces.ItemProperty)
+			item.Properties = make(map[string]*common_interfaces.ItemProperty)
+			item.TranslateToItems = make(map[uint64]*common_interfaces.Item)
 			for _, p := range itemConf.Properties {
 				item.Properties[p.Name] = &common_interfaces.ItemProperty{
 					Name:  p.Name,
 					Value: p.Value,
 				}
-			}*/
+			}
 
 			c.items = append(c.items, &item)
 			c.itemsByName[item.Name] = &item
@@ -114,6 +116,10 @@ func (c *System) LoadConfig() error {
 				realMaxItemId = item.Id
 			}
 		}
+
+		c.mtx.Lock()
+		c.applyItemsProperties()
+		c.mtx.Unlock()
 
 		if c.nextItemId < realMaxItemId+1 {
 			c.nextItemId = realMaxItemId + 1

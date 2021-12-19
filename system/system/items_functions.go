@@ -5,7 +5,8 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/product/productinfo"
 	"github.com/gazercloud/gazernode/system/history"
-	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -31,119 +32,128 @@ func (c *System) SetItemByName(name string, value string, UOM string, dt time.Ti
 	itemValue.Value = value
 	itemValue.DT = dt.UnixNano() / 1000
 	itemValue.UOM = UOM
-	return c.SetItem(item.Id, itemValue)
+	return c.SetItem(item.Id, itemValue, 0)
 }
 
-func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue) error {
+func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue, counter int) error {
 	var item *common_interfaces.Item
+	counter++
+	if counter > 10 {
+		return errors.New("recursion detected")
+	}
 	c.mtx.Lock()
 	if i, ok := c.itemsById[itemId]; ok {
 		item = i
+		value.Value = item.PostprocessingValue(value.Value)
 		item.Value = value
 	}
 	c.mtx.Unlock()
 	if item == nil {
 		return errors.New("item not found")
 	}
+
 	c.history.Write(item.Id, value)
-	c.processTranslators(item)
-	return nil
-}
-
-func (c *System) SetItemSource(itemName string, source string) error {
-	var itemSrc *common_interfaces.Item
-	var itemDest *common_interfaces.Item
-	var okSrc, okDest bool
-
-	c.mtx.Lock()
-	defer c.mtx.Unlock()
-
-	itemSrc, okSrc = c.itemsByName[source]
-	itemDest, okDest = c.itemsByName[itemName]
-
-	if source != "" && !okSrc {
-		return errors.New("source item not found")
-	}
-	if !okDest {
-		return errors.New("dest item not found")
-	}
-
-	translatorsForDelete := make([]uint64, 0)
-	for _, tr := range c.translators {
-		if tr.Dest == itemDest.Id {
-			translatorsForDelete = append(translatorsForDelete, tr.Id)
-		}
-	}
-
-	for _, translatorForDelete := range translatorsForDelete {
-		delete(c.translators, translatorForDelete)
-	}
-
-	if okSrc {
-		_, err := c.addTranslator(Translator{
-			Id:   0,
-			Src:  itemSrc.Id,
-			Dest: itemDest.Id,
-		})
-
-		return err
+	for _, itemDest := range item.TranslateToItems {
+		c.SetItem(itemDest.Id, value, counter)
 	}
 	return nil
 }
 
-func (c *System) addTranslator(translator Translator) (uint64, error) {
-	maxTranslatorId := uint64(0)
-	for _, tr := range c.translators {
-		if tr.Id > maxTranslatorId {
-			maxTranslatorId = tr.Id
-		}
-	}
-	if maxTranslatorId == ^uint64(0) {
-		return 0, errors.New("no more translator's identifiers")
-	}
-	nextTranslatorId := maxTranslatorId + 1
-	translator.Id = nextTranslatorId
-	c.translators[nextTranslatorId] = &translator
-	return nextTranslatorId, nil
-}
-
-func (c *System) processTranslators(src *common_interfaces.Item) {
-	involvedTranslators := make([]*Translator, 0)
+func (c *System) DataItemPropSet(itemName string, props []nodeinterface.PropItem) error {
 	c.mtx.Lock()
-	for _, tr := range c.translators {
-		if tr.Src == src.Id {
-			involvedTranslators = append(involvedTranslators, tr)
+	if item, ok := c.itemsByName[itemName]; ok {
+		for _, prop := range props {
+			item.Properties[prop.PropName] = &common_interfaces.ItemProperty{
+				Name:  prop.PropName,
+				Value: prop.PropValue,
+			}
 		}
+		c.applyItemsProperties()
+	} else {
+		c.mtx.Unlock()
+		return errors.New("item not found")
 	}
 	c.mtx.Unlock()
-	for _, translator := range involvedTranslators {
-		c.executeTranslator(translator)
+	c.SaveConfig()
+	return nil
+}
+
+func (c *System) applyItemsProperties() {
+	for _, item := range c.items {
+		for _, prop := range item.Properties {
+			if prop.Name == "source" {
+				if prop.Value != "" {
+					srcItemId, err := strconv.ParseUint(prop.Value, 10, 64)
+					if err == nil {
+						for _, itemToClearUp := range c.items {
+							delete(itemToClearUp.TranslateToItems, item.Id)
+						}
+						if srcItem, ok := c.itemsById[srcItemId]; ok {
+							srcItem.TranslateToItems[item.Id] = item
+						}
+					}
+				} else {
+					for _, itemToClearUp := range c.items {
+						delete(itemToClearUp.TranslateToItems, item.Id)
+					}
+				}
+			}
+
+			if prop.Name == "tune_trim" {
+				item.PostprocessingTrim = prop.Value == "1"
+			}
+			if prop.Name == "tune_on" {
+				item.PostprocessingAdjust = prop.Value == "1"
+			}
+			if prop.Name == "tune_scale" {
+				item.PostprocessingScale, _ = strconv.ParseFloat(prop.Value, 64)
+			}
+			if prop.Name == "tune_offset" {
+				item.PostprocessingOffset, _ = strconv.ParseFloat(prop.Value, 64)
+			}
+			if prop.Name == "tune_precision" {
+				precision, _ := strconv.ParseInt(prop.Value, 10, 64)
+				item.PostprocessingPrecision = int(precision)
+			}
+		}
 	}
 }
 
-func (c *System) executeTranslator(translator *Translator) error {
-	c.mtx.Lock()
-	itemSrc, itemSrcExists := c.itemsById[translator.Src]
-	itemDest, itemDestExists := c.itemsById[translator.Dest]
-	c.mtx.Unlock()
-	if !itemSrcExists {
-		return errors.New("src item not found")
-	}
-	if !itemDestExists {
-		return errors.New("dest item not found")
-	}
+func (c *System) DataItemPropGet(itemName string) ([]nodeinterface.PropItem, error) {
+	result := make([]nodeinterface.PropItem, 0)
 
-	return c.SetItem(itemDest.Id, itemSrc.Value)
+	c.mtx.Lock()
+	if item, ok := c.itemsByName[itemName]; ok {
+		for _, prop := range item.Properties {
+			result = append(result, nodeinterface.PropItem{
+				PropName:  prop.Name,
+				PropValue: prop.Value,
+			})
+
+			if prop.Name == "source" {
+				if prop.Value != "" {
+					sourceItemId, errParseSourceItemId := strconv.ParseUint(prop.Value, 10, 64)
+					if errParseSourceItemId == nil {
+						if itemSource, ok := c.itemsById[sourceItemId]; ok {
+							result = append(result, nodeinterface.PropItem{
+								PropName:  "#source_item_name",
+								PropValue: itemSource.Name,
+							})
+						}
+					}
+				}
+			}
+		}
+	} else {
+		c.mtx.Unlock()
+		return nil, errors.New("item not found")
+	}
+	c.mtx.Unlock()
+	return result, nil
 }
 
 type ItemWatcher struct {
 	UnitIDs map[string]bool
-}
-
-type Translator struct {
-	Id   uint64
-	Src  uint64
-	Dest uint64
 }
 
 func (c *System) AddToWatch(unitId string, itemName string) {
@@ -298,12 +308,12 @@ func (c *System) GetStatistics() (common_interfaces.Statistics, error) {
 	return res, nil
 }
 
-func (c *System) GetApi() (nodeinterface2.ServiceApiResponse, error) {
-	var res nodeinterface2.ServiceApiResponse
+func (c *System) GetApi() (nodeinterface.ServiceApiResponse, error) {
+	var res nodeinterface.ServiceApiResponse
 	res.Product = productinfo.Name()
 	res.Version = productinfo.Version()
 	res.BuildTime = productinfo.BuildTime()
-	res.SupportedFunctions = nodeinterface2.ApiFunctions()
+	res.SupportedFunctions = nodeinterface.ApiFunctions()
 
 	return res, nil
 }
@@ -317,8 +327,8 @@ func (c *System) NodeName() string {
 	return c.nodeName
 }
 
-func (c *System) GetInfo() (nodeinterface2.ServiceInfoResponse, error) {
-	var res nodeinterface2.ServiceInfoResponse
+func (c *System) GetInfo() (nodeinterface.ServiceInfoResponse, error) {
+	var res nodeinterface.ServiceInfoResponse
 	res.NodeName = c.NodeName()
 	res.Version = productinfo.Version()
 	res.BuildTime = productinfo.BuildTime()

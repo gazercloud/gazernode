@@ -77,10 +77,23 @@ type DataItemRemoveRequest struct {
 type DataItemRemoveResponse struct {
 }
 
-type DataItemSetSourceRequest struct {
-	ItemName string `json:"item_name"`
-	Source   string `json:"source"`
+type PropItem struct {
+	PropName  string `json:"prop_name"`
+	PropValue string `json:"prop_value"`
 }
 
-type DataItemSetSourceResponse struct {
+type DataItemPropSetRequest struct {
+	ItemName string     `json:"item_name"`
+	Props    []PropItem `json:"props"`
+}
+
+type DataItemPropSetResponse struct {
+}
+
+type DataItemPropGetRequest struct {
+	ItemName string `json:"item_name"`
+}
+
+type DataItemPropGetResponse struct {
+	Props []PropItem `json:"props"`
 }

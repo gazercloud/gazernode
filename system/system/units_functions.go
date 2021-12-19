@@ -293,11 +293,12 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		}
 	}
 	if entity == "data-item" {
-		result.KeyColumn = "name"
+		result.KeyColumn = "id"
+		result.AddColumn("id", "Data Item Id")
 		result.AddColumn("name", "Data Item Name")
 		c.mtx.Lock()
 		for _, proc := range c.items {
-			result.AddRow1(proc.Name)
+			result.AddRow2(fmt.Sprint(proc.Id), proc.Name)
 		}
 		c.mtx.Unlock()
 	}

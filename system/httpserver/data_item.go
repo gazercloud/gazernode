@@ -78,6 +78,40 @@ func (c *HttpServer) DataItemRemove(request []byte) (response []byte, err error)
 	return
 }
 
+func (c *HttpServer) DataItemPropSet(request []byte) (response []byte, err error) {
+	var req nodeinterface.DataItemPropSetRequest
+	var resp nodeinterface.DataItemPropSetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.DataItemPropSet(req.ItemName, req.Props)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) DataItemPropGet(request []byte) (response []byte, err error) {
+	var req nodeinterface.DataItemPropGetRequest
+	var resp nodeinterface.DataItemPropGetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp.Props, err = c.system.DataItemPropGet(req.ItemName)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
 func (c *HttpServer) DataItemHistory(request []byte) (response []byte, err error) {
 	var req nodeinterface.DataItemHistoryRequest
 	var resp nodeinterface.DataItemHistoryResponse
@@ -282,22 +316,5 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 	/*logger.Println("DataItemHistoryChart REQUEST dt(sec):", (req.DTEnd - req.DTBegin) / 1000000, "range:", req.GroupTimeRange,
 	"itemsCount:", len(respItems.Items), "resCount", len(resultItems), "bytes:", len(response))*/
 
-	return
-}
-
-func (c *HttpServer) DataItemSetSource(request []byte) (response []byte, err error) {
-	var req nodeinterface.DataItemSetSourceRequest
-	var resp nodeinterface.DataItemSetSourceResponse
-	err = json.Unmarshal(request, &req)
-	if err != nil {
-		return
-	}
-
-	err = c.system.SetItemSource(req.ItemName, req.Source)
-	if err != nil {
-		return
-	}
-
-	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }

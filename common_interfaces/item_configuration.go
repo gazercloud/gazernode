@@ -6,7 +6,7 @@ type ItemProperty struct {
 }
 
 type ItemConfiguration struct {
-	Id   uint64 `json:"id"`
-	Name string `json:"name"`
-	//Properties []*ItemProperty `json:"p"`
+	Id         uint64          `json:"id"`
+	Name       string          `json:"name"`
+	Properties []*ItemProperty `json:"p"`
 }
