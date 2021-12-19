@@ -1,6 +1,7 @@
 package common_interfaces
 
 type IUnit interface {
+	Init()
 	Id() string
 	SetId(unitId string)
 	Type() string
@@ -19,4 +20,9 @@ type IUnit interface {
 	InternalUnitStart() error
 	InternalUnitStop()
 	ItemChanged(itemName string, value ItemValue)
+
+	PropSet(props []ItemProperty)
+	PropGet() []ItemProperty
+	Prop(name string) string
+	PropSetIfNotExists(name string, value string)
 }

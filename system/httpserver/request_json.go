@@ -43,6 +43,10 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.UnitSetConfig(requestText, fromCloud)
 	case nodeinterface.FuncUnitGetConfig:
 		result, err = c.UnitGetConfig(requestText)
+	case nodeinterface.FuncUnitPropSet:
+		result, err = c.UnitPropSet(requestText)
+	case nodeinterface.FuncUnitPropGet:
+		result, err = c.UnitPropGet(requestText)
 
 		// *** Service ***
 	case nodeinterface.FuncServiceLookup:

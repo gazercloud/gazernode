@@ -17,6 +17,8 @@ const (
 	FuncUnitStop        = "unit_stop"
 	FuncUnitSetConfig   = "unit_set_config"
 	FuncUnitGetConfig   = "unit_get_config"
+	FuncUnitPropSet     = "unit_prop_set"
+	FuncUnitPropGet     = "unit_prop_get"
 
 	// *** Data Item ***
 	FuncDataItemList         = "data_item_list"
@@ -86,6 +88,8 @@ func ApiFunctions() []string {
 	res = append(res, FuncUnitStop)
 	res = append(res, FuncUnitSetConfig)
 	res = append(res, FuncUnitGetConfig)
+	res = append(res, FuncUnitPropSet)
+	res = append(res, FuncUnitPropGet)
 
 	res = append(res, FuncDataItemList)
 	res = append(res, FuncDataItemListAll)

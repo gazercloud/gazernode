@@ -166,3 +166,37 @@ func (c *HttpServer) UnitGetConfig(request []byte) (response []byte, err error) 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
+
+func (c *HttpServer) UnitPropSet(request []byte) (response []byte, err error) {
+	var req nodeinterface.UnitPropSetRequest
+	var resp nodeinterface.UnitPropSetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.UnitPropSet(req.UnitId, req.Props)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) UnitPropGet(request []byte) (response []byte, err error) {
+	var req nodeinterface.UnitPropGetRequest
+	var resp nodeinterface.UnitPropGetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp.Props, err = c.system.UnitPropGet(req.UnitId)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}

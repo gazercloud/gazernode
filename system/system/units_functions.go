@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/system/protocols/lookup"
-	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
 	"github.com/gazercloud/gazernode/utilities/logger"
 	"go.bug.st/serial"
@@ -21,12 +21,12 @@ func SplitWithoutEmpty(req string, sep rune) []string {
 	})
 }
 
-func (c *System) UnitTypes(category string, filter string, offset int, maxCount int) nodeinterface2.UnitTypeListResponse {
+func (c *System) UnitTypes(category string, filter string, offset int, maxCount int) nodeinterface.UnitTypeListResponse {
 	unitTypes := c.unitsSystem.UnitTypes()
 
-	var result nodeinterface2.UnitTypeListResponse
+	var result nodeinterface.UnitTypeListResponse
 	result.TotalCount = len(unitTypes)
-	result.Types = make([]nodeinterface2.UnitTypeListResponseItem, 0)
+	result.Types = make([]nodeinterface.UnitTypeListResponseItem, 0)
 	filterParts := SplitWithoutEmpty(strings.ToLower(filter), ' ')
 
 	for _, sType := range unitTypes {
@@ -49,7 +49,7 @@ func (c *System) UnitTypes(category string, filter string, offset int, maxCount 
 	return result
 }
 
-func (c *System) UnitCategories() nodeinterface2.UnitTypeCategoriesResponse {
+func (c *System) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
 	return c.unitsSystem.UnitCategories()
 }
 
@@ -71,10 +71,10 @@ func (c *System) AddUnit(unitName string, unitType string, config string, fromCl
 	return unitId, err
 }
 
-func (c *System) GetUnitState(unitId string) (nodeinterface2.UnitStateResponse, error) {
+func (c *System) GetUnitState(unitId string) (nodeinterface.UnitStateResponse, error) {
 	unitState, err := c.unitsSystem.GetUnitState(unitId)
 	if err != nil {
-		return nodeinterface2.UnitStateResponse{UnitId: unitId, UOM: "error"}, err
+		return nodeinterface.UnitStateResponse{UnitId: unitId, UOM: "error"}, err
 	}
 	unitState.UnitId = unitId
 	c.mtx.Lock()
@@ -100,9 +100,9 @@ func (c *System) GetUnitState(unitId string) (nodeinterface2.UnitStateResponse, 
 	return unitState, err
 }
 
-func (c *System) GetUnitStateAll() (nodeinterface2.UnitStateAllResponse, error) {
+func (c *System) GetUnitStateAll() (nodeinterface.UnitStateAllResponse, error) {
 	var err error
-	var result nodeinterface2.UnitStateAllResponse
+	var result nodeinterface.UnitStateAllResponse
 
 	result, err = c.unitsSystem.GetUnitStateAll()
 	if err != nil {
@@ -168,7 +168,7 @@ func (c *System) StopUnits(ids []string) error {
 	return err
 }
 
-func (c *System) ListOfUnits() nodeinterface2.UnitListResponse {
+func (c *System) ListOfUnits() nodeinterface.UnitListResponse {
 	return c.unitsSystem.ListOfUnits()
 }
 
@@ -254,6 +254,18 @@ func (c *System) GetAllItems() []common_interfaces.ItemGetUnitItems {
 	c.mtx.Unlock()
 
 	return items
+}
+
+func (c *System) UnitPropSet(unitId string, props []nodeinterface.PropItem) error {
+	err := c.unitsSystem.UnitPropSet(unitId, props)
+	c.SaveConfig()
+	return err
+}
+
+func (c *System) UnitPropGet(unitId string) ([]nodeinterface.PropItem, error) {
+	res, err := c.unitsSystem.UnitPropGet(unitId)
+	c.SaveConfig()
+	return res, err
 }
 
 func (c *System) Lookup(entity string) (lookup.Result, error) {

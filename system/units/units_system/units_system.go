@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
-	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/units/databases/unit_postgreesql"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
@@ -168,10 +168,10 @@ func (c *UnitsSystem) RegisterUnit(typeName string, category string, displayName
 	return &sType
 }
 
-func (c *UnitsSystem) UnitTypes() []nodeinterface2.UnitTypeListResponseItem {
-	result := make([]nodeinterface2.UnitTypeListResponseItem, 0)
+func (c *UnitsSystem) UnitTypes() []nodeinterface.UnitTypeListResponseItem {
+	result := make([]nodeinterface.UnitTypeListResponseItem, 0)
 	for _, st := range c.unitTypes {
-		var unitTypeInfo nodeinterface2.UnitTypeListResponseItem
+		var unitTypeInfo nodeinterface.UnitTypeListResponseItem
 		unitTypeInfo.Type = st.TypeCode
 		unitTypeInfo.Category = st.Category
 		unitTypeInfo.DisplayName = st.DisplayName
@@ -183,13 +183,13 @@ func (c *UnitsSystem) UnitTypes() []nodeinterface2.UnitTypeListResponseItem {
 	return result
 }
 
-func (c *UnitsSystem) UnitCategories() nodeinterface2.UnitTypeCategoriesResponse {
-	var result nodeinterface2.UnitTypeCategoriesResponse
-	result.Items = make([]nodeinterface2.UnitTypeCategoriesResponseItem, 0)
+func (c *UnitsSystem) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
+	var result nodeinterface.UnitTypeCategoriesResponse
+	result.Items = make([]nodeinterface.UnitTypeCategoriesResponseItem, 0)
 	addedCats := make(map[string]bool)
 
 	catAllName := ""
-	var unitCategoryInfoAll nodeinterface2.UnitTypeCategoriesResponseItem
+	var unitCategoryInfoAll nodeinterface.UnitTypeCategoriesResponseItem
 	unitCategoryInfoAll.Name = catAllName
 	unitCategoryInfoAll.DisplayName = "All"
 	if imgBytes, ok := unitCategoriesIcons[catAllName]; ok {
@@ -200,7 +200,7 @@ func (c *UnitsSystem) UnitCategories() nodeinterface2.UnitTypeCategoriesResponse
 
 	for _, st := range c.unitTypes {
 		if _, ok := addedCats[st.Category]; !ok {
-			var unitCategoryInfo nodeinterface2.UnitTypeCategoriesResponseItem
+			var unitCategoryInfo nodeinterface.UnitTypeCategoriesResponseItem
 			unitCategoryInfo.Name = st.Category
 			if catName, ok := unitCategoriesNames[st.Category]; ok {
 				unitCategoryInfo.DisplayName = catName
@@ -275,6 +275,10 @@ func (c *UnitsSystem) MakeUnitByType(unitType string, dataStorage common_interfa
 		}
 	}
 
+	if unit != nil {
+		unit.Init()
+	}
+
 	return unit
 }
 
@@ -313,7 +317,7 @@ func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, confi
 	return unit, nil
 }
 
-func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface2.UnitStateResponse, error) {
+func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface.UnitStateResponse, error) {
 	var unit common_interfaces.IUnit
 	c.mtx.Lock()
 	for _, s := range c.units {
@@ -324,10 +328,10 @@ func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface2.UnitStateRespo
 	c.mtx.Unlock()
 
 	if unit != nil {
-		var unitState nodeinterface2.UnitStateResponse
+		var unitState nodeinterface.UnitStateResponse
 		unitState.Status = ""
 		unitState.UnitName = unit.Name()
-		unitState.MainItem = unit.Name() + "/" + unit.MainItem()
+		unitState.MainItem = unit.MainItem()
 		unitState.Type = unit.Type()
 		unitState.TypeName = c.UnitTypeForDisplayByType(unit.Type())
 		if unit.IsStarted() {
@@ -338,22 +342,22 @@ func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface2.UnitStateRespo
 
 		return unitState, nil
 	}
-	return nodeinterface2.UnitStateResponse{}, errors.New("no unit found")
+	return nodeinterface.UnitStateResponse{}, errors.New("no unit found")
 }
 
-func (c *UnitsSystem) GetUnitStateAll() (nodeinterface2.UnitStateAllResponse, error) {
-	var result nodeinterface2.UnitStateAllResponse
-	result.Items = make([]nodeinterface2.UnitStateAllResponseItem, 0)
+func (c *UnitsSystem) GetUnitStateAll() (nodeinterface.UnitStateAllResponse, error) {
+	var result nodeinterface.UnitStateAllResponse
+	result.Items = make([]nodeinterface.UnitStateAllResponseItem, 0)
 
 	c.mtx.Lock()
 	for _, unit := range c.units {
-		var unitState nodeinterface2.UnitStateAllResponseItem
+		var unitState nodeinterface.UnitStateAllResponseItem
 		unitState.Status = ""
 		unitState.UnitId = unit.Id()
 		unitState.UnitName = unit.Name()
 		unitState.Type = unit.Type()
 		unitState.TypeName = c.UnitTypeForDisplayByType(unit.Type())
-		unitState.MainItem = unit.Name() + "/" + unit.MainItem()
+		unitState.MainItem = unit.MainItem()
 		if unit.IsStarted() {
 			unitState.Status = "started"
 		} else {
@@ -366,13 +370,13 @@ func (c *UnitsSystem) GetUnitStateAll() (nodeinterface2.UnitStateAllResponse, er
 	return result, nil
 }
 
-func (c *UnitsSystem) ListOfUnits() nodeinterface2.UnitListResponse {
-	var result nodeinterface2.UnitListResponse
-	result.Items = make([]nodeinterface2.UnitListResponseItem, 0)
+func (c *UnitsSystem) ListOfUnits() nodeinterface.UnitListResponse {
+	var result nodeinterface.UnitListResponse
+	result.Items = make([]nodeinterface.UnitListResponseItem, 0)
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 	for _, s := range c.units {
-		var sens nodeinterface2.UnitListResponseItem
+		var sens nodeinterface.UnitListResponseItem
 		sens.Id = s.Id()
 		sens.Type = s.Type()
 		sens.Name = s.Name()
@@ -397,6 +401,7 @@ func (c *UnitsSystem) Units() []units_common.UnitInfo {
 		sens.Enable = s.IsStarted()
 		sens.TypeForDisplay = c.UnitTypeForDisplayByType(s.Type())
 		sens.Config = s.GetConfig()
+		sens.Properties = s.PropGet()
 		result = append(result, sens)
 	}
 	return result
@@ -554,4 +559,56 @@ func (c *UnitsSystem) SendToWatcher(unitId string, itemName string, value common
 		targetUnit.ItemChanged(itemName, value)
 	}
 
+}
+
+func (c *UnitsSystem) UnitPropSet(unitId string, props []nodeinterface.PropItem) error {
+	var err error
+	var targetUnit common_interfaces.IUnit
+	c.mtx.Lock()
+	for _, unit := range c.units {
+		if unit.Id() == unitId {
+			targetUnit = unit
+			break
+		}
+	}
+	if targetUnit != nil {
+		properties := make([]common_interfaces.ItemProperty, 0)
+		for _, prop := range props {
+			properties = append(properties, common_interfaces.ItemProperty{
+				Name:  prop.PropName,
+				Value: prop.PropValue,
+			})
+		}
+		targetUnit.PropSet(properties)
+	} else {
+		err = errors.New("no unit found")
+	}
+	c.mtx.Unlock()
+	return err
+}
+
+func (c *UnitsSystem) UnitPropGet(unitId string) ([]nodeinterface.PropItem, error) {
+	var err error
+	result := make([]nodeinterface.PropItem, 0)
+	var targetUnit common_interfaces.IUnit
+	c.mtx.Lock()
+	for _, unit := range c.units {
+		if unit.Id() == unitId {
+			targetUnit = unit
+			break
+		}
+	}
+	if targetUnit != nil {
+		props := targetUnit.PropGet()
+		for _, prop := range props {
+			result = append(result, nodeinterface.PropItem{
+				PropName:  prop.Name,
+				PropValue: prop.Value,
+			})
+		}
+	} else {
+		err = errors.New("no unit found")
+	}
+	c.mtx.Unlock()
+	return result, err
 }

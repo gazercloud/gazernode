@@ -5,21 +5,25 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"strconv"
+	"sync"
 	"time"
 )
 
 type Unit struct {
+	mtx sync.Mutex
+
 	unitId       string
 	unitType     string
 	unitName     string
 	config       string
 	iUnit        common_interfaces.IUnit
 	iDataStorage common_interfaces.IDataStorage
-	mainItem     string
 	lastError    string
 	lastErrorDT  time.Time
 	lastInfo     string
 	lastInfoDT   time.Time
+
+	Properties map[string]common_interfaces.ItemProperty
 
 	lastLogDT time.Time
 
@@ -27,6 +31,49 @@ type Unit struct {
 	Stopping bool
 
 	watchItems map[string]bool
+}
+
+func (c *Unit) Init() {
+	c.Properties = make(map[string]common_interfaces.ItemProperty)
+}
+
+func (c *Unit) PropSetIfNotExists(name string, value string) {
+	c.mtx.Lock()
+	if _, ok := c.Properties[name]; !ok {
+		c.Properties[name] = common_interfaces.ItemProperty{
+			Name:  name,
+			Value: value,
+		}
+	}
+	c.mtx.Unlock()
+}
+
+func (c *Unit) Prop(name string) string {
+	result := ""
+	c.mtx.Lock()
+	if prop, ok := c.Properties[name]; ok {
+		result = prop.Value
+	}
+	c.mtx.Unlock()
+	return result
+}
+
+func (c *Unit) PropSet(props []common_interfaces.ItemProperty) {
+	c.mtx.Lock()
+	for _, prop := range props {
+		c.Properties[prop.Name] = prop
+	}
+	c.mtx.Unlock()
+}
+
+func (c *Unit) PropGet() []common_interfaces.ItemProperty {
+	result := make([]common_interfaces.ItemProperty, 0)
+	c.mtx.Lock()
+	for _, prop := range c.Properties {
+		result = append(result, prop)
+	}
+	c.mtx.Unlock()
+	return result
 }
 
 func (c *Unit) Id() string {
@@ -42,11 +89,11 @@ func (c *Unit) SetIUnit(iUnit common_interfaces.IUnit) {
 }
 
 func (c *Unit) SetMainItem(mainItem string) {
-	c.mainItem = mainItem
+	c.PropSetIfNotExists("main_item", c.unitName+"/"+mainItem)
 }
 
 func (c *Unit) MainItem() string {
-	return c.mainItem
+	return c.Prop("main_item")
 }
 
 func (c *Unit) Type() string {

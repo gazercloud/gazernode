@@ -113,3 +113,19 @@ type UnitGetConfigResponse struct {
 	UnitConfig     string `json:"config"`
 	UnitConfigMeta string `json:"config_meta"`
 }
+
+type UnitPropSetRequest struct {
+	UnitId string     `json:"unit_id"`
+	Props  []PropItem `json:"props"`
+}
+
+type UnitPropSetResponse struct {
+}
+
+type UnitPropGetRequest struct {
+	UnitId string `json:"unit_id"`
+}
+
+type UnitPropGetResponse struct {
+	Props []PropItem `json:"props"`
+}
