@@ -211,21 +211,19 @@ func (c *System) RemoveItemsOfUnit(unitName string) error {
 	return nil
 }
 
-func (c *System) GetItemsValues(reqItems []string) []common_interfaces.ItemGetUnitItems {
-	var items []common_interfaces.ItemGetUnitItems
-	items = make([]common_interfaces.ItemGetUnitItems, 0)
+func (c *System) GetItemsValues(reqItems []string) []common_interfaces.ItemStateInfo {
+	var items []common_interfaces.ItemStateInfo
+	items = make([]common_interfaces.ItemStateInfo, 0)
 
 	c.mtx.Lock()
 	for _, itemName := range reqItems {
 		if item, ok := c.itemsByName[itemName]; ok {
-			var i common_interfaces.ItemGetUnitItems
+			var i common_interfaces.ItemStateInfo
 			i.Id = item.Id
 			i.Name = item.Name
-			i.Value = item.Value
-			i.Value.DT = item.Value.DT
-			i.Value.UOM = item.Value.UOM
-			//i.Value.Flags = item.Value.Flags
-			//i.CloudChannels = c.publicChannels.GetChannelsWithItem(item.Name)
+			i.Value = item.Value.Value
+			i.DT = item.Value.DT
+			i.UOM = item.Value.UOM
 			items = append(items, i)
 		}
 	}
@@ -306,8 +304,8 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 	}
 	if entity == "data-item" {
 		result.KeyColumn = "id"
-		result.AddColumn("id", "Data Item Id")
-		result.AddColumn("name", "Data Item Name")
+		result.AddColumn("id", "ID")
+		result.AddColumn("name", "Name")
 		c.mtx.Lock()
 		for _, proc := range c.items {
 			result.AddRow2(fmt.Sprint(proc.Id), proc.Name)

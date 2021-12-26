@@ -11,6 +11,7 @@ type IDataStorage interface {
 	GetUnitValues(unitId string) []ItemGetUnitItems
 	RenameItems(oldPrefix string, newPrefix string)
 	RemoveItemsOfUnit(unitName string) error
+	SetProperty(itemName string, propName string, propValue string)
 	SetPropertyIfDoesntExist(itemName string, propName string, propValue string)
 
 	//Exec(function string, request []byte, host string) ([]byte, error)

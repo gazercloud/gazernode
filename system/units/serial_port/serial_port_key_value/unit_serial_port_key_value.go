@@ -15,10 +15,9 @@ import (
 )
 
 type ConfigItem struct {
-	Name   string  `json:"name"`
-	UOM    string  `json:"uom"`
-	Scale  float64 `json:"scale"`
-	Offset float64 `json:"offset"`
+	Name      string `json:"name"`
+	UOM       string `json:"uom"`
+	IsControl bool   `json:"is_control"`
 }
 
 type UnitSerialPortKeyValue struct {
@@ -59,8 +58,7 @@ func (c *UnitSerialPortKeyValue) GetConfigMeta() string {
 	t1 := meta.Add("items", "Elements", "", "table", "", "", "")
 	t1.Add("name", "ID", "item_name", "string", "", "", "")
 	t1.Add("uom", "UOM", "V", "string", "", "", "")
-	t1.Add("scale", "Scale", "1", "num", "-999999999", "999999999", "3")
-	t1.Add("offset", "Offset", "0", "num", "-999999999", "999999999", "3")
+	t1.Add("is_control", "IsControl", "false", "bool", "", "", "")
 	return meta.Marshal()
 }
 
@@ -107,6 +105,11 @@ func (c *UnitSerialPortKeyValue) InternalUnitStart() error {
 		c.items[item.Name] = item
 		c.TouchItem(item.Name)
 		c.AddToWatch(c.Name() + "/" + item.Name)
+		if item.IsControl {
+			c.IDataStorage().SetProperty(c.Name()+"/"+item.Name, "view", "control-01")
+		} else {
+			c.IDataStorage().SetProperty(c.Name()+"/"+item.Name, "view", "")
+		}
 	}
 
 	parity := serial.ParityNone
@@ -222,7 +225,6 @@ func (c *UnitSerialPortKeyValue) Tick() {
 												finalValue := value
 												valueAsFloat, err := strconv.ParseFloat(value, 64)
 												if err == nil {
-													valueAsFloat = valueAsFloat*item.Scale + item.Offset
 													finalValue = strconv.FormatFloat(valueAsFloat, 'f', -1, 64)
 												}
 												c.receivedVariables[key] = finalValue
@@ -278,8 +280,11 @@ func (c *UnitSerialPortKeyValue) ItemChanged(itemName string, value common_inter
 	if strings.HasPrefix(itemName, c.Name()+"/") {
 		countChartsToRemove := len(c.Name() + "/")
 		localName := itemName[countChartsToRemove:]
-		//logger.Println("Send to Serial", localName, value.Value)
+		logger.Println("Send to Serial", "["+localName+"] =", value.Value)
 		strForSend := localName + "=" + value.Value + "\r\n"
-		c.serialPort.Write([]byte(strForSend))
+		_, err := c.serialPort.Write([]byte(strForSend))
+		if err != nil {
+			logger.Println("Send to Serial ERROR", "["+localName+"] =", value.Value)
+		}
 	}
 }

@@ -10,7 +10,7 @@ type DataItemListRequest struct {
 }
 
 type DataItemListResponse struct {
-	Items []common_interfaces.ItemGetUnitItems `json:"items"`
+	Items []common_interfaces.ItemStateInfo `json:"items"`
 }
 
 type DataItemListAllRequest struct {

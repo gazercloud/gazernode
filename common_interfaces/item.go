@@ -33,6 +33,14 @@ type ItemGetUnitItems struct {
 	CloudChannelsNames []string `json:"cloud_channels_names"`
 }
 
+type ItemStateInfo struct {
+	Id    uint64 `json:"id"`
+	Name  string `json:"name"`
+	Value string `json:"v"`
+	DT    int64  `json:"t"`
+	UOM   string `json:"u"`
+}
+
 func NewItem() *Item {
 	var c Item
 	c.Properties = make(map[string]*ItemProperty)
@@ -66,5 +74,12 @@ func (c *Item) SetPropertyIfDoesntExist(propName string, propValue string) {
 			Name:  propName,
 			Value: propValue,
 		}
+	}
+}
+
+func (c *Item) SetProperty(propName string, propValue string) {
+	c.Properties[propName] = &ItemProperty{
+		Name:  propName,
+		Value: propValue,
 	}
 }

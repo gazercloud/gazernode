@@ -32,11 +32,13 @@ func (c *System) SetItemByName(name string, value string, UOM string, dt time.Ti
 	itemValue.Value = value
 	itemValue.DT = dt.UnixNano() / 1000
 	itemValue.UOM = UOM
-	return c.SetItem(item.Id, itemValue, 0)
+	return c.SetItem(item.Id, itemValue, 0, external)
 }
 
-func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue, counter int) error {
+func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue, counter int, external bool) error {
 	var item *common_interfaces.Item
+	var watchersUnits []string
+
 	counter++
 	if counter > 10 {
 		return errors.New("recursion detected")
@@ -52,9 +54,23 @@ func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue, count
 		return errors.New("item not found")
 	}
 
+	if watcher, ok := c.itemWatchers[item.Name]; ok {
+		watchersUnits = make([]string, 0)
+		for watcherUnitId, _ := range watcher.UnitIDs {
+			watchersUnits = append(watchersUnits, watcherUnitId)
+		}
+	}
+
 	c.history.Write(item.Id, value)
+
+	if external {
+		for _, unitId := range watchersUnits {
+			c.unitsSystem.SendToWatcher(unitId, item.Name, item.Value)
+		}
+	}
+
 	for _, itemDest := range item.TranslateToItems {
-		c.SetItem(itemDest.Id, value, counter)
+		c.SetItem(itemDest.Id, value, counter, true)
 	}
 	return nil
 }
@@ -179,6 +195,15 @@ func (c *System) RemoveFromWatch(unitId string, itemName string) {
 		delete(c.itemWatchers, itemName)
 	}
 	c.mtx.Unlock()
+}
+
+func (c *System) SetProperty(itemName string, propName string, propValue string) {
+	item, err := c.TouchItem(itemName)
+	if err == nil {
+		c.mtx.Lock()
+		item.SetProperty(propName, propValue)
+		c.mtx.Unlock()
+	}
 }
 
 func (c *System) SetPropertyIfDoesntExist(itemName string, propName string, propValue string) {
