@@ -138,6 +138,13 @@ func (c *System) LoadConfig() error {
 		}*/
 	}
 
+	for _, user := range c.users {
+		if user.PasswordHash == "" {
+			user.PasswordHash = c.hashPassword(user.Name)
+			logger.Println("WARNING! Password for user " + user.Name + " set to " + user.Name)
+		}
+	}
+
 	if len(c.users) == 0 {
 		logger.Println("System loadUsers adding default user")
 		passwordBuffer := make([]byte, 8)
