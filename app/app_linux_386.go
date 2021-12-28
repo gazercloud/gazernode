@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/cmd"
 	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/gazercloud/gazernode/utilities/paths"
+	"os"
 )
 
 func RunDesktop() {
