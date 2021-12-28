@@ -11,7 +11,6 @@ import (
 
 func RunDesktop() {
 	logger.Init(paths.HomeFolder() + "/gazer/log_ui")
-
 	if len(os.Args) == 1 {
 		cmd.Console()
 		return

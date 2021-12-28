@@ -29,7 +29,7 @@ func (c *GazerNodeClient) Write(itemName string, value string) error {
 	return err
 }
 
-func (c *GazerNodeClient) GetItemsValues(items []string) ([]common_interfaces.ItemGetUnitItems, error) {
+func (c *GazerNodeClient) GetItemsValues(items []string) ([]common_interfaces.ItemStateInfo, error) {
 	var call Call
 	var req nodeinterface2.DataItemListRequest
 	req.Items = items

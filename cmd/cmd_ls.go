@@ -23,9 +23,9 @@ func (c *Session) cmdLs(p []string) error {
 		for _, item := range resp {
 			fmt.Println("Id", item.Id)
 			fmt.Println("Name", item.Name)
-			fmt.Println("Value", item.Value.Value)
-			fmt.Println("UOM:", item.Value.UOM)
-			fmt.Println("DT:", item.Value.DT)
+			fmt.Println("Value", item.Value)
+			fmt.Println("UOM:", item.Value)
+			fmt.Println("DT:", item.Value)
 		}
 
 		return err
