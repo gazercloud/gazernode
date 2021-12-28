@@ -102,26 +102,6 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 	case nodeinterface.FuncCloudGetSettingsProfiles:
 		result, err = c.CloudGetSettingsProfiles(requestText)
 
-		// *** Public Channel ***
-	/*case nodeinterface.FuncPublicChannelList:
-		result, err = c.PublicChannelList(requestText)
-	case nodeinterface.FuncPublicChannelAdd:
-		result, err = c.PublicChannelAdd(requestText)
-	case nodeinterface.FuncPublicChannelSetName:
-		result, err = c.PublicChannelSetName(requestText)
-	case nodeinterface.FuncPublicChannelRemove:
-		result, err = c.PublicChannelRemove(requestText)
-	case nodeinterface.FuncPublicChannelItemAdd:
-		result, err = c.PublicChannelItemAdd(requestText)
-	case nodeinterface.FuncPublicChannelItemRemove:
-		result, err = c.PublicChannelItemRemove(requestText)
-	case nodeinterface.FuncPublicChannelItemsState:
-		result, err = c.PublicChannelItemsState(requestText)
-	case nodeinterface.FuncPublicChannelStart:
-		result, err = c.PublicChannelStart(requestText)
-	case nodeinterface.FuncPublicChannelStop:
-		result, err = c.PublicChannelStop(requestText)*/
-
 	// *** Data Item ***
 	case nodeinterface.FuncDataItemList:
 		result, err = c.DataItemList(requestText)

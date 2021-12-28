@@ -8,6 +8,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/utilities/logger"
+	"github.com/gazercloud/gazernode/utilities/packer"
 	"io/ioutil"
 	"math/rand"
 	"net"
@@ -678,8 +679,12 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 			return
 		}
 
+		//logger.Println("!!!!!!!!!! CLOUD DATA:", string(task.Frame.Data))
+
+		request := []byte(packer.UnpackString(string(task.Frame.Data)))
+
 		// Frame for the node
-		bs, err = c.requester.RequestJson(task.Frame.Header.Function, task.Frame.Data, "web", true)
+		bs, err = c.requester.RequestJson(task.Frame.Header.Function, request, "web", true)
 		//logger.Println("CloudConnection REQUEST", task.Frame.Header.Function, "resLen:", len(bs))
 
 		c.addSuccessCallStat(task.Frame.Header.Function)
@@ -713,6 +718,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	if err != nil {
 		frame.Header.Error = err.Error()
 	}
+	bs = packer.PackBytes(bs)
 	frame.Data = bs
 	c.sentBytes += task.Client.SendData(&frame, false)
 }

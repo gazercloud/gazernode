@@ -7,6 +7,7 @@ import (
 	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/system"
 	"github.com/gazercloud/gazernode/utilities/logger"
+	"github.com/gazercloud/gazernode/utilities/packer"
 	"github.com/gazercloud/gazernode/web"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -114,12 +115,12 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var responseText []byte
 	var sessionToken string
+	usingZ := false
 
 	requestJson := r.FormValue("rj")
+	requestJsonZ := r.FormValue("rjz")
 	function := r.FormValue("fn")
 	sessionToken = r.FormValue("s")
-
-	//logger.Println(function)
 
 	if r.Method == "POST" {
 		if err := r.ParseMultipartForm(1000000); err != nil {
@@ -127,11 +128,16 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		requestJson = r.FormValue("rj")
+		requestJsonZ = r.FormValue("rjz")
 		function = r.FormValue("fn")
 	}
 
 	if requestJson == "" {
 		requestJson = "{}"
+		if requestJsonZ != "" {
+			requestJson = packer.UnpackString(requestJsonZ)
+			usingZ = true
+		}
 	}
 
 	//if strings.Contains(function, "session") {
@@ -206,6 +212,11 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write(b)
 		return
 	}
+
+	if usingZ {
+		responseText = packer.PackBytes(responseText)
+	}
+
 	_, _ = w.Write([]byte(responseText))
 }
 

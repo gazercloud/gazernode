@@ -1,15 +1,11 @@
 package httpserver
 
 import (
-	"archive/zip"
-	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/system/history"
 	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
-	"io"
 	"math"
 	"strconv"
 	"strings"
@@ -289,7 +285,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 
 	response, err = json.Marshal(resp)
 
-	if req.OutFormat == "zip" {
+	/*if req.OutFormat == "zip" {
 		buf := new(bytes.Buffer)
 		zipWriter := zip.NewWriter(buf)
 
@@ -311,7 +307,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 		var zipData ZipOut
 		zipData.Data = sEnc
 		response, err = json.Marshal(zipData)
-	}
+	}*/
 
 	/*logger.Println("DataItemHistoryChart REQUEST dt(sec):", (req.DTEnd - req.DTBegin) / 1000000, "range:", req.GroupTimeRange,
 	"itemsCount:", len(respItems.Items), "resCount", len(resultItems), "bytes:", len(response))*/
