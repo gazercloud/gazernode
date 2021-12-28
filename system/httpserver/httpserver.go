@@ -214,6 +214,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if usingZ {
+		println("local call", function, requestJson)
 		responseText = packer.PackBytes(responseText)
 	}
 

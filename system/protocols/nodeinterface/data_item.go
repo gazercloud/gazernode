@@ -38,7 +38,7 @@ type DataItemHistoryResponse struct {
 	History *history.ReadResult `json:"history"`
 }
 
-type DataItemHistoryChartRequest struct {
+type DataItemHistoryChartRequestItem struct {
 	Name           string `json:"name"`
 	DTBegin        int64  `json:"dt_begin"`
 	DTEnd          int64  `json:"dt_end"`
@@ -46,7 +46,11 @@ type DataItemHistoryChartRequest struct {
 	OutFormat      string `json:"out_format"`
 }
 
-type DataItemHistoryChartResponseItem struct {
+type DataItemHistoryChartRequest struct {
+	Items []DataItemHistoryChartRequestItem `json:"items"`
+}
+
+type DataItemHistoryChartResponseDataItemValue struct {
 	DatetimeFirst int64   `json:"tf"`
 	DatetimeLast  int64   `json:"tl"`
 	FirstValue    float64 `json:"vf"`
@@ -61,13 +65,17 @@ type DataItemHistoryChartResponseItem struct {
 	UOM           string  `json:"uom"`
 }
 
+type DataItemHistoryChartResponseDataItem struct {
+	Name           string                                       `json:"name"`
+	DTBegin        int64                                        `json:"dt_begin"`
+	DTEnd          int64                                        `json:"dt_end"`
+	GroupTimeRange int64                                        `json:"group_time_range"`
+	OutFormat      string                                       `json:"out_format"`
+	Items          []*DataItemHistoryChartResponseDataItemValue `json:"items"`
+}
+
 type DataItemHistoryChartResponse struct {
-	Name           string                              `json:"name"`
-	DTBegin        int64                               `json:"dt_begin"`
-	DTEnd          int64                               `json:"dt_end"`
-	GroupTimeRange int64                               `json:"group_time_range"`
-	OutFormat      string                              `json:"out_format"`
-	Items          []*DataItemHistoryChartResponseItem `json:"items"`
+	Items []*DataItemHistoryChartResponseDataItem `json:"items"`
 }
 
 type DataItemRemoveRequest struct {

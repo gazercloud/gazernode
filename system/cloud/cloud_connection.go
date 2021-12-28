@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	nodeinterface2 "github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/utilities/logger"
@@ -718,6 +719,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	if err != nil {
 		frame.Header.Error = err.Error()
 	}
+	fmt.Println("Cloud Inbound Call", frame.Header.Function)
 	bs = packer.PackBytes(bs)
 	frame.Data = bs
 	c.sentBytes += task.Client.SendData(&frame, false)

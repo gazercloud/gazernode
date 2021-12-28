@@ -80,7 +80,7 @@ func (c *GazerNodeClient) ReadHistory(name string, dtBegin int64, dtEnd int64) (
 
 func (c *GazerNodeClient) ReadHistoryChart(name string, dtBegin int64, dtEnd int64, groupTimeRange int64) (*nodeinterface2.DataItemHistoryChartResponse, error) {
 	var call Call
-	var req nodeinterface2.DataItemHistoryChartRequest
+	var req nodeinterface2.DataItemHistoryChartRequestItem
 	req.Name = name
 	req.DTBegin = dtBegin
 	req.DTEnd = dtEnd
