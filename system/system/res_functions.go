@@ -16,6 +16,10 @@ func (c *System) ResGet(id string) (*common_interfaces.ResourcesItem, error) {
 	return c.resources.Get(id)
 }
 
+func (c *System) ResGetThumbnail(id string) (*common_interfaces.ResourcesItem, error) {
+	return c.resources.GetThumbnail(id)
+}
+
 func (c *System) ResList(tp string, filter string, offset int, maxCount int) common_interfaces.ResourcesInfo {
 	return c.resources.List(tp, filter, offset, maxCount)
 }

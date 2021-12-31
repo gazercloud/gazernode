@@ -53,12 +53,13 @@ const (
 	FuncServiceInfo        = "service_info"
 
 	// *** Resource ***
-	FuncResourceAdd    = "resource_add"
-	FuncResourceSet    = "resource_set"
-	FuncResourceGet    = "resource_get"
-	FuncResourceRemove = "resource_remove"
-	FuncResourceRename = "resource_rename"
-	FuncResourceList   = "resource_list"
+	FuncResourceAdd          = "resource_add"
+	FuncResourceSet          = "resource_set"
+	FuncResourceGet          = "resource_get"
+	FuncResourceGetThumbnail = "resource_get_thumbnail"
+	FuncResourceRemove       = "resource_remove"
+	FuncResourceRename       = "resource_rename"
+	FuncResourceList         = "resource_list"
 
 	// *** User ***
 	FuncSessionOpen     = "session_open"
@@ -123,6 +124,7 @@ func ApiFunctions() []string {
 	res = append(res, FuncResourceAdd)
 	res = append(res, FuncResourceSet)
 	res = append(res, FuncResourceGet)
+	res = append(res, FuncResourceGetThumbnail)
 	res = append(res, FuncResourceRemove)
 	res = append(res, FuncResourceRename)
 	res = append(res, FuncResourceList)

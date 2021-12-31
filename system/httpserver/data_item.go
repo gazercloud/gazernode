@@ -147,136 +147,156 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 
 	resp.Items = make([]*nodeinterface.DataItemHistoryChartResponseDataItem, 0)
 
+	itemNames := make([]string, 0)
 	for _, reqItem := range req.Items {
+		itemNames = append(itemNames, reqItem.Name)
+	}
+	itemValuesList := c.system.GetItemsValues(itemNames)
+	itemValuesMap := make(map[string]common_interfaces.ItemStateInfo)
+	for _, itemValue := range itemValuesList {
+		itemValuesMap[itemValue.Name] = itemValue
+	}
+
+	for _, reqItem := range req.Items {
+		itemHistoryError := ""
+		validTimeRange := true
 
 		if reqItem.GroupTimeRange < 1 {
-			err = errors.New("wrong group_time_range")
-			return
+			itemHistoryError = "wrong group_time_range"
+			validTimeRange = false
 		}
 
 		if reqItem.DTEnd-reqItem.DTBegin < 1 {
-			err = errors.New("wrong time range (min)")
-			return
+			itemHistoryError = "wrong time range (min)"
+			validTimeRange = false
 		}
 
 		if reqItem.DTEnd-reqItem.DTBegin > 2*365*24*3600*1000000 {
-			err = errors.New("wrong time range (max)")
-			return
+			itemHistoryError = "wrong time range (max)"
+			validTimeRange = false
 		}
 
-		expectedItemsCount := (reqItem.DTEnd - reqItem.DTBegin) / reqItem.GroupTimeRange
-		if expectedItemsCount > 10000 {
-			err = errors.New("wrong time range (max items)")
-			return
+		if reqItem.GroupTimeRange < 1 {
+			itemHistoryError = ""
+			validTimeRange = false
+		} else {
+			expectedItemsCount := (reqItem.DTEnd - reqItem.DTBegin) / reqItem.GroupTimeRange
+			if expectedItemsCount > 10000 {
+				itemHistoryError = "wrong time range (max items)"
+				validTimeRange = false
+			}
 		}
-
-		var respItems *history.ReadResult
-
-		respItems, err = c.system.ReadHistory(reqItem.Name, reqItem.DTBegin, reqItem.DTEnd)
-		if err != nil {
-			return
-		}
-
-		//logger.Println("ReadHistory: ", respItems.Items)
 
 		resultItems := make([]*nodeinterface.DataItemHistoryChartResponseDataItemValue, 0)
-		rawValues := make([]*common_interfaces.ItemValue, 0)
-		rawValuesGroupIndex := make([]int64, 0)
 
-		for _, item := range respItems.Items {
-			rawValues = append(rawValues, item)
-			groupIndex := (item.DT - reqItem.DTBegin) / reqItem.GroupTimeRange
-			rawValuesGroupIndex = append(rawValuesGroupIndex, groupIndex)
-		}
+		if validTimeRange {
 
-		lastGroupIndex := int64(-1)
-		var currentValueRange *nodeinterface.DataItemHistoryChartResponseDataItemValue
+			var respItems *history.ReadResult
 
-		for index := range rawValuesGroupIndex {
-			r := rawValues[index]
-			validValue := false
-
-			if lastGroupIndex != rawValuesGroupIndex[index] {
-				if currentValueRange != nil {
-					resultItems = append(resultItems, currentValueRange)
-					currentValueRange = nil
-				}
-				lastGroupIndex = rawValuesGroupIndex[index]
+			respItems, err = c.system.ReadHistory(reqItem.Name, reqItem.DTBegin, reqItem.DTEnd)
+			if err != nil {
+				return
 			}
 
-			if currentValueRange == nil {
-				currentValueRange = &nodeinterface.DataItemHistoryChartResponseDataItemValue{}
-				currentValueRange.DatetimeFirst = r.DT - (r.DT % reqItem.GroupTimeRange)
-				currentValueRange.DatetimeLast = r.DT - (r.DT % reqItem.GroupTimeRange) + reqItem.GroupTimeRange - 1
-				currentValueRange.Qualities = make([]int64, 0)
-				currentValueRange.MinValue = math.MaxFloat64
-				currentValueRange.MaxValue = -math.MaxFloat64
-				currentValueRange.AvgValue = 0
-				currentValueRange.FirstValue = 0
-				currentValueRange.LastValue = 0
+			//logger.Println("ReadHistory: ", respItems.Items)
+
+			rawValues := make([]*common_interfaces.ItemValue, 0)
+			rawValuesGroupIndex := make([]int64, 0)
+
+			for _, item := range respItems.Items {
+				rawValues = append(rawValues, item)
+				groupIndex := (item.DT - reqItem.DTBegin) / reqItem.GroupTimeRange
+				rawValuesGroupIndex = append(rawValuesGroupIndex, groupIndex)
 			}
 
-			if r.UOM != "error" {
-				valueAsString := strings.Trim(r.Value, " \r\n\t")
-				valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
+			lastGroupIndex := int64(-1)
+			var currentValueRange *nodeinterface.DataItemHistoryChartResponseDataItemValue
 
-				if r.UOM != "" {
-					currentValueRange.UOM = r.UOM
+			for index := range rawValuesGroupIndex {
+				r := rawValues[index]
+				validValue := false
+
+				if lastGroupIndex != rawValuesGroupIndex[index] {
+					if currentValueRange != nil {
+						resultItems = append(resultItems, currentValueRange)
+						currentValueRange = nil
+					}
+					lastGroupIndex = rawValuesGroupIndex[index]
 				}
 
-				if err == nil {
-					validValue = true
-
-					if valueAsFloat < currentValueRange.MinValue {
-						currentValueRange.MinValue = valueAsFloat
-					}
-					if valueAsFloat > currentValueRange.MaxValue {
-						currentValueRange.MaxValue = valueAsFloat
-					}
-					currentValueRange.AvgValue += valueAsFloat
-					if currentValueRange.CountOfValues > 0 {
-						currentValueRange.AvgValue /= 2
-					}
-
-					if currentValueRange.CountOfValues == 0 {
-						currentValueRange.FirstValue = valueAsFloat
-					}
-
-					currentValueRange.LastValue = valueAsFloat
-
-					currentValueRange.CountOfValues++
+				if currentValueRange == nil {
+					currentValueRange = &nodeinterface.DataItemHistoryChartResponseDataItemValue{}
+					currentValueRange.DatetimeFirst = r.DT - (r.DT % reqItem.GroupTimeRange)
+					currentValueRange.DatetimeLast = r.DT - (r.DT % reqItem.GroupTimeRange) + reqItem.GroupTimeRange - 1
+					currentValueRange.Qualities = make([]int64, 0)
+					currentValueRange.MinValue = math.MaxFloat64
+					currentValueRange.MaxValue = -math.MaxFloat64
+					currentValueRange.AvgValue = 0
+					currentValueRange.FirstValue = 0
+					currentValueRange.LastValue = 0
 				}
+
+				if r.UOM != "error" {
+					valueAsString := strings.Trim(r.Value, " \r\n\t")
+					valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
+
+					if r.UOM != "" {
+						currentValueRange.UOM = r.UOM
+					}
+
+					if err == nil {
+						validValue = true
+
+						if valueAsFloat < currentValueRange.MinValue {
+							currentValueRange.MinValue = valueAsFloat
+						}
+						if valueAsFloat > currentValueRange.MaxValue {
+							currentValueRange.MaxValue = valueAsFloat
+						}
+						currentValueRange.AvgValue += valueAsFloat
+						if currentValueRange.CountOfValues > 0 {
+							currentValueRange.AvgValue /= 2
+						}
+
+						if currentValueRange.CountOfValues == 0 {
+							currentValueRange.FirstValue = valueAsFloat
+						}
+
+						currentValueRange.LastValue = valueAsFloat
+
+						currentValueRange.CountOfValues++
+					}
+				}
+
+				if r.UOM != "error" && validValue {
+					foundGood := false
+					for _, q := range currentValueRange.Qualities {
+						if q == 192 {
+							foundGood = true
+						}
+					}
+					if !foundGood {
+						currentValueRange.Qualities = append(currentValueRange.Qualities, 192)
+						currentValueRange.HasGood = true
+					}
+				} else {
+					foundBad := false
+					for _, q := range currentValueRange.Qualities {
+						if q == 0 {
+							foundBad = true
+						}
+					}
+					if !foundBad {
+						currentValueRange.Qualities = append(currentValueRange.Qualities, 0)
+						currentValueRange.HasBad = true
+					}
+				}
+
 			}
-
-			if r.UOM != "error" && validValue {
-				foundGood := false
-				for _, q := range currentValueRange.Qualities {
-					if q == 192 {
-						foundGood = true
-					}
-				}
-				if !foundGood {
-					currentValueRange.Qualities = append(currentValueRange.Qualities, 192)
-					currentValueRange.HasGood = true
-				}
-			} else {
-				foundBad := false
-				for _, q := range currentValueRange.Qualities {
-					if q == 0 {
-						foundBad = true
-					}
-				}
-				if !foundBad {
-					currentValueRange.Qualities = append(currentValueRange.Qualities, 0)
-					currentValueRange.HasBad = true
-				}
+			if currentValueRange != nil {
+				resultItems = append(resultItems, currentValueRange)
+				currentValueRange = nil
 			}
-
-		}
-
-		if currentValueRange != nil {
-			resultItems = append(resultItems, currentValueRange)
-			currentValueRange = nil
 		}
 
 		dataItem := &nodeinterface.DataItemHistoryChartResponseDataItem{}
@@ -284,41 +304,23 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 		dataItem.DTBegin = reqItem.DTBegin
 		dataItem.DTEnd = reqItem.DTEnd
 		dataItem.GroupTimeRange = reqItem.GroupTimeRange
-		dataItem.OutFormat = reqItem.OutFormat
 		dataItem.Items = resultItems
+		dataItem.HistoryError = itemHistoryError
+
+		if itemValue, ok := itemValuesMap[dataItem.Name]; ok {
+			dataItem.Value = &itemValue
+		} else {
+			dataItem.Value = &common_interfaces.ItemStateInfo{
+				Id:    0,
+				Name:  dataItem.Name,
+				Value: "",
+				DT:    0,
+				UOM:   "",
+			}
+		}
+
 		resp.Items = append(resp.Items, dataItem)
 	}
-	//logger.Println(len(resp.Items))
-
 	response, err = json.Marshal(resp)
-	//logger.Println(string(response))
-
-	/*if req.OutFormat == "zip" {
-		buf := new(bytes.Buffer)
-		zipWriter := zip.NewWriter(buf)
-
-		// Add some files to the archive.
-		var zipFile io.Writer
-		zipFile, err = zipWriter.Create("data")
-		if err == nil {
-			_, err = zipFile.Write([]byte(response))
-		}
-
-		// Make sure to check the error on Close.
-		err = zipWriter.Close()
-		type ZipOut struct {
-			Data string `json:"data"`
-		}
-
-		sEnc := base64.StdEncoding.EncodeToString([]byte(buf.Bytes()))
-
-		var zipData ZipOut
-		zipData.Data = sEnc
-		response, err = json.Marshal(zipData)
-	}*/
-
-	/*logger.Println("DataItemHistoryChart REQUEST dt(sec):", (req.DTEnd - req.DTBegin) / 1000000, "range:", req.GroupTimeRange,
-	"itemsCount:", len(respItems.Items), "resCount", len(resultItems), "bytes:", len(response))*/
-
 	return
 }

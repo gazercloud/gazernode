@@ -31,6 +31,14 @@ type ResourceGetResponse struct {
 	Item *common_interfaces.ResourcesItem `json:"item"`
 }
 
+type ResourceGetThumbnailRequest struct {
+	Id string `json:"id"`
+}
+
+type ResourceGetThumbnailResponse struct {
+	Item *common_interfaces.ResourcesItem `json:"item"`
+}
+
 type ResourceRemoveRequest struct {
 	Id string `json:"id"`
 }

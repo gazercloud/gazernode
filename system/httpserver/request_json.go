@@ -69,6 +69,8 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.ResourceSet(requestText)
 	case nodeinterface.FuncResourceGet:
 		result, err = c.ResourceGet(requestText)
+	case nodeinterface.FuncResourceGetThumbnail:
+		result, err = c.ResourceGetThumbnail(requestText)
 	case nodeinterface.FuncResourceRemove:
 		result, err = c.ResourceRemove(requestText)
 	case nodeinterface.FuncResourceRename:

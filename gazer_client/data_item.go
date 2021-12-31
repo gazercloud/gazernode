@@ -85,7 +85,6 @@ func (c *GazerNodeClient) ReadHistoryChart(name string, dtBegin int64, dtEnd int
 	req.DTBegin = dtBegin
 	req.DTEnd = dtEnd
 	req.GroupTimeRange = groupTimeRange
-	req.OutFormat = "zip"
 	call.function = nodeinterface2.FuncDataItemHistoryChart
 	call.request, _ = json.MarshalIndent(req, "", " ")
 	call.client = c

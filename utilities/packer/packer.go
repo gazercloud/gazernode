@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/base64"
-	"github.com/gazercloud/gazernode/utilities/logger"
 	"io"
 	"io/fs"
 	"io/ioutil"
@@ -21,7 +20,7 @@ func PackBytes(json []byte) []byte {
 	}
 	err = zipWriter.Close()
 	result := []byte(base64.StdEncoding.EncodeToString(buf.Bytes()))
-	logger.Println("Packer stats: ", len(json), len(result), float64(len(json))/float64(len(result)))
+	//logger.Println("Packer stats: ", len(json), len(result), float64(len(json))/float64(len(result)))
 	return result
 }
 

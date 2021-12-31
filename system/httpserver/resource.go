@@ -56,6 +56,23 @@ func (c *HttpServer) ResourceGet(request []byte) (response []byte, err error) {
 	return
 }
 
+func (c *HttpServer) ResourceGetThumbnail(request []byte) (response []byte, err error) {
+	var req nodeinterface.ResourceGetThumbnailRequest
+	var resp nodeinterface.ResourceGetThumbnailResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp.Item, err = c.system.ResGetThumbnail(req.Id)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
 func (c *HttpServer) ResourceRemove(request []byte) (response []byte, err error) {
 	var req nodeinterface.ResourceRemoveRequest
 	var resp nodeinterface.ResourceRemoveResponse

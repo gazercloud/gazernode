@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/system/settings"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/google/uuid"
 	"io/ioutil"
 	"os"
@@ -66,6 +67,8 @@ func (c *Resources) Rename(id string, newName string) error {
 func (c *Resources) Remove(id string) error {
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
+
+	logger.Println("Resource Removing", id)
 
 	var err error
 
@@ -156,7 +159,7 @@ func (c *Resources) Set(id string, thumbnail []byte, content []byte) error {
 		return errors.New("no resource found")
 	}
 
-	info.Thumbnail = thumbnail
+	//info.Thumbnail = thumbnail
 
 	bs, _ = json.MarshalIndent(info, "", " ")
 	err = ioutil.WriteFile(dir+"/"+id+".info", bs, 0666)
@@ -165,6 +168,11 @@ func (c *Resources) Set(id string, thumbnail []byte, content []byte) error {
 	}
 
 	err = ioutil.WriteFile(dir+"/"+id+".content", content, 0666)
+	if err != nil {
+		return errors.New("can not save resource")
+	}
+
+	err = ioutil.WriteFile(dir+"/"+id+".thumbnail.png", thumbnail, 0666)
 	if err != nil {
 		return errors.New("can not save resource")
 	}
@@ -193,6 +201,37 @@ func (c *Resources) Get(id string) (*common_interfaces.ResourcesItem, error) {
 	}
 
 	bs, err = ioutil.ReadFile(dir + "/" + id + ".content")
+	if err != nil {
+		return nil, errors.New("no resource found")
+	}
+
+	var result common_interfaces.ResourcesItem
+	result.Info = info
+	result.Content = bs
+	return &result, nil
+}
+
+func (c *Resources) GetThumbnail(id string) (*common_interfaces.ResourcesItem, error) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
+	var err error
+	var bs []byte
+
+	dir := c.dir()
+
+	bs, err = ioutil.ReadFile(dir + "/" + id + ".info")
+	if err != nil {
+		return nil, errors.New("no resource found")
+	}
+
+	var info common_interfaces.ResourcesItemInfo
+	err = json.Unmarshal(bs, &info)
+	if err != nil {
+		return nil, errors.New("no resource found")
+	}
+
+	bs, err = ioutil.ReadFile(dir + "/" + id + ".thumbnail.png")
 	if err != nil {
 		return nil, errors.New("no resource found")
 	}
