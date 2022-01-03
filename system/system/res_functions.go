@@ -2,6 +2,7 @@ package system
 
 import (
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 )
 
 func (c *System) ResAdd(name string, tp string, content []byte) (string, error) {
@@ -12,8 +13,8 @@ func (c *System) ResSet(id string, thumbnail []byte, content []byte) error {
 	return c.resources.Set(id, thumbnail, content)
 }
 
-func (c *System) ResGet(id string) (*common_interfaces.ResourcesItem, error) {
-	return c.resources.Get(id)
+func (c *System) ResGet(id string, offset int64, size int64) (nodeinterface.ResourceGetResponse, error) {
+	return c.resources.Get(id, offset, size)
 }
 
 func (c *System) ResGetThumbnail(id string) (*common_interfaces.ResourcesItem, error) {

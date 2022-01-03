@@ -42,7 +42,7 @@ func (c *GazerNodeClient) ResSet(id string, thumbnail []byte, content []byte) er
 	return err
 }
 
-func (c *GazerNodeClient) ResGet(id string) (*common_interfaces.ResourcesItem, error) {
+/*func (c *GazerNodeClient) ResGet(id string) (*common_interfaces.ResourcesItem, error) {
 	var call Call
 	var req nodeinterface2.ResourceGetRequest
 	req.Id = id
@@ -56,7 +56,7 @@ func (c *GazerNodeClient) ResGet(id string) (*common_interfaces.ResourcesItem, e
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return resp.Item, err
-}
+}*/
 
 func (c *GazerNodeClient) ResList(tp string, filter string, offset int, maxCount int) (common_interfaces.ResourcesInfo, error) {
 	var call Call

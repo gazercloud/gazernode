@@ -24,11 +24,19 @@ type ResourceSetResponse struct {
 }
 
 type ResourceGetRequest struct {
-	Id string `json:"id"`
+	Id     string `json:"id"`
+	Offset int64  `json:"offset"`
+	Size   int64  `json:"size"`
 }
 
 type ResourceGetResponse struct {
-	Item *common_interfaces.ResourcesItem `json:"item"`
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Offset  int64  `json:"offset"`
+	Content []byte `json:"content"`
+	Size    int64  `json:"size"`
+	Hash    string `json:"hash"`
 }
 
 type ResourceGetThumbnailRequest struct {

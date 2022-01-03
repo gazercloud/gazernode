@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/system/settings"
 	"github.com/gazercloud/gazernode/utilities/logger"
 	"github.com/google/uuid"
@@ -180,7 +181,11 @@ func (c *Resources) Set(id string, thumbnail []byte, content []byte) error {
 	return nil
 }
 
-func (c *Resources) Get(id string) (*common_interfaces.ResourcesItem, error) {
+func (c *Resources) Get(id string, offset int64, size int64) (nodeinterface.ResourceGetResponse, error) {
+	if offset < 0 || size < 1 {
+		return nodeinterface.ResourceGetResponse{}, errors.New("wrong offset/size (<0/1)")
+	}
+
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 
@@ -191,24 +196,37 @@ func (c *Resources) Get(id string) (*common_interfaces.ResourcesItem, error) {
 
 	bs, err = ioutil.ReadFile(dir + "/" + id + ".info")
 	if err != nil {
-		return nil, errors.New("no resource found")
+		return nodeinterface.ResourceGetResponse{}, errors.New("no resource found")
 	}
 
 	var info common_interfaces.ResourcesItemInfo
 	err = json.Unmarshal(bs, &info)
 	if err != nil {
-		return nil, errors.New("no resource found")
+		return nodeinterface.ResourceGetResponse{}, errors.New("no resource info found")
 	}
 
 	bs, err = ioutil.ReadFile(dir + "/" + id + ".content")
 	if err != nil {
-		return nil, errors.New("no resource found")
+		return nodeinterface.ResourceGetResponse{}, errors.New("no resource found")
 	}
 
-	var result common_interfaces.ResourcesItem
-	result.Info = info
-	result.Content = bs
-	return &result, nil
+	result := nodeinterface.ResourceGetResponse{}
+	result.Id = info.Id
+	result.Type = info.Type
+	result.Name = info.Name
+	result.Offset = offset
+	result.Size = int64(len(bs))
+
+	if offset < int64(len(bs)) {
+		if offset+size > int64(len(bs)) {
+			size = int64(len(bs)) - offset
+		}
+		result.Content = bs[offset : offset+size]
+	} else {
+		result.Content = make([]byte, 0)
+	}
+
+	return result, nil
 }
 
 func (c *Resources) GetThumbnail(id string) (*common_interfaces.ResourcesItem, error) {

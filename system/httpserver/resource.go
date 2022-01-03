@@ -47,7 +47,7 @@ func (c *HttpServer) ResourceGet(request []byte) (response []byte, err error) {
 		return
 	}
 
-	resp.Item, err = c.system.ResGet(req.Id)
+	resp, err = c.system.ResGet(req.Id, req.Offset, req.Size)
 	if err != nil {
 		return
 	}
