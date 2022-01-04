@@ -28,7 +28,6 @@ func (c *GazerNodeClient) ResSet(id string, thumbnail []byte, content []byte) er
 	var call Call
 	var req nodeinterface2.ResourceSetRequest
 	req.Id = id
-	req.Thumbnail = thumbnail
 	req.Content = content
 	call.function = nodeinterface2.FuncResourceSet
 	call.request, _ = json.MarshalIndent(req, "", " ")

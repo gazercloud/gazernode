@@ -9,8 +9,8 @@ func (c *System) ResAdd(name string, tp string, content []byte) (string, error) 
 	return c.resources.Add(name, tp, content)
 }
 
-func (c *System) ResSet(id string, thumbnail []byte, content []byte) error {
-	return c.resources.Set(id, thumbnail, content)
+func (c *System) ResSet(id string, suffix string, offset int64, content []byte) error {
+	return c.resources.Set(id, suffix, offset, content)
 }
 
 func (c *System) ResGet(id string, offset int64, size int64) (nodeinterface.ResourceGetResponse, error) {

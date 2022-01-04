@@ -30,7 +30,7 @@ func (c *HttpServer) ResourceSet(request []byte) (response []byte, err error) {
 		return
 	}
 
-	err = c.system.ResSet(req.Id, req.Thumbnail, req.Content)
+	err = c.system.ResSet(req.Id, req.Suffix, req.Offset, req.Content)
 	if err != nil {
 		return
 	}

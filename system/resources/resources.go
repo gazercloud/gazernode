@@ -140,7 +140,39 @@ func (c *Resources) Add(name string, tp string, content []byte) (string, error) 
 	return id, nil
 }
 
-func (c *Resources) Set(id string, thumbnail []byte, content []byte) error {
+func (c *Resources) writeFile(name string, offset int64, data []byte) error {
+	var file *os.File
+	var err error
+	logger.Println("Resources - writeFile", "name = "+name+" offset =", offset)
+
+	if offset == 0 {
+		file, err = os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+		if err != nil {
+			return err
+		}
+	} else {
+		file, err = os.OpenFile(name, os.O_WRONLY, 0666)
+		if err != nil {
+			return err
+		}
+		_, err = file.Seek(offset, 0)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = file.Write(data)
+	if err1 := file.Close(); err1 != nil && err == nil {
+		err = err1
+	}
+	return err
+}
+
+func (c *Resources) Set(id string, suffix string, offset int64, content []byte) error {
+	if suffix != "" && suffix != "thumbnail" {
+		return errors.New("wrong suffix")
+	}
+
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 
@@ -160,23 +192,26 @@ func (c *Resources) Set(id string, thumbnail []byte, content []byte) error {
 		return errors.New("no resource found")
 	}
 
-	//info.Thumbnail = thumbnail
-
 	bs, _ = json.MarshalIndent(info, "", " ")
 	err = ioutil.WriteFile(dir+"/"+id+".info", bs, 0666)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(dir+"/"+id+".content", content, 0666)
+	if len(suffix) > 0 {
+		suffix = "." + suffix
+	}
+
+	//err = ioutil.WriteFile(dir+"/"+id+".content", content, 0666)
+	err = c.writeFile(dir+"/"+id+suffix+".content", offset, content)
 	if err != nil {
 		return errors.New("can not save resource")
 	}
 
-	err = ioutil.WriteFile(dir+"/"+id+".thumbnail.png", thumbnail, 0666)
+	/*err = ioutil.WriteFile(dir+"/"+id+".thumbnail.png", thumbnail, 0666)
 	if err != nil {
 		return errors.New("can not save resource")
-	}
+	}*/
 
 	return nil
 }
@@ -249,7 +284,7 @@ func (c *Resources) GetThumbnail(id string) (*common_interfaces.ResourcesItem, e
 		return nil, errors.New("no resource found")
 	}
 
-	bs, err = ioutil.ReadFile(dir + "/" + id + ".thumbnail.png")
+	bs, err = ioutil.ReadFile(dir + "/" + id + ".thumbnail.content")
 	if err != nil {
 		return nil, errors.New("no resource found")
 	}

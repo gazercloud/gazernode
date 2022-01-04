@@ -15,9 +15,10 @@ type ResourceAddResponse struct {
 }
 
 type ResourceSetRequest struct {
-	Id        string `json:"id"`
-	Thumbnail []byte `json:"thumbnail"`
-	Content   []byte `json:"content"`
+	Id      string `json:"id"`
+	Suffix  string `json:"suffix"`
+	Offset  int64  `json:"offset"`
+	Content []byte `json:"content"`
 }
 
 type ResourceSetResponse struct {
