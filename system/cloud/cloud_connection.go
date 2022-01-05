@@ -609,25 +609,18 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	}
 
 	if task.Frame.Header.Function == "#iam" {
-		type IAmResponse struct {
-			Error string `json:"error"`
-		}
-		var iamResponse IAmResponse
-		err = json.Unmarshal(task.Frame.Data, &iamResponse)
-		if err != nil {
-			return
-		}
-
-		if iamResponse.Error != "" {
-			err = errors.New(iamResponse.Error)
+		err = nil
+		if task.Frame.Header.Error != "" {
+			err = errors.New(task.Frame.Header.Error)
 		}
 
 		if err != nil {
 			c.iamStatus = err.Error()
+			logger.Println("#iam response received. Error received: ", task.Frame.Header.Error)
 		} else {
 			c.iamStatus = "ok"
+			logger.Println("#iam response received. Everything is OK.")
 		}
-		logger.Println("#iam response received")
 		return
 	}
 
@@ -695,14 +688,7 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 	}
 
 	if err != nil {
-		type ErrorStruct struct {
-			Error string `json:"error"`
-		}
-
-		var res ErrorStruct
-		res.Error = err.Error()
-		bs, _ = json.MarshalIndent(res, "", " ")
-
+		bs = []byte(err.Error())
 		var frame BinFrame
 		frame.Header.Function = task.Frame.Header.Function
 		frame.Header.TransactionId = task.Frame.Header.TransactionId

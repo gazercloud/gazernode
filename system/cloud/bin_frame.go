@@ -14,6 +14,7 @@ type BinFrameHeader struct {
 	TransactionId  string `json:"t"`
 	CloudSessionId string `json:"s"`
 	Error          string `json:"e"`
+	RequestType    string `json:"rt"`
 }
 
 type BinFrame struct {

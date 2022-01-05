@@ -118,6 +118,7 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	usingZ := false
 
 	requestJson := r.FormValue("rj")
+	requestType := r.FormValue("rt")
 	requestJsonZ := r.FormValue("rjz")
 	function := r.FormValue("fn")
 	sessionToken = r.FormValue("s")
@@ -128,16 +129,18 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		requestJson = r.FormValue("rj")
+		requestType = r.FormValue("rt")
 		requestJsonZ = r.FormValue("rjz")
 		function = r.FormValue("fn")
 	}
 
+	if requestType == "z" {
+		requestJson = packer.UnpackString(requestJsonZ)
+		usingZ = true
+	}
+
 	if requestJson == "" {
 		requestJson = "{}"
-		if requestJsonZ != "" {
-			requestJson = packer.UnpackString(requestJsonZ)
-			usingZ = true
-		}
 	}
 
 	//if strings.Contains(function, "session") {
@@ -200,15 +203,8 @@ func (c *HttpServer) processApiRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		type ErrorObject struct {
-			Error string `json:"error"`
-		}
-
-		var errObj ErrorObject
-		errObj.Error = err.Error()
-
 		w.WriteHeader(500)
-		b, _ := json.Marshal(errObj)
+		b := []byte(err.Error())
 		_, _ = w.Write(b)
 		return
 	}
