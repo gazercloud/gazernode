@@ -1,7 +1,19 @@
 package last_values
 
-/*func Write(items []*common_interfaces.Item) {
-	dir := settings.ServerDataPath() + "/last_values/"
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/system/settings"
+	"io/ioutil"
+	"os"
+	"sort"
+	"strconv"
+	"time"
+)
+
+func Write(ss *settings.Settings, items []*common_interfaces.Item) {
+	dir := ss.ServerDataPath() + "/last_values/"
 	fullPath := dir + "/" + fmt.Sprintf("%016X", time.Now().UTC().UnixNano())
 	_ = os.MkdirAll(dir, 0755)
 	f, err := os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -14,9 +26,9 @@ package last_values
 	}
 }
 
-func Read() []*common_interfaces.Item {
+func Read(ss *settings.Settings) []*common_interfaces.Item {
 	result := make([]*common_interfaces.Item, 0)
-	dir := settings.ServerDataPath() + "/last_values/"
+	dir := ss.ServerDataPath() + "/last_values/"
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return result
@@ -46,4 +58,3 @@ func Read() []*common_interfaces.Item {
 
 	return result
 }
-*/

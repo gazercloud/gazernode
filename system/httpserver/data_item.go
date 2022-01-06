@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/system/history"
 	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"math"
 	"strconv"
 	"strings"
@@ -116,6 +117,8 @@ func (c *HttpServer) DataItemHistory(request []byte) (response []byte, err error
 		return
 	}
 
+	logger.Println("HttpServer DataItemHistory", req.Name, (req.DTEnd-req.DTBegin)/1000000)
+
 	if req.DTEnd-req.DTBegin < 1 {
 		err = errors.New("wrong time range (min)")
 		return
@@ -131,7 +134,7 @@ func (c *HttpServer) DataItemHistory(request []byte) (response []byte, err error
 		return
 	}
 
-	//logger.Println("HttpServer DataItemHistory", req.Name, (req.DTEnd - req.DTBegin) / 1000000, len(resp.History.Items))
+	logger.Println("HttpServer DataItemHistory", req.Name, (req.DTEnd-req.DTBegin)/1000000, len(resp.History.Items))
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return

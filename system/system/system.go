@@ -8,6 +8,7 @@ import (
 	"github.com/gazercloud/gazernode/system/settings"
 	"github.com/gazercloud/gazernode/system/units/units_system"
 	"sync"
+	"time"
 )
 
 type System struct {
@@ -37,6 +38,9 @@ type System struct {
 	apiCallsCount int
 
 	stopping bool
+	stopped  bool
+
+	maintenanceLastValuesDT time.Time
 
 	mtx sync.Mutex
 }
@@ -68,6 +72,9 @@ func (c *System) SetRequester(requester common_interfaces.Requester) {
 }
 
 func (c *System) Start() {
+	c.stopping = false
+	c.stopped = false
+
 	c.LoadConfig()
 	c.loadSessions()
 
@@ -81,6 +88,7 @@ func (c *System) Start() {
 	c.history.Start()
 	c.unitsSystem.Start()
 
+	go c.thMaintenance()
 }
 
 func (c *System) Stop() {
@@ -90,6 +98,14 @@ func (c *System) Stop() {
 	c.cloudConnection.Stop()
 	c.SaveConfig()
 	c.saveSessions()
+
+	for i := 0; i < 10; i++ {
+		time.Sleep(100 * time.Millisecond)
+		if c.stopped {
+			break
+		}
+	}
+
 	c.WriteLastValues(c.items)
 }
 
@@ -106,4 +122,28 @@ func (c *System) StatGazerNode() (res common_interfaces.StatGazerNode) {
 func (c *System) StatGazerCloud() (res common_interfaces.StatGazerCloud) {
 	res = c.cloudConnection.Stat()
 	return
+}
+
+func (c *System) thMaintenance() {
+	for !c.stopping {
+		for i := 0; i < 10; i++ {
+			time.Sleep(100 * time.Millisecond)
+			if c.stopping {
+				break
+			}
+		}
+		if c.stopping {
+			break
+		}
+
+		c.maintenanceLastValues()
+	}
+	c.stopped = true
+}
+
+func (c *System) maintenanceLastValues() {
+	if time.Now().Sub(c.maintenanceLastValuesDT) > 10*time.Minute {
+		c.maintenanceLastValuesDT = time.Now()
+		c.WriteLastValues(c.items)
+	}
 }
