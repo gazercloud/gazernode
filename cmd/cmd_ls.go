@@ -32,14 +32,14 @@ func (c *Session) cmdLs(p []string) error {
 	}
 
 	if c.currentPathIsUnit() {
-		resp, err := c.client.GetUnitValues(c.currentUnitName)
+		resp, err := c.client.GetUnitValues(c.currentUnitId)
 
 		color.Set(color.FgMagenta)
-		fmt.Println("Items of Unit", c.currentUnitName)
+		fmt.Println("Items of Unit", c.currentUnitId)
 		color.Set(color.FgGreen)
 
 		for _, item := range resp {
-			shortName := strings.ReplaceAll(item.Name, c.currentUnitName+"/", "")
+			shortName := strings.ReplaceAll(item.Name, c.currentUnitId+"/", "")
 			if strings.HasPrefix(shortName, ".service") {
 				continue
 			}
@@ -56,7 +56,7 @@ func (c *Session) cmdLs(p []string) error {
 	fmt.Println("Units:")
 	color.Set(color.FgGreen)
 	for _, item := range resp.Items {
-		fmt.Println(item.UnitName, "= "+item.Value+" "+item.UOM)
+		fmt.Println(item.UnitId, "= "+item.Value+" "+item.UOM)
 	}
 
 	return nil

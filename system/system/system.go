@@ -142,8 +142,9 @@ func (c *System) thMaintenance() {
 }
 
 func (c *System) maintenanceLastValues() {
-	if time.Now().Sub(c.maintenanceLastValuesDT) > 10*time.Minute {
+	if time.Now().Sub(c.maintenanceLastValuesDT) > 10*time.Second {
 		c.maintenanceLastValuesDT = time.Now()
 		c.WriteLastValues(c.items)
+		c.RemoveOldLastValuesFiles()
 	}
 }

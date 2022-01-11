@@ -246,7 +246,7 @@ func (c *UnitsSystem) Stop() {
 		startedUnits = make([]string, 0)
 		for _, unit := range c.units {
 			if unit.IsStarted() {
-				startedUnits = append(startedUnits, fmt.Sprint(unit.Id(), " / ", unit.Type(), " / ", unit.Name()))
+				startedUnits = append(startedUnits, fmt.Sprint(unit.Id(), " / ", unit.Type(), " / ", unit.DisplayName()))
 			}
 		}
 		if len(startedUnits) == 0 {
@@ -282,12 +282,12 @@ func (c *UnitsSystem) MakeUnitByType(unitType string, dataStorage common_interfa
 	return unit
 }
 
-func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, config string, fromCloud bool) (common_interfaces.IUnit, error) {
+func (c *UnitsSystem) AddUnit(unitType string, unitId string, displayName string, config string, fromCloud bool) (common_interfaces.IUnit, error) {
 	var unit common_interfaces.IUnit
 	nameIsExists := false
 	c.mtx.Lock()
 	for _, s := range c.units {
-		if s.Name() == name {
+		if s.DisplayName() == displayName {
 			nameIsExists = true
 		}
 	}
@@ -303,7 +303,7 @@ func (c *UnitsSystem) AddUnit(unitType string, unitId string, name string, confi
 		unit = c.MakeUnitByType(unitType, c.iDataStorage)
 		if unit != nil {
 			unit.SetId(unitId)
-			unit.SetName(name)
+			unit.SetDisplayName(displayName)
 			unit.SetType(unitType)
 			unit.SetConfig(config)
 			unit.SetIUnit(unit)
@@ -330,7 +330,7 @@ func (c *UnitsSystem) GetUnitState(unitId string) (nodeinterface.UnitStateRespon
 	if unit != nil {
 		var unitState nodeinterface.UnitStateResponse
 		unitState.Status = ""
-		unitState.UnitName = unit.Name()
+		unitState.UnitDisplayName = unit.DisplayName()
 		unitState.MainItem = unit.MainItem()
 		unitState.Type = unit.Type()
 		unitState.TypeName = c.UnitTypeForDisplayByType(unit.Type())
@@ -354,7 +354,7 @@ func (c *UnitsSystem) GetUnitStateAll() (nodeinterface.UnitStateAllResponse, err
 		var unitState nodeinterface.UnitStateAllResponseItem
 		unitState.Status = ""
 		unitState.UnitId = unit.Id()
-		unitState.UnitName = unit.Name()
+		unitState.UnitDisplayName = unit.DisplayName()
 		unitState.Type = unit.Type()
 		unitState.TypeName = c.UnitTypeForDisplayByType(unit.Type())
 		unitState.MainItem = unit.MainItem()
@@ -379,7 +379,7 @@ func (c *UnitsSystem) ListOfUnits() nodeinterface.UnitListResponse {
 		var sens nodeinterface.UnitListResponseItem
 		sens.Id = s.Id()
 		sens.Type = s.Type()
-		sens.Name = s.Name()
+		sens.DisplayName = s.DisplayName()
 		sens.Enable = s.IsStarted()
 		sens.TypeForDisplay = c.UnitTypeForDisplayByType(s.Type())
 		sens.Config = s.GetConfig()
@@ -397,7 +397,7 @@ func (c *UnitsSystem) Units() []units_common.UnitInfo {
 		var sens units_common.UnitInfo
 		sens.Id = s.Id()
 		sens.Type = s.Type()
-		sens.Name = s.Name()
+		sens.DisplayName = s.DisplayName()
 		sens.Enable = s.IsStarted()
 		sens.TypeForDisplay = c.UnitTypeForDisplayByType(s.Type())
 		sens.Config = s.GetConfig()
@@ -431,13 +431,13 @@ func (c *UnitsSystem) RemoveUnits(units []string) error {
 
 	var deletedUnit common_interfaces.IUnit
 	var unitIndex int
-	namesOfDeletedUnits := make([]string, 0)
+	idsOfDeletedUnits := make([]string, 0)
 
 	for _, unitToRemove := range units {
 		for unitIndex, deletedUnit = range c.units {
 			if deletedUnit.Id() == unitToRemove {
 				logger.Println("UnitsSystem RemoveUnits unit", deletedUnit.Id())
-				namesOfDeletedUnits = append(namesOfDeletedUnits, deletedUnit.Name())
+				idsOfDeletedUnits = append(idsOfDeletedUnits, deletedUnit.Id())
 				deletedUnit.Stop()
 				c.units = append(c.units[:unitIndex], c.units[unitIndex+1:]...)
 				break
@@ -447,19 +447,19 @@ func (c *UnitsSystem) RemoveUnits(units []string) error {
 
 	c.mtx.Unlock()
 
-	for _, namesOfDeletedUnit := range namesOfDeletedUnits {
-		_ = c.iDataStorage.RemoveItemsOfUnit(namesOfDeletedUnit)
+	for _, idOfDeletedUnit := range idsOfDeletedUnits {
+		_ = c.iDataStorage.RemoveItemsOfUnit(idOfDeletedUnit)
 	}
 
 	return nil
 }
 
-func (c *UnitsSystem) GetUnitName(unitId string) (string, error) {
+func (c *UnitsSystem) GetUnitDisplayName(unitId string) (string, error) {
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 	for _, s := range c.units {
 		if s.Id() == unitId {
-			return s.Name(), nil
+			return s.DisplayName(), nil
 		}
 	}
 	return "", errors.New("no unit found")
@@ -470,7 +470,7 @@ func (c *UnitsSystem) GetConfig(unitId string) (string, string, string, string, 
 	defer c.mtx.Unlock()
 	for _, s := range c.units {
 		if s.Id() == unitId {
-			return s.Name(), s.GetConfig(), s.GetConfigMeta(), s.Type(), nil
+			return s.DisplayName(), s.GetConfig(), s.GetConfigMeta(), s.Type(), nil
 		}
 	}
 	return "", "", "", "", errors.New("no unit found")
@@ -516,22 +516,22 @@ func (c *UnitsSystem) SetConfig(unitId string, name string, config string, fromC
 	if unit != nil {
 
 		unit.Stop()
-		oldName := unit.Name()
+		oldName := unit.DisplayName()
 
 		if oldName != name {
 
 			nameIsExists := false
 			c.mtx.Lock()
 			for _, s := range c.units {
-				if s.Name() == name {
+				if s.DisplayName() == name {
 					nameIsExists = true
 				}
 			}
 			c.mtx.Unlock()
 
 			if !nameIsExists {
-				unit.SetName(name)
-				c.iDataStorage.RenameItems(oldName+"/", name+"/")
+				unit.SetDisplayName(name)
+				//c.iDataStorage.RenameItems(oldName+"/", name+"/")
 			}
 		}
 

@@ -6,6 +6,7 @@ import (
 	"github.com/gazercloud/gazernode/product/productinfo"
 	"github.com/gazercloud/gazernode/system/history"
 	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
+	"github.com/gazercloud/gazernode/utilities/logger"
 	"strconv"
 	"strings"
 	"time"
@@ -51,6 +52,7 @@ func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue, count
 	}
 	c.mtx.Unlock()
 	if item == nil {
+		logger.Println("set item error: ", itemId, "=", value.Value)
 		return errors.New("item not found")
 	}
 
@@ -225,6 +227,7 @@ func (c *System) TouchItem(name string) (*common_interfaces.Item, error) {
 		item.Id = c.nextItemId
 		item.Name = fullName
 		c.itemsByName[item.Name] = item
+		c.itemsById[item.Id] = item
 		c.items = append(c.items, item)
 		c.nextItemId++
 	}

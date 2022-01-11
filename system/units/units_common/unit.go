@@ -12,16 +12,16 @@ import (
 type Unit struct {
 	mtx sync.Mutex
 
-	unitId       string
-	unitType     string
-	unitName     string
-	config       string
-	iUnit        common_interfaces.IUnit
-	iDataStorage common_interfaces.IDataStorage
-	lastError    string
-	lastErrorDT  time.Time
-	lastInfo     string
-	lastInfoDT   time.Time
+	unitId          string
+	unitType        string
+	unitDisplayName string
+	config          string
+	iUnit           common_interfaces.IUnit
+	iDataStorage    common_interfaces.IDataStorage
+	lastError       string
+	lastErrorDT     time.Time
+	lastInfo        string
+	lastInfoDT      time.Time
 
 	Properties map[string]common_interfaces.ItemProperty
 
@@ -89,7 +89,7 @@ func (c *Unit) SetIUnit(iUnit common_interfaces.IUnit) {
 }
 
 func (c *Unit) SetMainItem(mainItem string) {
-	c.PropSetIfNotExists("main_item", c.unitName+"/"+mainItem)
+	c.PropSetIfNotExists("main_item", c.Id()+"/"+mainItem)
 }
 
 func (c *Unit) MainItem() string {
@@ -104,12 +104,12 @@ func (c *Unit) SetType(unitType string) {
 	c.unitType = unitType
 }
 
-func (c *Unit) Name() string {
-	return c.unitName
+func (c *Unit) DisplayName() string {
+	return c.unitDisplayName
 }
 
-func (c *Unit) SetName(unitName string) {
-	c.unitName = unitName
+func (c *Unit) SetDisplayName(unitDisplayName string) {
+	c.unitDisplayName = unitDisplayName
 }
 
 func (c *Unit) SetConfig(config string) {
@@ -133,7 +133,7 @@ func (c *Unit) Start(iDataStorage common_interfaces.IDataStorage) error {
 	}
 	c.LogInfo("")
 	c.LogInfo("starting ...")
-	c.SetStringService("name", c.Name(), "")
+	c.SetStringService("name", c.DisplayName(), "")
 	c.SetError("")
 	c.SetStringService("status", "started", "")
 	c.SetStringService("Unit", c.Type(), "")
@@ -185,7 +185,7 @@ func (c *Unit) IDataStorage() common_interfaces.IDataStorage {
 }
 
 func (c *Unit) SetStringService(name string, value string, UOM string) {
-	fullName := c.Name() + "/" + UnitServicePrefix + name
+	fullName := c.Id() + "/" + UnitServicePrefix + name
 	c.iDataStorage.SetItemByName(fullName, value, UOM, time.Now().UTC(), false)
 }
 
@@ -196,7 +196,7 @@ func (c *Unit) LogInfo(value string) {
 	}
 	c.lastLogDT = dt
 	if c.lastInfo != value || time.Now().UTC().Sub(c.lastInfoDT) > 5*time.Second {
-		fullName := c.Name() + "/" + UnitServicePrefix + "log"
+		fullName := c.Id() + "/" + UnitServicePrefix + "log"
 		c.iDataStorage.SetItemByName(fullName, value, "", dt, false)
 		c.lastInfoDT = time.Now().UTC()
 	}
@@ -212,7 +212,7 @@ func (c *Unit) LogError(value string) {
 	c.lastLogDT = dt
 
 	if c.lastError != value || time.Now().UTC().Sub(c.lastErrorDT) > 5*time.Second {
-		fullName := c.Name() + "/" + UnitServicePrefix + "log"
+		fullName := c.Id() + "/" + UnitServicePrefix + "log"
 		c.iDataStorage.SetItemByName(fullName, value, "error", dt, false)
 		c.lastErrorDT = time.Now().UTC()
 	}
@@ -221,14 +221,14 @@ func (c *Unit) LogError(value string) {
 }
 
 func (c *Unit) SetError(value string) {
-	fullName := c.Name() + "/" + UnitServicePrefix + ItemNameError
+	fullName := c.Id() + "/" + UnitServicePrefix + ItemNameError
 	c.iDataStorage.SetItemByName(fullName, value, "", time.Now().UTC(), false)
 }
 
 func (c *Unit) SetString(name string, value string, UOM string) {
-	fullName := c.Name()
+	fullName := c.Id()
 	if len(name) > 0 {
-		fullName = c.Name() + "/" + name
+		fullName = c.Id() + "/" + name
 	}
 	c.iDataStorage.SetItemByName(fullName, value, UOM, time.Now().UTC(), false)
 }
@@ -238,9 +238,9 @@ func (c *Unit) SetPropertyIfDoesntExist(itemName string, propName string, propVa
 }
 
 func (c *Unit) TouchItem(name string) {
-	fullName := c.Name()
+	fullName := c.Id()
 	if len(name) > 0 {
-		fullName = c.Name() + "/" + name
+		fullName = c.Id() + "/" + name
 	}
 	c.iDataStorage.TouchItem(fullName)
 }

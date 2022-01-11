@@ -6,8 +6,8 @@ type IUnit interface {
 	SetId(unitId string)
 	Type() string
 	SetType(unitType string)
-	Name() string
-	SetName(unitType string)
+	DisplayName() string
+	SetDisplayName(unitDisplayName string)
 	SetIUnit(iUnit IUnit)
 	MainItem() string
 	Start(iDataStorage IDataStorage) error

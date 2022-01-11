@@ -23,7 +23,7 @@ func (c *Session) cmdUnit(p []string) error {
 			}
 			color.Set(color.FgGreen)
 			for _, item := range resp.Items {
-				fmt.Println(item.UnitName, "<"+item.Status+">", "= "+item.Value+" "+item.UOM)
+				fmt.Println(item.UnitId, "<"+item.Status+">", "= "+item.Value+" "+item.UOM)
 			}
 			color.Unset()
 			return nil
@@ -39,11 +39,11 @@ func (c *Session) cmdUnit(p []string) error {
 				return err
 			}
 			for _, u := range unitStateAll.Items {
-				if u.UnitName == p[0] {
+				if u.UnitId == p[0] {
 					err = c.client.StartUnits([]string{u.UnitId})
 					if err == nil {
 						color.Set(color.FgGreen)
-						fmt.Println("unit", u.UnitName, "started")
+						fmt.Println("unit", u.UnitId, "started")
 						color.Unset()
 						return nil
 					}
@@ -63,11 +63,11 @@ func (c *Session) cmdUnit(p []string) error {
 				return err
 			}
 			for _, u := range unitStateAll.Items {
-				if u.UnitName == p[0] {
+				if u.UnitId == p[0] {
 					err = c.client.StopUnits([]string{u.UnitId})
 					if err == nil {
 						color.Set(color.FgGreen)
-						fmt.Println("unit", u.UnitName, "stopped")
+						fmt.Println("unit", u.UnitId, "stopped")
 						color.Unset()
 						return nil
 					}

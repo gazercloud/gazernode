@@ -104,11 +104,11 @@ func (c *UnitSerialPortKeyValue) InternalUnitStart() error {
 	for _, item := range config.Items {
 		c.items[item.Name] = item
 		c.TouchItem(item.Name)
-		c.AddToWatch(c.Name() + "/" + item.Name)
+		c.AddToWatch(c.Id() + "/" + item.Name)
 		if item.IsControl {
-			c.IDataStorage().SetProperty(c.Name()+"/"+item.Name, "view", "control-01")
+			c.IDataStorage().SetProperty(c.Id()+"/"+item.Name, "view", "control-01")
 		} else {
-			c.IDataStorage().SetProperty(c.Name()+"/"+item.Name, "view", "")
+			c.IDataStorage().SetProperty(c.Id()+"/"+item.Name, "view", "")
 		}
 	}
 
@@ -277,8 +277,8 @@ func (c *UnitSerialPortKeyValue) ItemChanged(itemName string, value common_inter
 		return
 	}
 
-	if strings.HasPrefix(itemName, c.Name()+"/") {
-		countChartsToRemove := len(c.Name() + "/")
+	if strings.HasPrefix(itemName, c.Id()+"/") {
+		countChartsToRemove := len(c.Id() + "/")
 		localName := itemName[countChartsToRemove:]
 		logger.Println("Send to Serial", "["+localName+"] =", value.Value)
 		strForSend := localName + "=" + value.Value + "\r\n"

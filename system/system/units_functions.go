@@ -8,11 +8,9 @@ import (
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
 	"github.com/gazercloud/gazernode/utilities/logger"
 	"go.bug.st/serial"
-	"math/rand"
 	"net"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func SplitWithoutEmpty(req string, sep rune) []string {
@@ -55,7 +53,24 @@ func (c *System) UnitCategories() nodeinterface.UnitTypeCategoriesResponse {
 
 func (c *System) AddUnit(unitName string, unitType string, config string, fromCloud bool) (string, error) {
 	logger.Println("System - AddUnit - ", unitName, unitType)
-	unitId := strconv.FormatInt(time.Now().UnixNano(), 16) + "_" + strconv.FormatInt(int64(rand.Int()), 16)
+	unitId := ""
+	c.mtx.Lock()
+	maxUnitId := uint64(0)
+	for _, u := range c.unitsSystem.Units() {
+		uId := u.Id
+		if len(uId) > 1 && uId[0] == 'u' {
+			uIdInt, uIdParseError := strconv.ParseUint(uId[1:], 10, 64)
+			if uIdParseError == nil {
+				if uIdInt > maxUnitId {
+					maxUnitId = uIdInt
+				}
+			}
+		}
+	}
+	maxUnitId++
+	unitId = "u" + strconv.FormatUint(maxUnitId, 10)
+	c.mtx.Unlock()
+
 	unit, err := c.unitsSystem.AddUnit(unitType, unitId, unitName, config, fromCloud)
 	if err != nil {
 		return "", err
@@ -85,7 +100,7 @@ func (c *System) GetUnitState(unitId string) (nodeinterface.UnitStateResponse, e
 
 	unitState.Items = make([]common_interfaces.ItemGetUnitItems, 0)
 	for _, item := range c.items {
-		if strings.HasPrefix(item.Name, unitState.UnitName+"/") {
+		if strings.HasPrefix(item.Name, unitState.UnitId+"/") {
 			var i common_interfaces.ItemGetUnitItems
 			i.Name = item.Name
 			i.Value = item.Value
@@ -196,11 +211,11 @@ func (c *System) GetUnitValues(unitName string) []common_interfaces.ItemGetUnitI
 	return items
 }
 
-func (c *System) RemoveItemsOfUnit(unitName string) error {
+func (c *System) RemoveItemsOfUnit(unitId string) error {
 	c.mtx.Lock()
 	itemsToRemove := make([]string, 0)
 	for _, item := range c.items {
-		if strings.HasPrefix(item.Name, unitName+"/") {
+		if strings.HasPrefix(item.Name, unitId+"/") {
 			itemsToRemove = append(itemsToRemove, item.Name)
 		}
 	}
@@ -273,7 +288,7 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 	result.Entity = entity
 	if entity == "serial-ports" {
 		result.KeyColumn = "port"
-		result.AddColumn("port", "Port")
+		result.AddColumn("port", "Port", false)
 		ports, err := serial.GetPortsList()
 		if err == nil {
 			for _, name := range ports {
@@ -283,8 +298,8 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 	}
 	if entity == "processes" {
 		result.KeyColumn = "name"
-		result.AddColumn("name", "Process Name")
-		result.AddColumn("id", "Process Id")
+		result.AddColumn("name", "Process Name", false)
+		result.AddColumn("id", "Process Id", false)
 		processes := unit_process.GetProcesses()
 		for _, proc := range processes {
 			result.AddRow2(proc.Name+"#"+fmt.Sprint(proc.Id), fmt.Sprint(proc.Id))
@@ -292,8 +307,8 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 	}
 	if entity == "network_interface" {
 		result.KeyColumn = "name"
-		result.AddColumn("name", "Name")
-		result.AddColumn("id", "Index")
+		result.AddColumn("name", "Name", false)
+		result.AddColumn("id", "Index", false)
 
 		interfaces, err := net.Interfaces()
 		if err == nil {
@@ -304,16 +319,31 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 	}
 	if entity == "data-item" {
 		result.KeyColumn = "id"
-		result.AddColumn("id", "ID")
-		result.AddColumn("name", "Name")
+		result.AddColumn("id", "ID", false)
+		result.AddColumn("name", "Name", true)
+		result.AddColumn("display_name", "Name", false)
 		c.mtx.Lock()
 		for _, proc := range c.items {
-			result.AddRow2(fmt.Sprint(proc.Id), proc.Name)
+			unitId := ""
+			unitName := ""
+			itemDisplayName := ""
+			posOfSlash := strings.Index(proc.Name, "/")
+			if posOfSlash > 0 {
+				var err error
+				unitId = proc.Name[:posOfSlash]
+				unitName, err = c.unitsSystem.GetUnitDisplayName(unitId)
+				if err != nil {
+					unitName = ""
+				} else {
+					itemDisplayName = strings.Replace(proc.Name, unitId+"/", unitName+"/", 1)
+				}
+			}
+			result.AddRow3(fmt.Sprint(proc.Id), proc.Name, itemDisplayName)
 		}
 		c.mtx.Unlock()
 	}
 	if entity == "serial-port-parity" {
-		result.AddColumn("name", "Parity")
+		result.AddColumn("name", "Parity", false)
 		result.AddRow1("none")
 		result.AddRow1("odd")
 		result.AddRow1("even")
@@ -321,27 +351,27 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		result.AddRow1("space")
 	}
 	if entity == "serial-port-stop-bits" {
-		result.AddColumn("name", "Stop Bits")
+		result.AddColumn("name", "Stop Bits", false)
 		result.AddRow1("1")
 		result.AddRow1("1.5")
 		result.AddRow1("2")
 	}
 	if entity == "gpio-mode" {
-		result.AddColumn("name", "GPIO Mode")
+		result.AddColumn("name", "GPIO Mode", false)
 		result.AddRow1("input")
 		result.AddRow1("output")
 	}
 	if entity == "raspberry-pi-gpio" {
-		result.AddColumn("name", "Index")
-		result.AddColumn("full_name", "Full Name")
-		result.AddColumn("desc", "Description")
+		result.AddColumn("name", "Index", false)
+		result.AddColumn("full_name", "Full Name", false)
+		result.AddColumn("desc", "Description", false)
 
 		for i := 2; i <= 27; i++ {
 			result.AddRow3(fmt.Sprint(i), "GPIO"+fmt.Sprint(i), "")
 		}
 	}
 	if entity == "raspberry-pi-gpio-pull" {
-		result.AddColumn("name", "Name")
+		result.AddColumn("name", "Name", false)
 		result.AddRow1("off")
 		result.AddRow1("up")
 		result.AddRow1("down")

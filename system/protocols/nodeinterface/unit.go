@@ -26,15 +26,15 @@ type UnitStateRequest struct {
 }
 
 type UnitStateResponse struct {
-	UnitId   string                               `json:"id"`
-	UnitName string                               `json:"name"`
-	Type     string                               `json:"type"`
-	TypeName string                               `json:"type_name"`
-	Status   string                               `json:"status"`
-	MainItem string                               `json:"main_item"`
-	Value    string                               `json:"value"`
-	UOM      string                               `json:"uom"`
-	Items    []common_interfaces.ItemGetUnitItems `json:"items"`
+	UnitId          string                               `json:"id"`
+	UnitDisplayName string                               `json:"name"`
+	Type            string                               `json:"type"`
+	TypeName        string                               `json:"type_name"`
+	Status          string                               `json:"status"`
+	MainItem        string                               `json:"main_item"`
+	Value           string                               `json:"value"`
+	UOM             string                               `json:"uom"`
+	Items           []common_interfaces.ItemGetUnitItems `json:"items"`
 }
 
 type UnitStateAllRequest struct {
@@ -45,14 +45,14 @@ type UnitStateAllResponse struct {
 }
 
 type UnitStateAllResponseItem struct {
-	UnitId   string `json:"id"`
-	UnitName string `json:"name"`
-	Type     string `json:"type"`
-	TypeName string `json:"type_name"`
-	Status   string `json:"status"`
-	MainItem string `json:"main_item"`
-	Value    string `json:"value"`
-	UOM      string `json:"uom"`
+	UnitId          string `json:"id"`
+	UnitDisplayName string `json:"name"`
+	Type            string `json:"type"`
+	TypeName        string `json:"type_name"`
+	Status          string `json:"status"`
+	MainItem        string `json:"main_item"`
+	Value           string `json:"value"`
+	UOM             string `json:"uom"`
 }
 
 type UnitItemsValuesRequest struct {
@@ -68,7 +68,7 @@ type UnitListRequest struct {
 
 type UnitListResponseItem struct {
 	Id             string `json:"id"`
-	Name           string `json:"name"`
+	DisplayName    string `json:"name"`
 	Type           string `json:"type"`
 	TypeForDisplay string `json:"type_for_display"`
 	Config         string `json:"config"`

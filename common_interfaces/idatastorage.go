@@ -10,7 +10,7 @@ type IDataStorage interface {
 	GetItem(name string) (Item, error)
 	GetUnitValues(unitId string) []ItemGetUnitItems
 	RenameItems(oldPrefix string, newPrefix string)
-	RemoveItemsOfUnit(unitName string) error
+	RemoveItemsOfUnit(unitId string) error
 	SetProperty(itemName string, propName string, propValue string)
 	SetPropertyIfDoesntExist(itemName string, propName string, propValue string)
 

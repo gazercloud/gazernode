@@ -103,7 +103,7 @@ func (c *UnitRaspberryPiGPIO) Tick() {
 
 		c.SetInt(ItemNameResult, 0, "")
 
-		st, err := c.IDataStorage().GetItem(c.Name() + "/name")
+		st, err := c.IDataStorage().GetItem(c.Id() + "/name")
 		if err != nil {
 			if st.Value.Value == "1" {
 				// High

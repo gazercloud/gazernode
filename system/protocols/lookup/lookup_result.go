@@ -3,6 +3,7 @@ package lookup
 type ResultColumn struct {
 	Name        string `json:"name"`
 	DisplayName string `json:"display_name"`
+	Hidden      bool   `json:"hidden"`
 }
 
 type ResultRow struct {
@@ -16,10 +17,11 @@ type Result struct {
 	Rows      []ResultRow    `json:"rows"`
 }
 
-func (c *Result) AddColumn(name string, displayName string) {
+func (c *Result) AddColumn(name string, displayName string, hidden bool) {
 	c.Columns = append(c.Columns, ResultColumn{
 		Name:        name,
 		DisplayName: displayName,
+		Hidden:      hidden,
 	})
 }
 

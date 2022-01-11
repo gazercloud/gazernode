@@ -125,10 +125,10 @@ func (c *System) LoadConfig() error {
 			c.nextItemId = realMaxItemId + 1
 		}
 
-		for _, sens := range conf.Units {
-			unit, errAddUnit := c.unitsSystem.AddUnit(sens.Type, sens.Id, sens.Name, sens.Config, false)
+		for _, unitConfig := range conf.Units {
+			unit, errAddUnit := c.unitsSystem.AddUnit(unitConfig.Type, unitConfig.Id, unitConfig.DisplayName, unitConfig.Config, false)
 			if errAddUnit == nil {
-				unit.PropSet(sens.Properties)
+				unit.PropSet(unitConfig.Properties)
 			}
 		}
 

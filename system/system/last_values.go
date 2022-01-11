@@ -58,3 +58,37 @@ func (c *System) ReadLastValues() []*common_interfaces.Item {
 
 	return result
 }
+
+func (c *System) RemoveOldLastValuesFiles() {
+	dir := c.ss.ServerDataPath() + "/last_values/"
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return
+	}
+
+	ids := make([]int64, 0)
+	for _, file := range files {
+		iVal, err := strconv.ParseInt(file.Name(), 16, 64)
+		if err == nil {
+			ids = append(ids, iVal)
+		}
+	}
+
+	if len(ids) < 1 {
+		return
+	}
+
+	sort.Slice(ids, func(i, j int) bool {
+		return ids[i] < ids[j]
+	})
+
+	idsToRemove := make([]int64, 0)
+	for len(ids) > 3 {
+		idsToRemove = append(idsToRemove, ids[0])
+		ids = ids[1:]
+	}
+
+	for _, id := range idsToRemove {
+		_ = os.Remove(dir + "/" + fmt.Sprintf("%016X", id))
+	}
+}

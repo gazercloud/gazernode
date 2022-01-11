@@ -11,7 +11,7 @@ func (c *Session) cmdCd(p []string) error {
 	}
 
 	newCurrentUnitId := c.currentUnitId
-	newCurrentUnitName := c.currentUnitName
+	//newCurrentUnitName := c.currentUnitName
 	newCurrentItem := c.currentItem
 
 	if p[0] == ".." {
@@ -19,12 +19,12 @@ func (c *Session) cmdCd(p []string) error {
 			newCurrentItem = ""
 		} else {
 			newCurrentUnitId = ""
-			newCurrentUnitName = ""
+			//newCurrentUnitName = ""
 		}
 	} else {
 		if p[0] == "/" {
 			newCurrentUnitId = ""
-			newCurrentUnitName = ""
+			//newCurrentUnitName = ""
 		} else {
 
 			if c.currentPathIsItem() {
@@ -33,14 +33,14 @@ func (c *Session) cmdCd(p []string) error {
 
 			if c.currentPathIsUnit() {
 				// to item
-				unitValues, err := c.client.GetUnitValues(c.currentUnitName)
+				unitValues, err := c.client.GetUnitValues(c.currentUnitId)
 				if err != nil {
 					return err
 				}
 				found := false
 				foundItemName := ""
 				for _, item := range unitValues {
-					shortName := strings.ReplaceAll(item.Name, c.currentUnitName+"/", "")
+					shortName := strings.ReplaceAll(item.Name, c.currentUnitId+"/", "")
 					if shortName == p[0] {
 						found = true
 						foundItemName = item.Name
@@ -61,7 +61,7 @@ func (c *Session) cmdCd(p []string) error {
 				found := false
 				foundIndex := -1
 				for i, item := range items.Items {
-					if item.UnitName == p[0] {
+					if item.UnitId == p[0] {
 						found = true
 						foundIndex = i
 						break
@@ -73,13 +73,13 @@ func (c *Session) cmdCd(p []string) error {
 				}
 
 				newCurrentUnitId = items.Items[foundIndex].UnitId
-				newCurrentUnitName = items.Items[foundIndex].UnitName
+				//newCurrentUnitName = items.Items[foundIndex].UnitName
 			}
 		}
 	}
 
 	c.currentUnitId = newCurrentUnitId
-	c.currentUnitName = newCurrentUnitName
+	//c.currentUnitName = newCurrentUnitName
 	c.currentItem = newCurrentItem
 	return nil
 }

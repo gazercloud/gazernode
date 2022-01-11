@@ -14,10 +14,10 @@ import (
 )
 
 type Session struct {
-	currentUnitId   string
-	currentUnitName string
-	currentItem     string
-	client          *gazer_client.GazerNodeClient
+	currentUnitId string
+	//currentUnitName string
+	currentItem string
+	client      *gazer_client.GazerNodeClient
 }
 
 type SessionSettings struct {
@@ -59,8 +59,8 @@ func (c *Session) save() {
 
 func (c *Session) currentPath() string {
 	result := "/"
-	if c.currentUnitName != "" {
-		result = "/" + c.currentUnitName
+	if c.currentUnitId != "" {
+		result = "/" + c.currentUnitId
 		if c.currentItem != "" {
 			result = "/" + c.currentItem
 		}
