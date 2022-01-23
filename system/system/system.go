@@ -66,6 +66,10 @@ func NewSystem(ss *settings.Settings) *System {
 	return &c
 }
 
+func (c *System) Settings() *settings.Settings {
+	return c.ss
+}
+
 func (c *System) SetRequester(requester common_interfaces.Requester) {
 	c.requester = requester
 	c.cloudConnection.SetRequester(c.requester)

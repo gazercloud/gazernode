@@ -44,6 +44,8 @@ func NewHttpServer(sys *system.System) *HttpServer {
 func (c *HttpServer) Start() {
 	logger.Println("HttpServer start")
 
+	generateTLS(c.system.Settings())
+
 	c.r = mux.NewRouter()
 
 	// API
@@ -52,7 +54,19 @@ func (c *HttpServer) Start() {
 	// Static files
 	c.r.NotFoundHandler = http.HandlerFunc(c.processFile)
 
-	c.srv = &http.Server{Addr: ":8084"} // 127.0.0.1
+	/*cert, err := tls.X509KeyPair(certPublic(c.system.Settings()), certPrivate(c.system.Settings()))
+	if err != nil {
+		logger.Println("[HttpServer]", "Start error(X509KeyPair):", err)
+		return
+	}*/
+	c.srv = &http.Server{
+		Addr: ":8084",
+		/*TLSConfig: &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		},*/
+	}
+
+	//c.srv = &http.Server{Addr: ":8084"} // 127.0.0.1
 	c.srv.Handler = c.r
 	go c.thListen()
 }
@@ -279,7 +293,7 @@ func (c *HttpServer) processFileLocal(w http.ResponseWriter, r *http.Request) {
 
 	var filePath string
 
-	filePath = "gazernode/build" + urlPath
+	filePath = "gazernode" + urlPath
 
 	logger.Println("[HttpServer]", "getting file: ", urlPath, "filePath:", filePath)
 

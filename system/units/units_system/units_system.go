@@ -10,12 +10,10 @@ import (
 	"github.com/gazercloud/gazernode/system/units/files/unit_filecontent"
 	"github.com/gazercloud/gazernode/system/units/files/unit_filesize"
 	"github.com/gazercloud/gazernode/system/units/gazer/unit_gazer_cloud"
-	"github.com/gazercloud/gazernode/system/units/general/unit_calculator"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi"
 	"github.com/gazercloud/gazernode/system/units/general/unit_general_cgi_key_value"
 	"github.com/gazercloud/gazernode/system/units/general/unit_hhgttg"
 	"github.com/gazercloud/gazernode/system/units/general/unit_manual"
-	"github.com/gazercloud/gazernode/system/units/general/unit_repeater"
 	"github.com/gazercloud/gazernode/system/units/general/unit_signal_generator"
 	"github.com/gazercloud/gazernode/system/units/network/unit_http_json_requester"
 	"github.com/gazercloud/gazernode/system/units/network/unit_ping"
@@ -27,11 +25,11 @@ import (
 	unit_serial_port_key_value "github.com/gazercloud/gazernode/system/units/serial_port/serial_port_key_value"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_network"
-	"github.com/gazercloud/gazernode/system/units/windows/unit_network_interface"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_storage"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_system_memory"
 	"github.com/gazercloud/gazernode/utilities/logger"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -106,8 +104,8 @@ func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
 	unitType = c.RegisterUnit("computer_network", "computer", "Network", unit_network.New, unit_network.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/computer/network/"
 
-	unitType = c.RegisterUnit("computer_network_interface", "computer", "Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
-	unitType.Help = "https://gazer.cloud/unit-types/computer/network-interface/"
+	//unitType = c.RegisterUnit("computer_network_interface", "computer", "Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
+	//unitType.Help = "https://gazer.cloud/unit-types/computer/network-interface/"
 
 	unitType = c.RegisterUnit("file_size", "file", "File Size", unit_filesize.New, unit_filesize.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/files/file-size/"
@@ -125,19 +123,19 @@ func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
 	unitType.Help = "https://gazer.cloud/unit-types/general/hhgttg/"
 	unitType = c.RegisterUnit("general_signal_generator", "general", "Signal Generator", unit_signal_generator.New, unit_signal_generator.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/general/signal-generator/"
-	unitType = c.RegisterUnit("general_repeater", "general", "Repeater", unit_repeater.New, unit_repeater.Image, "")
-	unitType.Help = "https://gazer.cloud/unit-types/"
-	unitType = c.RegisterUnit("general_calculator", "general", "Calculator", unit_calculator.New, unit_calculator.Image, "")
-	unitType.Help = "https://gazer.cloud/unit-types/"
+
+	//unitType = c.RegisterUnit("general_calculator", "general", "Calculator", unit_calculator.New, unit_calculator.Image, "")
+	//unitType.Help = "https://gazer.cloud/unit-types/"
 
 	unitType = c.RegisterUnit("serial_port_key_value", "serial_port", "Serial Port Key=Value", unit_serial_port_key_value.New, unit_serial_port_key_value.Image, "Key/value unit via Serial Port. Format: key=value<new_line>")
 	unitType.Help = "https://gazer.cloud/unit-types/serial-port/serial-port-key-value/"
 
-	unitType = c.RegisterUnit("raspberry_pi_gpio", "raspberry_pi", "Raspberry PI GPIO", unit_raspberry_pi_gpio.New, unit_raspberry_pi_gpio.Image, "RaspberryPI GPIO")
-	unitType.Help = ""
-
-	unitType = c.RegisterUnit("raspberry_pi_cpu_temp", "raspberry_pi", "Raspberry PI CPU temperature", unit_raspberry_pi_cpu_temp.New, unit_raspberry_pi_cpu_temp.Image, "RaspberryPI CPU Temperature")
-	unitType.Help = "https://gazer.cloud/unit-types/raspberrypi/cpu-temperature/"
+	if runtime.GOOS == "linux" {
+		unitType = c.RegisterUnit("raspberry_pi_gpio", "raspberry_pi", "Raspberry PI GPIO", unit_raspberry_pi_gpio.New, unit_raspberry_pi_gpio.Image, "RaspberryPI GPIO")
+		unitType.Help = ""
+		unitType = c.RegisterUnit("raspberry_pi_cpu_temp", "raspberry_pi", "Raspberry PI CPU temperature", unit_raspberry_pi_cpu_temp.New, unit_raspberry_pi_cpu_temp.Image, "RaspberryPI CPU Temperature")
+		unitType.Help = "https://gazer.cloud/unit-types/raspberrypi/cpu-temperature/"
+	}
 
 	unitType = c.RegisterUnit("database_postgresql", "database", "PostgreSQL", unit_postgreesql.New, unit_postgreesql.Image, "PostgreSQL database query execute")
 	unitType.Help = "https://gazer.cloud/unit-types/databases/postgresql/"

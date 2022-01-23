@@ -234,7 +234,7 @@ func (c *Unit) SetString(name string, value string, UOM string) {
 }
 
 func (c *Unit) SetPropertyIfDoesntExist(itemName string, propName string, propValue string) {
-	c.iDataStorage.SetPropertyIfDoesntExist(itemName, propName, propValue)
+	c.iDataStorage.SetPropertyIfDoesntExist(c.Id()+"/"+itemName, propName, propValue)
 }
 
 func (c *Unit) TouchItem(name string) {

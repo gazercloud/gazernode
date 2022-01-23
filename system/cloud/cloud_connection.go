@@ -247,6 +247,16 @@ func (c *Connection) UserName() string {
 	return c.userName
 }
 
+func (c *Connection) getHomeHost() string {
+	IPs, err := net.LookupIP("home.gazer.cloud")
+	if err != nil {
+		logger.Println("getHomeHost error (LookupIP)", err)
+		return ""
+	}
+	logger.Println("getHomeHost IPs:", IPs)
+	return "home.gazer.cloud" // TODO!!!!!!!!!!!!!!!
+}
+
 func (c *Connection) updateCurrentRepeater() {
 	logger.Println("updateCurrentRepeater")
 	c.connectionStatus = "repeater search"
@@ -317,7 +327,7 @@ func (c *Connection) updateCurrentRepeater() {
 
 func (c *Connection) updateRepeaterForNode(nodeId string) {
 	if nodeId == "" {
-		c.addr = "home.gazer.cloud:1077"
+		c.addr = c.getHomeHost() + ":1077"
 		return
 	}
 
@@ -673,6 +683,11 @@ func (c *Connection) processData(task BinFrameTask, inputFrameSize int64) {
 		}
 
 		//logger.Println("!!!!!!!!!! CLOUD DATA:", string(task.Frame.Data))
+
+		if len(task.Frame.Data) < 2 {
+			logger.Println("CloudConnection len(task.Frame.Data) < 2")
+			return
+		}
 
 		request := []byte(packer.UnpackString(string(task.Frame.Data)))
 

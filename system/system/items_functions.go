@@ -14,6 +14,9 @@ import (
 
 func (c *System) SetItemByName(name string, value string, UOM string, dt time.Time, external bool) error {
 	var item *common_interfaces.Item
+	if name == "" {
+		return nil
+	}
 
 	c.mtx.Lock()
 	if i, ok := c.itemsByName[name]; ok {
@@ -67,6 +70,7 @@ func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue, count
 
 	if external {
 		for _, unitId := range watchersUnits {
+			logger.Println("SendToWatcher", unitId, value.Value)
 			c.unitsSystem.SendToWatcher(unitId, item.Name, item.Value)
 		}
 	}

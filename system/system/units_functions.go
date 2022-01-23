@@ -324,6 +324,9 @@ func (c *System) Lookup(entity string) (lookup.Result, error) {
 		result.AddColumn("display_name", "Name", false)
 		c.mtx.Lock()
 		for _, proc := range c.items {
+			if strings.Contains(proc.Name, "/.service/") {
+				continue
+			}
 			unitId := ""
 			unitName := ""
 			itemDisplayName := ""
