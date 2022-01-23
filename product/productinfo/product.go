@@ -12,7 +12,7 @@ func Name() string {
 }
 
 func Version() string {
-	return "2.4.4"
+	return "2.4.5"
 }
 
 func BuildTime() string {
