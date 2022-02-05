@@ -239,7 +239,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 					currentValueRange.LastValue = 0
 				}
 
-				if r.UOM != "error" {
+				if r.UOM != "error" && r.UOM != "stopped" {
 					valueAsString := strings.Trim(r.Value, " \r\n\t")
 					valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
 
@@ -257,6 +257,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 							currentValueRange.MaxValue = valueAsFloat
 						}
 						currentValueRange.AvgValue += valueAsFloat
+						currentValueRange.SumValue += valueAsFloat
 						if currentValueRange.CountOfValues > 0 {
 							currentValueRange.AvgValue /= 2
 						}

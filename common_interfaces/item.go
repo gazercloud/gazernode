@@ -34,11 +34,12 @@ type ItemGetUnitItems struct {
 }
 
 type ItemStateInfo struct {
-	Id    uint64 `json:"id"`
-	Name  string `json:"name"`
-	Value string `json:"v"`
-	DT    int64  `json:"t"`
-	UOM   string `json:"u"`
+	Id          uint64 `json:"id"`
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Value       string `json:"v"`
+	DT          int64  `json:"t"`
+	UOM         string `json:"u"`
 }
 
 func NewItem() *Item {

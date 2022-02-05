@@ -239,6 +239,23 @@ func (c *System) GetItemsValues(reqItems []string) []common_interfaces.ItemState
 			i.Value = item.Value.Value
 			i.DT = item.Value.DT
 			i.UOM = item.Value.UOM
+
+			{
+				unitId := ""
+				unitName := ""
+				posOfSlash := strings.Index(i.Name, "/")
+				if posOfSlash > 0 {
+					var err error
+					unitId = i.Name[:posOfSlash]
+					unitName, err = c.unitsSystem.GetUnitDisplayName(unitId)
+					if err != nil {
+						unitName = ""
+					} else {
+						i.DisplayName = strings.Replace(i.Name, unitId+"/", unitName+"/", 1)
+					}
+				}
+			}
+
 			items = append(items, i)
 		}
 	}

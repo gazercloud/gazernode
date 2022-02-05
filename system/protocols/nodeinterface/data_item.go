@@ -57,6 +57,7 @@ type DataItemHistoryChartResponseDataItemValue struct {
 	MinValue      float64 `json:"vd"`
 	MaxValue      float64 `json:"vu"`
 	AvgValue      float64 `json:"va"`
+	SumValue      float64 `json:"vs"`
 	CountOfValues int     `json:"c"`
 	Qualities     []int64 `json:"qualities"`
 	HasGood       bool    `json:"has_good"`
