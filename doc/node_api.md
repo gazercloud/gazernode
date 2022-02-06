@@ -26,10 +26,6 @@ no
 ```
 { "items" : [ "user1", "user2" ... ] }
 ```
-#### description
-```
-returns list of user's names.
-```
 ___
 ### user_add
 #### input
@@ -41,10 +37,6 @@ password
 ```
 no
 ```
-#### description
-```
-creates a user
-```
 ### user_set_password
 #### input
 ```
@@ -55,10 +47,7 @@ password
 ```
 no
 ```
-#### description
-```
-changes user's password
-```
+
 ### user_remove
 #### input
 ```
@@ -68,7 +57,43 @@ user_name
 ```
 no
 ```
-#### description
+
+
+
+
+
+### session_open
+#### input
 ```
-removes a user
+user_name
+password
+```
+#### output
+```
+session_token
+```
+### session_remove
+#### input
+```
+session_token
+```
+#### output
+```
+no
+```
+### session_list
+#### input
+```
+user_name
+```
+#### output
+```
+items:
+[
+    {
+        session_token : string,
+        user_name : string,
+        session_open_time: number, // unix time
+    },
+]
 ```
