@@ -90,7 +90,7 @@ func (c *HttpServer) ResourceRemove(request []byte) (response []byte, err error)
 	return
 }
 
-func (c *HttpServer) ResourceRename(request []byte) (response []byte, err error) {
+/*func (c *HttpServer) ResourceRename(request []byte) (response []byte, err error) {
 	var req nodeinterface.ResourceRenameRequest
 	var resp nodeinterface.ResourceRenameResponse
 	err = json.Unmarshal(request, &req)
@@ -98,14 +98,14 @@ func (c *HttpServer) ResourceRename(request []byte) (response []byte, err error)
 		return
 	}
 
-	err = c.system.ResRename(req.Id, req.Name)
+	err = c.system.ResRename(req.Id, req.Props)
 	if err != nil {
 		return
 	}
 
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
-}
+}*/
 
 func (c *HttpServer) ResourceList(request []byte) (response []byte, err error) {
 	var req nodeinterface.ResourceListRequest

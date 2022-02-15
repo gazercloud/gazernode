@@ -93,11 +93,11 @@ func (c *GazerNodeClient) ResRemove(id string) error {
 	return err
 }
 
-func (c *GazerNodeClient) ResRename(id string, name string) error {
+/*func (c *GazerNodeClient) ResRename(id string, name string) error {
 	var call Call
 	var req nodeinterface2.ResourceRenameRequest
 	req.Id = id
-	req.Name = name
+	//req.Name = name
 	call.function = nodeinterface2.FuncResourceRename
 	call.request, _ = json.Marshal(req)
 	call.client = c
@@ -108,4 +108,4 @@ func (c *GazerNodeClient) ResRename(id string, name string) error {
 		err = json.Unmarshal([]byte(call.response), &resp)
 	}
 	return err
-}
+}*/

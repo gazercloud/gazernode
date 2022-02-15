@@ -29,6 +29,14 @@ func (c *System) ResRemove(id string) error {
 	return c.resources.Remove(id)
 }
 
-func (c *System) ResRename(id string, name string) error {
-	return c.resources.Rename(id, name)
+func (c *System) ResRename(id string, props []nodeinterface.PropItem) error {
+	return c.resources.Rename(id, props)
+}
+
+func (c *System) ResourcePropSet(resourceId string, props []nodeinterface.PropItem) error {
+	return c.resources.PropSet(resourceId, props)
+}
+
+func (c *System) ResourcePropGet(resourceId string) ([]nodeinterface.PropItem, error) {
+	return c.resources.PropGet(resourceId)
 }

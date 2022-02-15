@@ -73,10 +73,12 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.ResourceGetThumbnail(requestText)
 	case nodeinterface.FuncResourceRemove:
 		result, err = c.ResourceRemove(requestText)
-	case nodeinterface.FuncResourceRename:
-		result, err = c.ResourceRename(requestText)
 	case nodeinterface.FuncResourceList:
 		result, err = c.ResourceList(requestText)
+	case nodeinterface.FuncResourcePropSet:
+		result, err = c.ResourcePropSet(requestText)
+	case nodeinterface.FuncResourcePropGet:
+		result, err = c.ResourcePropGet(requestText)
 
 		// *** Cloud ***
 	case nodeinterface.FuncCloudLogin:
@@ -140,6 +142,10 @@ func (c *HttpServer) RequestJson(function string, requestText []byte, host strin
 		result, err = c.UserSetPassword(requestText)
 	case nodeinterface.FuncUserRemove:
 		result, err = c.UserRemove(requestText)
+	case nodeinterface.FuncUserPropSet:
+		result, err = c.UserPropSet(requestText)
+	case nodeinterface.FuncUserPropGet:
+		result, err = c.UserPropGet(requestText)
 
 	default:
 		err = errors.New("function not supported")

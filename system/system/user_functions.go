@@ -165,6 +165,7 @@ func (c *System) UserAdd(name string, password string) (nodeinterface.UserAddRes
 		var us common_interfaces.User
 		us.Name = name
 		us.PasswordHash = c.hashPassword(password)
+		us.Properties = make(map[string]*common_interfaces.ItemProperty)
 		c.users = append(c.users, &us)
 		c.userByName[us.Name] = &us
 	} else {
@@ -225,4 +226,42 @@ func (c *System) UserRemove(name string) (nodeinterface.UserRemoveResponse, erro
 	c.SaveConfig()
 
 	return result, err
+}
+
+func (c *System) UserPropSet(userName string, props []nodeinterface.PropItem) error {
+	logger.Println("UserPropSet", userName)
+	c.mtx.Lock()
+	if user, ok := c.userByName[userName]; ok {
+		for _, prop := range props {
+			user.Properties[prop.PropName] = &common_interfaces.ItemProperty{
+				Name:  prop.PropName,
+				Value: prop.PropValue,
+			}
+		}
+	} else {
+		c.mtx.Unlock()
+		return errors.New("user not found")
+	}
+	c.mtx.Unlock()
+	c.SaveConfig()
+	return nil
+}
+
+func (c *System) UserPropGet(userName string) ([]nodeinterface.PropItem, error) {
+	result := make([]nodeinterface.PropItem, 0)
+
+	c.mtx.Lock()
+	if user, ok := c.userByName[userName]; ok {
+		for _, prop := range user.Properties {
+			result = append(result, nodeinterface.PropItem{
+				PropName:  prop.Name,
+				PropValue: prop.Value,
+			})
+		}
+	} else {
+		c.mtx.Unlock()
+		return nil, errors.New("user not found")
+	}
+	c.mtx.Unlock()
+	return result, nil
 }

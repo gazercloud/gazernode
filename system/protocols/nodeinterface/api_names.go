@@ -58,8 +58,9 @@ const (
 	FuncResourceGet          = "resource_get"
 	FuncResourceGetThumbnail = "resource_get_thumbnail"
 	FuncResourceRemove       = "resource_remove"
-	FuncResourceRename       = "resource_rename"
 	FuncResourceList         = "resource_list"
+	FuncResourcePropSet      = "resource_prop_set"
+	FuncResourcePropGet      = "resource_prop_get"
 
 	// *** User ***
 	FuncSessionOpen     = "session_open"
@@ -71,6 +72,8 @@ const (
 	FuncUserAdd         = "user_add"
 	FuncUserSetPassword = "user_set_password"
 	FuncUserRemove      = "user_remove"
+	FuncUserPropSet     = "user_prop_set"
+	FuncUserPropGet     = "user_prop_get"
 )
 
 func ApiFunctions() []string {
@@ -126,7 +129,6 @@ func ApiFunctions() []string {
 	res = append(res, FuncResourceGet)
 	res = append(res, FuncResourceGetThumbnail)
 	res = append(res, FuncResourceRemove)
-	res = append(res, FuncResourceRename)
 	res = append(res, FuncResourceList)
 
 	res = append(res, FuncSessionOpen)
@@ -171,7 +173,6 @@ func ApiRoles() []ApiRole {
 			FuncResourceAdd,
 			FuncResourceSet,
 			FuncResourceRemove,
-			FuncResourceRename,
 		},
 	})
 

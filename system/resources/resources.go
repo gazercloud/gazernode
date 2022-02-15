@@ -34,7 +34,7 @@ func (c *Resources) fileName(name string) string {
 	return base64.StdEncoding.EncodeToString([]byte(name))
 }
 
-func (c *Resources) Rename(id string, newName string) error {
+func (c *Resources) Rename(id string, props []nodeinterface.PropItem) error {
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 
@@ -55,7 +55,27 @@ func (c *Resources) Rename(id string, newName string) error {
 		return errors.New("no resource found")
 	}
 
-	info.Name = newName
+	if info.Properties == nil {
+		info.Properties = make([]*common_interfaces.ItemProperty, 0)
+	}
+
+	for _, prop := range props {
+		found := false
+		for existingPropIndex, existingProp := range info.Properties {
+			if prop.PropName == existingProp.Name {
+				info.Properties[existingPropIndex].Value = prop.PropValue
+				found = true
+				break
+			}
+		}
+		if !found {
+			info.Properties = append(info.Properties, &common_interfaces.ItemProperty{
+				Name:  prop.PropName,
+				Value: prop.PropValue,
+			})
+		}
+	}
+
 	bs, _ = json.MarshalIndent(info, "", " ")
 	err = ioutil.WriteFile(dir+"/"+id+".info", bs, 0666)
 	if err != nil {
@@ -124,8 +144,12 @@ func (c *Resources) Add(name string, tp string, content []byte) (string, error) 
 
 	var info common_interfaces.ResourcesItemInfo
 	info.Id = id
-	info.Name = name
 	info.Type = tp
+	info.Properties = make([]*common_interfaces.ItemProperty, 0)
+	info.Properties = append(info.Properties, &common_interfaces.ItemProperty{
+		Name:  "name",
+		Value: name,
+	})
 	bs, _ := json.MarshalIndent(info, "", " ")
 	err = ioutil.WriteFile(filePathInfo, bs, 0666)
 	if err != nil {
@@ -192,6 +216,10 @@ func (c *Resources) Set(id string, suffix string, offset int64, content []byte) 
 		return errors.New("no resource found")
 	}
 
+	if info.Properties == nil {
+		info.Properties = make([]*common_interfaces.ItemProperty, 0)
+	}
+
 	bs, _ = json.MarshalIndent(info, "", " ")
 	err = ioutil.WriteFile(dir+"/"+id+".info", bs, 0666)
 	if err != nil {
@@ -248,7 +276,6 @@ func (c *Resources) Get(id string, offset int64, size int64) (nodeinterface.Reso
 	result := nodeinterface.ResourceGetResponse{}
 	result.Id = info.Id
 	result.Type = info.Type
-	result.Name = info.Name
 	result.Offset = offset
 	result.Size = int64(len(bs))
 
@@ -324,11 +351,11 @@ func (c *Resources) List(tp string, filter string, offset int, maxCount int) com
 					result.TotalCount++
 
 					inFilter := 0
-					for _, filterPart := range filterParts {
+					/*for _, filterPart := range filterParts {
 						if strings.Contains(strings.ToLower(info.Name), filterPart) {
 							inFilter++
 						}
-					}
+					}*/
 					if inFilter == len(filterParts) && (tp == "" || tp == info.Type) {
 						if result.InFilterCount >= offset && len(result.Items) < maxCount {
 							result.Items = append(result.Items, info)
@@ -341,4 +368,90 @@ func (c *Resources) List(tp string, filter string, offset int, maxCount int) com
 	}
 
 	return result
+}
+
+func (c *Resources) PropSet(resourceId string, props []nodeinterface.PropItem) error {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
+	var err error
+
+	dir := c.dir()
+
+	var bs []byte
+
+	bs, err = ioutil.ReadFile(dir + "/" + resourceId + ".info")
+	if err != nil {
+		return errors.New("no resource found")
+	}
+
+	var info common_interfaces.ResourcesItemInfo
+	err = json.Unmarshal(bs, &info)
+	if err != nil {
+		return errors.New("no resource found")
+	}
+
+	if info.Properties == nil {
+		info.Properties = make([]*common_interfaces.ItemProperty, 0)
+	}
+
+	for _, prop := range props {
+		found := false
+		for existingPropIndex, existingProp := range info.Properties {
+			if prop.PropName == existingProp.Name {
+				info.Properties[existingPropIndex].Value = prop.PropValue
+				found = true
+				break
+			}
+		}
+		if !found {
+			info.Properties = append(info.Properties, &common_interfaces.ItemProperty{
+				Name:  prop.PropName,
+				Value: prop.PropValue,
+			})
+		}
+	}
+
+	bs, _ = json.MarshalIndent(info, "", " ")
+	err = ioutil.WriteFile(dir+"/"+resourceId+".info", bs, 0666)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Resources) PropGet(resourceId string) ([]nodeinterface.PropItem, error) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
+	var err error
+	var bs []byte
+
+	dir := c.dir()
+
+	bs, err = ioutil.ReadFile(dir + "/" + resourceId + ".info")
+	if err != nil {
+		return make([]nodeinterface.PropItem, 0), errors.New("no resource found")
+	}
+
+	var info common_interfaces.ResourcesItemInfo
+	err = json.Unmarshal(bs, &info)
+	if err != nil {
+		return make([]nodeinterface.PropItem, 0), errors.New("no resource info found")
+	}
+
+	if info.Properties == nil {
+		info.Properties = make([]*common_interfaces.ItemProperty, 0)
+	}
+
+	result := make([]nodeinterface.PropItem, 0)
+
+	for _, value := range info.Properties {
+		result = append(result, nodeinterface.PropItem{
+			PropName:  value.Name,
+			PropValue: value.Value,
+		})
+	}
+
+	return result, nil
 }

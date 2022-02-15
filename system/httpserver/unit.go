@@ -200,3 +200,71 @@ func (c *HttpServer) UnitPropGet(request []byte) (response []byte, err error) {
 	response, err = json.MarshalIndent(resp, "", " ")
 	return
 }
+
+func (c *HttpServer) ResourcePropSet(request []byte) (response []byte, err error) {
+	var req nodeinterface.ResourcePropSetRequest
+	var resp nodeinterface.ResourcePropSetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.ResourcePropSet(req.Id, req.Props)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) ResourcePropGet(request []byte) (response []byte, err error) {
+	var req nodeinterface.ResourcePropGetRequest
+	var resp nodeinterface.ResourcePropGetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp.Props, err = c.system.ResourcePropGet(req.Id)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) UserPropSet(request []byte) (response []byte, err error) {
+	var req nodeinterface.UserPropSetRequest
+	var resp nodeinterface.UserPropSetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	err = c.system.UserPropSet(req.UserName, req.Props)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}
+
+func (c *HttpServer) UserPropGet(request []byte) (response []byte, err error) {
+	var req nodeinterface.UserPropGetRequest
+	var resp nodeinterface.UserPropGetResponse
+	err = json.Unmarshal(request, &req)
+	if err != nil {
+		return
+	}
+
+	resp.Props, err = c.system.UserPropGet(req.UserName)
+	if err != nil {
+		return
+	}
+
+	response, err = json.MarshalIndent(resp, "", " ")
+	return
+}

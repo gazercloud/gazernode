@@ -15,7 +15,7 @@ import (
 
 type Config struct {
 	Name       string                                `json:"name"`
-	Users      []common_interfaces.User              `json:"users"`
+	Users      []common_interfaces.UserConfiguration `json:"users"`
 	Units      []units_common.UnitInfo               `json:"units"`
 	Items      []common_interfaces.ItemConfiguration `json:"items"`
 	NextItemId uint64                                `json:"next_item_id"`
@@ -28,9 +28,23 @@ func (c *System) SaveConfig() error {
 	var conf Config
 	conf.Name = c.nodeName
 	conf.Units = c.unitsSystem.Units()
-	conf.Users = make([]common_interfaces.User, 0)
+	conf.Users = make([]common_interfaces.UserConfiguration, 0)
 	for _, u := range c.users {
-		conf.Users = append(conf.Users, *u)
+		var userConfig common_interfaces.UserConfiguration
+		userConfig.Name = u.Name
+		userConfig.PasswordHash = u.PasswordHash
+		userConfig.Properties = make([]*common_interfaces.ItemProperty, 0)
+		for _, p := range u.Properties {
+			userConfig.Properties = append(userConfig.Properties, &common_interfaces.ItemProperty{
+				Name:  p.Name,
+				Value: p.Value,
+			})
+		}
+		sort.Slice(userConfig.Properties, func(i, j int) bool {
+			return userConfig.Properties[i].Name < userConfig.Properties[j].Name
+		})
+
+		conf.Users = append(conf.Users, userConfig)
 	}
 
 	conf.Items = make([]common_interfaces.ItemConfiguration, 0)
@@ -87,9 +101,19 @@ func (c *System) LoadConfig() error {
 
 		c.users = make([]*common_interfaces.User, 0)
 		for _, u := range conf.Users {
-			us := u
-			c.users = append(c.users, &us)
-			c.userByName[us.Name] = &us
+			var user common_interfaces.User
+			user.Name = u.Name
+			user.PasswordHash = u.PasswordHash
+			user.Properties = make(map[string]*common_interfaces.ItemProperty)
+			for _, p := range u.Properties {
+				user.Properties[p.Name] = &common_interfaces.ItemProperty{
+					Name:  p.Name,
+					Value: p.Value,
+				}
+			}
+
+			c.users = append(c.users, &user)
+			c.userByName[user.Name] = &user
 		}
 
 		c.nextItemId = conf.NextItemId
@@ -172,6 +196,7 @@ func (c *System) LoadConfig() error {
 
 		var u common_interfaces.User
 		u.Name = DefaultUserName
+		u.Properties = make(map[string]*common_interfaces.ItemProperty)
 		u.PasswordHash = c.hashPassword(userPassword)
 		c.users = append(c.users, &u)
 		c.userByName[u.Name] = &u

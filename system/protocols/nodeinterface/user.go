@@ -67,3 +67,19 @@ type UserRemoveRequest struct {
 
 type UserRemoveResponse struct {
 }
+
+type UserPropSetRequest struct {
+	UserName string     `json:"user_name"`
+	Props    []PropItem `json:"props"`
+}
+
+type UserPropSetResponse struct {
+}
+
+type UserPropGetRequest struct {
+	UserName string `json:"user_name"`
+}
+
+type UserPropGetResponse struct {
+	Props []PropItem `json:"props"`
+}

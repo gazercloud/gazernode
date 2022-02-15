@@ -55,14 +55,6 @@ type ResourceRemoveRequest struct {
 type ResourceRemoveResponse struct {
 }
 
-type ResourceRenameRequest struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type ResourceRenameResponse struct {
-}
-
 type ResourceListRequest struct {
 	Type     string `json:"type"`
 	Filter   string `json:"filter"`
@@ -72,4 +64,20 @@ type ResourceListRequest struct {
 
 type ResourceListResponse struct {
 	Items common_interfaces.ResourcesInfo `json:"items"`
+}
+
+type ResourcePropSetRequest struct {
+	Id    string     `json:"id"`
+	Props []PropItem `json:"props"`
+}
+
+type ResourcePropSetResponse struct {
+}
+
+type ResourcePropGetRequest struct {
+	Id string `json:"id"`
+}
+
+type ResourcePropGetResponse struct {
+	Props []PropItem `json:"props"`
 }
