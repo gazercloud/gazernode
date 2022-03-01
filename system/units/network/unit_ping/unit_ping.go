@@ -120,7 +120,7 @@ func (c *UnitPing) InternalUnitStart() error {
 	}
 
 	c.SetString(ItemNameAddress, c.addr, "-")
-	c.SetString(ItemNameTime, "", "")
+	//c.SetString(ItemNameTime, "", "")
 	c.SetString(ItemNameIP, "", "-")
 	c.SetInt(ItemNameDataSize, c.frameSize, uom.BYTES)
 
@@ -131,12 +131,13 @@ func (c *UnitPing) InternalUnitStart() error {
 }
 
 func (c *UnitPing) InternalUnitStop() {
-	c.SetString(ItemNameTime, "stopped", "")
 }
 
 func (c *UnitPing) Tick() {
 	var lastError string
 	var lastIP string
+
+	c.SetString(ItemNameTime, "", "started")
 
 	c.Started = true
 	var dtLastPingTime time.Time
@@ -148,7 +149,6 @@ func (c *UnitPing) Tick() {
 			time.Sleep(10 * time.Millisecond)
 		}
 		if c.Stopping {
-			c.SetString(ItemNameTime, "stopped", "")
 			break
 		}
 

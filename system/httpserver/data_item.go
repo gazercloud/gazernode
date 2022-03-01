@@ -239,7 +239,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 					currentValueRange.LastValue = 0
 				}
 
-				if r.UOM != "error" && r.UOM != "stopped" {
+				if r.UOM != "error" && r.UOM != "stopped" && r.UOM != "started" {
 					valueAsString := strings.Trim(r.Value, " \r\n\t")
 					valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
 
