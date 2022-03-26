@@ -27,6 +27,7 @@ import (
 	unit_system_named_pipe_server "github.com/gazercloud/gazernode/system/units/windows/unit_named_pipe_server"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_network"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
+	"github.com/gazercloud/gazernode/system/units/windows/unit_processes"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_storage"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_system_memory"
 	"github.com/gazercloud/gazernode/utilities/logger"
@@ -100,6 +101,8 @@ func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
 	unitType.Help = "https://gazer.cloud/unit-types/computer/memory/"
 	unitType = c.RegisterUnit("computer_process", "computer", "Process", unit_process.New, unit_process.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/computer/process/"
+	unitType = c.RegisterUnit("computer_processes", "computer", "Processes", unit_processes.New, unit_processes.Image, "")
+	unitType.Help = "https://gazer.cloud/unit-types/computer/processes/"
 	unitType = c.RegisterUnit("computer_storage", "computer", "Storage", unit_storage.New, unit_storage.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/computer/storage/"
 	unitType = c.RegisterUnit("computer_network", "computer", "Network", unit_network.New, unit_network.Image, "")
