@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gazercloud/gazernode/common_interfaces"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"strconv"
 	"sync"
 	"time"
@@ -124,6 +125,14 @@ func (c *Unit) GetConfigMeta() string {
 	return ""
 }
 
+func (c *Unit) InternalInitItems() {
+	c.SetStringForAll("", uom.STARTED)
+}
+
+func (c *Unit) InternalDeInitItems() {
+	c.SetStringForAll("", uom.STOPPED)
+}
+
 func (c *Unit) Start(iDataStorage common_interfaces.IDataStorage) error {
 	var err error
 	c.watchItems = make(map[string]bool)
@@ -139,6 +148,8 @@ func (c *Unit) Start(iDataStorage common_interfaces.IDataStorage) error {
 	c.SetStringService("Unit", c.Type(), "")
 
 	c.Stopping = false
+
+	c.iUnit.InternalInitItems()
 	err = c.iUnit.InternalUnitStart()
 
 	if err != nil {
@@ -163,11 +174,11 @@ func (c *Unit) Stop() {
 
 	c.SetStringService("status", "stopping", "")
 	c.Stopping = true
-	c.iUnit.InternalUnitStop()
 	for c.Started {
 		time.Sleep(100 * time.Millisecond)
 	}
 	c.SetStringService("status", "stopped", "")
+	c.iUnit.InternalDeInitItems()
 	c.LogInfo("stopped")
 }
 
@@ -223,6 +234,11 @@ func (c *Unit) LogError(value string) {
 func (c *Unit) SetError(value string) {
 	fullName := c.Id() + "/" + UnitServicePrefix + ItemNameError
 	c.iDataStorage.SetItemByName(fullName, value, "", time.Now().UTC(), false)
+}
+
+func (c *Unit) SetStringForAll(value string, UOM string) {
+	fullName := c.Id()
+	c.iDataStorage.SetAllItemsByUnitName(fullName, value, UOM, time.Now().UTC(), false)
 }
 
 func (c *Unit) SetString(name string, value string, UOM string) {

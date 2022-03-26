@@ -21,6 +21,9 @@ type IUnit interface {
 	InternalUnitStop()
 	ItemChanged(itemName string, value ItemValue)
 
+	InternalInitItems()
+	InternalDeInitItems()
+
 	PropSet(props []ItemProperty)
 	PropGet() []ItemProperty
 	Prop(name string) string

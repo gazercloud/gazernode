@@ -1,11 +1,14 @@
 package unit_system_named_pipe_server
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/Microsoft/go-winio"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
 	"github.com/gazercloud/gazernode/utilities/logger"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"github.com/google/uuid"
 	"net"
 	"strings"
@@ -16,12 +19,23 @@ import (
 type UnitSystemNamedPipeServer struct {
 	units_common.Unit
 
+	// Runtime
 	listener          net.Listener
 	receivedVariables map[string]string
+	connectedClients  map[string]*UnitSystemNamedPipeServerConnectedClient
+	mtx               sync.Mutex
 
-	connectedClients map[string]*UnitSystemNamedPipeServerConnectedClient
-	mtx              sync.Mutex
+	// Config
+	config Config
 }
+
+type Config struct {
+	PipeName string `json:"pipe_name"`
+}
+
+const (
+	ItemNameStatus = "Status"
+)
 
 type UnitSystemNamedPipeServerConnectedClient struct {
 	id         string
@@ -42,9 +56,20 @@ func New() common_interfaces.IUnit {
 }
 
 func (c *UnitSystemNamedPipeServer) InternalUnitStart() error {
-	c.SetMainItem("Status")
+	var err error
+	c.SetMainItem(ItemNameStatus)
 
-	c.SetString("Status", "", "")
+	err = json.Unmarshal([]byte(c.GetConfig()), &c.config)
+	if err != nil {
+		err = errors.New("config error")
+		c.SetString(ItemNameStatus, err.Error(), "error")
+		return err
+	}
+	if len(c.config.PipeName) < 1 {
+		err = errors.New("empty pipe name")
+		c.SetString(ItemNameStatus, err.Error(), "error")
+		return err
+	}
 
 	go c.Tick()
 	return nil
@@ -55,14 +80,17 @@ func (c *UnitSystemNamedPipeServer) InternalUnitStop() {
 
 func (c *UnitSystemNamedPipeServer) GetConfigMeta() string {
 	meta := units_common.NewUnitConfigItem("", "", "", "", "", "", "")
+	meta.Add("pipe_name", "Pipe Name", "q_gazer_pipe", "string", "", "", "")
 	return meta.Marshal()
 }
 
 func (c *UnitSystemNamedPipeServer) Tick() {
+	logger.Println("UnitSystemNamedPipeServer Tick begin")
 	c.Started = true
-	c.SetString("Status", "started", "")
+	c.SetStringForAll("", uom.STARTED)
 
-	go c.serve()
+	go c.serve() // separated thread
+
 	for !c.Stopping {
 		for i := 0; i < 10; i++ {
 			if c.Stopping {
@@ -77,26 +105,27 @@ func (c *UnitSystemNamedPipeServer) Tick() {
 	}
 
 	c.removeAllClients()
-	c.SetString("Status", "stopped", "")
+
 	c.Started = false
-	logger.Println("UnitSystemNamedPipeServer tick exit")
+	c.SetStringForAll("", uom.STOPPED)
+
+	logger.Println("UnitSystemNamedPipeServer Tick end")
 }
 
 func (c *UnitSystemNamedPipeServer) serve() {
+	logger.Println("UnitSystemNamedPipeServer serve begin")
 	var err error
-	c.listener, err = winio.ListenPipe("\\\\.\\pipe\\q_debug_pipe", nil)
+	c.listener, err = winio.ListenPipe("\\\\.\\pipe\\"+c.config.PipeName, nil)
 	if err != nil {
-		logger.Println("ListenPipe error:", err)
+		logger.Println("UnitSystemNamedPipeServer ListenPipe error:", err)
 		return
 	}
 	for !c.Stopping {
-		//logger.Println("UnitSystemNamedPipeServer accepting connections")
 		conn, err := c.listener.Accept()
 		if err != nil {
 			logger.Println("UnitSystemNamedPipeServer accepting error", err)
 			break
 		}
-		//logger.Println("UnitSystemNamedPipeServer adding connection", conn.RemoteAddr())
 		c.mtx.Lock()
 		client := UnitSystemNamedPipeServerConnectedClient{
 			id:         uuid.NewString(),
@@ -107,7 +136,7 @@ func (c *UnitSystemNamedPipeServer) serve() {
 		c.mtx.Unlock()
 	}
 	c.listener.Close()
-	logger.Println("UnitSystemNamedPipeServer accepting exit")
+	logger.Println("UnitSystemNamedPipeServer serve end")
 }
 
 func (c *UnitSystemNamedPipeServer) removeClient(id string) {
@@ -129,7 +158,6 @@ func (c *UnitSystemNamedPipeServer) removeAllClients() {
 }
 
 func (c *UnitSystemNamedPipeServer) serveClient(client *UnitSystemNamedPipeServerConnectedClient) {
-	//logger.Println("UnitSystemNamedPipeServer serving connection")
 	inputBuffer := make([]byte, 0)
 	currentOffset := 0
 	for {
@@ -159,10 +187,7 @@ func (c *UnitSystemNamedPipeServer) serveClient(client *UnitSystemNamedPipeServe
 
 									finalValue := value
 									c.receivedVariables[key] = finalValue
-									//logger.Println("UnitSystemNamedPipeServer received item:", key , "=", value)
 									c.SetString(key, finalValue, "")
-
-									//time.Sleep(100 * time.Microsecond)
 								}
 							}
 
@@ -180,7 +205,6 @@ func (c *UnitSystemNamedPipeServer) serveClient(client *UnitSystemNamedPipeServe
 			c.mtx.Unlock()
 		}
 	}
-	//logger.Println("UnitSystemNamedPipeServer serving connection exit")
 
 	c.removeClient(client.id)
 }

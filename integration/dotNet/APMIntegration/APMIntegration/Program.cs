@@ -20,9 +20,9 @@ namespace APMIntegration
             Random rnd = new Random();
             while (true)
             {
-                GazerNamedPipe.Write("q_debug_pipe", "paramStatic1", (rnd.Next() % 100).ToString());
-                GazerNamedPipe.Write("q_debug_pipe", "paramStatic2", (rnd.Next() % 100).ToString());
-                GazerNamedPipe.Write("q_debug_pipe", "paramStatic3", (rnd.Next() % 100).ToString());
+                GazerNamedPipe.Write("q_gazer_pipe", "paramStatic1", (rnd.Next() % 100).ToString());
+                GazerNamedPipe.Write("q_gazer_pipe", "paramStatic2", (rnd.Next() % 100).ToString());
+                GazerNamedPipe.Write("q_gazer_pipe", "paramStatic3", (rnd.Next() % 100).ToString());
                 Console.WriteLine("{0}", DateTime.Now.ToString());
                 Thread.Sleep(100);
             }
@@ -30,7 +30,7 @@ namespace APMIntegration
 
         static void TestClassInstance()
         {
-            using (GazerNamedPipe gazerPipe = new GazerNamedPipe("q_debug_pipe"))
+            using (GazerNamedPipe gazerPipe = new GazerNamedPipe("q_gazer_pipe"))
             {
                 Random rnd = new Random();
                 while (true)

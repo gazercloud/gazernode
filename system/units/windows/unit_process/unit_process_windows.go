@@ -29,7 +29,7 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 
 	c.SetMainItem("Main/Working Set Size")
 
-	{
+	/*{
 		// Common
 		c.SetString("Common/Name", "", "")
 		c.SetString("Common/ProcessID", "", "")
@@ -62,7 +62,7 @@ func (c *UnitSystemProcess) InternalUnitStart() error {
 		c.SetString("Memory/Page Faults", "", "")
 		c.SetString("Memory/Peak Working SetSize", "", "")
 		c.SetString("Memory/Private Usage", "", "")
-	}
+	}*/
 
 	var config Config
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)

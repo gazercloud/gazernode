@@ -62,6 +62,14 @@ func (c *UnitSerialPortKeyValue) GetConfigMeta() string {
 	return meta.Marshal()
 }
 
+func (c *UnitSerialPortKeyValue) InternalInitItems() {
+	// c.SetStringForAll("", uom.STARTED)
+}
+
+func (c *UnitSerialPortKeyValue) InternalDeInitItems() {
+	// c.SetStringForAll("", uom.STOPPED)
+}
+
 func (c *UnitSerialPortKeyValue) InternalUnitStart() error {
 	var err error
 	c.SetString("status", "starting", "")
@@ -111,6 +119,8 @@ func (c *UnitSerialPortKeyValue) InternalUnitStart() error {
 			c.IDataStorage().SetProperty(c.Id()+"/"+item.Name, "view", "")
 		}
 	}
+
+	c.IDataStorage().SetProperty(c.Id()+"/status", "view", "table-01")
 
 	parity := serial.ParityNone
 	if config.Parity == "none" {

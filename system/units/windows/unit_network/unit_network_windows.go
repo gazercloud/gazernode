@@ -25,10 +25,10 @@ func New() common_interfaces.IUnit {
 }
 
 func (c *UnitNetwork) InternalUnitStart() error {
-	c.SetString("TotalSpeed", "", "")
+	//c.SetString("TotalSpeed", "", "")
 	c.SetMainItem("TotalSpeed")
 
-	interfaces, err := net.Interfaces()
+	/*interfaces, err := net.Interfaces()
 	if err == nil {
 		for _, ni := range interfaces {
 			var table win.MIB_IF_ROW2
@@ -44,7 +44,7 @@ func (c *UnitNetwork) InternalUnitStart() error {
 		c.SetString("TotalOutSpeed", "", "")
 	} else {
 		c.SetError("")
-	}
+	}*/
 
 	go c.Tick()
 	return nil

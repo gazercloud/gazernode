@@ -26,10 +26,6 @@ func (c *UnitSystemProcesses) InternalUnitStart() error {
 
 	c.SetMainItem("Count")
 
-	{
-		c.SetString("Count", "", "")
-	}
-
 	var config Config
 	err = json.Unmarshal([]byte(c.GetConfig()), &config)
 	if err != nil {
@@ -56,6 +52,7 @@ func (c *UnitSystemProcesses) InternalUnitStop() {
 func (c *UnitSystemProcesses) Tick() {
 	c.Started = true
 	logger.Println("UNIT <Processes Windows> started:", c.Id())
+	c.SetStringForAll("", uom.STARTED)
 
 	dtOperationTime := time.Now().UTC()
 
@@ -103,8 +100,6 @@ func (c *UnitSystemProcesses) Tick() {
 
 		dtOperationTime = time.Now().UTC()
 	}
-
-	c.SetString("Count", "", uom.STOPPED)
 
 	logger.Println("UNIT <Processes Windows> stopped:", c.Id())
 	c.Started = false

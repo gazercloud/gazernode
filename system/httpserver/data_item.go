@@ -7,6 +7,7 @@ import (
 	"github.com/gazercloud/gazernode/system/history"
 	"github.com/gazercloud/gazernode/system/protocols/nodeinterface"
 	"github.com/gazercloud/gazernode/utilities/logger"
+	"github.com/gazercloud/gazernode/utilities/uom"
 	"math"
 	"strconv"
 	"strings"
@@ -239,7 +240,7 @@ func (c *HttpServer) DataItemHistoryChart(request []byte) (response []byte, err 
 					currentValueRange.LastValue = 0
 				}
 
-				if r.UOM != "error" && r.UOM != "stopped" && r.UOM != "started" {
+				if r.UOM != uom.ERROR && r.UOM != uom.STARTED && r.UOM != uom.STOPPED {
 					valueAsString := strings.Trim(r.Value, " \r\n\t")
 					valueAsFloat, err := strconv.ParseFloat(valueAsString, 64)
 

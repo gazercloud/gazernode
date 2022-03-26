@@ -121,7 +121,7 @@ func (c *UnitPing) InternalUnitStart() error {
 
 	c.SetString(ItemNameAddress, c.addr, "-")
 	//c.SetString(ItemNameTime, "", "")
-	c.SetString(ItemNameIP, "", "-")
+	//c.SetString(ItemNameIP, "", "-")
 	c.SetInt(ItemNameDataSize, c.frameSize, uom.BYTES)
 
 	c.SetPropertyIfDoesntExist(ItemNameAddress, "color", "#AA0000")

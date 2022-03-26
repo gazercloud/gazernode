@@ -39,6 +39,31 @@ func (c *System) SetItemByName(name string, value string, UOM string, dt time.Ti
 	return c.SetItem(item.Id, itemValue, 0, external)
 }
 
+func (c *System) SetAllItemsByUnitName(unitName string, value string, UOM string, dt time.Time, external bool) error {
+	items := make([]*common_interfaces.Item, 0)
+	if unitName == "" {
+		return nil
+	}
+
+	c.mtx.Lock()
+	for _, i := range c.items {
+		if strings.HasPrefix(i.Name, unitName+"/") {
+			items = append(items, i)
+		}
+	}
+	c.mtx.Unlock()
+
+	for _, i := range items {
+		var itemValue common_interfaces.ItemValue
+		itemValue.Value = value
+		itemValue.DT = dt.UnixNano() / 1000
+		itemValue.UOM = UOM
+		c.SetItem(i.Id, itemValue, 0, external)
+	}
+
+	return nil
+}
+
 func (c *System) SetItem(itemId uint64, value common_interfaces.ItemValue, counter int, external bool) error {
 	var item *common_interfaces.Item
 	var watchersUnits []string

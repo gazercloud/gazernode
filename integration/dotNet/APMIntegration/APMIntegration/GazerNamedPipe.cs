@@ -39,7 +39,7 @@ namespace APMIntegration
                     stream_ = null;
                     //GC.Collect();
                 }
-                //Console.WriteLine("GazerPipe Error: {0}", ex);
+                Console.WriteLine("GazerPipe Error: {0}", ex);
             }
         }
 
