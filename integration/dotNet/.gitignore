@@ -1,4 +1,4 @@
-.vs/*
-obj/*
-Debug/*
+**/.vs
+**/obj
+**/Debug
 
