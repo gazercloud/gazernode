@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/utilities/logger"
-	"strings"
 	"syscall"
 	"time"
 	"unsafe"
@@ -42,12 +41,12 @@ func (c *UnitSystemProcesses) InternalUnitStart() error {
 		return err
 	}
 
-	c.processName = config.ProcessName
+	/*c.processName = config.ProcessName
 	if c.processName == "" {
 		err = errors.New("wrong address")
 		c.SetString("Common/ProcessID", err.Error(), "error")
 		return err
-	}
+	}*/
 
 	c.periodMs = int(config.Period)
 	if c.periodMs < 100 {
@@ -88,7 +87,7 @@ func (c *UnitSystemProcesses) Tick() {
 			break
 		}
 
-		if processId < 0 {
+		/*if processId < 0 {
 			processes, err := processes()
 			if err == nil {
 				for _, proc := range processes {
@@ -97,7 +96,7 @@ func (c *UnitSystemProcesses) Tick() {
 					}
 				}
 			}
-		}
+		}*/
 
 		var rusage syscall.Rusage
 		err := syscall.Getrusage(syscall.RUSAGE_SELF, &rusage)

@@ -24,7 +24,6 @@ import (
 	"github.com/gazercloud/gazernode/system/units/raspberry_pi/unit_raspberry_pi_gpio"
 	unit_serial_port_key_value "github.com/gazercloud/gazernode/system/units/serial_port/serial_port_key_value"
 	"github.com/gazercloud/gazernode/system/units/units_common"
-	unit_system_named_pipe_server "github.com/gazercloud/gazernode/system/units/windows/unit_named_pipe_server"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_network"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_process"
 	"github.com/gazercloud/gazernode/system/units/windows/unit_processes"
@@ -107,9 +106,9 @@ func New(iDataStorage common_interfaces.IDataStorage) *UnitsSystem {
 	unitType.Help = "https://gazer.cloud/unit-types/computer/storage/"
 	unitType = c.RegisterUnit("computer_network", "computer", "Network", unit_network.New, unit_network.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/computer/network/"
-	unitType = c.RegisterUnit("computer_named_pipe_server", "computer", "Named Pipe Server", unit_system_named_pipe_server.New, unit_system_named_pipe_server.Image, "")
+	/*unitType = c.RegisterUnit("computer_named_pipe_server", "computer", "Named Pipe Server", unit_system_named_pipe_server.New, unit_system_named_pipe_server.Image, "")
 	unitType.Help = "https://gazer.cloud/unit-types/computer/memory/"
-
+	*/
 	//unitType = c.RegisterUnit("computer_network_interface", "computer", "Network Interface", unit_network_interface.New, unit_network_interface.Image, "")
 	//unitType.Help = "https://gazer.cloud/unit-types/computer/network-interface/"
 

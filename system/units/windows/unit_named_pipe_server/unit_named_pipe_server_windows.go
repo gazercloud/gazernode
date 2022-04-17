@@ -3,7 +3,6 @@ package unit_system_named_pipe_server
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Microsoft/go-winio"
 	"github.com/gazercloud/gazernode/common_interfaces"
 	"github.com/gazercloud/gazernode/resources"
 	"github.com/gazercloud/gazernode/system/units/units_common"
