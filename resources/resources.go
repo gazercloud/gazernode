@@ -2,7 +2,7 @@ package resources
 
 import (
 	"bytes"
-	"github.com/gazercloud/gazerui/canvas"
+	//"github.com/gazercloud/gazerui/canvas"
 	"golang.org/x/image/colornames"
 	"image"
 	"image/color"
@@ -32,7 +32,7 @@ func ImageFromBin(data []byte) image.Image {
 func ImageFromBinAdjusted(data []byte, col color.Color) image.Image {
 	img, err := png.Decode(bytes.NewBuffer(data))
 	if err == nil {
-		img = canvas.AdjustImageForColor(img, img.Bounds().Max.X, img.Bounds().Max.Y, col)
+		//img = canvas.AdjustImageForColor(img, img.Bounds().Max.X, img.Bounds().Max.Y, col)
 	} else {
 		img = blankImage
 
@@ -50,7 +50,7 @@ func ResBin(resName string) []byte {
 func ResImgCol(data []byte, col color.Color) image.Image {
 	img, err := png.Decode(bytes.NewBuffer(data))
 	if err == nil {
-		img = canvas.AdjustImageForColor(img, img.Bounds().Max.X, img.Bounds().Max.Y, col)
+		//img = canvas.AdjustImageForColor(img, img.Bounds().Max.X, img.Bounds().Max.Y, col)
 	} else {
 		img = blankImage
 

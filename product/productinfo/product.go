@@ -3,7 +3,7 @@ package productinfo
 import (
 	"bytes"
 	"github.com/gazercloud/gazernode/resources"
-	"github.com/gazercloud/gazerui/canvas"
+	//"github.com/gazercloud/gazerui/canvas"
 	"image"
 )
 
@@ -20,8 +20,8 @@ func BuildTime() string {
 }
 
 func Icon() image.Image {
-	img, _ := canvas.Decode(bytes.NewBuffer(resources.R_files_favicon_ico))
-	return img
+	//img, _ := canvas.Decode(bytes.NewBuffer(resources.R_files_favicon_ico))
+	return nil
 }
 
 func Icon64() image.Image {
